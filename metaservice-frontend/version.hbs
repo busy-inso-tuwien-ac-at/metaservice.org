@@ -1,0 +1,28 @@
+<ol class="breadcrumb">
+    <li><a href="/d/packages/debian/">Debian Binary Packages</a></li>
+    <li><a href="/d/packages/debian/{{title}}">{{title}}</a></li>
+    <li class="active"><a href="/d/packages/debian/{{title}}/{{version}}">{{version}}</a></li>
+</ol>
+<button type="button"  class="refresh btn btn-default pull-right "><i class="fa fa-refresh"></i> Request Refresh</button>
+<h1>{{title}}</h1>
+<div class="row">
+    <div class="col-md-8">
+        <ul>
+            {{#eachArray package}}<li> <a href="/d/packages/debian/{{../title}}/{{../version}}/{{arch}}">{{arch}}</a></li>{{/eachArray}}
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+
+            <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
+            <table class="table">
+                <tr><th>Previous</th><td><a href="/d/packages/debian/{{title}}/{{prev.version}}">{{prev.version}}</a></td>
+                <tr><th>Next</th><td><a href="/d/packages/debian/{{title}}/{{next.version}}">{{next.version}}</a></td>
+                <tr><th>Project</th><td><a href="/d/packages/debian/{{title}}">{{title}}</a></td>
+                <tr><th>Repository</th><td></td>
+            </table>
+        </div>
+
+    </div>
+
+</div>

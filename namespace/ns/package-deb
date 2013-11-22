@@ -1,0 +1,73 @@
+<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+        xmlns:owl="http://www.w3.org/2002/07/owl#"
+        xmlns:dc="http://purl.org/dc/"
+        xmlns:foaf="http://xmlns.com/foaf/spec/" xmlns:oql="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://metaservice.org/ns/package-deb#">
+        <dc:title>Debian deb information</dc:title>
+        <dc:description>TODO</dc:description>
+        <dc:description xml:lang="de">TODO</dc:description>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:format>application/rdf+xml</dc:format>
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <foaf:maker>
+            <foaf:Person>
+                <foaf:name>Nikola Ilo</foaf:name>
+                <foaf:mbox rdf:resource="mailto:nikola.ilo@gmail.com"/>
+            </foaf:Person>
+        </foaf:maker>
+    </owl:Ontology>
+
+    <rdfs:Class rdf:about="http://metaservice.org/ns/package-deb#Maintainer">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:subClassOf rdf:resource="foaf:Agent"/>
+    </rdfs:Class>
+
+
+    <rdfs:Class rdf:about="http://metaservice.org/ns/package-deb#Package">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+    </rdfs:Class>
+    <owl:ObjectProperty rdf:ID="description">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="architecture">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="homepage">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="version">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="md5sum">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.spdx.org/rdf/terms#checksum"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="sha1sum">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.spdx.org/rdf/terms#checksum"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="sha1sum">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.spdx.org/rdf/terms#checksum"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="filename">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:ObjectProperty>
+    <oql:ObjectProperty rdf:ID="maintainer">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+        <rdfs:range rdf:resource="http://metaservice.org/ns/package-deb#Maintainer"/>
+    </oql:ObjectProperty>
+
+
+
+</rdf:RDF>

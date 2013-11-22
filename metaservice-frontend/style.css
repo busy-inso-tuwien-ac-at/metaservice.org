@@ -1,0 +1,7 @@
+.modal-vertical-centered  .modal-dialog {
+  /*  transform: translate(0, 50%) !important;
+    -ms-transform: translate(0, 50%) !important;
+    -webkit-transform: translate(0, 50%) !important; */
+    margin-top: 20% !important;
+
+}

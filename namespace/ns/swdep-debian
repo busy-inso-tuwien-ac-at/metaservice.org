@@ -1,0 +1,286 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY dc "http://purl.org/dc/" >
+    <!ENTITY admssw "http://purl.org/adms/sw/" >
+    <!ENTITY foaf "http://xmlns.com/foaf/spec/" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY swdep-debian "http://metaservice.org/ns/swdep-debian#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://metaservice.org/ns/swdep-debian"
+     xml:base="http://metaservice.org/ns/swdep-debian"
+     xmlns:dc="http://purl.org/dc/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:foaf="http://xmlns.com/foaf/spec/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:swdep-debian="http://metaservice.org/ns/swdep-debian#"
+     xmlns:admssw="http://purl.org/adms/sw/">
+    <owl:Ontology rdf:about="http://metaservice.org/ns/swdep-debian">
+        <dc:title>Debian subclasses for metaservice.org vocabbulary for swdep metadata</dc:title>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:format>application/rdf+xml</dc:format>
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <dc:description>TODO</dc:description>
+        <dc:description xml:lang="de">TODO</dc:description>
+        <owl:imports rdf:resource="http://metaservice.org/ns/swdep"/>
+        <owl:versionIRI rdf:resource="http://metaservice.org/ns/swdep-debian/0.1"/>
+        <owl:imports rdf:resource="http://purl.org/dc/terms/"/>
+
+        <owl:imports rdf:resource="http://www.w3.org/ns/adms"/>
+        <owl:imports rdf:resource="http://www.w3.org/ns/radion#"/>
+        <owl:imports rdf:resource="http://purl.org/adms/sw/"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#dependOn -->
+
+    <owl:AnnotationProperty rdf:about="&swdep-debian;dependOn">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/swdep-metaservice#Dependency_Relation"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#depending -->
+
+    <owl:AnnotationProperty rdf:about="&swdep-debian;depending">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/swdep-metaservice#Dependency_Relation"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#distributionVersion -->
+
+    <owl:DatatypeProperty rdf:about="&swdep-debian;distributionVersion"/>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#endVersionExclusive -->
+
+    <owl:DatatypeProperty rdf:about="&swdep-debian;endVersionExclusive">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/ns/radion#version"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#endVersionInclusive -->
+
+    <owl:DatatypeProperty rdf:about="&swdep-debian;endVersionInclusive">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/ns/radion#version"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#startVersionExclusive -->
+
+    <owl:DatatypeProperty rdf:about="&swdep-debian;startVersionExclusive">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/ns/radion#version"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#startVersionInclusive -->
+
+    <owl:DatatypeProperty rdf:about="&swdep-debian;startVersionInclusive">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/ns/radion#version"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebArchive -->
+
+    <owl:Class rdf:about="&swdep-debian;DebArchive">
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwarePackage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebSourceArchive -->
+
+    <owl:Class rdf:about="&swdep-debian;DebSourceArchive">
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwarePackage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianBreaks_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianBreaks_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#IncompatibleWith_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianBuildConflictDependency_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianBuildConflictDependency_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#Dependency_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianBuildConflictIndepDependency_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianBuildConflictIndepDependency_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#Dependency_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianBuildDependsDependency_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianBuildDependsDependency_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#Dependency_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianBuildIndepDependsDependency_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianBuildIndepDependsDependency_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#Dependency_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianConflict_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianConflict_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#IncompatibleWith_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianDependsDependency_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianDependsDependency_Relation">
+        <rdfs:label xml:lang="en">DebianRequiresDependency_Relation</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#RuntimeDependency_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianRecommendsDependency_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianRecommendsDependency_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#OptionalDependency_Relation"/>
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#RuntimeDependency_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianRepository -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianRepository">
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareRepository"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianSuggestsDependency_Relation -->
+
+    <owl:Class rdf:about="&swdep-debian;DebianSuggestsDependency_Relation">
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#OptionalDependency_Relation"/>
+        <rdfs:subClassOf rdf:resource="http://metaservice.org/ns/swdep#RuntimeDependency_Relation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#VersionRange -->
+
+    <owl:Class rdf:about="&swdep-debian;VersionRange">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.w3.org/ns/radion#version"/>
+                <owl:someValuesFrom rdf:resource="&xsd;anyURI"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwarePackage -->
+
+    <owl:Class rdf:about="&admssw;SoftwarePackage"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#ApacheHttpProject -->
+
+    <owl:NamedIndividual rdf:about="&swdep-debian;ApacheHttpProject">
+        <rdf:type rdf:resource="&admssw;SoftwareProject"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#DebianWheezyRepo -->
+
+    <owl:NamedIndividual rdf:about="&swdep-debian;DebianWheezyRepo">
+        <rdf:type rdf:resource="&swdep-debian;DebianRepository"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://metaservice.org/ns/swdep-debian#apache22.deb -->
+
+    <owl:NamedIndividual rdf:about="&swdep-debian;apache22.deb">
+        <rdf:type rdf:resource="&swdep-debian;DebArchive"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
+

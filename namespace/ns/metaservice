@@ -1,0 +1,75 @@
+<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+        xmlns:owl="http://www.w3.org/2002/07/owl#"
+        xmlns:dc="http://purl.org/dc/"
+        xmlns:foaf="http://xmlns.com/foaf/spec/">
+    <owl:Ontology rdf:about="http://metaservice.org/ns/metaservice#">
+        <owl:imports rdf:resource="http://metaservice.org/ns/swdep"/>
+        <dc:title>metaservice.org metadata</dc:title>
+        <dc:description>TODO</dc:description>
+        <dc:description xml:lang="de">TODO</dc:description>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:format>application/rdf+xml</dc:format>
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <foaf:maker>
+            <foaf:Person>
+                <foaf:name>Nikola Ilo</foaf:name>
+                <foaf:mbox rdf:resource="mailto:nikola.ilo@gmail.com"/>
+            </foaf:Person>
+        </foaf:maker>
+    </owl:Ontology>
+    <rdfs:Class rdf:about="http://metaservice.org/ns/metaservice#Override_Relation">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:label xml:lang="en">Override</rdfs:label>
+        <rdfs:comment xml:lang="en">An override of one piece of content with another.</rdfs:comment>
+    </rdfs:Class>
+    <owl:ObjectProperty rdf:ID="override">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#Override_Relation"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="overrideWith">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#Override_Relation"/>
+    </owl:ObjectProperty>
+
+
+    <rdfs:Class rdf:about="http://metaservice.org/ns/metaservice#MetaDataSource_Relation">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:label xml:lang="en">Override</rdfs:label>
+        <rdfs:comment xml:lang="en">An override of one piece of content with another.</rdfs:comment>
+    </rdfs:Class>
+    <owl:ObjectProperty rdf:ID="retrievedAt">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#MetaDataSource_Relation"/>
+        <rdfs:range rdf:resource="time:Instant"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="retrievedBy">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#MetaDataSource_Relation"/>
+        <rdfs:range rdf:resource="http://metaservice.org/ns/metaservice#CrawlerInstance"/>
+    </owl:ObjectProperty>
+
+    <rdfs:Class rdf:about="http://metaservice.org/ns/metaservice#CrawlerInstance">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:label xml:lang="en">CrawlerInstance</rdfs:label>
+        <rdfs:comment xml:lang="en">TODO</rdfs:comment>
+    </rdfs:Class>
+    <owl:ObjectProperty rdf:ID="id">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#CrawlerInstance"/>
+        <rdfs:range rdf:resource="xsd:string"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="startTime">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#CrawlerInstance"/>
+        <rdfs:range rdf:resource="time:Instant"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="endTime">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#CrawlerInstance"/>
+        <rdfs:range rdf:resource="time:Instant"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="software">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#CrawlerInstance"/>
+        <rdfs:range rdf:resource="admssw:FOOLONG"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="job">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/metaservice#CrawlerInstance"/>
+        <rdfs:range rdf:resource="http://metaservice.org/ns/metaservice#Job"/>
+    </owl:ObjectProperty>
+
+</rdf:RDF>
