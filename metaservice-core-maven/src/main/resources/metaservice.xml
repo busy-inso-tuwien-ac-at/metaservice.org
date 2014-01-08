@@ -1,0 +1,31 @@
+<metaservice>
+    <provider
+            id="mavenPomProvider"
+            type="maven"
+            model="org.apache.maven.model.Model"
+            class="org.metaservice.core.maven.MavenProvider"
+            />
+
+    <parser
+        id="pomParser"
+        type="maven"
+        model="org.apache.maven.model.Model"
+        class="org.metaservice.core.maven.MavenPomParser"/>
+
+    <repository
+            id="maven_central"
+            type="maven"
+            baseuri="http://mirrors.ibiblio.org/maven2/"
+            starturi="http://mirrors.ibiblio.org/maven2/org/apache/activemq/"
+            crawler="maven"
+            archiveClass="org.metaservice.core.archive.GitArchive"
+            >
+    </repository>
+
+    <crawler id="maven"
+             archiveClass="org.metaservice.core.archive.GitArchive">
+        <follow endsWith="/" recursive="true">
+            <fetch endsWith=".pom" />
+        </follow>
+    </crawler>
+</metaservice>

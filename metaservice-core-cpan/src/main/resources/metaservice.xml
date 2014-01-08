@@ -1,0 +1,21 @@
+<metaservice>
+    <provider
+            class="org.metaservice.core.deb.DebianPackageProvider"
+            archiveClass="org.metaservice.core.deb.DebianGitArchive" />
+    <postprocessor
+            class="org.metaservice.core.deb.DebianVersionReasoner"/>
+
+
+    <repository
+            name="cpan"
+            starturi="http://cpan.inode.at/modules/01modules.index.html"
+            crawler="cpan"
+            />
+
+    <crawler id="cpan">
+        <follow endsWith="/">
+            <fetch endsWith=".meta"/>
+        </follow>
+    </crawler>
+
+</metaservice>

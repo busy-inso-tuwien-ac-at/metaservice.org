@@ -1,8 +1,6 @@
 package org.metaservice;
 
 import com.mongodb.*;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.bson.types.ObjectId;
 
 import java.net.UnknownHostException;
 import java.util.Arrays;

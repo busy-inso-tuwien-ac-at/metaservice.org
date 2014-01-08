@@ -5,8 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.metaservice.core.deb.utils.GitUtil;
-import org.metaservice.core.deb.utils.MetaserviceHttpClient;
+import org.metaservice.core.utils.GitUtil;
+import org.metaservice.core.utils.MetaserviceHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import java.util.zip.GZIPInputStream;
 public class GitCache {
     private static Logger LOGGER = LoggerFactory.getLogger(GitCache.class);
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, GitUtil.GitException {
         if(args.length == 0 || "debian".equals(args[0])){
             startString =  "http://snapshot.debian.org/archive/debian/20050312T000000Z/dists/";
             workdir = new File("/opt/crawlertest/data/");
@@ -47,14 +47,14 @@ public class GitCache {
             LOGGER.error("NOT FOUND " +args[0]);
             return;
         }
-        if(workdir.exists())             {
+       /* if(workdir.exists())             {
             LOGGER.error("WORKDIR {} EXISTS",workdir);
             return;
         }
         if(!dryRun) {
             workdir.mkdirs();
 
-        }
+        } */
         GitCache git = new GitCache();
         git.runDiscovery();
         git.createDirectory();
@@ -73,21 +73,26 @@ public class GitCache {
 
     private GitUtil gitUtil;
 
-    public GitCache() throws IOException, InterruptedException {
+    public GitCache() throws  GitUtil.GitException {
         if(!dryRun)
             gitUtil= new GitUtil(workdir);
     }
 
-    private void createDirectory() throws IOException, InterruptedException {
+    private void createDirectory() throws IOException, InterruptedException, GitUtil.GitException {
         int gcCounter = 0;
-        if(!dryRun)
+       /* if(!dryRun)
             gitUtil.initRepository();
-
+         */
         for(long time : getAccessOrder()){
+            if(time <= 20110505052259l)
+                continue;
 
             LOGGER.info("time: {}",toTimeString(time));
             for(String uri : processingMap.get(time) )
             {
+                if(uri.startsWith("http://snapshot.debian.org/archive/debian/20110505T101429Z"))
+                    continue;
+
                 File f = getResultPath(uri);
                 f.getParentFile().mkdirs();
                 f.delete();
@@ -144,9 +149,9 @@ public class GitCache {
 
     int i= 0;
     public void runDiscovery(){
-        HashSet<String> parsed = new HashSet<String>();
-        LinkedList<String> toParse = new LinkedList<String>();
-        HashSet<String> dists = new HashSet<String>();
+        HashSet<String> parsed = new HashSet<>();
+        LinkedList<String> toParse = new LinkedList<>();
+        HashSet<String> dists = new HashSet<>();
         toParse.add(startString);
         while(toParse.size() >0){
             String uri =  toParse.pop();
@@ -220,7 +225,7 @@ public class GitCache {
 
 
     @NotNull
-    HashMap<Long,Set<String>> processingMap = new HashMap<Long, Set<String>>();
+    HashMap<Long,Set<String>> processingMap = new HashMap<>();
     private void processFileToParse(@NotNull String href) {
         long timeConstant =getTimeConstant(href);
         if(!processingMap.containsKey(timeConstant)){
@@ -231,7 +236,7 @@ public class GitCache {
 
     @NotNull
     private List<Long> getAccessOrder(){
-        ArrayList<Long> list = new ArrayList<Long>();
+        ArrayList<Long> list = new ArrayList<>();
         list.addAll(processingMap.keySet());
         Collections.sort(list);
         return list;

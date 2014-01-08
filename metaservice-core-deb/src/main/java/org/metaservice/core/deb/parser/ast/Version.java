@@ -19,9 +19,9 @@ public class Version extends SuperNode {
     @NotNull
     @Override
     public String toString() {
-        boolean needParanthesis = (relation != null);
+        boolean needParenthesis = (relation != null);
         if(epoch!=null || upstreamVersion!= null ||debversion!= null)
-            return (needParanthesis?"(":"") + ((relation!= null)? relation + " ":"")+ ((epoch != null)?epoch + ':':"") + upstreamVersion + ((debversion!=null)?'-'+ debversion :"") +((needParanthesis)?')':"");
+            return (needParenthesis?"(":"") + ((relation!= null)? relation + " ":"")+ ((epoch != null)?epoch + ':':"") + upstreamVersion + ((debversion!=null)?'-'+ debversion :"") +((needParenthesis)?')':"");
         else
             return "";
     }

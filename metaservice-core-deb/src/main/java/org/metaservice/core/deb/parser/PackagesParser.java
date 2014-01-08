@@ -1,9 +1,12 @@
 package org.metaservice.core.deb.parser;
 
-import org.metaservice.core.deb.parser.ast.*;
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.core.deb.parser.ast.*;
 import org.metaservice.core.deb.parser.ast.Package;
-import org.parboiled.*;
+import org.parboiled.Action;
+import org.parboiled.BaseParser;
+import org.parboiled.Context;
+import org.parboiled.Rule;
 import org.parboiled.annotations.BuildParseTree;
 import org.parboiled.annotations.SuppressNode;
 import org.parboiled.annotations.SuppressSubnodes;
@@ -31,7 +34,7 @@ public class PackagesParser extends BaseParser<Object> {
         }
 
         Rule Package(){
-            Var<SuperNode> node = new Var<SuperNode>();
+            Var<SuperNode> node = new Var<>();
             return Sequence(
                     push(new Package()),  //PUSH PACKAGE
                     OneOrMore(

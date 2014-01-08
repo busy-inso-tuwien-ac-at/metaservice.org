@@ -64,11 +64,11 @@ public class DebianPackage {
 
     public static class DebianDependencyRelation{
         @NotNull
-        List<List<DebianPackageIdentifier>> list = new LinkedList<List<DebianPackageIdentifier>>();
+        List<List<DebianPackageIdentifier>> list = new LinkedList<>();
 
         @Override
         public String toString() {
-            List<String> disjunctions = new LinkedList<String>();
+            List<String> disjunctions = new LinkedList<>();
             for(List<DebianPackageIdentifier> disjunction : list ){
                 disjunctions.add(StringUtil.join(disjunction," | "));
             }

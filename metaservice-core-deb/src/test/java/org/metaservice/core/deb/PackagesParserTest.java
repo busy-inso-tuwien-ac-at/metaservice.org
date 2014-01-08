@@ -4,7 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.metaservice.core.deb.parser.PackagesParser;
-import org.metaservice.core.deb.utils.MetaserviceHttpClient;
+import org.metaservice.core.utils.MetaserviceHttpClient;
 import org.parboiled.Parboiled;
 import org.parboiled.errors.ErrorUtils;
 import org.parboiled.errors.ParseError;

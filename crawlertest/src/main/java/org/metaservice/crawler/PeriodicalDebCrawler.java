@@ -3,8 +3,8 @@ package org.metaservice.crawler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.metaservice.core.deb.utils.GitUtil;
-import org.metaservice.core.deb.utils.MetaserviceHttpClient;
+import org.metaservice.core.utils.GitUtil;
+import org.metaservice.core.utils.MetaserviceHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +24,9 @@ public class PeriodicalDebCrawler {
     MetaserviceHttpClient metaserviceHttpClient = new MetaserviceHttpClient();
 
     private void run(String startString,String [] licenses) {
-        HashSet<String> parsed = new HashSet<String>();
-        LinkedList<String> toParse = new LinkedList<String>();
-        HashSet<String> dists = new HashSet<String>();
+        HashSet<String> parsed = new HashSet<>();
+        LinkedList<String> toParse = new LinkedList<>();
+        HashSet<String> dists = new HashSet<>();
         toParse.add(startString);
         while(toParse.size() >0){
             String uri =  toParse.pop();
@@ -88,8 +88,7 @@ public class PeriodicalDebCrawler {
             } catch (RuntimeException exception){
                 LOGGER.error("RUNTIME EXCEPTION ",exception);
                 throw exception;
-            }
-        }
+            }                                            }
     }
 
     private int i =0;

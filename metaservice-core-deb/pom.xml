@@ -3,11 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-    <modules>
-        <module>../metaservice-core-deb-refresher</module>
-    </modules>
-
     <parent>
         <artifactId>metaservice-parent</artifactId>
         <groupId>org.metaservice</groupId>
@@ -15,9 +10,10 @@
         <relativePath>../metaservice-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.metaservice</groupId>
     <artifactId>metaservice-core-deb</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.metaservice</groupId>
@@ -29,22 +25,7 @@
             <artifactId>metaservice-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongodb.version}</version>
-        </dependency>
-        <dependency>
-            <!-- jsoup HTML parser library @ http://jsoup.org/ -->
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>fluent-hc</artifactId>
-            <version>4.3.1</version>
-        </dependency>
+
         <dependency>
             <groupId>org.parboiled</groupId>
             <artifactId>parboiled-java</artifactId>

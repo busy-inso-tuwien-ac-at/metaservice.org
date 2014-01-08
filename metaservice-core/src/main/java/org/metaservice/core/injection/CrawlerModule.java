@@ -1,0 +1,65 @@
+package org.metaservice.core.injection;
+
+import com.google.inject.AbstractModule;
+import org.metaservice.api.archive.Archive;
+import org.metaservice.api.archive.ArchiveException;
+import org.metaservice.api.archive.ArchiveParameters;
+import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.archive.ArchiveParametersImpl;
+import org.metaservice.core.archive.GitArchive;
+import org.metaservice.core.crawler.Crawler;
+import org.metaservice.core.crawler.CrawlerParameters;
+import org.metaservice.core.crawler.CrawlerProvider;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+
+/**
+ * Created by ilo on 06.01.14.
+ */
+public class CrawlerModule extends AbstractModule{
+    private final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor;
+    private final MetaserviceDescriptor.CrawlerDescriptor crawlerDescriptor;
+
+    public CrawlerModule(MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor, MetaserviceDescriptor.CrawlerDescriptor crawlerDescriptor) {
+        this.repositoryDescriptor = repositoryDescriptor;
+        this.crawlerDescriptor = crawlerDescriptor;
+    }
+
+    @Override
+    protected void configure() {
+        try {
+
+            ArchiveParameters archiveParameters = new ArchiveParametersImpl(
+                    repositoryDescriptor.getBaseUri(),
+                    new File("/opt/metaservice_data/" + repositoryDescriptor.getId()) //todo retrieve from cmdb?
+            );
+            final Class<? extends Archive> archiveClazz =
+                    (Class<? extends Archive>) Class.forName(crawlerDescriptor.getArchiveClassName());
+            Archive archive = archiveClazz.getConstructor(ArchiveParameters.class).newInstance(archiveParameters);
+            bind(Archive.class).toInstance(archive);
+
+
+            CrawlerParameters parameters = new CrawlerParameters();
+            parameters.setName(repositoryDescriptor.getCrawler());
+            parameters.setStarturi(repositoryDescriptor.getStartUri());
+            parameters.setArchive(archive);
+            bind(CrawlerParameters.class).toInstance(parameters);
+            bind(Crawler.class).toProvider(CrawlerProvider.class);
+        }catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            if(e.getTargetException() instanceof ArchiveException){
+                ArchiveException e2 = (ArchiveException) e.getTargetException();
+                e.printStackTrace();
+            }
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+    }
+}

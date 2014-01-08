@@ -4,16 +4,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.metaservice.core.ProductionConfig;
-import org.metaservice.core.deb.parser.PackagesParser;
-import org.metaservice.core.deb.parser.ast.SuperNode;
-import org.metaservice.core.deb.utils.GitUtil;
-import org.metaservice.core.rdf.BufferedSparql;
-import org.openrdf.query.MalformedQueryException;
+import org.metaservice.api.parser.Parser;
+import org.metaservice.api.provider.Provider;
+import org.metaservice.core.deb.parser.ast.Package;
+import org.metaservice.core.utils.GitUtil;
 import org.openrdf.repository.RepositoryException;
-import org.parboiled.Parboiled;
-import org.parboiled.parserunners.BasicParseRunner;
-import org.parboiled.support.ParsingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +34,10 @@ public class GitCacheReader {
     @NotNull
     private final ArrayBlockingQueue<Task> queue;
     @NotNull
-    ArrayList<Thread> threads = new ArrayList<Thread>();
+    ArrayList<Thread> threads = new ArrayList<>();
 
 
-    public static void main(String[] args) throws IOException, InterruptedException, RepositoryException {
+    public static void main(String[] args) throws IOException, InterruptedException, RepositoryException, GitUtil.GitException {
         boolean  continueRun;
         if(args.length > 0 && "continue".equals(args[0])){
             continueRun = true;
@@ -57,15 +52,15 @@ public class GitCacheReader {
 
     private final boolean continueRun;
 
-    public GitCacheReader(boolean continueRun) throws RepositoryException, IOException, InterruptedException {
+    public GitCacheReader(boolean continueRun) throws RepositoryException, IOException, InterruptedException, GitUtil.GitException {
         this.continueRun = continueRun;
-        queue = new ArrayBlockingQueue<Task>(3);
+        queue = new ArrayBlockingQueue<>(3);
         gitUtil = new GitUtil(workdir);
 
 
     }
 
-    private void run() throws IOException, InterruptedException, RepositoryException {
+    private void run() throws GitUtil.GitException, RepositoryException, InterruptedException, IOException {
         for(int i = 0; i< 2;i++){
             Thread thread = new ParserThread();
             thread.start();
@@ -88,27 +83,23 @@ public class GitCacheReader {
         }
     }
 
-    private void parseChangedFilesIncremental(final String currentRevision,final String time) throws RepositoryException, IOException, InterruptedException {
+    private void parseChangedFilesIncremental(final String currentRevision,final String time) throws RepositoryException, IOException, InterruptedException, GitUtil.GitException {
         ExecutorService es = Executors.newFixedThreadPool(3);
 
-        for(final File f: gitUtil.getChangedFiles()){
+        for(final File f: gitUtil.getChangedFilesInHead()){
 
             if("Packages".equals(f.getName())){
                 es.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            GitUtil.Line[] changes = gitUtil.getChangeList(f.getPath());
+                            GitUtil.Line[] changes = gitUtil.getChangeListInHead(f.getPath());
                             String[] packageAreas = extractFullPackages(changes);
                             String s =  StringUtils.join(packageAreas, "\n");
                             LOGGER.debug("Parsing: {}", s);
                             parseString(currentRevision, f.getAbsolutePath().replaceFirst(workdir.getAbsolutePath(), ""),s,"http://ftp.debian.org/debian/",time);
-                        } catch (RepositoryException e) {
-                            LOGGER.error("RepositoryException",e);
-                        } catch (InterruptedException e) {
-                            LOGGER.error("INterruptedException",e);
-                        } catch (IOException e) {
-                            LOGGER.error("IOException",e);
+                        } catch (RepositoryException | GitUtil.GitException  | InterruptedException e) {
+                            LOGGER.error("Exception processing " +f.getAbsolutePath(),e);
                         }
                     }
                 });
@@ -119,8 +110,8 @@ public class GitCacheReader {
     }
 
     public static String[] extractFullPackages(@NotNull GitUtil.Line[] changes) {
-        ArrayList<String> result = new ArrayList<String>();
-        ArrayList<GitUtil.Line> cleaned = new ArrayList<GitUtil.Line>();
+        ArrayList<String> result = new ArrayList<>();
+        ArrayList<GitUtil.Line> cleaned = new ArrayList<>();
         for(int i = 0; i < changes.length;i++){
             if(changes[i].changeType != GitUtil.Line.ChangeType.OLD){
                 cleaned.add(changes[i]);
@@ -138,7 +129,7 @@ public class GitCacheReader {
                 case UNCHANGED:
                     break;
                 case NEW:
-                    //from Packagestart to here set unchagne to new
+                    //from Packagestart to here set unchanged to new
                     for(int j = packageStart; j < i;j++){
                         if(changes[j].changeType == GitUtil.Line.ChangeType.UNCHANGED)
                             changes[j].changeType = GitUtil.Line.ChangeType.NEW;
@@ -214,18 +205,22 @@ public class GitCacheReader {
         @Override
         public void run() {
             try {
-                DebianPackageProvider provider  = new DebianPackageProvider(new BufferedSparql(new ProductionConfig()),null);
+                Parser<Package> parser = new ParboiledDebParser();
+                Provider<Package> provider  =null;/*TODO new DebianPackageProvider(
+                        new BufferedSparql(new ProductionConfig()),
+                        null,
+                        parser,
+                        null);                 */
                 try{
 
                     while(true){
-                        PackagesParser parser =Parboiled.createParser(PackagesParser.class);
                         Task t = queue.take();
                         //      System.err.println("WAITING " + running.decrementAndGet());
-                        BasicParseRunner runner = new BasicParseRunner(parser.List());
                         try{
-                        ParsingResult<?> result = runner.run(t.content);
-                        for (SuperNode node : ((SuperNode) result.valueStack.pop()).getChildren()) {
-                            provider.putPackage((org.metaservice.core.deb.parser.ast.Package) node,t.source,t.time,t.path);
+                            List<Package> result = parser.parse(t.content);
+
+                        for (Package node :  result) {
+                         //   provider.create(node/*, t.source, t.time, t.path*/);
                         }
                         }catch (Exception e){
                             try {
@@ -243,9 +238,9 @@ public class GitCacheReader {
                         LOGGER.info("done processing {} {}",t.revision, t.path);
                     }
                 } catch (InterruptedException e) {
-                    provider.flushModel();
+                  //  provider.flushModel();
                 }
-            } catch (RepositoryException | IOException | InterruptedException | MalformedQueryException e) {
+            } catch (Exception e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }

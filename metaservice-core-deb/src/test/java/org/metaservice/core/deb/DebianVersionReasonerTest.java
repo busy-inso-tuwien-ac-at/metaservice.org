@@ -2,7 +2,6 @@ package org.metaservice.core.deb;
 
 import org.hamcrest.number.OrderingComparison;
 import org.junit.Test;
-import org.metaservice.core.deb.DebianVersionComperator;
 
 import java.util.Comparator;
 
@@ -20,7 +19,7 @@ public class DebianVersionReasonerTest {
 
     @Test
     public void testVersion(){
-        Comparator<String> c = DebianVersionComperator.getInstance();
+        Comparator<String> c = DebianVersionComparator.getInstance();
 
         assertEquals(c.compare("", ""), 0);
         assertEquals(c.compare("~", ""), -1);

@@ -1,0 +1,89 @@
+<metaservice>
+    <provider
+            id="debianPackageProvider"
+            type="deb"
+            class="org.metaservice.core.deb.DebianPackageProvider"
+            />
+
+    <parser
+            id="parboiledParser"
+            type="deb"
+            class="org.metaservice.core.deb.ParboiledDebParser"/>
+
+    <postprocessor
+            id="debVersionPostProcessor"
+            class="org.metaservice.core.deb.DebianVersionReasoner"/>
+
+    <repository
+            id="debian_org"
+            type="deb"
+            baseuri="http://ftp.debian.org/debian/dists/"
+            starturi="http://ftp.debian.org/debian/dists/"
+            crawler="debianarchive"
+            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            />
+
+    <repository
+            id="backports_debian_org"
+            type="deb"
+            baseuri="http://ftp.debian.org/debian-backports/dists/"
+            starturi="http://ftp.debian.org/debian-backports/dists/"
+            crawler="debianarchive"
+            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            />
+
+    <repository
+            id="security_debian_org"
+            type="deb"
+            baseuri="http://security.debian.org/dists/"
+            starturi="http://security.debian.org/dists/"
+            crawler="debianarchive"
+            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            />
+
+    <repository
+            id="volatile_debian_org"
+            type="deb"
+            baseuri="http://archive.debian.org/debian-volatile/dists/"
+            starturi="http://archive.debian.org/debian-volatile/dists/"
+            crawler="debianarchive"
+            active="false"
+            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            />
+
+    <repository
+            id="archive_ubuntu_org"
+            type="deb"
+            baseuri="http://archive.ubuntu.com/ubuntu/dists/"
+            starturi="http://archive.ubuntu.com/ubuntu/dists/"
+            crawler="debianarchive"
+            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            />
+
+    <crawler id="debianarchive"
+             archiveClass="org.metaservice.core.deb.DebianGitArchive">
+        <follow endsWith="/"> <!-- Distributions -->
+            <follow endsWith="/" skipable="true">   <!-- volatile, updates , ... -->
+                <follow endsWith="/"> <!-- license -->
+                    <follow endsWith="source/">
+                        <fetch exactly="Sources.gz" unpack="gz" />
+                    </follow>
+                    <follow matches="binary-.*/$">
+                        <fetch exactly="Packages.gz" unpack="gz" />
+                    </follow>
+                </follow>
+            </follow>
+        </follow>
+    </crawler>
+
+    <template
+            name="version.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice-deb#Version"/>
+    <template
+            name="package.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice-deb#Package"/>
+    <template
+            name="project.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice-deb#Project"/>
+
+</metaservice>

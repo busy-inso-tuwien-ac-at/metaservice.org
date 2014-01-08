@@ -2,6 +2,10 @@ package org.metaservice.core;
 
 import org.apache.activemq.ActiveMQConnection;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class ProductionConfig implements Config{
 
     @Override
@@ -12,5 +16,17 @@ public class ProductionConfig implements Config{
     @Override
     public String getJmsBroker() {
         return ActiveMQConnection.DEFAULT_BROKER_URL;
+    }
+
+    @Override
+    public List<String> getArchivesForProvider(String provider) {
+        switch (provider){
+            case "org.metaservice.core.deb.DebianPackageProvider":
+                return Arrays.asList(
+                        "http://ftp.debian.org/debian/",
+                        "http://security.debian.org/"
+                        );
+        }
+        return new ArrayList<>();
     }
 }

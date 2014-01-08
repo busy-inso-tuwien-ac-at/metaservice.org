@@ -1,9 +1,7 @@
 package org.metaservice.api.provider;
 
-import org.openrdf.model.URI;
+import org.openrdf.model.Model;
 
 public interface Provider<T>{
-
-    public void refresh(URI uri);
-    public void create(T o) throws ProviderException;
+    public Model provideModelFor(T o) throws ProviderException;
 }

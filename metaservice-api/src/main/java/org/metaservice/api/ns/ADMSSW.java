@@ -4,13 +4,6 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
-/**
- * Created with IntelliJ IDEA.
- * User: ilo
- * Date: 01.11.13
- * Time: 15:29
- * To change this template use File | Settings | File Templates.
- */
 public class ADMSSW {
     public static final String NAMESPACE = "http://purl.org/adms/sw/";
 
@@ -31,7 +24,7 @@ public class ADMSSW {
     public static final URI INTENDED_AUDIENCE;
     public static final URI LOCALE;
     public static final URI USER_INTERFACE_TYPE;
-    public static final URI PROGRAMMIG_LANGUAGE;
+    public static final URI PROGRAMMING_LANGUAGE;
     public static final URI SUPPORTS_FORMAT;
     public static final URI STATUS;
     public static final URI IDENTIFIER;
@@ -54,7 +47,7 @@ public class ADMSSW {
 
     public static final URI RELEASE_DIMENSION;
     public static final URI PACKAGE_DIMENSION;
-    public static final URI PROGRAMMIG_LANGUAGE_DIMENSION;
+    public static final URI PROGRAMMING_LANGUAGE_DIMENSION;
 
 
     static {
@@ -69,7 +62,7 @@ public class ADMSSW {
         INTENDED_AUDIENCE = factory.createURI(ADMSSW.NAMESPACE,"intendedAudience");
         LOCALE = factory.createURI(ADMSSW.NAMESPACE,"locale");
         USER_INTERFACE_TYPE = factory.createURI(ADMSSW.NAMESPACE,"userInterfaceType");
-        PROGRAMMIG_LANGUAGE = factory.createURI(ADMSSW.NAMESPACE,"programmingLanguage");
+        PROGRAMMING_LANGUAGE = factory.createURI(ADMSSW.NAMESPACE,"programmingLanguage");
         SUPPORTS_FORMAT = factory.createURI(ADMSSW.NAMESPACE,"supportsFormat");
         STATUS = factory.createURI(ADMSSW.NAMESPACE,"status");
         IDENTIFIER = factory.createURI(ADMSSW.NAMESPACE,"identifier");
@@ -92,12 +85,12 @@ public class ADMSSW {
 
         RELEASE_DIMENSION = factory.createURI(ADMSSW.NAMESPACE,"releaseDimension");
         PACKAGE_DIMENSION = factory.createURI(ADMSSW.NAMESPACE,"packageDimension");
-        PROGRAMMIG_LANGUAGE_DIMENSION = factory.createURI(ADMSSW.NAMESPACE,"programmingLanguageDimension");
+        PROGRAMMING_LANGUAGE_DIMENSION = factory.createURI(ADMSSW.NAMESPACE,"programmingLanguageDimension");
     }
 
 
     /**
-     * TODO not realy admssw
+     * TODO not really admssw
      */
     public final static URI NEXT;
     public static final URI PREV;
