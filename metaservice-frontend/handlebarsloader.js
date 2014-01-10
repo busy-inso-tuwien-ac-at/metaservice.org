@@ -18,7 +18,8 @@ function convertToJson(data,root){
     function recursiveLink(result,curval){
         if($.isArray(curval) || $.isPlainObject(curval)){
             $.each(curval,function(index,d){
-                curval[index]= recursiveLink(result,d);
+                if(index != 'resourceURI')
+                    curval[index]= recursiveLink(result,d);
             });
         } else if(result[curval]){
             return result[curval];
@@ -28,7 +29,7 @@ function convertToJson(data,root){
 
     function addToMap(result,subject,relation,value){
         if(!result[subject]){
-            result[subject] = {};
+            result[subject] = {resourceURI:subject};
         }
         if(result[subject][relation]){
             if(!$.isArray(result[subject][relation])){

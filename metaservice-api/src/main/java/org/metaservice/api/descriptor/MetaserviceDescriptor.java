@@ -14,6 +14,7 @@ public interface MetaserviceDescriptor {
     public static interface ProviderDescriptor {
         String getId();
         String getType();
+        String getModel();
         String getClassName();
     }
 

@@ -12,6 +12,7 @@ public class METASERVICE {
     public static final URI SOURCE;
     public static final URI TIME;
     public static final URI PATH;
+    public static final URI VIEW;
 
 
 
@@ -21,6 +22,7 @@ public class METASERVICE {
         TIME = factory.createURI(NAMESPACE,"time");
         PATH = factory.createURI(NAMESPACE,"path");
         METADATA = factory.createURI(NAMESPACE,"metadata");
+        VIEW = factory.createURI(NAMESPACE,"view");
     }
 
 }

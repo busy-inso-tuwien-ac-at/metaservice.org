@@ -1,8 +1,8 @@
 package org.metaservice.core.crawler.actions;
 
+import org.jsoup.nodes.Document;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.core.crawler.CommonCrawlerData;
-import org.metaservice.core.crawler.CrawlerProvider;
 import org.metaservice.core.utils.MetaserviceHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +10,14 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.zip.GZIPInputStream;
 
 /**
  * Created by ilo on 06.01.14.
  */
 public class FetchAction implements CrawlerAction {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FetchAction.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(FetchAction.class);
 
 
     private final String selector;
@@ -32,8 +33,8 @@ public class FetchAction implements CrawlerAction {
     }
 
     @Override
-    public void execute(org.jsoup.nodes.Document document) {
-        LOGGER.debug("exactly");
+    public void execute(HashSet<String> alreadyProcessed, Document document) {
+        LOGGER.info("FETCH ");
         for(org.jsoup.nodes.Element e: document.select(selector)){
             String href= e.attr("abs:href");
             LOGGER.debug(href);
@@ -44,6 +45,9 @@ public class FetchAction implements CrawlerAction {
                 return;
             }
             String localPath = href.replaceFirst(c.baseUri,"");
+            if(gz){
+                localPath = localPath.replace(".gz","");
+            }
 
             try (
                     InputStream fileStream =

@@ -9,8 +9,11 @@ import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.api.provider.Provider;
+import org.metaservice.core.Config;
 import org.metaservice.core.Dispatcher;
 import org.metaservice.core.archive.ArchiveParametersImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -21,35 +24,36 @@ import java.util.List;
  * Created by ilo on 05.01.14.
  */
 public class ProviderModule extends AbstractModule {
+    public static final Logger LOGGER = LoggerFactory.getLogger(ProviderModule.class);
+
     private final MetaserviceDescriptor.ProviderDescriptor providerDescriptor;
     private final MetaserviceDescriptor.ParserDescriptor parserDescriptor;
 
     private final List<MetaserviceDescriptor.RepositoryDescriptor> repositoryDescriptors;
+    private final Config config;
 
     public ProviderModule(
             MetaserviceDescriptor.ProviderDescriptor providerDescriptor,
             MetaserviceDescriptor.ParserDescriptor parserDescriptor,
-            List<MetaserviceDescriptor.RepositoryDescriptor> repositoryDescriptors
-    ) {
+            List<MetaserviceDescriptor.RepositoryDescriptor> repositoryDescriptors,
+            Config config) {
         this.providerDescriptor = providerDescriptor;
         this.parserDescriptor = parserDescriptor;
         this.repositoryDescriptors = repositoryDescriptors;
+        this.config = config;
     }
 
 
     @SuppressWarnings("unchecked")
     @Override
-    public void configure(){
-        configure2();
-    }
-
-    public  <T> void configure2() {
+    public void configure() {
+        LOGGER.info(providerDescriptor.toString());
         try {
             final Class providerClazz =
-                     Class.forName(providerDescriptor.getClassName());
+                    Class.forName(providerDescriptor.getClassName());
             final Class parserClazz   =
                     Class.forName(parserDescriptor.getClassName());
-            final  Class modelClazz = Class.forName("org.apache.maven.model.Model"); //Todo read from descriptor
+            final  Class modelClazz = Class.forName(providerDescriptor.getModel());
 
             Type providerType = Types.newParameterizedType(Provider.class,modelClazz);
             Type parserType = Types.newParameterizedType(Parser.class,modelClazz);
@@ -67,7 +71,7 @@ public class ProviderModule extends AbstractModule {
                             (Class<? extends Archive>) Class.forName(repositoryDescriptor.getArchiveClassName());
                     ArchiveParameters archiveParameters = new ArchiveParametersImpl(
                             repositoryDescriptor.getBaseUri(),
-                            new File("/opt/metaservice_data/" + repositoryDescriptor.getId()+"/") //todo retrieve from cmdb?
+                            new File(config.getArchiveBasePath()+ repositoryDescriptor.getId()+"/") //todo retrieve from cmdb?
                     );
                     Archive archive = archiveClazz.getConstructor(ArchiveParameters.class).newInstance(archiveParameters);
                     multibinder.addBinding().toInstance(archive);

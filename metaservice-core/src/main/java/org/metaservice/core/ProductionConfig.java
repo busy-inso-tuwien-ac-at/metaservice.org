@@ -29,4 +29,14 @@ public class ProductionConfig implements Config{
         }
         return new ArrayList<>();
     }
+
+    @Override
+    public String getArchiveBasePath() {
+        return "/opt/metaservice_data/";
+    }
+
+    @Override
+    public String getHttpdDataDirectory() {
+        return "/var/www/";
+    }
 }

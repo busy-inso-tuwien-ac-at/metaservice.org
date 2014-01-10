@@ -6,12 +6,14 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.DC;
 
 public class PACKAGE_DEB {
-    public static final String NAMESPACE = "http://metaservice.org/ns/package-deb#";
+    public static final String NAMESPACE = "http://metaservice.org/ns/metaservice-deb#";
 
     /**
      * CLASS
      */
     public final static URI PACKAGE;
+    public final static URI PROJECT;
+    public final static URI RELEASE;
     public final static URI MAINTAINER_CLASS;
 
     /*public final static URI PACKAGE_NAME;*/
@@ -46,6 +48,8 @@ public class PACKAGE_DEB {
     static {
         ValueFactory factory = ValueFactoryImpl.getInstance();
         PACKAGE = factory.createURI(PACKAGE_DEB.NAMESPACE,"Package");
+        PROJECT = factory.createURI(PACKAGE_DEB.NAMESPACE,"Project");
+        RELEASE = factory.createURI(PACKAGE_DEB.NAMESPACE,"Release");
         MAINTAINER_CLASS = factory.createURI(PACKAGE_DEB.NAMESPACE,"Maintainer");
      /*   PACKAGE_NAME = factory.createURI(PACKAGE_DEB.NAMESPACE,"packageName"); */
         DESCRIPTION = factory.createURI(PACKAGE_DEB.NAMESPACE,"description");

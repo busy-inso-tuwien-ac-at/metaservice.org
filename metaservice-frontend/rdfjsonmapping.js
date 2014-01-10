@@ -10,6 +10,8 @@ DEB[DEB.root + "md5sum"]  = "md5sum";
 DEB[DEB.root + "filename"]  = "filename";
 DEB[DEB.root + "maintainer"]  = "maintainer";
 DEB[DEB.root + "uploader"]  = "uploader";
+DEB["http://www.w3.org/2002/07/owl#Class"] = "Class";
+DEB["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = "type";
 
 DEB["http://purl.org/dc/elements/1.1/title"] = "title";
 DEB["http://purl.org/dc/elements/1.1/creator"] = "creator";
@@ -27,6 +29,7 @@ DEB["http://metaservice.org/ns/metaservice#metadata"] = "metadata";
 
 DEB["http://www.w3.org/1999/xhtml/vocab#next"] = "next";
 DEB["http://www.w3.org/1999/xhtml/vocab#prev"] = "prev";
+DEB["http://metaservice.org/ns/metaservice#view"] = "view";
 
 
 DEB[DEB.root + "depends"]  = "depends";

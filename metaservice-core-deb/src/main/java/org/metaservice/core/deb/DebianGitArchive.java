@@ -31,7 +31,8 @@ public class DebianGitArchive extends GitArchive {
             if("Packages".equals(f.getName())){
                 GitUtil.Line[] changes;
                 //String relpath =  f.getAbsolutePath().replace(workdir.getAbsolutePath()+"/","");
-                changes = gitUtil.getChangeList(f.getPath(),gitUtil.findFirsRevisionWithMessage(time));
+                String commit = gitUtil.findFirsRevisionWithMessage(time);
+                changes = gitUtil.getChangeList(f.getPath(),commit);
                 String[] packageAreas = extractFullPackages(changes);
                 String s =  StringUtils.join(packageAreas, "\n");
                 return s;

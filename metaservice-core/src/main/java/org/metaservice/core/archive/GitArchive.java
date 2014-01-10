@@ -45,22 +45,31 @@ public class GitArchive implements Archive {
      * Path must be of form /asdf/asd
      */
     public String getContent(String time, String path) throws ArchiveException {
-        String revision =gitUtil.findFirsRevisionWithMessage(time);
-        LOGGER.info("FOUND REVISION: " + revision);
-        if(revision!= null){
-            return processPath(time,new File( path));
+        String revision = null;
+        try {
+            revision = gitUtil.findFirsRevisionWithMessage(time);
+            LOGGER.info("FOUND REVISION: " + revision);
+            if(revision!= null){
+                return processPath(time,new File( path));
+            }
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        } catch (GitUtil.GitException e) {
+            throw new ArchiveException(e);
         }
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public String processPath(String time, File f) throws ArchiveException {
-        f = new File(workdir.getAbsolutePath() + "/"+  f.getPath());
+        try {
+            f = new File(workdir.getAbsolutePath() + "/"+  f.getPath());
         LOGGER.info("Processing {}", f.getAbsolutePath());
-        return gitUtil.getFileContent(gitUtil.findFirsRevisionWithMessage(time),f.getPath());
+            return gitUtil.getFileContent(gitUtil.findFirsRevisionWithMessage(time),f.getPath());
+        } catch (GitUtil.GitException e) {
+            throw new ArchiveException(e);
+        }
 
     }
 
-                           /*todo these are not correct anymore as they depend on currently checked out files
+                           /*these are not correct anymore as they depend on currently checked out files
     private void parseAllFiles(String currentRevision) throws RepositoryException, IOException, InterruptedException {
         for(File f : FileUtils.listFiles(workdir, null, true)){
             if("Packages".equals(f.getName())){
@@ -120,14 +129,16 @@ public class GitArchive implements Archive {
     }
 
     @Override
-    public void commitContent() throws ArchiveException{
+    public boolean commitContent() throws ArchiveException{
         try {
             //todo maybe use a specified date?
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
            String date = dateFormat.format(new Date());
             if(gitUtil.hasChangesToCommit()){
                 gitUtil.commitChanges(date);
+                return true;
             }
+            return false;
         } catch (GitUtil.GitException e) {
             throw new ArchiveException(e);
         }

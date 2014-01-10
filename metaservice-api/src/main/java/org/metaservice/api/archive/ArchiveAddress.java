@@ -3,6 +3,7 @@ package org.metaservice.api.archive;
 import java.io.Serializable;
 
 public class ArchiveAddress implements Serializable{
+    private static final long serialVersionUID = -5874232640077304953L;
     private String archiveUri;
     private String time;
     private String path;
@@ -35,5 +36,15 @@ public class ArchiveAddress implements Serializable{
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+
+    @Override
+    public String toString() {
+        return "ArchiveAddress{" +
+                "archiveUri='" + archiveUri + '\'' +
+                ", time='" + time + '\'' +
+                ", path='" + path + '\'' +
+                '}';
     }
 }

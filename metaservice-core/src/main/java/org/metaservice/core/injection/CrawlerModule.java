@@ -5,6 +5,7 @@ import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.Config;
 import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.metaservice.core.archive.GitArchive;
 import org.metaservice.core.crawler.Crawler;
@@ -20,10 +21,12 @@ import java.lang.reflect.InvocationTargetException;
 public class CrawlerModule extends AbstractModule{
     private final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor;
     private final MetaserviceDescriptor.CrawlerDescriptor crawlerDescriptor;
+    private final Config config;
 
-    public CrawlerModule(MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor, MetaserviceDescriptor.CrawlerDescriptor crawlerDescriptor) {
+    public CrawlerModule(MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor, MetaserviceDescriptor.CrawlerDescriptor crawlerDescriptor, Config config) {
         this.repositoryDescriptor = repositoryDescriptor;
         this.crawlerDescriptor = crawlerDescriptor;
+        this.config = config;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class CrawlerModule extends AbstractModule{
 
             ArchiveParameters archiveParameters = new ArchiveParametersImpl(
                     repositoryDescriptor.getBaseUri(),
-                    new File("/opt/metaservice_data/" + repositoryDescriptor.getId()) //todo retrieve from cmdb?
+                    new File(config.getArchiveBasePath() + repositoryDescriptor.getId()) //todo retrieve from cmdb?
             );
             final Class<? extends Archive> archiveClazz =
                     (Class<? extends Archive>) Class.forName(crawlerDescriptor.getArchiveClassName());

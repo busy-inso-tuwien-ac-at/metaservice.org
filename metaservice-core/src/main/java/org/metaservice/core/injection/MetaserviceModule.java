@@ -15,7 +15,6 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 
 import javax.jms.ConnectionFactory;
-import java.sql.Connection;
 
 public class MetaserviceModule implements Module {
 

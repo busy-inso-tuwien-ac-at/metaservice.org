@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.jms.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.HashSet;
 
 /**
  * Created by ilo on 11.12.13.
@@ -62,21 +63,24 @@ public class CrawlerRunner {
     }
 
     public  void run(){
-        crawler.execute();
+        crawler.execute(new HashSet<String>());
         try {
-            archive.commitContent();
-            String commitTime = archive.getLastCommitTime();
-            String sourceBaseUri =  archive.getSourceBaseUri();
-            for(String s : archive.getLastChangedPaths()){
-                try{
-                    LOGGER.info("Sending " + commitTime +" s " + s);
-                    ArchiveAddress archiveAddress = new ArchiveAddress(sourceBaseUri,commitTime,s);
-                    ObjectMessage message = session.createObjectMessage();
-                    message.setObject(archiveAddress);
-                    producer.send(message);
-                } catch (JMSException e) {
-                    e.printStackTrace();
+            if(archive.commitContent()){
+                String commitTime = archive.getLastCommitTime();
+                String sourceBaseUri =  archive.getSourceBaseUri();
+                for(String s : archive.getLastChangedPaths()){
+                    try{
+                        LOGGER.info("Sending " + commitTime +" s " + s);
+                        ArchiveAddress archiveAddress = new ArchiveAddress(sourceBaseUri,commitTime,s);
+                        ObjectMessage message = session.createObjectMessage();
+                        message.setObject(archiveAddress);
+                        producer.send(message);
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
                 }
+            } else{
+                LOGGER.info("Nothing changed");
             }
         } catch (ArchiveException e) {
             e.printStackTrace();

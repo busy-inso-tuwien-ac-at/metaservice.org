@@ -12,7 +12,7 @@ public interface Archive {
     void synchronizeWithCentral() throws ArchiveException;
 
     void addContent(String path, InputStream inputStream) throws ArchiveException;
-    void commitContent() throws ArchiveException;
+    boolean commitContent() throws ArchiveException;
 
     String getLastCommitTime() throws ArchiveException;
 

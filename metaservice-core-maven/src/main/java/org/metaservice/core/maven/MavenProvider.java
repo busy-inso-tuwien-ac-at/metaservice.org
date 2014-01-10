@@ -11,6 +11,7 @@ import org.openrdf.model.*;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.OWL;
+import org.openrdf.model.vocabulary.RDF;
 
 import javax.inject.Inject;
 
@@ -45,21 +46,21 @@ public class MavenProvider implements Provider<org.apache.maven.model.Model> {
         model.add(parent,VERSION,valueFactory.createLiteral(pom.getParent().getVersion()));
 
         //project
-        model.add(projectURI, OWL.CLASS, ADMSSW.SOFTWARE_PROJECT);
+        model.add(projectURI, RDF.TYPE, ADMSSW.SOFTWARE_PROJECT);
         model.add(projectURI, ADMSSW.RELEASE, releaseURI);
         model.add(projectURI, GROUP_ID,groupId);
         model.add(projectURI, ARTIFACT_ID, artifactId);
 
         //release
         model.add(releaseURI, ADMSSW.PACKAGE, packageURI);
-        model.add(releaseURI, OWL.CLASS, ADMSSW.SOFTWARE_RELEASE);
+        model.add(releaseURI, RDF.TYPE, ADMSSW.SOFTWARE_RELEASE);
         model.add(releaseURI, GROUP_ID,groupId);
         model.add(releaseURI, ARTIFACT_ID, artifactId);
         model.add(releaseURI, VERSION, version);
 
 
         //package
-        model.add(packageURI, OWL.CLASS, PACKAGE_MAVEN.PACKAGE);
+        model.add(packageURI, RDF.TYPE, PACKAGE_MAVEN.PACKAGE);
         model.add(packageURI, GROUP_ID,groupId);
         model.add(packageURI, ARTIFACT_ID, artifactId);
         model.add(packageURI, VERSION, version);

@@ -50,12 +50,18 @@ public class GitUtil {
         LOGGER.info("READ " + hashes.length + " revisions");
     }
 
-    public String findFirsRevisionWithMessage(String message){
+    public String findFirsRevisionWithMessage(String message) throws GitException {
         for(int i =0 ; i < messages.length;i++){
             if(messages[i].equals(message))
                 return hashes[i];
         }
-        return null;
+        //try again after re-init if this failed
+        reInit();
+        for(int i =0 ; i < messages.length;i++){
+            if(messages[i].equals(message))
+                return hashes[i];
+        }
+        throw new GitException("Couldn't find revission with message " + message);
     }
 
     public void checkOutNext() throws GitException {

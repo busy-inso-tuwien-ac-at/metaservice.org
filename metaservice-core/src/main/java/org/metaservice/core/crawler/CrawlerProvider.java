@@ -72,7 +72,7 @@ public class CrawlerProvider implements Provider<Crawler> {
             Element  child = (Element) e.getChildNodes().item(i);
             switch (child.getNodeName()){
                 case "follow":
-                    crawler.add(createFollow(child,commonCrawlerData));
+                    crawler.add(createFollow(crawler,child,commonCrawlerData));
                     break;
                 case "fetch":
                     crawler.add(createFetch(child,commonCrawlerData));
@@ -103,16 +103,22 @@ public class CrawlerProvider implements Provider<Crawler> {
         throw  new RuntimeException("Unknown Selector " +  element.toString() );
     }
 
-    private CrawlerAction createFollow(final Element child, final CommonCrawlerData c) {
+    private CrawlerAction createFollow(Crawler crawler, final Element child, final CommonCrawlerData c) {
         final Crawler next = doIt(child,c);
         final String selector = getSelector(child);
+
 
         boolean recursive = false;
         if(child.hasAttribute("recursive") && "true".equals(child.getAttribute("recursive"))){
             recursive = true;
         }
+        boolean skippable = false;
+        if(child.hasAttribute("skippable") && "true".equals(child.getAttribute("skippable"))){
+            skippable = true;
+        }
 
-        final CrawlerAction crawlerAction = new FollowAction(selector, c, next);
+
+        final CrawlerAction crawlerAction = new FollowAction(crawler,skippable,selector, c, next);
 
         if(recursive){
             next.add(crawlerAction);

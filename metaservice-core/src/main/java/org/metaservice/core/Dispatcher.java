@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -32,11 +31,11 @@ public class Dispatcher<T> {
     private final Logger LOGGER = LoggerFactory.getLogger(Dispatcher.class);
     private final Provider<T> provider;
     private final Parser<T> parser;
-    private HashMap<String,Archive> archiveMap = new HashMap<>();
 
     private ValueFactory valueFactory;
     private RepositoryConnection connection;
     private final TupleQuery repoSelect;
+    private final Update deleteQuery;
     private final Set<Archive> archives;
 
     //TODO make repoMap dynamic - such that it may be cloned automatically, or use an existing copy
@@ -55,6 +54,7 @@ public class Dispatcher<T> {
         this.valueFactory = valueFactory;
         this.connection = connection;
         this.archives = archives;
+        deleteQuery = this.connection.prepareUpdate(QueryLanguage.SPARQL, "DELETE DATA { ?s ?o ?p}{ ?s <" + METASERVICE.METADATA + "> ?m. ?m <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path.}}");
         repoSelect = this.connection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT ?repo ?time ?path { ?resource <" + METASERVICE.METADATA + "> ?m. ?m <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path.}");
 
     }
@@ -68,9 +68,12 @@ public class Dispatcher<T> {
                 throw new RuntimeException("CANNOT REFRESH - no metainformation available");
             BindingSet set = result.next();
 
-            String time = set.getBinding("time").getValue().stringValue();
-            String repo = set.getBinding("repo").getValue().stringValue();
-            String path = set.getBinding("path").getValue().stringValue();
+            Value timeValue = set.getBinding("time").getValue();
+            Value repoValue = set.getBinding("repo").getValue();
+            Value pathValue = set.getBinding("path").getValue();
+            String time = timeValue.stringValue();
+            String repo = repoValue.stringValue();
+            String path = pathValue.stringValue();
             LOGGER.info("READING time {}",time);
             LOGGER.info("READING repo {}",repo);
             LOGGER.info("READING path {}",path);
@@ -83,11 +86,25 @@ public class Dispatcher<T> {
             String toParse = "";
             try{
                 toParse = archive.getContent(time,path);
+                Model modelResult = new TreeModel();
+                final BNode metadata =  generateMetadata(new ArchiveAddress(repo,time,path),modelResult);
 
                 // retrieve version from archive
                 for (T node : parser.parse(toParse)) {
-                    Model model = provider.provideModelFor(node); //TODO time repo path
+                    Model model = provider.provideModelFor(node);
+                    for(Statement statement : model){
+                        //add metadata to every statement
+                        modelResult.add(statement.getSubject(),statement.getPredicate(),statement.getObject(),metadata);
+                    }
                 }
+
+                deleteQuery.setBinding("time",timeValue);
+                deleteQuery.setBinding("repo",repoValue);
+                deleteQuery.setBinding("path",pathValue);
+                connection.begin();
+                deleteQuery.execute();
+                connection.add(modelResult);
+                connection.commit();
             }catch (Exception e){
                 try {
                     String errorFilename = "errorRefresh";
@@ -101,10 +118,8 @@ public class Dispatcher<T> {
                 }
             }
             LOGGER.info("done processing {} {}", time, path);
-            // delete existing?
-            // put again
         } catch (QueryEvaluationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            LOGGER.error("Could not Refresh" ,e);
         }
     }
 
@@ -116,7 +131,12 @@ public class Dispatcher<T> {
 
 
         try {
+            LOGGER.info("Starting to process " + address);
             String content = archive.getContent(address.getTime(),address.getPath());
+            if(content == null ||content.length() < 20){
+                LOGGER.warn("Cannot process content '{}' of address {}, skipping.",content,address );
+                return;
+            }
             List<T> objects = parser.parse(content);
             Model result = new TreeModel();
             final BNode metadata =  generateMetadata(address,result);

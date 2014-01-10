@@ -6,11 +6,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +26,13 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
     private final List<RepositoryDescriptor> repositoryDescriptorList = new ArrayList<>();
     private final List<ParserDescriptor> parserDescriptorList = new ArrayList<>();
 
+    @Inject
     public MetaserviceDescriptorImpl(){
+         this(MetaserviceDescriptorImpl.class.getResourceAsStream("/metaservice.xml"));
+    }
+    public MetaserviceDescriptorImpl(InputStream inputStream){
         try {
-            load();
+            load(inputStream);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -36,10 +42,10 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         }
     }
 
-    public void load() throws ParserConfigurationException, IOException, SAXException {
+    public void load(InputStream inputStream) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(MetaserviceDescriptorImpl.class.getResourceAsStream("/metaservice.xml"));
+        Document doc = dBuilder.parse(inputStream);
 
         //optional, but recommended
         //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
@@ -52,6 +58,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             impl.setId(e.getAttribute("id"));
             impl.setClassName(e.getAttribute("class"));
             impl.setType(e.getAttribute("type"));
+            impl.setModel(e.getAttribute("model"));
             providerList.add(impl);
         }
         NodeList postProcessors =doc.getElementsByTagName("postprocessor");
@@ -95,7 +102,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         for(int i = 0; i < templates.getLength();i++){
             Element e = (Element) templates.item(i);
             TemplateDescriptorImpl impl= new TemplateDescriptorImpl();
-            impl.setAppliesTo(e.getAttribute("appliesto"));
+            impl.setAppliesTo(e.getAttribute("appliesTo"));
             impl.setName(e.getAttribute("name"));
             templateDescriptorList.add(impl);
         }
@@ -144,6 +151,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String type;
         private String className;
         private String archiveClassName;
+        private String model;
 
         @Override
         public String toString() {
@@ -152,7 +160,16 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
                     ", type='" + type + '\'' +
                     ", className='" + className + '\'' +
                     ", archiveClassName='" + archiveClassName + '\'' +
+                    ", model='" + model + '\'' +
                     '}';
+        }
+
+        public String getModel() {
+            return model;
+        }
+
+        public void setModel(String model) {
+            this.model = model;
         }
 
         public String getId() {
@@ -205,6 +222,14 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
 
         public void setAppliesTo(String appliesTo) {
             this.appliesTo = appliesTo;
+        }
+
+        @Override
+        public String toString() {
+            return "TemplateDescriptorImpl{" +
+                    "name='" + name + '\'' +
+                    ", appliesTo='" + appliesTo + '\'' +
+                    '}';
         }
     }
     public static class ParserDescriptorImpl implements ParserDescriptor{

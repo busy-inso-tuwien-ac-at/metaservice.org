@@ -10,5 +10,7 @@ public interface Config {
 
     String getJmsBroker();
     List<String> getArchivesForProvider(String provider);
+    String getArchiveBasePath();
+    String getHttpdDataDirectory();
 
 }

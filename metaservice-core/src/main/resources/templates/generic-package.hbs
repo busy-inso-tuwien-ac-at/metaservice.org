@@ -1,0 +1,39 @@
+<ol class="breadcrumb">
+    <li><a href="#">Generic Packages</a></li>
+    <li><a href="/d/packages/debian/{{title}}">{{title}}</a></li>
+    <li><a href="/d/packages/debian/{{title}}/{{version}}">{{version}}</a></li>
+    <li class="active">{{arch}}</li>
+</ol>
+<button type="button"  class="refresh btn btn-default pull-right "><i class="fa fa-refresh"></i> Request Refresh</button>
+
+<h1>{{title}}</h1>
+<div class="row">
+    <div class="col-md-8">
+        <pre>{{description}}</pre>
+        Homepage: <a href="{{homepage}}">{{homepage}}</a>{{^homepage}}-{{/homepage}}
+
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+
+            <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
+            <table class="table">
+                <tr><th>Previous</th><td><a href="/d/packages/debian/{{title}}/{{prev.version}}/{{arch}}">{{prev.version}}</a></td>
+                <tr><th>Next</th><td><a href="/d/packages/debian/{{title}}/{{next.version}}/{{arch}}">{{next.version}}</a></td>
+                <tr><th>Version</th><td><a href="/d/packages/debian/{{title}}/{{version}}">{{version}}</a></td>
+                <tr><th>Project</th><td><a href="/d/packages/debian/{{title}}">{{title}}</a></td>
+                <tr><th>Repository</th><td></td>
+            </table>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading"><h4 class="panel-title">File Information</h4></div>
+            <table class="table">
+                <tr><th>Filename</th><td>{{> copyInputField filename}}</td>
+                <tr><th>MD5sum</th><td>{{> copyInputField md5sum}}</td>
+                <tr><th>SHA-1sum</th><td>{{> copyInputField sha1sum}}</td>
+                <tr><th>SHA-256sum</th><td>{{> copyInputField sha256sum}}</td>
+            </table>
+        </div>
+    </div>
+</div>

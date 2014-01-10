@@ -2,6 +2,7 @@
     <provider
             id="debianPackageProvider"
             type="deb"
+            model="org.metaservice.core.deb.parser.ast.Package"
             class="org.metaservice.core.deb.DebianPackageProvider"
             />
 
@@ -63,7 +64,7 @@
     <crawler id="debianarchive"
              archiveClass="org.metaservice.core.deb.DebianGitArchive">
         <follow endsWith="/"> <!-- Distributions -->
-            <follow endsWith="/" skipable="true">   <!-- volatile, updates , ... -->
+            <follow endsWith="/" skippable="true">   <!-- volatile, updates , ... -->
                 <follow endsWith="/"> <!-- license -->
                     <follow endsWith="source/">
                         <fetch exactly="Sources.gz" unpack="gz" />
@@ -77,13 +78,17 @@
     </crawler>
 
     <template
-            name="version.hbs"
+            name="debian-version.hbs"
             appliesTo="http://metaservice.org/ns/metaservice-deb#Version"/>
     <template
-            name="package.hbs"
+            name="debian-package.hbs"
             appliesTo="http://metaservice.org/ns/metaservice-deb#Package"/>
     <template
-            name="project.hbs"
+            name="debian-project.hbs"
             appliesTo="http://metaservice.org/ns/metaservice-deb#Project"/>
+
+
+    <ontology
+        name="package-deb.rdf" apply="true" distribute="true"/>
 
 </metaservice>

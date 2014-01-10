@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -38,9 +39,9 @@ public class Crawler {
         actions.add(follow);
     }
 
-    public void execute() {
-        LOGGER.info("Executing: ");
-        if(commonCrawlerData.alreadyProcessed.contains(url)){
+    public void execute(HashSet<String> alreadyProcessed) {
+        LOGGER.info("Executing: {}",url);
+        if(alreadyProcessed.contains(url)){
             LOGGER.info("Already processed {}" , url);
             return;
         }
@@ -51,9 +52,9 @@ public class Crawler {
             return;
         }
         Document document = Jsoup.parse(s, url);
-        commonCrawlerData.alreadyProcessed.add(url);
+        alreadyProcessed.add(url);
         for(CrawlerAction action : actions){
-            action.execute(document);
+            action.execute(alreadyProcessed,document);
         }
     }
 }

@@ -1,0 +1,34 @@
+<metaservice>
+
+    <!--
+    <template
+            name="generic-version.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice#Version"/>
+    <template
+            name="generic-package.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice#Package"/>
+    <template
+            name="generic-project.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice#Project"/>
+
+    <template
+            name="generic-file.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice#File"/>
+        -->
+
+    <template
+            name="generic-version.hbs"
+            appliesTo="http://purl.org/adms/sw/SoftwareRelease"/>
+    <template
+            name="generic-package.hbs"
+            appliesTo="http://purl.org/adms/sw/SoftwarePackage"/>
+    <template
+            name="generic-project.hbs"
+            appliesTo="http://purl.org/adms/sw/SoftwareProject"/>
+
+    <ontology
+            name="adms_sw.rdf" apply="true" distribute="false"/>
+
+    <ontology
+            name="metaservice.rdf" apply="true" distribute="true"/>
+</metaservice>

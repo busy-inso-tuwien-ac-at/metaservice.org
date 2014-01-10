@@ -12,6 +12,7 @@ import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.OWL;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -121,17 +122,17 @@ public class DebianPackageProvider implements Provider<Package> {
 
 
             //project
-            model.add(projectURI, OWL.CLASS, ADMSSW.SOFTWARE_PROJECT);
+            model.add(projectURI, RDF.TYPE, ADMSSW.SOFTWARE_PROJECT);
             model.add(projectURI, ADMSSW.RELEASE, releaseURI);
 
             //release
             model.add(releaseURI, ADMSSW.PACKAGE, packageURI);
-            model.add(releaseURI, OWL.CLASS, ADMSSW.SOFTWARE_RELEASE);
+            model.add(releaseURI, RDF.TYPE, ADMSSW.SOFTWARE_RELEASE);
             createStringEntry(packageQuery, releaseURI, Entries.Version.class, PACKAGE_DEB.VERSION, model);
             createVersionEntry(packageQuery,releaseURI,PACKAGE_DEB.VERSION,model);
 
             //package
-            model.add(packageURI, OWL.CLASS, PACKAGE_DEB.PACKAGE);
+            model.add(packageURI, RDF.TYPE, PACKAGE_DEB.PACKAGE);
             createStringEntry(packageQuery, packageURI, Entries.MD5sum.class, PACKAGE_DEB.MD5SUM, model);
             createStringEntry(packageQuery, packageURI, Entries.SHA1.class, PACKAGE_DEB.SHA1, model);
             createStringEntry(packageQuery, packageURI, Entries.SHA256.class, PACKAGE_DEB.SHA256, model);

@@ -1,7 +1,6 @@
 package org.metaservice.core.jms;
 
 import com.google.inject.*;
-import org.metaservice.core.Config;
 import org.metaservice.core.Dispatcher;
 import org.metaservice.core.injection.InjectorFactory;
 import org.openrdf.model.ValueFactory;
@@ -44,12 +43,16 @@ public class JMSRefreshRunner extends AbstractJMSRunner {
     @Override
     public void onMessage(Message message) {
         try {
+            if(!(message instanceof TextMessage)){
+                LOGGER.warn("ATTENTION: Message is not a TextMessage -> Ignoring");
+                return;
+            }
             TextMessage m = (TextMessage) message;
             dispatcher.refresh(valueFactory.createURI(m.getText()));
          //TODO think about
          //   bufferedSparql.flushModel();
         } catch (JMSException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            LOGGER.error("JMS Exception",e);
         }
     }
 }
