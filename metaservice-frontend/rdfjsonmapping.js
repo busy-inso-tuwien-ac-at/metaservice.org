@@ -1,5 +1,5 @@
 var DEB = {};
-DEB.root = "http://metaservice.org/ns/package-deb#";
+DEB.root = "http://metaservice.org/ns/metaservice-deb#";
 DEB[DEB.root + "architecture"] = "arch";
 DEB[DEB.root + "homepage"] = "homepage";
 DEB[DEB.root + "description"]="description";

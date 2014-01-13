@@ -39,4 +39,19 @@ public class ProductionConfig implements Config{
     public String getHttpdDataDirectory() {
         return "/var/www/";
     }
+
+    @Override
+    public int getBatchSize() {
+        return 100000;
+    }
+
+    @Override
+    public boolean isDumpRDFBeforeLoad() {
+        return false;
+    }
+
+    @Override
+    public String getDumpRDFDirectory() {
+        return "/opt/metaservice/dump";
+    }
 }

@@ -32,7 +32,7 @@
         Handlebars.registerPartial("copyInputField", $("#partial-copytextinputfield").html());
         var templatePath = '/d/package.hbs';
         var resourceUrl = document.location.toString().replace(/\/$/,'');
-        var query = "Select * {<" +encodeURI(resourceUrl) + "> ?relation ?value.   OPTIONAL { ?value  ?relation2 ?value2 }}";
+        var query = "Select *  { GRAPH ?graph  {<" +encodeURI(resourceUrl) + "> ?relation ?value.}   OPTIONAL { GRAPH ?graph2 { ?value  ?relation2 ?value2 }}}";
         $.ajax({
             url: "/sparql",
             beforeSend: function(xhrObj){
@@ -53,12 +53,26 @@
                 console.log(data);
                 console.log(result);
 
-                console.log(result.type.view);
-                templatePath =  "/" + result.type.view;
+                var templatePath = [];
+                if($.isArray(result.type)){
+                    $.each(result.type,function(index,d){
+                        if(d.view){
+                            templatePath.push("/" + d.view);
+                        }
+                    });
+                }else if ($.isPlainObject(result.type)){
+                    if(result.type.view){
+                        templatePath.push("/" + result.type.view);
+                    }
+                }
+                console.log(templatePath);
 
+                if(templatePath.length ==0){
+                    loadError('Template missing','There is no view specified for this type of data  :-(');
+                    return;
+                }
 
-
-                getTemplateAjax(templatePath, function(template) {
+                getTemplateAjax(templatePath[0], function(template) {
 
                     $('#content').append(template(result));
                     $('#loader').modal('hide');
@@ -74,6 +88,8 @@
                             error:function(){console.log ('error')}
                         });
                     });
+                },function(){
+                    loadError('Template missing','Could not retrieve ' +templatePath[0] +'  :-(');
                 });
 
             },

@@ -15,7 +15,7 @@ public class RefreshHandler {
 
         ServletAdapter jerseyAdapter = new ServletAdapter();
         jerseyAdapter.addInitParameter("com.sun.jersey.config.property.packages",
-                "org.metaservice.rest");
+                "org.metaservice.frontend.rest");
         jerseyAdapter.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature","true");
         jerseyAdapter.setContextPath("/rest");
         jerseyAdapter.setServletInstance(new ServletContainer());

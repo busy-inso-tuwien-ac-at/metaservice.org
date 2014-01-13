@@ -1,9 +1,8 @@
-package org.metaservice.api.ns;
+package org.metaservice.api.rdf.vocabulary;
 
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.DC;
 
 public class PACKAGE_DEB {
     public static final String NAMESPACE = "http://metaservice.org/ns/metaservice-deb#";
@@ -51,12 +50,13 @@ public class PACKAGE_DEB {
         PROJECT = factory.createURI(PACKAGE_DEB.NAMESPACE,"Project");
         RELEASE = factory.createURI(PACKAGE_DEB.NAMESPACE,"Release");
         MAINTAINER_CLASS = factory.createURI(PACKAGE_DEB.NAMESPACE,"Maintainer");
+
      /*   PACKAGE_NAME = factory.createURI(PACKAGE_DEB.NAMESPACE,"packageName"); */
         DESCRIPTION = factory.createURI(PACKAGE_DEB.NAMESPACE,"description");
         ARCHITECTURE = factory.createURI(PACKAGE_DEB.NAMESPACE,"architecture");
         VERSION = factory.createURI(PACKAGE_DEB.NAMESPACE,"version");
         HOMEPAGE = factory.createURI(PACKAGE_DEB.NAMESPACE,"homepage");
-        TITLE = DC.TITLE;
+        TITLE = DC.TITLE; //TODO
         MD5SUM = factory.createURI(PACKAGE_DEB.NAMESPACE,"md5sum");
         SHA1 = factory.createURI(PACKAGE_DEB.NAMESPACE,"sha1sum");
         SHA256 = factory.createURI(PACKAGE_DEB.NAMESPACE,"sha256sum");

@@ -1,6 +1,8 @@
 package org.metaservice.core.descriptor;
 
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -13,11 +15,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 @Singleton
 public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
+    public final Logger LOGGER = LoggerFactory.getLogger(MetaserviceDescriptorImpl.class);
 
     private final List<ProviderDescriptor> providerList = new ArrayList<>();
     private final List<PostProcessorDescriptor> postProcessorList = new ArrayList<>();
@@ -59,6 +65,27 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             impl.setClassName(e.getAttribute("class"));
             impl.setType(e.getAttribute("type"));
             impl.setModel(e.getAttribute("model"));
+            ArrayList<ProviderDescriptor.NamespaceDescriptor> namespaceDescriptors = new ArrayList<>();
+            impl.setNamespaceList(namespaceDescriptors);
+            NodeList namespaces = e.getElementsByTagName("namespace");
+            for(int j = 0; j < namespaces.getLength();j++){
+                try{
+                Element x = (Element) namespaces.item(j);
+                NamespaceDescriptorImpl ns = new NamespaceDescriptorImpl();
+                ns.setPrefix(x.getAttribute("prefix"));
+                ns.setUri(new URI(x.getAttribute("uri")));
+                } catch (URISyntaxException e1) {
+                    LOGGER.warn("Could not add namespace", e1);
+                }
+            }
+            ArrayList<ProviderDescriptor.LoadDescriptor> loadDescriptors = new ArrayList<>();
+            impl.setLoadList(loadDescriptors);
+            NodeList loads = e.getElementsByTagName("load");
+            for(int j = 0; j < loads.getLength();j++){
+                Element x = (Element) loads.item(j);
+                LoadDescriptorImpl ns = new LoadDescriptorImpl();
+                ns.setUrl(new URL(x.getAttribute("url")));
+            }
             providerList.add(impl);
         }
         NodeList postProcessors =doc.getElementsByTagName("postprocessor");
@@ -152,6 +179,8 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String className;
         private String archiveClassName;
         private String model;
+        private List<NamespaceDescriptor> namespaceList;
+        private List<LoadDescriptor> loadList;
 
         @Override
         public String toString() {
@@ -192,6 +221,24 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             return className;
         }
 
+        @Override
+        public List<NamespaceDescriptor> getNamespaceList() {
+            return namespaceList;
+        }
+
+        @Override
+        public List<LoadDescriptor> getLoadList() {
+            return loadList;
+        }
+
+        public void setNamespaceList(List<NamespaceDescriptor> namespaceList) {
+            this.namespaceList = namespaceList;
+        }
+
+        public void setLoadList(List<LoadDescriptor> loadList) {
+            this.loadList = loadList;
+        }
+
         public void setClassName(String className) {
             this.className = className;
         }
@@ -204,6 +251,55 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.archiveClassName = archiveClassName;
         }
     }
+
+    public static class NamespaceDescriptorImpl implements ProviderDescriptor.NamespaceDescriptor {
+        private String prefix;
+        private URI uri;
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+        public URI getUri() {
+            return uri;
+        }
+
+        public void setPrefix(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public void setUri(URI uri) {
+            this.uri = uri;
+        }
+
+        @Override
+        public String toString() {
+            return "NamespaceDescriptorImpl{" +
+                    "prefix='" + prefix + '\'' +
+                    ", uri=" + uri +
+                    '}';
+        }
+    }
+
+    public static class LoadDescriptorImpl implements ProviderDescriptor.LoadDescriptor {
+        private URL url;
+
+        public URL getUrl() {
+            return url;
+        }
+
+        public void setUrl(URL url) {
+            this.url = url;
+        }
+
+        @Override
+        public String toString() {
+            return "LoadDescriptorImpl{" +
+                    "url=" + url +
+                    '}';
+        }
+    }
+
     public static class TemplateDescriptorImpl implements TemplateDescriptor{
         private String name;
         private String appliesTo;

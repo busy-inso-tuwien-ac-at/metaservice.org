@@ -7,7 +7,7 @@
     <owl:Ontology rdf:about="http://metaservice.org/ns/swdep-metaservice#">
         <owl:imports rdf:resource="http://metaservice.org/ns/swdep"/>
         <owl:imports rdf:resource="http://metaservice.org/ns/metaserivce"/>
-        <dc:title>metaservice.org vocuabulary for swdep metadata</dc:title>
+        <dc:title>metaservice.org vocabulary for swdep metadata</dc:title>
         <dc:description>Specifies metaservice.org-specific meta-data on swdep</dc:description>
         <dc:description xml:lang="de">Spezifiziert metaservice.org-spezifische meta-daten für swdep</dc:description>
         <dc:creator>Nikola Ilo</dc:creator>

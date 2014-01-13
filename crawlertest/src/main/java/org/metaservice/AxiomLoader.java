@@ -1,6 +1,6 @@
 package org.metaservice;
 
-import org.metaservice.api.ns.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;

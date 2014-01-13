@@ -13,4 +13,8 @@ public interface Config {
     String getArchiveBasePath();
     String getHttpdDataDirectory();
 
+    int getBatchSize();
+
+    boolean isDumpRDFBeforeLoad();
+    String  getDumpRDFDirectory();
 }

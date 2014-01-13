@@ -1,4 +1,4 @@
-package org.metaservice.api.ns;
+package org.metaservice.api.rdf.vocabulary;
 
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;

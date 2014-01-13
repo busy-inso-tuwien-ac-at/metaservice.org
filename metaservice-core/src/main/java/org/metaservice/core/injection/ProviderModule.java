@@ -59,6 +59,8 @@ public class ProviderModule extends AbstractModule {
             Type parserType = Types.newParameterizedType(Parser.class,modelClazz);
             Type dispatcherType = Types.newParameterizedType(Dispatcher.class,modelClazz);
 
+            bind(MetaserviceDescriptor.ParserDescriptor.class).toInstance(parserDescriptor);
+            bind(MetaserviceDescriptor.ProviderDescriptor.class).toInstance(providerDescriptor);
             bind(TypeLiteral.get(providerType)).to(providerClazz);
             bind(TypeLiteral.get(parserType)).to(parserClazz);
             bind(new TypeLiteral<Dispatcher>(){}).to((TypeLiteral<? extends Dispatcher>) TypeLiteral.get(dispatcherType));

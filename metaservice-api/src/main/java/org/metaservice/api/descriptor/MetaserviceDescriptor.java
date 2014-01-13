@@ -1,5 +1,7 @@
 package org.metaservice.api.descriptor;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
 public interface MetaserviceDescriptor {
@@ -16,6 +18,17 @@ public interface MetaserviceDescriptor {
         String getType();
         String getModel();
         String getClassName();
+        List<NamespaceDescriptor> getNamespaceList();
+        List<LoadDescriptor>  getLoadList();
+
+        public static interface NamespaceDescriptor{
+            String getPrefix();
+            URI getUri();
+        }
+
+        public static interface LoadDescriptor{
+            URL getUrl();
+        }
     }
 
     public static interface ParserDescriptor{

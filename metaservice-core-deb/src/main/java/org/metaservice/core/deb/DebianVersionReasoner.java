@@ -1,7 +1,7 @@
 package org.metaservice.core.deb;
 
-import org.metaservice.api.ns.ADMSSW;
-import org.metaservice.api.ns.PACKAGE_DEB;
+import org.metaservice.api.rdf.vocabulary.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.openrdf.model.Resource;

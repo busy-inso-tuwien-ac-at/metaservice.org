@@ -1,4 +1,4 @@
-function getTemplateAjax(path, callback) {
+function getTemplateAjax(path, callback, errorcallback) {
     var source;
     var template;
 
@@ -10,6 +10,9 @@ function getTemplateAjax(path, callback) {
 
             //execute the callback if passed
             if (callback) callback(template);
+        },
+        error: function(data){
+            if(errorcallback) errorcallback("failed to load " + template);
         }
     });
 }

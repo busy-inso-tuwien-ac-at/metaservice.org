@@ -2,7 +2,7 @@ package org.metaservice.management;
 
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.api.ns.METASERVICE;
+import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.core.Config;
 import org.metaservice.core.descriptor.MetaserviceDescriptorImpl;
 import org.openrdf.model.Literal;
