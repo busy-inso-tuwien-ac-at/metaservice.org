@@ -38,7 +38,7 @@ public class TempTests {
         Injector injector = Guice.createInjector(new MetaserviceModule());
 
         ValueFactory valueFactory= injector.getInstance(ValueFactory.class);
-        HashSet<Statement> model= new HashSet<Statement>();
+        HashSet<Statement> model= new HashSet<>();
 
         model.add(valueFactory.createStatement(valueFactory.createURI("http://e"), ADMSSW.EFFORT,valueFactory.createURI("http://b"),valueFactory.createBNode()));
 
@@ -91,12 +91,12 @@ public class TempTests {
         RepositoryConnection con =  repo.getConnection();
         con.setAutoCommit(false);
         URL url = new URL("http://metaservice.org/ns/adms_sw.rdf");
-        con.add(url,null,null,new Resource[0]);
+        con.add(url,null,null);
         con.commit();
 
         con.add(valueFactory.createURI("http://meta"),RDF.TYPE,ADMSSW.SOFTWARE_PROJECT);
 
 
-        con.exportStatements(null, null, null, true, new RDFXMLPrettyWriter(new FileWriter("foo-sesame.xml")), new Resource[0]);
+        con.exportStatements(null, null, null, true, new RDFXMLPrettyWriter(new FileWriter("foo-sesame.xml")));
     }
 }

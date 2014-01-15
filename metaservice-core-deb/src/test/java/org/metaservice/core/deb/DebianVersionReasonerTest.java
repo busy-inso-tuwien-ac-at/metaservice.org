@@ -100,7 +100,7 @@ public class DebianVersionReasonerTest {
         // it should be the debrev dash - policy says soâ€¦
         assertThat(c.compare("0:0-0-0","0-0"),OrderingComparison.greaterThan(0));
 
-        // do we like strange versions? Yes we like strange versionsâ€¦
+        // do we like strange versions? Yes we like strange versions¦
         assertThat(c.compare("0","0"),OrderingComparison.comparesEqualTo(0));
         assertThat(c.compare("0","00"),OrderingComparison.comparesEqualTo(0));
 

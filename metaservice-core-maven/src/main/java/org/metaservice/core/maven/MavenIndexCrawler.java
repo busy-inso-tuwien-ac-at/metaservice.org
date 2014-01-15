@@ -107,7 +107,7 @@ public class MavenIndexCrawler {
         File centralIndexDir = new File( "target/central-index" );
 
         // Creators we want to use (search for fields it defines)
-        List<IndexCreator> indexers = new ArrayList<IndexCreator>();
+        List<IndexCreator> indexers = new ArrayList<>();
         indexers.add( plexusContainer.lookup( IndexCreator.class, "min" ) );
         indexers.add( plexusContainer.lookup( IndexCreator.class, "jarContent" ) );
         indexers.add( plexusContainer.lookup( IndexCreator.class, "maven-plugin" ) );

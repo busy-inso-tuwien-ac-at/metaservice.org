@@ -47,9 +47,9 @@ public class DebianGitArchive extends GitArchive {
     public static String[] extractFullPackages(@NotNull GitUtil.Line[] changes) {
         ArrayList<String> result = new ArrayList<>();
         ArrayList<GitUtil.Line> cleaned = new ArrayList<>();
-        for(int i = 0; i < changes.length;i++){
-            if(changes[i].changeType != GitUtil.Line.ChangeType.OLD){
-                cleaned.add(changes[i]);
+        for (GitUtil.Line change : changes) {
+            if (change.changeType != GitUtil.Line.ChangeType.OLD) {
+                cleaned.add(change);
             }
         }
         changes = cleaned.toArray(new GitUtil.Line[cleaned.size()]);

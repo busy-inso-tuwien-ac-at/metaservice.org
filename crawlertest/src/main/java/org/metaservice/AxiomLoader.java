@@ -27,7 +27,7 @@ public class AxiomLoader {
     }
 
     private void run() throws RepositoryException {
-        //TODO add NS/grammers usw.
+        //TODO add NS/grammars usw.
         if(!bufferedSparql.hasStatement(ADMSSW.NEXT,OWL.INVERSEOF,ADMSSW.PREV,true)){
             bufferedSparql.add(ADMSSW.NEXT, OWL.INVERSEOF, ADMSSW.PREV);
         }

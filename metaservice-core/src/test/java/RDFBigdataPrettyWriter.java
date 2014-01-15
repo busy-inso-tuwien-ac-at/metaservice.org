@@ -125,12 +125,12 @@ public class RDFBigdataPrettyWriter extends RDFXMLWriter implements Closeable, F
      * Stack for remembering the nodes (subjects/objects) of statements at each
      * level.
      */
-    private Stack<Node> nodeStack = new Stack<Node>();
+    private Stack<Node> nodeStack = new Stack<>();
 
     /**
      * Stack for remembering the predicate of statements at each level.
      */
-    private Stack<URI> predicateStack = new Stack<URI>();
+    private Stack<URI> predicateStack = new Stack<>();
 
 	/*--------------*
 	 * Constructors *
