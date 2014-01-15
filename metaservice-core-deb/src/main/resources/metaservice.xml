@@ -23,8 +23,8 @@
     <repository
             id="debian_org"
             type="deb"
-            baseuri="http://ftp.debian.org/debian/dists/"
-            starturi="http://ftp.debian.org/debian/dists/"
+            baseUri="http://ftp.debian.org/debian/dists/"
+            startUri="http://ftp.debian.org/debian/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
             />
@@ -32,8 +32,8 @@
     <repository
             id="backports_debian_org"
             type="deb"
-            baseuri="http://ftp.debian.org/debian-backports/dists/"
-            starturi="http://ftp.debian.org/debian-backports/dists/"
+            baseUri="http://ftp.debian.org/debian-backports/dists/"
+            startUri="http://ftp.debian.org/debian-backports/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
             />
@@ -41,8 +41,8 @@
     <repository
             id="security_debian_org"
             type="deb"
-            baseuri="http://security.debian.org/dists/"
-            starturi="http://security.debian.org/dists/"
+            baseUri="http://security.debian.org/dists/"
+            startUri="http://security.debian.org/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
             />
@@ -50,8 +50,8 @@
     <repository
             id="volatile_debian_org"
             type="deb"
-            baseuri="http://archive.debian.org/debian-volatile/dists/"
-            starturi="http://archive.debian.org/debian-volatile/dists/"
+            baseUri="http://archive.debian.org/debian-volatile/dists/"
+            startUri="http://archive.debian.org/debian-volatile/dists/"
             crawler="debianarchive"
             active="false"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
@@ -60,8 +60,8 @@
     <repository
             id="archive_ubuntu_org"
             type="deb"
-            baseuri="http://archive.ubuntu.com/ubuntu/dists/"
-            starturi="http://archive.ubuntu.com/ubuntu/dists/"
+            baseUri="http://archive.ubuntu.com/ubuntu/dists/"
+            startUri="http://archive.ubuntu.com/ubuntu/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
             />

@@ -165,4 +165,18 @@ public class GitArchive implements Archive {
             throw new ArchiveException(e);
         }
     }
+
+    @Override
+    public String[] getChangedPaths(String commitTime) throws ArchiveException {
+        try {
+           String revision = gitUtil.findFirsRevisionWithMessage(commitTime);
+            ArrayList<String> res = new ArrayList<>();
+            for(File f: gitUtil.getChangedFiles(revision)){
+                res.add(f.getPath());
+            }
+            return res.toArray(new String[res.size()]);
+        } catch (GitUtil.GitException e) {
+            throw new ArchiveException(e);
+        }
+    }
 }

@@ -17,4 +17,6 @@ public interface Archive {
     String getLastCommitTime() throws ArchiveException;
 
     String[] getLastChangedPaths() throws ArchiveException;
+
+    String[] getChangedPaths(String commitTime) throws ArchiveException;
 }

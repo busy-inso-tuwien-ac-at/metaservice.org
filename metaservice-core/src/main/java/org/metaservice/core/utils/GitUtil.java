@@ -135,8 +135,13 @@ public class GitUtil {
         return line;
     }
 
+
+
     public File[] getChangedFilesInHead() throws GitException {
-        Process p = execInWorkdir("git diff --name-only HEAD HEAD~1");
+        return getChangedFiles("HEAD");
+    }
+    public File[] getChangedFiles(String revisison) throws GitException {
+        Process p = execInWorkdir("git diff --name-only "+revisison+" "+revisison+"~1");
         File[] changedFiles;
 
         ArrayList<File> list = new ArrayList<>();
@@ -145,7 +150,6 @@ public class GitUtil {
         String line;
         try {
             while ((line = in.readLine()) != null) {
-                //  list.add(new File(workdir + "/" + line));
                 list.add(new File(line));
             }
             p.waitFor();
@@ -216,7 +220,7 @@ public class GitUtil {
     }
 
     public void checkOutLast() throws GitException {
-        checkOut(hashes[hashes.length-1]);
+        checkOut(hashes[hashes.length - 1]);
     }
 
     public boolean isInitialized() throws GitException {

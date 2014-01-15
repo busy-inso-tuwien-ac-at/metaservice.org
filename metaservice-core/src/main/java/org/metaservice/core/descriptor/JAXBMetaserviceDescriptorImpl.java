@@ -1,189 +1,112 @@
 package org.metaservice.core.descriptor;
 
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.StringWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-@Singleton
-public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
-    public final Logger LOGGER = LoggerFactory.getLogger(MetaserviceDescriptorImpl.class);
-
-    private final List<ProviderDescriptor> providerList = new ArrayList<>();
-    private final List<PostProcessorDescriptor> postProcessorList = new ArrayList<>();
-    private final List<TemplateDescriptor> templateDescriptorList = new ArrayList<>();
-    private final List<CrawlerDescriptor> crawlerDescriptorList = new ArrayList<>();
-    private final List<RepositoryDescriptor> repositoryDescriptorList = new ArrayList<>();
-    private final List<ParserDescriptor> parserDescriptorList = new ArrayList<>();
+/**
+ * Created by ilo on 15.01.14.
+ */
+@XmlRootElement(name="metaservice")
+public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
+    private List<ProviderDescriptor> providerList = new ArrayList<>();
+    private List<PostProcessorDescriptor> postProcessorList = new ArrayList<>();
+    private List<TemplateDescriptor> templateList = new ArrayList<>();
+    private List<CrawlerDescriptor> crawlerList = new ArrayList<>();
+    private List<RepositoryDescriptor> repositoryList = new ArrayList<>();
 
     @Override
     public String toString() {
-        return "MetaserviceDescriptorImpl{" +
+        return "JAXBMetaserviceDescriptorImpl{" +
                 "providerList=" + providerList +
-                ", postProcessorList=" + postProcessorList +
-                ", templateDescriptorList=" + templateDescriptorList +
-                ", crawlerDescriptorList=" + crawlerDescriptorList +
-                ", repositoryDescriptorList=" + repositoryDescriptorList +
-                ", parserDescriptorList=" + parserDescriptorList +
+                ", \npostProcessorList=" + postProcessorList +
+                ", \ntemplateList=" + templateList +
+                ", \ncrawlerList=" + crawlerList +
+                ", \nrepositoryList=" + repositoryList +
+                ", \nparserList=" + parserList +
                 '}';
     }
 
-    @Inject
-    public MetaserviceDescriptorImpl(){
-         this(MetaserviceDescriptorImpl.class.getResourceAsStream("/metaservice.xml"));
-    }
-    public MetaserviceDescriptorImpl(InputStream inputStream){
-        try {
-            load(inputStream);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args) throws FileNotFoundException {
+        StringWriter w = new StringWriter();
+        MetaserviceDescriptor descriptor = JAXB.unmarshal(new FileInputStream(new File("C:\\Users\\ilo\\dev\\metaservice.org\\metaservice-core-deb\\src\\main\\resources\\metaservice.xml")),JAXBMetaserviceDescriptorImpl.class);
+        System.err.println(descriptor.getCrawlerList());
+        System.err.println(descriptor.getTemplateList());
+        System.err.println(descriptor);
+
+        System.err.println(new MetaserviceDescriptorImpl());
+
     }
 
-    public void load(InputStream inputStream) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(inputStream);
-
-        //optional, but recommended
-        //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-        doc.getDocumentElement().normalize();
-
-        NodeList providers =doc.getElementsByTagName("provider");
-        for(int i = 0; i < providers.getLength();i++){
-            Element e = (Element) providers.item(i);
-            ProviderDescriptorImpl impl = new ProviderDescriptorImpl();
-            impl.setId(e.getAttribute("id"));
-            impl.setClassName(e.getAttribute("class"));
-            impl.setType(e.getAttribute("type"));
-            impl.setModel(e.getAttribute("model"));
-            ArrayList<ProviderDescriptor.NamespaceDescriptor> namespaceDescriptors = new ArrayList<>();
-            impl.setNamespaceList(namespaceDescriptors);
-            NodeList namespaces = e.getElementsByTagName("namespace");
-            for(int j = 0; j < namespaces.getLength();j++){
-                try{
-                Element x = (Element) namespaces.item(j);
-                NamespaceDescriptorImpl ns = new NamespaceDescriptorImpl();
-                ns.setPrefix(x.getAttribute("prefix"));
-                ns.setUri(new URI(x.getAttribute("uri")));
-                } catch (URISyntaxException e1) {
-                    LOGGER.warn("Could not add namespace", e1);
-                }
-            }
-            ArrayList<ProviderDescriptor.LoadDescriptor> loadDescriptors = new ArrayList<>();
-            impl.setLoadList(loadDescriptors);
-            NodeList loads = e.getElementsByTagName("load");
-            for(int j = 0; j < loads.getLength();j++){
-                Element x = (Element) loads.item(j);
-                LoadDescriptorImpl ns = new LoadDescriptorImpl();
-                ns.setUrl(new URL(x.getAttribute("url")));
-            }
-            providerList.add(impl);
-        }
-        NodeList postProcessors =doc.getElementsByTagName("postprocessor");
-        for(int i = 0; i < postProcessors.getLength();i++){
-            Element e = (Element) postProcessors.item(i);
-            PostProcessorDescriptorImpl impl= new PostProcessorDescriptorImpl();
-            impl.setClassName(e.getAttribute("class"));
-            impl.setId(e.getAttribute("id"));
-            postProcessorList.add(impl);
-        }
-        NodeList parsers =doc.getElementsByTagName("parser");
-        for(int i = 0; i < parsers.getLength();i++){
-            Element e = (Element) parsers.item(i);
-            ParserDescriptorImpl impl= new ParserDescriptorImpl();
-            impl.setClassName(e.getAttribute("class"));
-            impl.setId(e.getAttribute("id"));
-            impl.setType(e.getAttribute("type"));
-            parserDescriptorList.add(impl);
-        }
-
-        NodeList repositories =doc.getElementsByTagName("repository");
-        for(int i = 0; i < repositories.getLength();i++){
-            Element e = (Element) repositories.item(i);
-            RepositoryDescriptorImpl impl= new RepositoryDescriptorImpl();
-            impl.setId(e.getAttribute("id"));
-            impl.setCrawler(e.getAttribute("crawler"));
-            impl.setType(e.getAttribute("type"));
-            impl.setStartUri(e.getAttribute("starturi"));
-            impl.setBaseUri(e.getAttribute("baseuri"));
-            impl.setArchiveClassName(e.getAttribute("archiveClass"));
-            impl.setActive(true);
-            String activeAttribute =  e.getAttribute("active");
-            if(!"".equals(activeAttribute)){
-                impl.setActive(Boolean.valueOf(activeAttribute));
-            }
-            repositoryDescriptorList.add(impl);
-        }
-
-
-        NodeList templates =doc.getElementsByTagName("template");
-        for(int i = 0; i < templates.getLength();i++){
-            Element e = (Element) templates.item(i);
-            TemplateDescriptorImpl impl= new TemplateDescriptorImpl();
-            impl.setAppliesTo(e.getAttribute("appliesTo"));
-            impl.setName(e.getAttribute("name"));
-            templateDescriptorList.add(impl);
-        }
-
-        NodeList crawlers =doc.getElementsByTagName("crawler");
-        for(int i = 0; i < crawlers.getLength();i++){
-            Element e = (Element) crawlers.item(i);
-            CrawlerDescriptorImpl impl= new CrawlerDescriptorImpl();
-            impl.setArchiveClassName(e.getAttribute("archiveClass"));
-            impl.setId(e.getAttribute("id"));
-            crawlerDescriptorList.add(impl);
-        }
+    @Override
+    @XmlElement(name="parser",type = ParserDescriptorImpl.class)
+    public List<ParserDescriptor> getParserList() {
+        return parserList;
     }
 
+    public void setParserList(List<ParserDescriptor> parserList) {
+        this.parserList = parserList;
+    }
 
+    @Override
+    @XmlElement(name="repository", type = RepositoryDescriptorImpl.class)
+    public List<RepositoryDescriptor> getRepositoryList() {
+        return repositoryList;
+    }
+
+    public void setRepositoryList(List<RepositoryDescriptor> repositoryList) {
+        this.repositoryList = repositoryList;
+    }
+    @Override
+    @XmlElement(name="crawler",type = CrawlerDescriptorImpl.class)
+    public List<CrawlerDescriptor> getCrawlerList() {
+        return crawlerList;
+    }
+
+    public void setCrawlerList(List<CrawlerDescriptor> crawlerList) {
+        this.crawlerList = crawlerList;
+    }
+    @Override
+    @XmlElement(name="template",type = TemplateDescriptorImpl.class)
+    public List<TemplateDescriptor> getTemplateList() {
+        return templateList;
+    }
+
+    public void setTemplateList(List<TemplateDescriptor> templateList) {
+        this.templateList = templateList;
+    }
+    @Override
+    @XmlElement(name="postprocessor", type = PostProcessorDescriptorImpl.class)
+    public List<PostProcessorDescriptor> getPostProcessorList() {
+        return postProcessorList;
+    }
+
+    public void setPostProcessorList(List<PostProcessorDescriptor> postProcessorList) {
+        this.postProcessorList = postProcessorList;
+    }
+
+    @Override
+    @XmlElement(name="provider",type = ProviderDescriptorImpl.class)
     public List<ProviderDescriptor> getProviderList() {
         return providerList;
     }
 
-    @Override
-    public List<ParserDescriptor> getParserList() {
-        return parserDescriptorList;
+    public void setProviderList(List<ProviderDescriptor> providerList) {
+        this.providerList = providerList;
     }
 
-    @Override
-    public List<RepositoryDescriptor> getRepositoryList() {
-        return repositoryDescriptorList;
-    }
-
-    @Override
-    public List<CrawlerDescriptor> getCrawlerList() {
-        return crawlerDescriptorList;
-    }
-
-    @Override
-    public List<TemplateDescriptor> getTemplateList() {
-        return templateDescriptorList;
-    }
-
-    public List<PostProcessorDescriptor> getPostProcessorList() {
-        return postProcessorList;
-    }
+    private List<ParserDescriptor> parserList = new ArrayList<>();
 
     public static class ProviderDescriptorImpl implements ProviderDescriptor {
         private String id;
@@ -198,13 +121,14 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "ProviderDescriptorImpl{" +
                     "id='" + id + '\'' +
-                    ", type='" + type + '\'' +
-                    ", className='" + className + '\'' +
-                    ", archiveClassName='" + archiveClassName + '\'' +
-                    ", model='" + model + '\'' +
+                    ", \ntype='" + type + '\'' +
+                    ", \nclassName='" + className + '\'' +
+                    ", \narchiveClassName='" + archiveClassName + '\'' +
+                    ", \nmodel='" + model + '\'' +
                     '}';
         }
 
+        @XmlAttribute
         public String getModel() {
             return model;
         }
@@ -212,7 +136,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public void setModel(String model) {
             this.model = model;
         }
-
+        @XmlAttribute
         public String getId() {
             return id;
         }
@@ -221,6 +145,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.id = id;
         }
 
+        @XmlAttribute
         public String getType() {
             return type;
         }
@@ -229,16 +154,19 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.type = type;
         }
 
+        @XmlAttribute(name="class")
         public String getClassName() {
             return className;
         }
 
         @Override
+        @XmlElement(name="namespace",type=NamespaceDescriptorImpl.class)
         public List<NamespaceDescriptor> getNamespaceList() {
             return namespaceList;
         }
 
         @Override
+        @XmlElement(name="load",type = LoadDescriptorImpl.class)
         public List<LoadDescriptor> getLoadList() {
             return loadList;
         }
@@ -268,10 +196,12 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String prefix;
         private URI uri;
 
+        @XmlAttribute
         public String getPrefix() {
             return prefix;
         }
 
+        @XmlAttribute
         public URI getUri() {
             return uri;
         }
@@ -288,7 +218,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "NamespaceDescriptorImpl{" +
                     "prefix='" + prefix + '\'' +
-                    ", uri=" + uri +
+                    ", \nuri=" + uri +
                     '}';
         }
     }
@@ -296,6 +226,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
     public static class LoadDescriptorImpl implements ProviderDescriptor.LoadDescriptor {
         private URL url;
 
+        @XmlAttribute
         public URL getUrl() {
             return url;
         }
@@ -316,6 +247,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String name;
         private String appliesTo;
 
+        @XmlAttribute
         public String getName() {
             return name;
         }
@@ -324,6 +256,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.name = name;
         }
 
+        @XmlAttribute
         public String getAppliesTo() {
             return appliesTo;
         }
@@ -336,7 +269,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "TemplateDescriptorImpl{" +
                     "name='" + name + '\'' +
-                    ", appliesTo='" + appliesTo + '\'' +
+                    ", \nappliesTo='" + appliesTo + '\'' +
                     '}';
         }
     }
@@ -349,11 +282,12 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "ParserDescriptorImpl{" +
                     "id='" + id + '\'' +
-                    ", className='" + className + '\'' +
-                    ", type='" + type + '\'' +
+                    ", \nclassName='" + className + '\'' +
+                    ", \ntype='" + type + '\'' +
                     '}';
         }
 
+        @XmlAttribute
         public String getType() {
             return type;
         }
@@ -362,6 +296,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.type = type;
         }
 
+        @XmlAttribute
         public String getId() {
             return id;
         }
@@ -370,6 +305,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.id = id;
         }
 
+        @XmlAttribute(name="class")
         public String getClassName() {
             return className;
         }
@@ -382,6 +318,15 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String id;
         private String className;
 
+        @Override
+        public String toString() {
+            return "PostProcessorDescriptorImpl{" +
+                    "id='" + id + '\'' +
+                    ", className='" + className + '\'' +
+                    '}';
+        }
+
+        @XmlAttribute(name="class")
         public String getClassName() {
             return className;
         }
@@ -390,6 +335,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.className = className;
         }
 
+        @XmlAttribute
         public String getId() {
             return id;
         }
@@ -406,12 +352,12 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "RepositoryDescriptorImpl{" +
                     "id='" + id + '\'' +
-                    ", type='" + type + '\'' +
-                    ", startUri='" + startUri + '\'' +
-                    ", baseUri='" + baseUri + '\'' +
-                    ", crawler='" + crawler + '\'' +
-                    ", active=" + active +
-                    ", archiveClassName='" + archiveClassName + '\'' +
+                    ", \ntype='" + type + '\'' +
+                    ", \nstartUri='" + startUri + '\'' +
+                    ", \nbaseUri='" + baseUri + '\'' +
+                    ", \ncrawler='" + crawler + '\'' +
+                    ", \nactive=" + active +
+                    ", \narchiveClassName='" + archiveClassName + '\'' +
                     '}';
         }
 
@@ -422,6 +368,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String archiveClassName;
 
 
+        @XmlAttribute
         public String getBaseUri() {
             return baseUri;
         }
@@ -430,6 +377,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.baseUri = baseUri;
         }
 
+        @XmlAttribute(name="archiveClass")
         public String getArchiveClassName() {
             return archiveClassName;
         }
@@ -438,6 +386,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.archiveClassName = archiveClassName;
         }
 
+        @XmlAttribute
         public String getId() {
             return id;
         }
@@ -446,6 +395,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.id = id;
         }
 
+        @XmlAttribute
         public String getType() {
             return type;
         }
@@ -454,6 +404,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.type = type;
         }
 
+        @XmlAttribute
         public String getStartUri() {
             return startUri;
         }
@@ -462,6 +413,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.startUri = startUri;
         }
 
+        @XmlAttribute
         public String getCrawler() {
             return crawler;
         }
@@ -470,6 +422,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.crawler = crawler;
         }
 
+        @XmlAttribute
         public boolean isActive() {
             return active;
         }
@@ -483,6 +436,15 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String id;
         private String archiveClassName;
 
+        @Override
+        public String toString() {
+            return "CrawlerDescriptorImpl{" +
+                    "id='" + id + '\'' +
+                    ", archiveClassName='" + archiveClassName + '\'' +
+                    '}';
+        }
+
+        @XmlAttribute
         public String getId() {
             return id;
         }
@@ -491,6 +453,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.id = id;
         }
 
+        @XmlAttribute(name="archiveClass")
         public String getArchiveClassName() {
             return archiveClassName;
         }
