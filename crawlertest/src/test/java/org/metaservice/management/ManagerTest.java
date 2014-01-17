@@ -10,7 +10,7 @@ import java.io.File;
 public class ManagerTest {
     @org.junit.Test
     public void testInstall() throws Exception {
-         Manager manager = new Manager(new ProductionConfig(), null, null, connectionFactory);
+         Manager manager = new Manager(new ProductionConfig(), null, null,null);
         manager.install(new File("C:\\Users\\ilo\\.m2\\repository\\org\\metaservice\\metaservice-core-deb\\1.0\\metaservice-core-deb-1.0.jar"));
     }
 }

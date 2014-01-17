@@ -28,12 +28,12 @@ public class RefreshResource {
         session = connection.createSession(false,
                 Session.AUTO_ACKNOWLEDGE);
 
-        Destination destination = session.createTopic("Refresh");
+        Destination destination = session.createTopic("VirtualTopic.Refresh");
         producer = session.createProducer(destination);
     }
     private Session session;
 
-    MessageProducer producer;
+    private MessageProducer producer;
     @POST
     public Response postRefresh(RefreshBean bean) {
         try {

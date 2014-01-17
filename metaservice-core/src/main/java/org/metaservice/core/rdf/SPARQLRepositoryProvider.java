@@ -1,10 +1,11 @@
 package org.metaservice.core.rdf;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.metaservice.core.Config;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sparql.SPARQLRepository;
+
+import javax.inject.Inject;
 
 public class SPARQLRepositoryProvider implements Provider<SPARQLRepository> {
     private final Config config;

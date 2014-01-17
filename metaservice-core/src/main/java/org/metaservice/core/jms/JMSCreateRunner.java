@@ -1,14 +1,14 @@
 package org.metaservice.core.jms;
 
-import com.google.inject.*;
+
 import org.metaservice.api.archive.ArchiveAddress;
-import org.metaservice.core.Config;
 import org.metaservice.core.Dispatcher;
 import org.metaservice.core.injection.InjectorFactory;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -36,7 +36,8 @@ public class JMSCreateRunner extends AbstractJMSRunner {
     public JMSCreateRunner(
             ConnectionFactory connectionFactory,
             Dispatcher dispatcher) throws JMSException, RepositoryException {
-        super("Create",connectionFactory);
+        super(connectionFactory);
+        initQueue("Consumer." + getClass().getName() + ".VirtualTopic.Create");
         this.dispatcher = dispatcher;
     }
 

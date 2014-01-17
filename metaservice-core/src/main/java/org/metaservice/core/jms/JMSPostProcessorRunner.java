@@ -1,26 +1,23 @@
 package org.metaservice.core.jms;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
-import org.metaservice.core.Config;
 import org.metaservice.core.injection.InjectorFactory;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
+import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
+import org.metaservice.core.postprocessor.PostProcessingTask;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.TextMessage;
+import javax.inject.Inject;
+import javax.jms.*;
 
 public class JMSPostProcessorRunner extends AbstractJMSRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSPostProcessorRunner.class);
-    final PostProcessor postProcessor;
-    final ValueFactory valueFactory;
+    private final PostProcessor postProcessor;
+    private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
 
     public static void main(String[] args) throws JMSException {
         if(args.length != 1)
@@ -38,22 +35,28 @@ public class JMSPostProcessorRunner extends AbstractJMSRunner {
     @Inject
     private JMSPostProcessorRunner(
             PostProcessor postProcessor,
-            ValueFactory valueFactory,
+            MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,
             ConnectionFactory connectionFactory
     ) throws JMSException, RepositoryException {
-        super("PostProcessResource",connectionFactory);
+        super(connectionFactory);
         this.postProcessor = postProcessor;
-        this.valueFactory = valueFactory;
-        LOGGER.info("DONE");
+        this.postProcessorDescriptor = postProcessorDescriptor;
+        initQueue("Consumer." + getClass().getName() + ".VirtualTopic.PostProcess");
     }
 
     @Override
     public void onMessage(Message message) {
         try {
-            TextMessage m = (TextMessage) message;
-            URI uri = valueFactory.createURI(m.getText());
-            if(postProcessor.abortEarly(uri)){
-                postProcessor.process(uri);
+            ObjectMessage m = (ObjectMessage) message;
+            PostProcessingTask task = (PostProcessingTask) m.getObject();
+            for(PostProcessingHistoryItem item  :task.getHistory()){
+                if(item.getPostprocessorId().equals(postProcessorDescriptor.getId()) && item.getResource().equals(task.getChangedURI())){
+                    LOGGER.info("Not processing, because did already process");
+                    return;
+                }
+            }
+            if(!postProcessor.abortEarly(task.getChangedURI())){
+                postProcessor.process(task.getChangedURI());
             }
         } catch (JMSException|PostProcessorException e) {
             LOGGER.error("",e);

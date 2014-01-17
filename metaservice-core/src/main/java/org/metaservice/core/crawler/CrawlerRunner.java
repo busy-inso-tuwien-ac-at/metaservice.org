@@ -58,7 +58,7 @@ public class CrawlerRunner {
                 Session.AUTO_ACKNOWLEDGE);
 
 
-        Destination destination = session.createTopic("Create");
+        Destination destination = session.createTopic("VirtualTopic.Create");
         producer = session.createProducer(destination);
     }
 

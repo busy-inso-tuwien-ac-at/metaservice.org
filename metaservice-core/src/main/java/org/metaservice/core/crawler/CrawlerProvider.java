@@ -1,10 +1,8 @@
 package org.metaservice.core.crawler;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.core.crawler.actions.CrawlerAction;
-import org.metaservice.core.crawler.actions.EmptyAction;
 import org.metaservice.core.crawler.actions.FetchAction;
 import org.metaservice.core.crawler.actions.FollowAction;
 import org.metaservice.core.utils.MetaserviceHttpClient;
@@ -15,11 +13,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Created by ilo on 11.12.13.
@@ -131,11 +129,7 @@ public class CrawlerProvider implements Provider<Crawler> {
     public Crawler get() {
         try {
             return createCrawler();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
+        } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
         return null;

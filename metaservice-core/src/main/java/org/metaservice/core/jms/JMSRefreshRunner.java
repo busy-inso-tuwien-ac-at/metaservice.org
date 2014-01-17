@@ -1,6 +1,6 @@
 package org.metaservice.core.jms;
 
-import com.google.inject.*;
+import javax.inject.Inject;
 import org.metaservice.core.Dispatcher;
 import org.metaservice.core.injection.InjectorFactory;
 import org.openrdf.model.ValueFactory;
@@ -35,7 +35,8 @@ public class JMSRefreshRunner extends AbstractJMSRunner {
             ValueFactory valueFactory,
             ConnectionFactory connectionFactory,
             Dispatcher dispatcher) throws JMSException, RepositoryException {
-        super("Refresh",connectionFactory);
+        super(connectionFactory);
+        initQueue("Consumer." + getClass().getName() + ".VirtualTopic.Refresh");
         this.valueFactory = valueFactory;
         this.dispatcher = dispatcher;
     }

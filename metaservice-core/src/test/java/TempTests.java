@@ -89,7 +89,6 @@ public class TempTests {
         repo.initialize();
         ValueFactory valueFactory = repo.getValueFactory();
         RepositoryConnection con =  repo.getConnection();
-        con.setAutoCommit(false);
         URL url = new URL("http://metaservice.org/ns/adms_sw.rdf");
         con.add(url,null,null);
         con.commit();

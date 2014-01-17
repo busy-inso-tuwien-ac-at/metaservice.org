@@ -1,10 +1,11 @@
 package org.metaservice.core.rdf;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+
+import javax.inject.Inject;
 
 public class RepositoryConnectionProvider implements Provider<RepositoryConnection> {
     private final Repository repository;

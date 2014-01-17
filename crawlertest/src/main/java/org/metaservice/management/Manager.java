@@ -54,7 +54,7 @@ public class Manager {
     }
 
     public Archive getArchiveWithName(@NotNull String name) throws ArchiveException {
-        ArchiveParameters archiveParameters = new ArchiveParametersImpl();
+        ArchiveParameters archiveParameters = new ArchiveParametersImpl(null,null);
         return new GitArchive(archiveParameters);
     }
 
@@ -65,7 +65,7 @@ public class Manager {
             jmsConnection.start();
             Session session = jmsConnection.createSession(false,
                     Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createTopic("Create");
+            Destination destination = session.createTopic("VirtualTopic.Create");
             MessageProducer producer = session.createProducer(destination);
 
             Archive gitArchive = getArchiveWithName(name);
