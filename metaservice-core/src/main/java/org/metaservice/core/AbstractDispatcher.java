@@ -97,7 +97,7 @@ public abstract  class AbstractDispatcher<T> {
             repositoryConnection.add(r, metadata);
             repositoryConnection.commit();
         }
-        LOGGER.info("sENT");
+        LOGGER.info("finished to send data");
     }
 
     protected Set<URI> getSubjects(@NotNull List<Statement> statements){

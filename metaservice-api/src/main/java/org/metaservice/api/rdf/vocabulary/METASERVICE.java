@@ -16,7 +16,7 @@ public class METASERVICE {
     public static final URI GENERATOR;
     public static final URI CREATION_TIME;
     public static final URI SCOPE;
-
+    public static final URI DUMMY;
 
 
     static {
@@ -29,7 +29,9 @@ public class METASERVICE {
         GENERATOR = factory.createURI(NAMESPACE,"generator");
         CREATION_TIME = factory.createURI(NAMESPACE,"creation_time");
         SCOPE = factory.createURI(NAMESPACE,"scope");
+        DUMMY = factory.createURI( NAMESPACE,"dummy" );
     }
+
 
 
 }
