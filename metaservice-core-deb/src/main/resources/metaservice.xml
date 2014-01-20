@@ -18,7 +18,10 @@
 
     <postprocessor
             id="debVersionPostProcessor"
-            class="org.metaservice.core.deb.DebianVersionReasoner"/>
+            class="org.metaservice.core.deb.DebianVersionReasoner">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <namespace prefix="ms-deb-pkg" uri="http://metaservice.org/d/packages/debian/"/>
+    </postprocessor>
 
     <repository
             id="debian_org"

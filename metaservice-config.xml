@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<metaservice-config archiveBasePath="/opt/metaservice_data/" batchSize="100000" dumpRDFBeforeLoad="false" httpdDataDirectory="/var/www/" jmsBroker="failover://tcp://localhost:61616" sparqlEndpoint="http://metaservice.org/sparql">
-    <dumpRDFDirectory>/opt/metaservice/dump</dumpRDFDirectory>
-</metaservice-config>

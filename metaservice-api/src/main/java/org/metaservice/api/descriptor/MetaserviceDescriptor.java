@@ -20,15 +20,6 @@ public interface MetaserviceDescriptor {
         String getClassName();
         List<NamespaceDescriptor> getNamespaceList();
         List<LoadDescriptor>  getLoadList();
-
-        public static interface NamespaceDescriptor{
-            String getPrefix();
-            URI getUri();
-        }
-
-        public static interface LoadDescriptor{
-            URL getUrl();
-        }
     }
 
     public static interface ParserDescriptor{
@@ -55,6 +46,8 @@ public interface MetaserviceDescriptor {
     public static interface PostProcessorDescriptor{
         String getId();
         String getClassName();
+        List<NamespaceDescriptor> getNamespaceList();
+        List<LoadDescriptor>  getLoadList();
     }
 
     public static interface TemplateDescriptor{
@@ -62,5 +55,13 @@ public interface MetaserviceDescriptor {
         String getAppliesTo();
     }
 
+    public static interface NamespaceDescriptor {
+        String getPrefix();
+        URI getUri();
+    }
+
+    public static interface LoadDescriptor {
+        URL getUrl();
+    }
 }
 

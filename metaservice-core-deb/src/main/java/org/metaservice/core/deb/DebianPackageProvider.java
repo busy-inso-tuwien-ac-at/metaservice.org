@@ -35,15 +35,12 @@ public class DebianPackageProvider implements Provider<Package> {
 
     private BooleanQuery checkMailExists;
     private final ValueFactory valueFactory;
-    private final RepositoryConnection connection;
 
     @Inject
     public DebianPackageProvider(
-            ValueFactory valueFactory,
-            RepositoryConnection connection
+            ValueFactory valueFactory
     ) throws RepositoryException, MalformedQueryException, IOException, InterruptedException {
         this.valueFactory = valueFactory;
-        this.connection = connection;
     }
 
     enum PackageType{binary,source}
@@ -97,7 +94,7 @@ public class DebianPackageProvider implements Provider<Package> {
 
     //  public void setContext();
 
-    public void provideModelFor(@NotNull Package p, final RepositoryConnection resultConnection) throws ProviderException {
+    public void provideModelFor(@NotNull Package p, @NotNull final RepositoryConnection resultConnection) throws ProviderException {
         try{
             try {
                 checkMailExists = resultConnection.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { ?package ?property ?x. ?x <" + FOAF.MBOX + "> ?mboxvalue; <" + FOAF.NAME + "> ?mboxname }");

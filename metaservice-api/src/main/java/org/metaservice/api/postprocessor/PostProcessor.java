@@ -1,10 +1,12 @@
 package org.metaservice.api.postprocessor;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryConnection;
 
 
 public interface PostProcessor {
-    public void process(URI uri) throws PostProcessorException;
+    public void process(@NotNull final URI uri,@NotNull final RepositoryConnection resultConnection) throws PostProcessorException;
 
     /**
      * This method should not do the same as process, but be a lightweight check.
@@ -16,5 +18,5 @@ public interface PostProcessor {
      * @return
      * @throws PostProcessorException
      */
-    public boolean abortEarly(URI uri) throws PostProcessorException;
+    public boolean abortEarly(@NotNull final URI uri) throws PostProcessorException;
 }

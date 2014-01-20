@@ -77,7 +77,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             impl.setClassName(e.getAttribute("class"));
             impl.setType(e.getAttribute("type"));
             impl.setModel(e.getAttribute("model"));
-            ArrayList<ProviderDescriptor.NamespaceDescriptor> namespaceDescriptors = new ArrayList<>();
+            ArrayList<NamespaceDescriptor> namespaceDescriptors = new ArrayList<>();
             impl.setNamespaceList(namespaceDescriptors);
             NodeList namespaces = e.getElementsByTagName("namespace");
             for(int j = 0; j < namespaces.getLength();j++){
@@ -90,7 +90,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
                     LOGGER.warn("Could not add namespace", e1);
                 }
             }
-            ArrayList<ProviderDescriptor.LoadDescriptor> loadDescriptors = new ArrayList<>();
+            ArrayList<LoadDescriptor> loadDescriptors = new ArrayList<>();
             impl.setLoadList(loadDescriptors);
             NodeList loads = e.getElementsByTagName("load");
             for(int j = 0; j < loads.getLength();j++){
@@ -125,8 +125,8 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             impl.setId(e.getAttribute("id"));
             impl.setCrawler(e.getAttribute("crawler"));
             impl.setType(e.getAttribute("type"));
-            impl.setStartUri(e.getAttribute("starturi"));
-            impl.setBaseUri(e.getAttribute("baseuri"));
+            impl.setStartUri(e.getAttribute("startUri"));
+            impl.setBaseUri(e.getAttribute("baseUri"));
             impl.setArchiveClassName(e.getAttribute("archiveClass"));
             impl.setActive(true);
             String activeAttribute =  e.getAttribute("active");
@@ -264,7 +264,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         }
     }
 
-    public static class NamespaceDescriptorImpl implements ProviderDescriptor.NamespaceDescriptor {
+    public static class NamespaceDescriptorImpl implements NamespaceDescriptor {
         private String prefix;
         private URI uri;
 
@@ -293,7 +293,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
         }
     }
 
-    public static class LoadDescriptorImpl implements ProviderDescriptor.LoadDescriptor {
+    public static class LoadDescriptorImpl implements LoadDescriptor {
         private URL url;
 
         public URL getUrl() {
@@ -384,6 +384,16 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
 
         public String getClassName() {
             return className;
+        }
+
+        @Override
+        public List<NamespaceDescriptor> getNamespaceList() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<LoadDescriptor> getLoadList() {
+            return new ArrayList<>();
         }
 
         public void setClassName(String className) {

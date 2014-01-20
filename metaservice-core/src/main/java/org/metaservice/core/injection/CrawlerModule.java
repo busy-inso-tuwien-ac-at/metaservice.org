@@ -7,7 +7,6 @@ import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.Config;
 import org.metaservice.core.archive.ArchiveParametersImpl;
-import org.metaservice.core.archive.GitArchive;
 import org.metaservice.core.crawler.Crawler;
 import org.metaservice.core.crawler.CrawlerParameters;
 import org.metaservice.core.crawler.CrawlerProvider;
@@ -32,7 +31,8 @@ public class CrawlerModule extends AbstractModule{
     @Override
     protected void configure() {
         try {
-
+            System.err.println(crawlerDescriptor);
+            System.err.println(repositoryDescriptor);
             ArchiveParameters archiveParameters = new ArchiveParametersImpl(
                     repositoryDescriptor.getBaseUri(),
                     new File(config.getArchiveBasePath() + repositoryDescriptor.getId()) //todo retrieve from cmdb?

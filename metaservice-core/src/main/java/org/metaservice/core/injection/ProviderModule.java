@@ -10,7 +10,7 @@ import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.api.provider.Provider;
 import org.metaservice.core.Config;
-import org.metaservice.core.Dispatcher;
+import org.metaservice.core.provider.ProviderDispatcher;
 import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,13 +57,13 @@ public class ProviderModule extends AbstractModule {
 
             Type providerType = Types.newParameterizedType(Provider.class,modelClazz);
             Type parserType = Types.newParameterizedType(Parser.class,modelClazz);
-            Type dispatcherType = Types.newParameterizedType(Dispatcher.class,modelClazz);
+            Type dispatcherType = Types.newParameterizedType(ProviderDispatcher.class,modelClazz);
 
             bind(MetaserviceDescriptor.ParserDescriptor.class).toInstance(parserDescriptor);
             bind(MetaserviceDescriptor.ProviderDescriptor.class).toInstance(providerDescriptor);
             bind(TypeLiteral.get(providerType)).to(providerClazz);
             bind(TypeLiteral.get(parserType)).to(parserClazz);
-            bind(new TypeLiteral<Dispatcher>(){}).to((TypeLiteral<? extends Dispatcher>) TypeLiteral.get(dispatcherType));
+            bind(new TypeLiteral<ProviderDispatcher>(){}).to((TypeLiteral<? extends ProviderDispatcher>) TypeLiteral.get(dispatcherType));
 
             Multibinder<Archive> multibinder = Multibinder.newSetBinder(binder(), Archive.class);
 

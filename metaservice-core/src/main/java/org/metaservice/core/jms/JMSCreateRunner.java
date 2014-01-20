@@ -2,7 +2,7 @@ package org.metaservice.core.jms;
 
 
 import org.metaservice.api.archive.ArchiveAddress;
-import org.metaservice.core.Dispatcher;
+import org.metaservice.core.provider.ProviderDispatcher;
 import org.metaservice.core.injection.InjectorFactory;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import javax.jms.ObjectMessage;
  */
 public class JMSCreateRunner extends AbstractJMSRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSRefreshRunner.class);
-    private final Dispatcher dispatcher;
+    private final ProviderDispatcher providerDispatcher;
 
     public static void main(String[] args) throws JMSException {
         if(args.length != 1)
@@ -35,24 +35,21 @@ public class JMSCreateRunner extends AbstractJMSRunner {
     @Inject
     public JMSCreateRunner(
             ConnectionFactory connectionFactory,
-            Dispatcher dispatcher) throws JMSException, RepositoryException {
+            ProviderDispatcher providerDispatcher) throws JMSException, RepositoryException {
         super(connectionFactory);
-        initQueue("Consumer." + getClass().getName() + ".VirtualTopic.Create");
-        this.dispatcher = dispatcher;
+        initQueue("Consumer." + getClass().getName().replaceAll("\\.","_") + ".VirtualTopic.Create");
+        this.providerDispatcher = providerDispatcher;
     }
 
     @Override
     public void onMessage(Message message) {
         try {
-
             ObjectMessage m = (ObjectMessage) message;
             ArchiveAddress archiveAddress = (ArchiveAddress) m.getObject();
             LOGGER.info("processing " + archiveAddress.getPath());
-            dispatcher.create(archiveAddress);
-            //TODO think about
-            //   bufferedSparql.flushModel();
+            providerDispatcher.create(archiveAddress);
         } catch (JMSException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            LOGGER.error("JMS Exception",e);
         }
     }
 }

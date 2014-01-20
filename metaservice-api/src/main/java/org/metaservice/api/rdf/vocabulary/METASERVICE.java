@@ -13,6 +13,9 @@ public class METASERVICE {
     public static final URI TIME;
     public static final URI PATH;
     public static final URI VIEW;
+    public static final URI GENERATOR;
+    public static final URI CREATION_TIME;
+    public static final URI SCOPE;
 
 
 
@@ -23,6 +26,10 @@ public class METASERVICE {
         PATH = factory.createURI(NAMESPACE,"path");
         METADATA = factory.createURI(NAMESPACE,"metadata");
         VIEW = factory.createURI(NAMESPACE,"view");
+        GENERATOR = factory.createURI(NAMESPACE,"generator");
+        CREATION_TIME = factory.createURI(NAMESPACE,"creation_time");
+        SCOPE = factory.createURI(NAMESPACE,"scope");
     }
+
 
 }

@@ -192,7 +192,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         }
     }
 
-    public static class NamespaceDescriptorImpl implements ProviderDescriptor.NamespaceDescriptor {
+    public static class NamespaceDescriptorImpl implements NamespaceDescriptor {
         private String prefix;
         private URI uri;
 
@@ -223,7 +223,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         }
     }
 
-    public static class LoadDescriptorImpl implements ProviderDescriptor.LoadDescriptor {
+    public static class LoadDescriptorImpl implements LoadDescriptor {
         private URL url;
 
         @XmlAttribute
@@ -317,13 +317,27 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     public static class PostProcessorDescriptorImpl implements PostProcessorDescriptor{
         private String id;
         private String className;
+        private List<NamespaceDescriptor> namespaceList;
+        private List<LoadDescriptor> loadList;
 
         @Override
-        public String toString() {
-            return "PostProcessorDescriptorImpl{" +
-                    "id='" + id + '\'' +
-                    ", className='" + className + '\'' +
-                    '}';
+        @XmlElement(name="namespace",type=NamespaceDescriptorImpl.class)
+        public List<NamespaceDescriptor> getNamespaceList() {
+            return namespaceList;
+        }
+
+        public void setNamespaceList(List<NamespaceDescriptor> namespaceList) {
+            this.namespaceList = namespaceList;
+        }
+
+        public void setLoadList(List<LoadDescriptor> loadList) {
+            this.loadList = loadList;
+        }
+
+        @Override
+        @XmlElement(name="load",type = LoadDescriptorImpl.class)
+        public List<LoadDescriptor> getLoadList() {
+            return loadList;
         }
 
         @XmlAttribute(name="class")

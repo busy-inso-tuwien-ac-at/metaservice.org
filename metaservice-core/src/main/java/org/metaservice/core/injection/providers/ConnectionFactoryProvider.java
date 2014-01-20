@@ -20,6 +20,9 @@ public class ConnectionFactoryProvider implements Provider<ConnectionFactory> {
 
     @Override
     public ConnectionFactory get() {
-        return new ActiveMQConnectionFactory(config.getJmsBroker());
+        ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(config.getJmsBroker());
+        activeMQConnectionFactory.setUseAsyncSend(true);
+        //activeMQConnectionFactory.setDispatchAsync();
+        return activeMQConnectionFactory;
     }
 }

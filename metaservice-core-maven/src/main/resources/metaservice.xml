@@ -16,7 +16,7 @@
             id="maven_central"
             type="maven"
             baseuri="http://mirrors.ibiblio.org/maven2/"
-            starturi="http://mirrors.ibiblio.org/maven2/org/apache/activemq/"
+            starturi="http://mirrors.ibiblio.org/maven2/"
             crawler="maven"
             archiveClass="org.metaservice.core.archive.GitArchive"
             >

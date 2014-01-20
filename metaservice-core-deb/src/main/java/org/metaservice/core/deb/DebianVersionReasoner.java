@@ -1,11 +1,13 @@
 package org.metaservice.core.deb;
 
+import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
@@ -13,22 +15,12 @@ import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
 public class DebianVersionReasoner implements PostProcessor {
-
-    public static void main(String[] args) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UpdateExecutionException, PostProcessorException {
-        RepositoryConnection connection = null;
-        ValueFactory valueFactory = null;
-        DebianVersionReasoner reasoner = new DebianVersionReasoner(connection, valueFactory);
-        reasoner.process(valueFactory.createURI("http://metaservice.org/d/packages/debian/libc6"));
-        reasoner.close();
-        LOGGER.info("DONE");
-        System.exit(0);
-    }
-
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
     private final static String baseURI = "http://metaservice.org/d/packages/debian/";
 
@@ -36,13 +28,11 @@ public class DebianVersionReasoner implements PostProcessor {
     private final TupleQuery selectVersionsOrderQuery;
     private final TupleQuery selectPackageQuery;
     private final TupleQuery selectProjectQuery;
-    private final Update update;
 
-    private final RepositoryConnection bufferedSparql;
     private final ValueFactory valueFactory;
 
+    @Inject
     public DebianVersionReasoner(RepositoryConnection repositoryConnection, ValueFactory valueFactory) throws RepositoryException, MalformedQueryException {
-        this.bufferedSparql = repositoryConnection;
         this.valueFactory = valueFactory;
         String queryString  = "SELECT ?version ?title ?arch ?resource { ?project <" + ADMSSW.RELEASE+ "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource. ?resource <"+ PACKAGE_DEB.TITLE +"> ?title; <" + PACKAGE_DEB.VERSION + "> ?version; <"+PACKAGE_DEB.ARCHITECTURE+"> ?arch.}";
         LOGGER.info(queryString);
@@ -54,37 +44,27 @@ public class DebianVersionReasoner implements PostProcessor {
         LOGGER.info(queryString);
         selectPackageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
 
-        queryString = "SELECT ?project {?project <" + ADMSSW.RELEASE+ "> ?resource.} UNION {?project <"+ ADMSSW.RELEASE + "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource }";
+        queryString = "SELECT ?project {{?project <" + ADMSSW.RELEASE+ "> ?resource.} UNION {?project <"+ ADMSSW.RELEASE + "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource }}";
         selectProjectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
-
-        queryString = "DELETE {?subject <"+ADMSSW.NEXT+"> ?object.?object <"+ADMSSW.PREV+"> ?subject. } WHERE \n" +
-                "{{?resource <"+ADMSSW.RELEASE+"> ?subject. ?subject <"+ADMSSW.NEXT+"> ?object.} UNION {?resource <"+ADMSSW.RELEASE+"> ?version. ?version <"+ADMSSW.PACKAGE+"> ?subject. ?subject <"+ADMSSW.NEXT+"> ?object.}}";
-        LOGGER.info(queryString);
-
-        update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,queryString);
-
     }
 
 
-    public void update(String uri) throws QueryEvaluationException, RepositoryException, MalformedQueryException, UpdateExecutionException {
-        update.setBinding("resource",valueFactory.createURI(uri));
-        update.execute();
-
+    public void update(@NotNull final String uri, RepositoryConnection resultConnection) throws QueryEvaluationException, RepositoryException, MalformedQueryException, UpdateExecutionException {
         LOGGER.info("Processing versions");
-        updateVersion(uri);
+        updateVersion(uri,resultConnection);
 
         selectPackageQuery.setBinding("project", valueFactory.createURI(uri));
         TupleQueryResult result = selectPackageQuery.evaluate();
         while (result.hasNext()){
             BindingSet set = result.next();
             LOGGER.info("Processing {}", set.getValue("arch").stringValue());
-            updatePackage(uri, set.getValue("arch").stringValue());
+            updatePackage(uri, set.getValue("arch").stringValue(), resultConnection);
         }
 
 
     }
 
-    private void updateVersion(String uri) throws QueryEvaluationException, RepositoryException {
+    private void updateVersion(String uri,RepositoryConnection resultConnection) throws QueryEvaluationException, RepositoryException {
         selectVersionsOrderQuery.setBinding("project", valueFactory.createURI(uri));
 
         TupleQueryResult result = selectVersionsOrderQuery.evaluate();
@@ -104,11 +84,11 @@ public class DebianVersionReasoner implements PostProcessor {
         }
 
         for(int i = 0; i < list.size()-1;i++){
-            addStatements(versionUriMap.get(list.get(i)),versionUriMap.get(list.get(i+1)));
+            addStatements(versionUriMap.get(list.get(i)),versionUriMap.get(list.get(i+1)),resultConnection);
         }
     }
 
-    public void updatePackage(String project, String arch) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+    public void updatePackage(String project, String arch,RepositoryConnection resultConnection) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
         selectPackageVersionsOrderQuery.setBinding("arch", valueFactory.createLiteral(arch));
         selectPackageVersionsOrderQuery.setBinding("project", valueFactory.createURI(project));
         TupleQueryResult result = selectPackageVersionsOrderQuery.evaluate();
@@ -130,31 +110,35 @@ public class DebianVersionReasoner implements PostProcessor {
         }
 
         for(int i = 0; i < list.size()-1;i++){
-            addStatements(versionUriMap.get(list.get(i)),versionUriMap.get(list.get(i+1)));
+            addStatements(versionUriMap.get(list.get(i)),versionUriMap.get(list.get(i+1)),resultConnection);
         }
     }
 
-    private void addStatements(String s1,String s2) throws RepositoryException {
+    private void addStatements(String s1,String s2,RepositoryConnection resultConnection) throws RepositoryException {
         Resource uri1 = valueFactory.createURI(s1);
         Resource uri2 = valueFactory.createURI(s2);
-        bufferedSparql.add(uri1, ADMSSW.NEXT, uri2);
+        resultConnection.add(uri1, ADMSSW.NEXT, uri2);
         // not needed because of inference?
-        //  bufferedSparql.addStatement(uri2, ADMSSW.PREV,uri1);
+        //  repositoryConnection.addStatement(uri2, ADMSSW.PREV,uri1);
         LOGGER.info(uri1 + " next " + uri2);
     }
 
-    private void close() throws RepositoryException {
-        bufferedSparql.close();
-    }
-
     @Override
-    public void process(URI uri) throws PostProcessorException{
+    public void process(@NotNull final URI uri,@NotNull final RepositoryConnection resultConnection) throws PostProcessorException{
         try{
             selectProjectQuery.setBinding("resource",uri);
             TupleQueryResult result = selectProjectQuery.evaluate();
+            if(result == null)
+            {
+                LOGGER.error("result is somehow null - why can this happen? {}" ,uri.toString());
+                return;
+            }
             try{
                 if(result.hasNext()){
-                    update(result.next().getBinding("resource").getValue().stringValue());
+                    BindingSet bindings = result.next();
+                    Binding binding = bindings.getBinding("project");
+                    Value value = binding.getValue();
+                    update(value.stringValue(),resultConnection);
                 }else {
                     LOGGER.info("could not find project for " + uri.stringValue());
                 }
@@ -169,7 +153,7 @@ public class DebianVersionReasoner implements PostProcessor {
     }
 
     @Override
-    public boolean abortEarly(URI uri) throws PostProcessorException{
-        return uri.stringValue().startsWith(baseURI);
+    public boolean abortEarly(@NotNull final URI uri) throws PostProcessorException{
+        return !uri.stringValue().startsWith(baseURI);
     }
 }

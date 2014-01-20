@@ -1,7 +1,7 @@
 package org.metaservice.core.jms;
 
 import javax.inject.Inject;
-import org.metaservice.core.Dispatcher;
+import org.metaservice.core.provider.ProviderDispatcher;
 import org.metaservice.core.injection.InjectorFactory;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
@@ -16,7 +16,7 @@ import javax.jms.TextMessage;
 
 public class JMSRefreshRunner extends AbstractJMSRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSRefreshRunner.class);
-    private final Dispatcher dispatcher;
+    private final ProviderDispatcher providerDispatcher;
     private final ValueFactory valueFactory;
 
     public static void main(String[] args) throws JMSException {
@@ -34,11 +34,11 @@ public class JMSRefreshRunner extends AbstractJMSRunner {
     private JMSRefreshRunner(
             ValueFactory valueFactory,
             ConnectionFactory connectionFactory,
-            Dispatcher dispatcher) throws JMSException, RepositoryException {
+            ProviderDispatcher providerDispatcher) throws JMSException, RepositoryException {
         super(connectionFactory);
-        initQueue("Consumer." + getClass().getName() + ".VirtualTopic.Refresh");
+        initQueue("Consumer." + getClass().getName().replaceAll("\\.","_") + ".VirtualTopic.Refresh");
         this.valueFactory = valueFactory;
-        this.dispatcher = dispatcher;
+        this.providerDispatcher = providerDispatcher;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class JMSRefreshRunner extends AbstractJMSRunner {
                 return;
             }
             TextMessage m = (TextMessage) message;
-            dispatcher.refresh(valueFactory.createURI(m.getText()));
+            providerDispatcher.refresh(valueFactory.createURI(m.getText()));
          //TODO think about
          //   bufferedSparql.flushModel();
         } catch (JMSException e) {
