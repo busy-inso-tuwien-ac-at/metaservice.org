@@ -32,6 +32,16 @@
         Handlebars.registerPartial("copyInputField", $("#partial-copytextinputfield").html());
         var templatePath = '/d/package.hbs';
         var resourceUrl = document.location.toString().replace(/\/$/,'');
+	/*
+		Alternative much faster query:
+	   Select  DISTINCT
+ ?graph ?subject ?relation ?value 
+{
+{Select ?graph (<http://metaservice.org/d/packages/debian/libc6> as ?subject) ?relation ?value { GRAPH ?graph {<http://metaservice.org/d/packages/debian/libc6> ?relation ?value.} OPTIONAL { GRAPH ?graph2 { ?value ?relation2 ?value2 }}}}
+ UNION
+ {Select (?graph2 AS ?graph) (?value as ?subject) (?relation2 as ?relation) (?value2 as ?value){ GRAPH ?graph {<http://metaservice.org/d/packages/debian/libc6> ?relation ?value.} OPTIONAL { GRAPH ?graph2 { ?value ?relation2 ?value2 }}}}
+ }
+	   */
         var query = "Select *  { GRAPH ?graph  {<" +encodeURI(resourceUrl) + "> ?relation ?value.}   OPTIONAL { GRAPH ?graph2 { ?value  ?relation2 ?value2 }}}";
         $.ajax({
             url: "/sparql",
