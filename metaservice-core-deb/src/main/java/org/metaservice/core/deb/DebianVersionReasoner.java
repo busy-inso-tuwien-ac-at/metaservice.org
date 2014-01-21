@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class DebianVersionReasoner implements PostProcessor {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
-    private final static String baseURI = "http://metaservice.org/d/packages/debian/";
+    final static String URI_REGEX = "^http://metaservice.org/d/packages/debian/[^/#]+/[^/#]+(/[^/#]+)?$";
 
     private final TupleQuery selectPackageVersionsOrderQuery;
     private final TupleQuery selectVersionsOrderQuery;
@@ -44,7 +44,8 @@ public class DebianVersionReasoner implements PostProcessor {
         LOGGER.info(queryString);
         selectPackageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
 
-        queryString = "SELECT ?project {{?project <" + ADMSSW.RELEASE+ "> ?resource.} UNION {?project <"+ ADMSSW.RELEASE + "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource }}";
+        queryString = "SELECT ?project {{?project <" + ADMSSW.RELEASE+ "> ?resource.} UNION {?project <"+ ADMSSW.RELEASE + "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource }} LIMIT 1";
+        LOGGER.info(queryString);
         selectProjectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
     }
 
@@ -154,6 +155,6 @@ public class DebianVersionReasoner implements PostProcessor {
 
     @Override
     public boolean abortEarly(@NotNull final URI uri) throws PostProcessorException{
-        return !uri.stringValue().startsWith(baseURI);
+        return !uri.stringValue().matches(URI_REGEX);
     }
 }

@@ -120,7 +120,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 List<Statement> generatedStatements = getGeneratedStatements(repositoryConnection,loadedStatements);
                 sendData(resultConnection,metadata,generatedStatements);
                 Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
-                notifyPostProcessors(resourcesToPostProcess,null,null);
+                notifyPostProcessors(resourcesToPostProcess,null,null,null);
                 LOGGER.info("done processing {} {}", time, path);
             } catch (RepositoryException | ArchiveException e) {
                 LOGGER.error("Could not Refresh {}" ,address,e);
@@ -164,7 +164,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             List<Statement> generatedStatements  = getGeneratedStatements(resultConnection,loadedStatements);
             sendData(resultConnection,metadata,generatedStatements);
             Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
-            notifyPostProcessors(resourcesToPostProcess,null,null);
+            notifyPostProcessors(resourcesToPostProcess,null,null, null);
         } catch (RepositoryException | ArchiveException e) {
             LOGGER.error("Couldn't create {}",address,e);
         }

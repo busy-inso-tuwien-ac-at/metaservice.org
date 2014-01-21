@@ -111,15 +111,15 @@ public abstract  class AbstractDispatcher<T> {
         return subjects;
     }
 
-    protected void notifyPostProcessors( @NotNull Set<URI> resourcesThatChanged, @Nullable PostProcessingTask originalTask,@Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor){
+    protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @Nullable PostProcessingTask originalTask, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor, Set<URI> affectedProcessableSubjects){
         LOGGER.info("START NOTIFICATION OF POSTPROCESSORS");
 
         ArrayList<PostProcessingHistoryItem> history = new ArrayList<>();
 
-        if(originalTask != null){
+        if(originalTask != null && affectedProcessableSubjects != null){
             history.addAll(originalTask.getHistory());
             if(postProcessorDescriptor != null){
-                PostProcessingHistoryItem now = new PostProcessingHistoryItem(postProcessorDescriptor.getId(),originalTask.getChangedURI());
+                PostProcessingHistoryItem now = new PostProcessingHistoryItem(postProcessorDescriptor.getId(),affectedProcessableSubjects.toArray(new URI[affectedProcessableSubjects.size()]));
                 history.add(now);
             }
         }

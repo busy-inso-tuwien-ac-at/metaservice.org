@@ -1,5 +1,6 @@
 package org.metaservice.core.deb;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
 import org.hamcrest.number.OrderingComparison;
 import org.junit.Test;
 
@@ -139,7 +140,19 @@ public class DebianVersionReasonerTest {
         assertThat(c.compare("1.4+OOo3.0.0~","1.4+OOo3.0.0-4"),OrderingComparison.lessThan(0));
         assertThat(c.compare("2.4.7-1","2.4.7-z"),OrderingComparison.lessThan(0));
         assertThat(c.compare("1.002-1+b2","1.00"),OrderingComparison.greaterThan(0));
+        assertThat(c.compare("2.18-0ubuntu2","2.11.1-0ubuntu7.13"),OrderingComparison.greaterThan(0));
+        assertThat(c.compare("2.11.1-0ubuntu7.13","2.11.1-0ubuntu7"),OrderingComparison.greaterThan(0));
 
+
+    }
+
+    @Test
+    public void testRegex(){
+        assertEquals("http://metaservice.org/d/packages/debian/libc6/2.13-20ubuntu5.2/amd64".matches(DebianVersionReasoner.URI_REGEX),true);
+        assertEquals("http://metaservice.org/d/packages/debian/libc6/2.13-20ubuntu5.2".matches(DebianVersionReasoner.URI_REGEX),true);
+        assertEquals("http://metaservice.org/d/packages/debian/libc6".matches(DebianVersionReasoner.URI_REGEX),false);
+        assertEquals("http://metaservice.org/d/packages/debian/libc6/".matches(DebianVersionReasoner.URI_REGEX), false);
+        assertEquals("http://metaservice.org/d/packages/debian/libc6/2.13-20ubuntu5.2#".matches(DebianVersionReasoner.URI_REGEX),false);
 
     }
 }
