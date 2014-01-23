@@ -24,6 +24,7 @@
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-core</artifactId>
             <version>1.0-SNAPSHOT</version>
+          <!--  <scope>runtime</scope> not possible because dependency on gitarchive -->
         </dependency>
 
         <dependency>

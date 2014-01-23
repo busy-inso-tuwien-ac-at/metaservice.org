@@ -1,7 +1,7 @@
 package org.metaservice.core.deb.parser.ast;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.helper.StringUtil;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +14,6 @@ public class Package extends SuperNode {
     @NotNull
     @Override
     public String toString() {
-        return StringUtil.join(this.getChildren(), "\n")+ "\n\n";
+        return StringUtils.join(this.getChildren(), "\n")+ "\n\n";
     }
 }
