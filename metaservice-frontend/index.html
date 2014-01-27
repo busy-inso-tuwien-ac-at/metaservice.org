@@ -32,17 +32,18 @@
         Handlebars.registerPartial("copyInputField", $("#partial-copytextinputfield").html());
         var templatePath = '/d/package.hbs';
         var resourceUrl = document.location.toString().replace(/\/$/,'');
+        var query = "Select *  { GRAPH ?graph  {?resource ?relation ?value.}   OPTIONAL { GRAPH ?graph2 { ?value  ?relation2 ?value2 }}}";
 	/*
 		Alternative much faster query:
-	   Select  DISTINCT
- ?graph ?subject ?relation ?value 
-{
-{Select ?graph (<http://metaservice.org/d/packages/debian/libc6> as ?subject) ?relation ?value { GRAPH ?graph {<http://metaservice.org/d/packages/debian/libc6> ?relation ?value.} OPTIONAL { GRAPH ?graph2 { ?value ?relation2 ?value2 }}}}
- UNION
- {Select (?graph2 AS ?graph) (?value as ?subject) (?relation2 as ?relation) (?value2 as ?value){ GRAPH ?graph {<http://metaservice.org/d/packages/debian/libc6> ?relation ?value.} OPTIONAL { GRAPH ?graph2 { ?value ?relation2 ?value2 }}}}
- }
-	   */
-        var query = "Select *  { GRAPH ?graph  {<" +encodeURI(resourceUrl) + "> ?relation ?value.}   OPTIONAL { GRAPH ?graph2 { ?value  ?relation2 ?value2 }}}";
+		*/
+	query = "Select  DISTINCT ?graph ?subject ?relation ?value {"
+                  +" {Select ?graph (?resource as ?subject) (?irelation as ?relation) (?ivalue as ?value)"
+                  +"   { GRAPH ?igraph {?resource ?irelation ?ivalue.} }} "
+                  +" UNION "
+                  +" {Select (?igraph2 AS ?graph) (?ivalue as ?subject) (?irelation2 as ?relation) (?ivalue2 as ?value) "
+                  +"   { GRAPH ?igraph {?resource ?irelation ?ivalue.} OPTIONAL { GRAPH ?igraph2 { ?ivalue ?irelation2 ?ivalue2 }}}}"
+                  +" }";
+	query = query.split('?resource').join('<' + encodeURI(resourceUrl) + '>');
         $.ajax({
             url: "/sparql",
             beforeSend: function(xhrObj){
@@ -113,6 +114,31 @@
 </head>
 <body>
 <div id="content" class="container">
+	<nav class="navbar navbar-default" role="navigation">
+  		<div class="navbar-header">
+    		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+      			<span class="sr-only">Toggle navigation</span>
+      			<span class="icon-bar"></span>
+      			<span class="icon-bar"></span>
+      			<span class="icon-bar"></span>
+    		</button>
+    		<a class="navbar-brand" href="#">metaservice.org</a>
+  		</div>
+  		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+    		<ul class="nav navbar-nav navbar-right">
+	    		<li>
+        			<form class="navbar-form" role="search">
+        				<div class="input-group">
+            				<input type="text" class="form-control col-xs-4" placeholder="Search" name="q">
+            				<div class="input-group-btn ">
+                				<button class="btn btn-default" type="submit">&nbsp;<i class="fa fa-search"></i></button>
+            				</div>
+        				</div>
+        			</form>
+				</li>
+    		</ul>
+  		</div>
+	</nav>
     <div class="modal" id="loader">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -133,24 +159,10 @@
 </div>
 
 
-<!--
-<div id="loadModal"  tabindex="-1" role="dialog" class="modal hide fade" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4 id="myModalLabel" class="modal-title">Modal title</h4>
-        </div>
-        <div class="modal-body">
-            FOOLONG
-            <div>
-
-            </div>
-        </div>
-    </div>
-</div>-->
-
 
 <div id="footer">
     <div class="container">
+	    metaservice.org
     </div>
 </div>
 </body>

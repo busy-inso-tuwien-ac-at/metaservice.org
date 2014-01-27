@@ -54,12 +54,8 @@ function convertToJson(data,root){
 
     var result = {};
     $.each(data.results.bindings,function(index,d){
-        if(DEB[d.relation.value] && (!d.relation2  || !DEB[d.relation2.value])){
-            result = addToMap(result,root, DEB[d.relation.value], d.value.value);
-        }else if(DEB[d.relation.value] && d.relation2 &&  DEB[d.relation2.value]){
-            result = addToMap(result,root, DEB[d.relation.value], d.value.value);
-            result = addToMap(result, d.value.value, DEB[d.relation2.value], d.value2.value);
-        }
+	if(d.subject && d.relation && d.value)
+        result = addToMap(result,d.subject.value, DEB[d.relation.value], d.value.value);
     });
 
     recursiveLink(result,result);
