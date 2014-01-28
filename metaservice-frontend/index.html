@@ -23,94 +23,44 @@
             </button>
         </div>
     </script>
+    <script id="searchResults" type="x-handlebars-template">
+        <ol class="breadcrumb">
+            <li><a href="#">Search</a></li>
+            <li class="active"><a href="#">"{{query}}"</a></li>
+        </ol>
+        <ul>
+            {{#eachArray result}}
+            <li>
+                <a href="{{subject}}">{{title}}<span class="badge">{{type}}</span></a>
+            </li>
+            {{/eachArray}}
+            <ul class="pagination">
+                {{#if pagination.prev}}
+                <li><a href="{{pagination.prev.url}}">&laquo;</a></li>
+                {{else}}
+                <li class="disabled"><a href="#">&laquo;</a></li>
+                {{/if}}
+
+                {{#eachArray pagination.pages}}
+                    {{#if selected}}
+                        <li class="active"><a href="#">{{title}}<span class="sr-only">(current)</span></a></li>
+                    {{else}}
+                        <li><a href="{{url}}">{{title}}</a></li>
+                    {{/if }}
+                {{/eachArray}}
+                {{#if pagination.next}}
+                <li><a href="{{pagination.next.url}}">&raquo;</a></li>
+                {{else}}
+                <li class="disabled"><a href="#">&laquo;</a></li>
+                {{/if}}
+            </ul>
+        </ul>
+    </script>
+    <script src="/d/index.js"></script>
     <script>
-        function loadError(title,content){
-            $('#loader .modal-body').empty();
-            $('#loader .modal-body').append('<div class="alert alert-danger fade in"><strong>' + title+ '</strong><br>'+content+'</div>');
-        }
-
-        Handlebars.registerPartial("copyInputField", $("#partial-copytextinputfield").html());
-        var templatePath = '/d/package.hbs';
-        var resourceUrl = document.location.toString().replace(/\/$/,'');
-        var query = "Select *  { GRAPH ?graph  {?resource ?relation ?value.}   OPTIONAL { GRAPH ?graph2 { ?value  ?relation2 ?value2 }}}";
-	/*
-		Alternative much faster query:
-		*/
-	query = "Select  DISTINCT ?graph ?subject ?relation ?value {"
-                  +" {Select ?graph (?resource as ?subject) (?irelation as ?relation) (?ivalue as ?value)"
-                  +"   { GRAPH ?igraph {?resource ?irelation ?ivalue.} }} "
-                  +" UNION "
-                  +" {Select (?igraph2 AS ?graph) (?ivalue as ?subject) (?irelation2 as ?relation) (?ivalue2 as ?value) "
-                  +"   { GRAPH ?igraph {?resource ?irelation ?ivalue.} OPTIONAL { GRAPH ?igraph2 { ?ivalue ?irelation2 ?ivalue2 }}}}"
-                  +" }";
-	query = query.split('?resource').join('<' + encodeURI(resourceUrl) + '>');
-        $.ajax({
-            url: "/sparql",
-            beforeSend: function(xhrObj){
-                xhrObj.setRequestHeader("Accept","application/sparql-results+json");
-            },
-            dataType: "json",
-            type: "post",
-            data: {
-                "query": query,
-                "infer": "true"
-            },
-            success: function(data){
-                if(data.results.bindings == 0){
-                    loadError('No Data Found','There was no response :-(');
-                    return;
-                }
-                var result = convertToJson(data,resourceUrl);
-                console.log(data);
-                console.log(result);
-
-                var templatePath = [];
-                if($.isArray(result.type)){
-                    $.each(result.type,function(index,d){
-                        if(d.view){
-                            templatePath.push("/" + d.view);
-                        }
-                    });
-                }else if ($.isPlainObject(result.type)){
-                    if(result.type.view){
-                        templatePath.push("/" + result.type.view);
-                    }
-                }
-                console.log(templatePath);
-
-                if(templatePath.length ==0){
-                    loadError('Template missing','There is no view specified for this type of data  :-(');
-                    return;
-                }
-
-                getTemplateAjax(templatePath[0], function(template) {
-
-                    $('#content').append(template(result));
-                    $('#loader').modal('hide');
-                    $('.refresh').click(function(){
-                        console.log('Sending Refresh request for ' + resourceUrl );
-                        $.ajax({
-                            url:'/rest/refresh',
-                            type: "POST",
-                            dataType: "json",
-                            contentType: "application/json; charset=utf-8",
-                            data:JSON.stringify({"url": resourceUrl}),
-                            success:function(){console.log('success')},
-                            error:function(){console.log ('error')}
-                        });
-                    });
-                },function(){
-                    loadError('Template missing','Could not retrieve ' +templatePath[0] +'  :-(');
-                });
-
-            },
-            error: function(){
-                loadError('Service unreachable','Could not reach the service /sparql :-(');
-            }
-        });
+        main();
     </script>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-
 </head>
 <body>
 <div id="content" class="container">
@@ -127,7 +77,7 @@
   		<div class="collapse navbar-collapse" id="navbar-collapse-1">
     		<ul class="nav navbar-nav navbar-right">
 	    		<li>
-        			<form class="navbar-form" role="search">
+        			<form class="navbar-form" role="search" action="/d/search">
         				<div class="input-group">
             				<input type="text" class="form-control col-xs-4" placeholder="Search" name="q">
             				<div class="input-group-btn ">
@@ -157,9 +107,6 @@
         </div>
     </div>
 </div>
-
-
-
 <div id="footer">
     <div class="container">
 	    metaservice.org
