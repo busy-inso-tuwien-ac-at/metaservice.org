@@ -41,7 +41,10 @@ function handleSearch(){
         +"  ?title bds:search '" + q + "' ;"
         +"         bds:relevance  ?relevance ."
         +"  ?subject a ?type; "
-        +"           dc:title ?title ."
+        +"           dc:title ?title "
+        +"     FILTER ("
+        +"         ?type != <http://www.w3.org/2000/01/rdf-schema#Resource> "
+        +"     )"
         +"}"
         +" ORDER BY ?relevance ?title "
         +" LIMIT   " + limit
@@ -90,7 +93,7 @@ function handleSearch(){
             if(page == 1){
                 result.pagination.prev = null;
             }
-            for(var i = page -3 ; i < page+3;i++){
+            for(var i = page -3 ; i < page+4;i++){
                 if(i>0){
                     result.pagination.pages.push({url:"http://metaservice.org/d/search?q=" + q + "&limit=" + limit + "&offset="+(offset + (i-page)*limit),title:i, selected: i == page});
                 }
@@ -110,28 +113,58 @@ function handleSearch(){
     });
 }
 
+function getProvenanceContent(element){
+    return $(element).text();
+}
+function getProvenanceTitle(element){
+    return $(element).text();
+}
 function handleResource(){
     var query = MS.namespaces
+        +"Select ?graph ?subject ?relation ?value {"
+
         +"Select  DISTINCT ?graph ?subject ?relation ?value {"
-        +" {Select ?graph (?resource as ?subject) (?irelation as ?relation) (?ivalue as ?value)"
+        +" Select (?igraph as ?graph) (?resource as ?subject) (?irelation as ?relation) (?ivalue as ?value)"
         +"   { GRAPH ?igraph {?resource ?irelation ?ivalue.} }} "
         +" UNION "
         +" {Select (?igraph2 AS ?graph) (?ivalue as ?subject) (?irelation2 as ?relation) (?ivalue2 as ?value) "
         +"   { GRAPH ?igraph {?resource ?irelation ?ivalue.} OPTIONAL { GRAPH ?igraph2 { ?ivalue ?irelation2 ?ivalue2 }}}}"
-        +" }";
+        +" }"
+
+        +" UNION "
+
+        +" SELECT (?igraph as ?graph) (?graph as ?subject) ?relation ?value{"
+        +"  GRAPH ?igraph { ?graph ?relation ?value}."
+        +"  Select  DISTINCT ?graph {"
+        +"  {Select (?igraph as ?graph) (?resource as ?subject) (?irelation as ?relation) (?ivalue as ?value)"
+        +"    { GRAPH ?igraph {?resource ?irelation ?ivalue.} }} "
+        +"  UNION "
+        +"  {Select (?igraph2 AS ?graph) (?ivalue as ?subject) (?irelation2 as ?relation) (?ivalue2 as ?value) "
+        +"    { GRAPH ?igraph {?resource ?irelation ?ivalue.} OPTIONAL { GRAPH ?igraph2 { ?ivalue ?irelation2 ?ivalue2 }}}}"
+        +"  }"
+        +" }"
+
+        +"}";
+    query = "CONSTRUCT { ?resource ?relation ?value. " +
+        " ?value ?vrelation ?vvalue." +
+        " ?graph ?grelation ?gvalue." +
+        " ?ggraph ?ggrelation ?ggvalue.}" +
+        " ";
     query = query.split('?resource').join('<' + encodeURI(MS.resourceUrl) + '>');
     $.ajax({
         url: "/sparql",
-        beforeSend: function(xhrObj){
+     /*   beforeSend: function(xhrObj){
             xhrObj.setRequestHeader("Accept","application/sparql-results+json");
-        },
-        dataType: "json",
+        },*/
+//        dataType: "json",
         type: "post",
         data: {
             "query": query,
             "infer": "true"
         },
         success: function(data){
+            console.log(data);
+
             if(data.results.bindings == 0){
                 loadError('No Data Found','There was no response :-(');
                 return;
@@ -174,6 +207,19 @@ function handleResource(){
                         success:function(){console.log('success')},
                         error:function(){console.log ('error')}
                     });
+                });
+                $('*[data-provenance]').each(function(index,element){
+                    $(element).popover({
+                        html: true,
+                        placement: 'auto right',
+                        trigger: 'hover',
+                        title : function(){
+                            return getProvenanceTitle(element);
+                        },
+                        content: function(){
+                            return getProvenanceContent(element);
+                        }
+                    })
                 });
             },function(){
                 loadError('Template missing','Could not retrieve ' +templatePath[0] +'  :-(');

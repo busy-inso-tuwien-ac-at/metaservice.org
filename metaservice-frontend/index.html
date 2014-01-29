@@ -9,9 +9,8 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css">
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/d/rdfjsonmapping.js"></script>
-
-    <!--  -->
     <script  src="http://metaservice.org/d/handlebarsloader.js"></script>
+
     <script id="partial-copytextinputfield" type="x-handlebars-template">
         <div class="input-group">
             <input type="text" class="form-control" value="{{this}}">
@@ -23,17 +22,20 @@
             </button>
         </div>
     </script>
+
     <script id="searchResults" type="x-handlebars-template">
         <ol class="breadcrumb">
             <li><a href="#">Search</a></li>
             <li class="active"><a href="#">"{{query}}"</a></li>
         </ol>
-        <ul>
+        <ul class="list-group">
             {{#eachArray result}}
-            <li>
-                <a href="{{subject}}">{{title}}<span class="badge">{{type}}</span></a>
+            <li class="list-group-item">
+                <span class="badge">{{type}}</span> <a href="{{subject}}">{{title}}</a>
             </li>
             {{/eachArray}}
+        </ul>
+        <div class="text-center">
             <ul class="pagination">
                 {{#if pagination.prev}}
                 <li><a href="{{pagination.prev.url}}">&laquo;</a></li>
@@ -42,11 +44,11 @@
                 {{/if}}
 
                 {{#eachArray pagination.pages}}
-                    {{#if selected}}
-                        <li class="active"><a href="#">{{title}}<span class="sr-only">(current)</span></a></li>
-                    {{else}}
-                        <li><a href="{{url}}">{{title}}</a></li>
-                    {{/if }}
+                {{#if selected}}
+                <li class="active"><a href="#">{{title}}<span class="sr-only">(current)</span></a></li>
+                {{else}}
+                <li><a href="{{url}}">{{title}}</a></li>
+                {{/if }}
                 {{/eachArray}}
                 {{#if pagination.next}}
                 <li><a href="{{pagination.next.url}}">&raquo;</a></li>
@@ -54,7 +56,7 @@
                 <li class="disabled"><a href="#">&laquo;</a></li>
                 {{/if}}
             </ul>
-        </ul>
+        </div>
     </script>
     <script src="/d/index.js"></script>
     <script>

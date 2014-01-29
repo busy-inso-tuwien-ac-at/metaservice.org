@@ -30,7 +30,7 @@ function convertToJson(data,root){
         return curval;
     }
 
-    function addToMap(result,subject,relation,value){
+    function addToMap(result,provenanceResult,graph,subject,relation,value){
         if(!result[subject]){
             result[subject] = {resourceURI:subject};
         }
@@ -48,17 +48,29 @@ function convertToJson(data,root){
         }else{
             result[subject][relation] = value;
         }
+        if(graph){
+            var provenanceId = subject + "."+ relation + "[" + value + "]";
+            if(!$.isArray(provenanceResult[provenanceId])){
+                provenanceResult[provenanceId] = [];
+            }
+            provenanceResult[provenanceId].push(graph);
+        }
         return result;
     }
 
 
     var result = {};
+    var provenanceResult = {};
     $.each(data.results.bindings,function(index,d){
 	if(d.subject && d.relation && d.value)
-        result = addToMap(result,d.subject.value, DEB[d.relation.value], d.value.value);
+        result = addToMap(result,provenanceResult, (d.graph)?d.graph.value:null, d.subject.value, DEB[d.relation.value], d.value.value);
     });
+    console.log(provenanceResult);
+
+    recursiveLink(provenanceResult,result);
 
     recursiveLink(result,result);
+    console.log(provenanceResult);
     return result[root];
 }
 
@@ -75,4 +87,40 @@ Handlebars.registerHelper('eachArray', function(context, options) {
 	ret = options.fn(context);
   }
   return ret;
+});
+
+Handlebars.registerHelper('eachNext', function(context, options) {
+    if(!context)
+        return "";
+    //set prev
+    for(i=0, j=context.length; i<j; i++) {
+        if(context[i].next && !context[i].next.prev){
+            context[i].next.prev = context[i];
+        }
+    }
+    var first;
+
+    for(i=0, j=context.length; i<j; i++) {
+        if(!context[i].prev){
+            if(!first){
+                first = context[i];
+            }else{
+                console.log('ERROR duplicate head');
+            }
+        }
+    }
+    if(!first){
+        console.log("ERROR no first");
+        return "";
+    }
+
+
+    context = first;
+    var ret = "";
+    ret += options.fn(context);
+    while(context.next){
+        context = context.next;
+        ret += options.fn(context);
+    }
+    return ret;
 });
