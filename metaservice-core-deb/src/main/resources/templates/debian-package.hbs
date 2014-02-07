@@ -1,60 +1,58 @@
 <ol class="breadcrumb">
     <li><a href="#">Debian Binary Packages</a></li>
-    <li><a href="/d/packages/debian/{{title}}">{{title}}</a></li>
-    <li><a href="/d/packages/debian/{{title}}/{{version}}">{{version}}</a></li>
-    <li class="active">{{arch}}</li>
+    <li><a href="{{admssw:release/admssw:project/ms:id}}">{{dc:title}}</a></li>
+    <li><a href="{{admssw:release/ms:id}}">{{ms-deb:version}}</a></li>
+    <li class="active">{{ms-deb:architecture}}</li>
 </ol>
 <button type="button"  class="refresh btn btn-default pull-right "><i class="fa fa-refresh"></i> Request Refresh</button>
 
-<h1>{{title}}</h1>
+<h1>{{dc:title}}</h1>
 <div class="row">
     <div class="col-md-8">
-        <pre>{{description}}</pre>
-        Homepage: <a href="{{homepage}}">{{homepage}}</a>{{^homepage}}-{{/homepage}}
+        <pre>{{ms-deb:description}}</pre>
+        Homepage: <a href="{{ms-deb:homepage}}">{{ms-deb:homepage}}</a>{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
         <br>
         Maintainer:
         <ul>
-            {{#eachArray maintainer}}<li><a href="{{mbox}}">{{name}} &lt;{{mbox}}&gt;</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:maintainer}}<li><a href="{{foaf:mbox}}">{{foaf:name}} &lt;{{foaf:mbox}}&gt;</a></li>{{/eachArray}}
         </ul>
         <br>
         Uploader:
         <ul>
-            {{#eachArray uploader}}<li><a href="{{mbox}}">{{name}}</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:uploader}}<li><a href="{{foaf:mbox}}">{{foaf:name}}</a></li>{{/eachArray}}
         </ul>
         Depends:
         <ul>
-            {{#eachArray depends}}<li><a href="{{depends}}">{{description}}</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:depends}}<li><a href="{{ms-deb:depends}}">{{dc:description}}</a></li>{{/eachArray}}
         </ul>
         Suggests:
         <ul>
-            {{#eachArray suggests}}<li><a href="{{suggests}}">{{description}}</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:suggests}}<li><a href="{{ms-deb:suggests}}">{{dc:description}}</a></li>{{/eachArray}}
         </ul>
-
         Recommends:
         <ul>
-            {{#eachArray recommends}}<li><a href="{{recommends}}">{{description}}</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:recommends}}<li><a href="{{ms-deb:recommends}}">{{dc:description}}</a></li>{{/eachArray}}
         </ul>
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
-
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr><th>Previous</th><td><a href="/d/packages/debian/{{title}}/{{prev.version}}/{{arch}}">{{prev.version}}</a></td>
-                <tr><th>Next</th><td><a href="/d/packages/debian/{{title}}/{{next.version}}/{{arch}}">{{next.version}}</a></td>
-                <tr><th>Version</th><td><a href="/d/packages/debian/{{title}}/{{version}}">{{version}}</a></td>
-                <tr><th>Project</th><td><a href="/d/packages/debian/{{title}}">{{title}}</a></td>
-                <tr><th>Repository</th><td></td>
+                <tr><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
+                <tr><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/ms-deb:version}}</a></td></tr>
+                <tr><th>Version</th><td><a href="{{admssw:release/ms:id}}">{{ms-deb:version}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{admssw:release/admssw:project/ms:id}}">{{dc:title}}</a></td></tr>
+                <tr><th>Repository</th><td></td></tr>
             </table>
         </div>
 
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">File Information</h4></div>
             <table class="table">
-                <tr><th>Filename</th><td>{{> copyInputField filename}}</td>
-                <tr><th>MD5sum</th><td>{{> copyInputField md5sum}}</td>
-                <tr><th>SHA-1sum</th><td>{{> copyInputField sha1sum}}</td>
-                <tr><th>SHA-256sum</th><td>{{> copyInputField sha256sum}}</td>
+                <tr><th>Filename</th><td>{{> copyInputField  ms-deb:filename}}</td></tr>
+                <tr><th>MD5sum</th><td>{{> copyInputField ms-deb:md5sum}}</td></tr>
+                <tr><th>SHA-1sum</th><td>{{> copyInputField  ms-deb:sha1sum}}</td></tr>
+                <tr><th>SHA-256sum</th><td>{{> copyInputField  ms-deb:sha256sum}}</td></tr>
             </table>
         </div>
     </div>

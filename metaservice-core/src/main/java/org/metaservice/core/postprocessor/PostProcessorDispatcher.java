@@ -35,7 +35,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
     private final PostProcessor postProcessor;
     private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
-    private final  RepositoryConnection repositoryConnection;
+    private final RepositoryConnection repositoryConnection;
     private final TupleQuery graphSelect;
     private final ValueFactory valueFactory;
 
@@ -108,6 +108,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
             loadNamespaces(resultConnection,postProcessorDescriptor.getNamespaceList());
             loadOntologies(resultConnection,postProcessorDescriptor.getLoadList());
+            resultConnection.commit();
             HashSet<Statement> loadedStatements = new HashSet<>();
             Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT), loadedStatements);
 

@@ -28,6 +28,8 @@
     <rdfs:Class rdf:about="http://metaservice.org/ns/package-deb#Package">
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
     </rdfs:Class>
+    <!-- TODO aufräumen und strukturieren -->
+
     <owl:ObjectProperty rdf:ID="description">
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
         <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>

@@ -86,6 +86,7 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
                 NamespaceDescriptorImpl ns = new NamespaceDescriptorImpl();
                 ns.setPrefix(x.getAttribute("prefix"));
                 ns.setUri(new URI(x.getAttribute("uri")));
+                namespaceDescriptors.add(ns);
                 } catch (URISyntaxException e1) {
                     LOGGER.warn("Could not add namespace", e1);
                 }
@@ -95,8 +96,9 @@ public class MetaserviceDescriptorImpl implements MetaserviceDescriptor {
             NodeList loads = e.getElementsByTagName("load");
             for(int j = 0; j < loads.getLength();j++){
                 Element x = (Element) loads.item(j);
-                LoadDescriptorImpl ns = new LoadDescriptorImpl();
-                ns.setUrl(new URL(x.getAttribute("url")));
+                LoadDescriptorImpl load = new LoadDescriptorImpl();
+                load.setUrl(new URL(x.getAttribute("url")));
+                loadDescriptors.add(load);
             }
             providerList.add(impl);
         }

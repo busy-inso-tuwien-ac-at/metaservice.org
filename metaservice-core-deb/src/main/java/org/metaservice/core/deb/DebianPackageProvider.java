@@ -1,10 +1,7 @@
 package org.metaservice.core.deb;
 
 import org.jetbrains.annotations.NotNull;
-import org.metaservice.api.rdf.vocabulary.ADMSSW;
-import org.metaservice.api.rdf.vocabulary.DC;
-import org.metaservice.api.rdf.vocabulary.FOAF;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
+import org.metaservice.api.rdf.vocabulary.*;
 import org.metaservice.api.provider.Provider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.core.deb.parser.ast.*;
@@ -120,16 +117,18 @@ public class DebianPackageProvider implements Provider<Package> {
 
             //project
             resultConnection.add(projectURI, RDF.TYPE, PACKAGE_DEB.PROJECT);
-            resultConnection.add(projectURI, ADMSSW.RELEASE, releaseURI);
+            resultConnection.add(projectURI, DOAP.RELEASE, releaseURI);
 
             //release
             resultConnection.add(releaseURI, ADMSSW.PACKAGE, packageURI);
+            resultConnection.add(releaseURI,ADMSSW.PROJECT,projectURI);
             resultConnection.add(releaseURI, RDF.TYPE, PACKAGE_DEB.RELEASE);
             createStringEntry(packageQuery, releaseURI, Entries.Version.class, PACKAGE_DEB.VERSION, resultConnection);
             createVersionEntry(packageQuery,releaseURI,PACKAGE_DEB.VERSION,resultConnection);
 
             //package
             resultConnection.add(packageURI, RDF.TYPE, PACKAGE_DEB.PACKAGE);
+            resultConnection.add(packageURI, ADMSSW.RELEASE, releaseURI);
             createStringEntry(packageQuery, packageURI, Entries.MD5sum.class, PACKAGE_DEB.MD5SUM, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.SHA1.class, PACKAGE_DEB.SHA1, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.SHA256.class, PACKAGE_DEB.SHA256, resultConnection);

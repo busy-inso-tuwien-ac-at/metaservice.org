@@ -11,7 +11,7 @@
         <pre>{{description}}</pre>
         Homepage: <a href="{{homepage}}">{{homepage}}</a>{{^homepage}}-{{/homepage}}
         <ul>
-            {{#eachArray package}}<li> <a href="{{resourceURI}}">{{title}}</a></li>{{/eachArray}}
+            {{#eachNext package}}<li> <a href="{{resourceURI}}">{{title}}</a></li>{{/eachNext}}
         </ul>
     </div>
 </div>

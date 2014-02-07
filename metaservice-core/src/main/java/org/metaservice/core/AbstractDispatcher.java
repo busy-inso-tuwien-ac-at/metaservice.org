@@ -18,6 +18,7 @@ import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.util.logging.resources.logging_sv;
 
 import javax.jms.*;
 import java.io.FileWriter;
@@ -144,12 +145,21 @@ public abstract  class AbstractDispatcher<T> {
     protected List<Statement> getGeneratedStatements(RepositoryConnection resultConnection,Set<Statement> loadedStatements) throws RepositoryException {
         RepositoryResult<Statement> all = resultConnection.getStatements(null, null, null, true, NO_CONTEXT);
         ArrayList<Statement> allList = new ArrayList<>();
+      //  ArrayList<Statement> deletedList = new ArrayList<>();
         while(all.hasNext()){
             Statement s = all.next();
             if(!loadedStatements.contains(s)){
                 allList.add(s);
+          /*      LOGGER.debug("{}",s);
+            }else{
+                deletedList.add(s);*/
             }
+
+            //todo fixme loaded statements are not deleted
         }
+    /*    LOGGER.debug("ATTENTION: the following statements should be deleted {}", loadedStatements.size());
+        LOGGER.debug("ATTENTION: the following statements where deleted {}", deletedList.size());
+*/
         return  allList;
     }
 
@@ -182,11 +192,13 @@ public abstract  class AbstractDispatcher<T> {
     }
 
     protected void loadOntologies(RepositoryConnection con, List<MetaserviceDescriptor.LoadDescriptor> loadList){
+       LOGGER.info("Loading " + loadList.size() + " Ontologies");
         for(MetaserviceDescriptor.LoadDescriptor loadDescriptor : loadList){
             try {
+                LOGGER.info("Loading Ontology {}",loadDescriptor.getUrl());
                 con.add(loadDescriptor.getUrl(),null,null,NO_CONTEXT);
             } catch (RDFParseException | IOException | RepositoryException e) {
-                LOGGER.warn("Couldn't load {}",loadDescriptor,e);
+                LOGGER.info("Couldn't load {}",loadDescriptor,e);
             }
         }
 

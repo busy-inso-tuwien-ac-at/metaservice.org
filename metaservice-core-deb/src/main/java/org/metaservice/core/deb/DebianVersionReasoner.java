@@ -119,8 +119,7 @@ public class DebianVersionReasoner implements PostProcessor {
         Resource uri1 = valueFactory.createURI(s1);
         Resource uri2 = valueFactory.createURI(s2);
         resultConnection.add(uri1, ADMSSW.NEXT, uri2);
-        // not needed because of inference?
-        //  repositoryConnection.addStatement(uri2, ADMSSW.PREV,uri1);
+        resultConnection.add(uri2, ADMSSW.PREV,uri1);
         LOGGER.info(uri1 + " next " + uri2);
     }
 

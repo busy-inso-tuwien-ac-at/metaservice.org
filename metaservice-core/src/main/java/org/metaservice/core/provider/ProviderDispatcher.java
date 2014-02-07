@@ -105,6 +105,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 RepositoryConnection resultConnection = resultRepository.getConnection();
                 loadNamespaces(resultConnection,providerDescriptor.getNamespaceList());
                 loadOntologies(resultConnection,providerDescriptor.getLoadList());
+                resultConnection.commit();
                 HashSet<Statement> loadedStatements = new HashSet<>();
                 Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT), loadedStatements);
                 List<T> objects = parser.parse(content);
@@ -117,7 +118,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 }
                 resultConnection.commit();
                 repositoryConnection.clear(oldMetadata);
-                List<Statement> generatedStatements = getGeneratedStatements(repositoryConnection,loadedStatements);
+                List<Statement> generatedStatements = getGeneratedStatements(resultConnection,loadedStatements);
                 sendData(resultConnection,metadata,generatedStatements);
                 Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
                 notifyPostProcessors(resourcesToPostProcess,null,null,null);
@@ -149,6 +150,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
 
             loadNamespaces(resultConnection,providerDescriptor.getNamespaceList());
             loadOntologies(resultConnection,providerDescriptor.getLoadList());
+            resultConnection.commit();
             HashSet<Statement> loadedStatements = new HashSet<>();
             Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT),loadedStatements);
 

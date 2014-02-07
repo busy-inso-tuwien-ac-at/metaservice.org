@@ -5,8 +5,8 @@
             model="org.metaservice.core.deb.parser.ast.Package"
             class="org.metaservice.core.deb.DebianPackageProvider"
             >
-    <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>
-        <load url="http://metaservice.org/ns/metaservice_deb.rdf"/>-->
+    <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <namespace prefix="ms-deb-pkg" uri="http://metaservice.org/d/packages/debian/"/>
     </provider>

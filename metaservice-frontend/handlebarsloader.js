@@ -90,37 +90,46 @@ Handlebars.registerHelper('eachArray', function(context, options) {
 });
 
 Handlebars.registerHelper('eachNext', function(context, options) {
+    console.log('TRYING');
+    console.log(context);
     if(!context)
         return "";
-    //set prev
-    for(i=0, j=context.length; i<j; i++) {
-        if(context[i].next && !context[i].next.prev){
-            context[i].next.prev = context[i];
-        }
-    }
-    var first;
 
-    for(i=0, j=context.length; i<j; i++) {
-        if(!context[i].prev){
-            if(!first){
-                first = context[i];
-            }else{
-                console.log('ERROR duplicate head');
+    //set prev
+    /*
+    if($.isArray(context)){
+        for(i=0, j=context.length; i<j; i++) {
+            if(context[i]['xhv:next'] && !context[i]['xhv:next']['xhv:prev']){
+                context[i]['xhv:next']['xhv:prev'] = context[i];
             }
         }
+    }else{
+        var x = context;
+        while(x['xhv:next']){
+            if(!x['xhv:next']['xhv:prev']){
+                x['xhv:next']['xhv:prev'] = x;
+            }
+        }
+    }*/
+    if($.isArray(context)){
+        var first = [];
+        for(i=0, j=context.length; i<j; i++) {
+            if(!context[i]['xhv:prev']){
+                first.push(context[i]);
+            }
+        }
+         context = first;
     }
-    if(!first){
-        console.log("ERROR no first");
-        return "";
-    }
-
-
-    context = first;
     var ret = "";
-    ret += options.fn(context);
-    while(context.next){
-        context = context.next;
-        ret += options.fn(context);
+
+    for(i=0; i < context.length;i++){
+        head = context[i];
+        ret += options.fn(head);
+        while(head['xhv:next']){
+            head = head['xhv:next'];
+            ret += options.fn(head);
+        }
     }
+
     return ret;
 });

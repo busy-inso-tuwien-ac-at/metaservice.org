@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="http://metaservice.org/d/style.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css">
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/d/rdfjsonmapping.js"></script>
     <script  src="http://metaservice.org/d/handlebarsloader.js"></script>
+    <script  src="http://metaservice.org/d/jsonld.js"></script>
 
     <script id="partial-copytextinputfield" type="x-handlebars-template">
         <div class="input-group">
@@ -77,11 +77,11 @@
     		<a class="navbar-brand" href="#">metaservice.org</a>
   		</div>
   		<div class="collapse navbar-collapse" id="navbar-collapse-1">
-    		<ul class="nav navbar-nav navbar-right">
+    		<ul class="nav navbar-nav navbar-right" style="width: 250px;">
 	    		<li>
         			<form class="navbar-form" role="search" action="/d/search">
         				<div class="input-group">
-            				<input type="text" class="form-control col-xs-4" placeholder="Search" name="q">
+            				<input type="text" class="form-control" placeholder="Search" name="q">
             				<div class="input-group-btn ">
                 				<button class="btn btn-default" type="submit">&nbsp;<i class="fa fa-search"></i></button>
             				</div>
