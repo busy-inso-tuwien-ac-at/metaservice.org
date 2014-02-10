@@ -12,9 +12,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
+    /*
 @Singleton
-@Path("/refresh")
+@Path("/refresh")*/
 public class RefreshResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshResource.class);

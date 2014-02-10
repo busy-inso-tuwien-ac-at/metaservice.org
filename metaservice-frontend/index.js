@@ -35,10 +35,6 @@ function initMs() {
         "xhv":"http://www.w3.org/1999/xhtml/vocab#",
         "xsd": "http://www.w3.org/2001/XMLSchema#"
     };
-    MS.namespaces = '';
-    $.each(MS.context,function(prefix,uri){
-        MS.namespaces += 'PREFIX ' + prefix + ': <' + uri +'>\n';
-    });
     MS.resourceUrl = document.location.toString().replace(/\/$/,'');
 }
 
@@ -54,32 +50,17 @@ function handleSearch(){
     }
     var page = (offset/limit) +1;
 
-
-    var query = MS.namespaces
-        +"SELECT DISTINCT"
-        +" ?subject ?title ?type ?relevance "
-        +" WHERE {"
-        +"  ?title bds:search '" + q + "' ;"
-        +"         bds:relevance  ?relevance ."
-        +"  ?subject a ?type; "
-        +"           dc:title ?title "
-        +"     FILTER ("
-        +"         ?type != <http://www.w3.org/2000/01/rdf-schema#Resource> "
-        +"     )"
-        +"}"
-        +" ORDER BY ?relevance ?title "
-        +" LIMIT   " + limit
-        +" OFFSET  " +offset;
-
     $.ajax({
-        url: "/sparql",
+        url: "http://localhost:8088/search",
         beforeSend: function(xhrObj){
             xhrObj.setRequestHeader("Accept","application/sparql-results+json");
         },
         dataType: "json",
         type: "post",
         data: {
-            "query": query
+            "q": q,
+            "limit": limit,
+            "offset": offset
         },
         success: function(data){
             if(data.results.bindings == 0){
@@ -121,9 +102,7 @@ function handleSearch(){
             }
             console.log(result);
 
-
-
-            template  = Handlebars.compile($("#searchResults").html());
+            var template  = Handlebars.compile($("#searchResults").html());
             $('#content').append(template(result));
             $('#loader').modal('hide');
 
@@ -280,6 +259,7 @@ function jsonLdFollowIris(source,iri){
                     }else{
                         $.each(d,function(xindex,x){
                             if(!x){
+                                //todo why?
                                 console.log(iri);
                                 console.log(dindex);
                                 console.log(JSON.stringify(d));
@@ -307,14 +287,12 @@ function jsonLdUnion(array){
     $.each(array,function(graphIndex,graph){
         $.each(graph["@graph"],function(valueIndex,value){
             if(!result[value["@id"]]){
-                console.log('FOOLONG');
                 result[value["@id"]] = {'ms:id':value['@id']};
             }
             var object = result[value["@id"]];
             $.each(value,function(dataIndex,data){
                 if(dataIndex.match(/^@/) && dataIndex != '@type' )
                 {
-                    console.log("return");
                     return;
                 }
                 var toProcess;
@@ -373,42 +351,12 @@ function jsonLdUnion(array){
 
 
 function handleResource(){
-    var query = MS.namespaces +
-        "CONSTRUCT {_QUADMODE_ \n"+
-        "    GRAPH ?graph {?resource ?relation ?value}.\n"+
-        "    GRAPH ?ggraph {?graph ?grelation ?gvalue}.\n"+
-        "    GRAPH ?vgraph { ?value ?vrelation ?vvalue}.\n"+
-        "    GRAPH ?vggraph {?vgraph ?vgrelation ?vgvalue}.\n"+
-        "    GRAPH ?vggraph {?vgraph <ex:type> 'value'}.\n" +
-        "    GRAPH ?vggraph {?vgraph <ex:reason> ?value}.\n" +
-        "}\n" +
-        "WHERE{\n"+
-        "    {\n" +
-        "        SELECT DISTINCT ?graph ?relation ?value {\n"+
-        "            GRAPH ?graph { ?resource ?relation   ?value}.\n"+
-        "            OPTIONAL { GRAPH ?ggraph { ?graph ?grelation ?gvalue.}}\n"+
-        "        }\n" +
-        "    }.\n"+
-        "    OPTIONAL {\n"+
-        "        GRAPH ?vgraph { ?value ?vrelation ?vvalue}.\n"+
-        "        OPTIONAL { GRAPH ?vggraph {?vgraph ?vgrelation ?vgvalue.}} \n"+
-     //   "        FILTER(! strstarts(str(?value),'http://metaservice.org/ns/metaservice-deb#')) \n" + //todo remove when db cleaned
-        "    }\n"+
-        "}";
-    query = query.split('?resource').join('<' + encodeURI(MS.resourceUrl) + '>');
     $.ajax({
-        url: "/sparql",
+        url: MS.resourceUrl,
         beforeSend: function(xhrObj){
             xhrObj.setRequestHeader("Accept","application/ld+json");
         },
-       dataType: "json",
-        type: "post",
-        data: {
-            "query": query,
-            "infer": "true"
-        },
         success: function(data){
-
             if(data.length == 0){
                 loadError('No Data Found','Metaservice does not have any data for this uri :-(');
                 return;
@@ -434,7 +382,6 @@ function handleResource(){
                         templatePath.push("/" + type['ms:view']);
                     }
                 }
-                console.log(templatePath);
 
                 if(templatePath.length ==0){
                     loadError('Template missing','There is no view specified for this type of data  :-(');

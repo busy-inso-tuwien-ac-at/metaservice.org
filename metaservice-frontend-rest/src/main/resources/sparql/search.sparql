@@ -1,0 +1,14 @@
+SELECT DISTINCT
+ ?subject ?title ?type ?relevance
+ WHERE {
+  ?title bds:search $q ;
+         bds:relevance  ?relevance .
+  ?subject a ?type;
+           dc:title ?title
+     FILTER (
+         ?type != <http://www.w3.org/2000/01/rdf-schema#Resource>
+     )
+}
+ ORDER BY ?relevance ?title
+ LIMIT $limit
+ OFFSET $offset
