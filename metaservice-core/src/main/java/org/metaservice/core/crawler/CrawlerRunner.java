@@ -41,6 +41,7 @@ public class CrawlerRunner {
     private final Crawler crawler;
     private final Archive archive;
     private final Session session;
+    private final Connection connection;
     private final MessageProducer producer;
 
     @Inject
@@ -51,7 +52,7 @@ public class CrawlerRunner {
         this.crawler = crawler;
         this.archive = archive;
 
-        Connection connection = connectionFactory.createConnection();
+        connection = connectionFactory.createConnection();
         connection.setClientID(this.getClass().getName() +"con");
         connection.start();
         session = connection.createSession(false,
@@ -82,7 +83,11 @@ public class CrawlerRunner {
             } else{
                 LOGGER.info("Nothing changed");
             }
+            producer.close();
+            connection.close();
         } catch (ArchiveException e) {
+            e.printStackTrace();
+        } catch (JMSException e) {
             e.printStackTrace();
         }
     }

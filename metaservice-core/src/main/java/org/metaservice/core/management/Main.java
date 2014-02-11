@@ -1,4 +1,4 @@
-package org.metaservice.management;
+package org.metaservice.core.management;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -11,7 +11,7 @@ import java.io.File;
  * Created by ilo on 08.01.14.
  */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ManagerException {
         Injector injector = Guice.createInjector(new MetaserviceModule());
         Manager manager = injector.getInstance(Manager.class);
         manager.install(new File(args[0]));

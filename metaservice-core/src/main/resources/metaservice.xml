@@ -1,5 +1,9 @@
 <metaservice>
-
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
     <!--
     <template
             name="generic-version.hbs"

@@ -46,7 +46,7 @@ public class ProductionConfig implements Config{
     }
 
     @Override
-    public boolean isDumpRDFBeforeLoad() {
+    public boolean getDumpRDFBeforeLoad() {
         return false;
     }
 

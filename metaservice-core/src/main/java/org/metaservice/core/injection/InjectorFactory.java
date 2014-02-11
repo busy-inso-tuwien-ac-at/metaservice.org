@@ -41,7 +41,7 @@ public class InjectorFactory {
         List<MetaserviceDescriptor.RepositoryDescriptor> selectedRepositories = new ArrayList<>();
         for(MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor : descriptor.getRepositoryList()){
             if(repositoryDescriptor.getType().equals(selectedProvider.getType())){
-                if(repositoryDescriptor.isActive() && selectedProvider.getType().equals(repositoryDescriptor.getType())){
+                if(repositoryDescriptor.getActive() && selectedProvider.getType().equals(repositoryDescriptor.getType())){
                     selectedRepositories.add(repositoryDescriptor);
                 }
             }

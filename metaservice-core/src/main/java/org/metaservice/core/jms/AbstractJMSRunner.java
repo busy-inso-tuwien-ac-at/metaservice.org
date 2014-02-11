@@ -4,12 +4,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public abstract class AbstractJMSRunner implements MessageListener {
+public abstract class AbstractJMSRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSPostProcessorRunner.class);
     private Session session;
-    private String topicName = null;
-    private String queueName = null;
+
+    private List<ListenerBean> listenerBeanList = new ArrayList<>();
+
+    public void add(ListenerBean listenerBean){
+        listenerBeanList.add(listenerBean);
+    }
 
     protected AbstractJMSRunner(
             ConnectionFactory connectionFactory
@@ -22,30 +28,33 @@ public abstract class AbstractJMSRunner implements MessageListener {
                 Session.AUTO_ACKNOWLEDGE);
     }
 
-    public void initTopic(String name){
-        this.topicName = name;
-    }
 
-    public void initQueue(String name){
-        this.queueName = name;
-    }
 
     public void run() throws JMSException {
-        MessageConsumer consumer = null;
-        if(topicName!= null){
-            Topic t  =session.createTopic(topicName);
-            consumer= session.createDurableSubscriber(t,this.getClass().getName()+"sub");
-        }else if(queueName != null){
-            Queue q = session.createQueue(queueName);
-            consumer = session.createConsumer(q);
-        }
-        if(consumer==null){
-            LOGGER.error("run() was called before initTopic or initQueue");
-            return;
-        }else{
-            consumer.setMessageListener(this);
+        for(ListenerBean listenerBean : listenerBeanList){
+            MessageConsumer consumer = null;
+            if(listenerBean.getType() == Type.TOPIC){
+                Topic t  =session.createTopic(listenerBean.getName());
+                consumer= session.createDurableSubscriber(t,this.getClass().getName()+"sub");
+            }else if(listenerBean.getType() == Type.QUEUE){
+                Queue q = session.createQueue(listenerBean.getName());
+                consumer = session.createConsumer(q);
+            }
+            if(consumer==null){
+                LOGGER.error("run() was called before initTopic or initQueue");
+                return;
+            }else{
+                consumer.setMessageListener(listenerBean);
+            }
         }
     }
 
+    public enum Type {
+        QUEUE,TOPIC
+    }
 
+    public abstract static class ListenerBean implements MessageListener{
+        public abstract String getName();
+        public abstract Type getType();
+    }
 }

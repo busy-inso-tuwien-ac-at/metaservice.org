@@ -1,13 +1,10 @@
 package org.metaservice.core;
 
-import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.descriptor.JAXBMetaserviceDescriptorImpl;
-import org.metaservice.core.descriptor.MetaserviceDescriptorImpl;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.util.List;
@@ -20,7 +17,7 @@ public class JaxbConfig implements Config {
         ProductionConfig productionConfig = new ProductionConfig();
         jaxbConfig.setArchiveBasePath(productionConfig.getArchiveBasePath());
         jaxbConfig.setBatchSize(productionConfig.getBatchSize());
-        jaxbConfig.setDumpRDFBeforeLoad(productionConfig.isDumpRDFBeforeLoad());
+        jaxbConfig.setDumpRDFBeforeLoad(productionConfig.getDumpRDFBeforeLoad());
         jaxbConfig.setDumpRDFDirectory(productionConfig.getDumpRDFDirectory());
         jaxbConfig.setHttpdDataDirectory(productionConfig.getHttpdDataDirectory());
         jaxbConfig.setJmsBroker(productionConfig.getJmsBroker());
@@ -40,10 +37,6 @@ public class JaxbConfig implements Config {
     private int batchSize;
     private boolean dumpRDFBeforeLoad;
     private String dumpRDFDirectory;
-
-    @XmlElement(name="metaservice",type = JAXBMetaserviceDescriptorImpl.class)
-    @XmlElementWrapper( name="installed" )
-    private List<MetaserviceDescriptor> installed;
 
     @XmlElement
     public String getDumpRDFDirectory() {
@@ -67,7 +60,6 @@ public class JaxbConfig implements Config {
         return jmsBroker;
     }
 
-    @XmlElement
     public List<String> getArchivesForProvider(String provider) {
         return null;
     }
@@ -104,7 +96,7 @@ public class JaxbConfig implements Config {
     }
 
     @XmlAttribute
-    public boolean isDumpRDFBeforeLoad() {
+    public boolean getDumpRDFBeforeLoad() {
         return dumpRDFBeforeLoad;
     }
 

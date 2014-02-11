@@ -1,4 +1,10 @@
 <metaservice>
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
+
     <provider
             id="mavenPomProvider"
             type="maven"

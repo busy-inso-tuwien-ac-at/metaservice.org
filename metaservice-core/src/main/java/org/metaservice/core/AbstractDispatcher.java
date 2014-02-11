@@ -18,7 +18,6 @@ import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.util.logging.resources.logging_sv;
 
 import javax.jms.*;
 import java.io.FileWriter;
@@ -65,7 +64,7 @@ public abstract  class AbstractDispatcher<T> {
         LOGGER.info("starting to send data");
         RDFXMLPrettyWriter writer = null;
         String writerFile = null;
-        if(config.isDumpRDFBeforeLoad()){
+        if(config.getDumpRDFBeforeLoad()){
             try {
                 writerFile =config.getDumpRDFDirectory()+ "/"+ target.getClass().getSimpleName()+"_" + System.currentTimeMillis() +".rdf";
                 writer = new RDFXMLPrettyWriter(new FileWriter(writerFile));

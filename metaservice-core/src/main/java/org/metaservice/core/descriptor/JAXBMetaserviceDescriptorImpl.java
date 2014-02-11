@@ -1,5 +1,7 @@
 package org.metaservice.core.descriptor;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 
 import javax.xml.bind.JAXB;
@@ -20,6 +22,7 @@ import java.util.List;
  */
 @XmlRootElement(name="metaservice")
 public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
+    private ModuleInfo moduleInfo;
     private List<ProviderDescriptor> providerList = new ArrayList<>();
     private List<PostProcessorDescriptor> postProcessorList = new ArrayList<>();
     private List<TemplateDescriptor> templateList = new ArrayList<>();
@@ -41,12 +44,11 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     public static void main(String[] args) throws FileNotFoundException {
         StringWriter w = new StringWriter();
         MetaserviceDescriptor descriptor = JAXB.unmarshal(new FileInputStream(new File("C:\\Users\\ilo\\dev\\metaservice.org\\metaservice-core-deb\\src\\main\\resources\\metaservice.xml")),JAXBMetaserviceDescriptorImpl.class);
-        System.err.println(descriptor.getCrawlerList());
-        System.err.println(descriptor.getTemplateList());
+        // System.err.println(descriptor.getCrawlerList());
+        // System.err.println(descriptor.getTemplateList());
+        // System.err.println(descriptor);
+
         System.err.println(descriptor);
-
-        System.err.println(new MetaserviceDescriptorImpl());
-
     }
 
     @Override
@@ -97,6 +99,76 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     }
 
     @Override
+    @XmlElement(type = ModuleInfoImpl.class)
+    public ModuleInfo getModuleInfo() {
+        return moduleInfo;
+    }
+
+    public void setModuleInfo(ModuleInfo moduleInfo) {
+        this.moduleInfo = moduleInfo;
+    }
+
+    public static class ModuleInfoImpl implements ModuleInfo{
+        private String groupId;
+        private String artifactId;
+        private String version;
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+
+        public void setArtifactId(String artifactId) {
+            this.artifactId = artifactId;
+        }
+
+        @Override
+        public String getGroupId() {
+            return groupId;
+        }
+
+        @Override
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        @Override
+        public String getVersion() {
+            return version;
+        }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null)
+                return false;
+            if (obj == this)
+                return true;
+            if (!(obj instanceof ModuleInfo))
+                return false;
+
+            ModuleInfo rhs = (ModuleInfo) obj;
+            return new EqualsBuilder()
+                    .append(getArtifactId(), rhs.getArtifactId())
+                    .append(getGroupId(), rhs.getGroupId())
+                    .append(getVersion(),rhs.getVersion())
+                    .build();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder()
+                    .append(artifactId)
+                    .append(groupId)
+                    .append(version)
+                    .build();
+        }
+    }
+
+    @Override
     @XmlElement(name="provider",type = ProviderDescriptorImpl.class)
     public List<ProviderDescriptor> getProviderList() {
         return providerList;
@@ -121,10 +193,12 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "ProviderDescriptorImpl{" +
                     "id='" + id + '\'' +
-                    ", \ntype='" + type + '\'' +
-                    ", \nclassName='" + className + '\'' +
-                    ", \narchiveClassName='" + archiveClassName + '\'' +
-                    ", \nmodel='" + model + '\'' +
+                    ", type='" + type + '\'' +
+                    ", className='" + className + '\'' +
+                    ", archiveClassName='" + archiveClassName + '\'' +
+                    ", model='" + model + '\'' +
+                    ", namespaceList=" + namespaceList +
+                    ", loadList=" + loadList +
                     '}';
         }
 
@@ -321,6 +395,16 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private List<LoadDescriptor> loadList;
 
         @Override
+        public String toString() {
+            return "PostProcessorDescriptorImpl{" +
+                    "id='" + id + '\'' +
+                    ", className='" + className + '\'' +
+                    ", namespaceList=" + namespaceList +
+                    ", loadList=" + loadList +
+                    '}';
+        }
+
+        @Override
         @XmlElement(name="namespace",type=NamespaceDescriptorImpl.class)
         public List<NamespaceDescriptor> getNamespaceList() {
             return namespaceList;
@@ -378,7 +462,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private String startUri;
         private String baseUri;
         private String crawler;
-        private boolean active;
+        private Boolean active;
         private String archiveClassName;
 
 
@@ -437,7 +521,9 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         }
 
         @XmlAttribute
-        public boolean isActive() {
+        public boolean getActive() {
+            if(active==null)
+                return true;
             return active;
         }
 
@@ -475,5 +561,25 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public void setArchiveClassName(String archiveClassName) {
             this.archiveClassName = archiveClassName;
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (obj == this)
+            return true;
+        if (!(obj instanceof MetaserviceDescriptor))
+            return false;
+
+        MetaserviceDescriptor rhs = (MetaserviceDescriptor) obj;
+        return new EqualsBuilder()
+                .append(getModuleInfo(),rhs.getModuleInfo())
+                .build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(getModuleInfo()).build();
     }
 }

@@ -1,10 +1,9 @@
 <metaservice>
-    <provider
-            class="org.metaservice.core.deb.DebianPackageProvider"
-            archiveClass="org.metaservice.core.deb.DebianGitArchive" />
-    <postprocessor
-            class="org.metaservice.core.deb.DebianVersionReasoner"/>
-
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
 
     <repository
             name="cpan"

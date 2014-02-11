@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.List;
 
 public interface MetaserviceDescriptor {
+    ModuleInfo getModuleInfo();
+
     List<ProviderDescriptor> getProviderList();
     List<ParserDescriptor> getParserList();
     List<RepositoryDescriptor> getRepositoryList();
@@ -12,6 +14,12 @@ public interface MetaserviceDescriptor {
     List<TemplateDescriptor> getTemplateList();
     List<PostProcessorDescriptor> getPostProcessorList();
 
+
+    public static interface ModuleInfo{
+        String getGroupId();
+        String getArtifactId();
+        String getVersion();
+    }
 
     public static interface ProviderDescriptor {
         String getId();
@@ -31,7 +39,7 @@ public interface MetaserviceDescriptor {
     public static interface RepositoryDescriptor{
         String getId();
         String getType();
-        boolean isActive();
+        boolean getActive();
         String getArchiveClassName();
         String getBaseUri();
         String getStartUri();

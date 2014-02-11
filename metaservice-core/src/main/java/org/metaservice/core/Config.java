@@ -15,6 +15,6 @@ public interface Config {
 
     int getBatchSize();
 
-    boolean isDumpRDFBeforeLoad();
+    boolean getDumpRDFBeforeLoad();
     String  getDumpRDFDirectory();
 }

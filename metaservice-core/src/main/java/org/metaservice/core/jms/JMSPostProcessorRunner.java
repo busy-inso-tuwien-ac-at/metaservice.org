@@ -13,7 +13,6 @@ import javax.jms.*;
 
 public class JMSPostProcessorRunner extends AbstractJMSRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSPostProcessorRunner.class);
-    private final PostProcessorDispatcher postProcessorDispatcher;
 
     public static void main(String[] args) throws JMSException {
         if(args.length != 1)
@@ -31,21 +30,30 @@ public class JMSPostProcessorRunner extends AbstractJMSRunner {
     @Inject
     private JMSPostProcessorRunner(
             ConnectionFactory connectionFactory,
-            PostProcessorDispatcher postProcessorDispatcher
+            final PostProcessorDispatcher postProcessorDispatcher
     ) throws JMSException, RepositoryException {
         super(connectionFactory);
-        this.postProcessorDispatcher = postProcessorDispatcher;
-        initQueue("Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.PostProcess");
-    }
+        this.add(new ListenerBean() {
+            @Override
+            public String getName() {
+                return "Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.PostProcess";
+            }
 
-    @Override
-    public void onMessage(Message message) {
-        try  {
-            ObjectMessage m = (ObjectMessage) message;
-            PostProcessingTask task = (PostProcessingTask) m.getObject();
-            postProcessorDispatcher.process(task,message.getJMSTimestamp());
-        } catch (JMSException e) {
-            LOGGER.error("JMS Exception",e);
-        }
+            @Override
+            public Type getType() {
+                return Type.QUEUE;
+            }
+
+            @Override
+            public void onMessage(Message message) {
+                try  {
+                    ObjectMessage m = (ObjectMessage) message;
+                    PostProcessingTask task = (PostProcessingTask) m.getObject();
+                    postProcessorDispatcher.process(task,message.getJMSTimestamp());
+                } catch (JMSException e) {
+                    LOGGER.error("JMS Exception",e);
+                }
+            }
+        });
     }
 }
