@@ -1,2 +1,22 @@
 RewriteEngine on 
-RewriteRule ^packages index.html
+# Route downloads
+RewriteRule ^packages.*\.jsonld$ /rest/resource/jsonld?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+RewriteRule ^packages.*\.rdf$ /rest/resource/rdf?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+
+# Route resources sparql
+RewriteCond %{HTTP_ACCEPT} application/rdf\+xml [NC,OR]
+RewriteCond %{HTTP_ACCEPT} application/ld\+json [NC]
+RewriteRule ^packages /rest/resource?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+
+# Route resources html
+RewriteCond %{HTTP_ACCEPT} text/html [NC]
+RewriteRule ^packages index.html [L]
+
+# Route search html
+RewriteCond %{HTTP_ACCEPT} text/html [NC]
+RewriteRule ^search$ index.html [L]
+
+# route search query
+RewriteCond %{HTTP_ACCEPT} application/sparql-results\+json [NC]
+RewriteRule ^search /rest/search [L]
+

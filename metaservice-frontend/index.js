@@ -9,7 +9,7 @@ function loadError(title,content){
 
 function initHandleBars() {
     Handlebars.registerPartial("copyInputField", $("#partial-copytextinputfield").html());
-
+    Handlebars.registerPartial("button_controls", $("#partial-button_controls").html());
 }
 
 var MS;
@@ -35,7 +35,9 @@ function initMs() {
         "xhv":"http://www.w3.org/1999/xhtml/vocab#",
         "xsd": "http://www.w3.org/2001/XMLSchema#"
     };
-    MS.resourceUrl = document.location.toString().replace(/\/$/,'');
+    MS.raw = {};
+    MS.resourceUrl = document.location.toString().replace(/\/$/,'').replace('#.*$','');
+    $('#rdflink').attr('href',MS.resourceUrl);
 }
 
 function handleSearch(){
@@ -51,12 +53,12 @@ function handleSearch(){
     var page = (offset/limit) +1;
 
     $.ajax({
-        url: "http://localhost:8088/search",
+        url: "http://metaservice.org/d/search",
         beforeSend: function(xhrObj){
             xhrObj.setRequestHeader("Accept","application/sparql-results+json");
         },
         dataType: "json",
-        type: "post",
+        type: "get",
         data: {
             "q": q,
             "limit": limit,
@@ -67,7 +69,7 @@ function handleSearch(){
                 loadError('No Data Found','There was no response :-(');
                 return;
             }
-            console.log(data);
+            MS.raw = data;
             var result = {
                 result:[],
                 pagination:{
@@ -108,13 +110,44 @@ function handleSearch(){
 
         },
         error: function(){
-            loadError('Service unreachable','Could not reach the service /sparql :-(');
+            loadError('Service unreachable','Could not reach the service :-(');
         }
     });
 }
 
 function getProvenanceContent(element){
-    return $(element).text();
+
+    //todo broken
+var searchingfor ="http://metaservice.org/d/packages/debian/libc6/2.18-0ubuntu2";
+    var result = [];
+
+    for(graphId =0; graphId < MS.raw.length; graphId++){
+        var graph = MS.raw[graphId];
+        var graphelements = graph['@graph']
+        for(resourceID =0 ; resourceID < graphelements.length ; resourceID++){
+            var resource = graphelements[resourceID];
+            if(resource['@id'] == searchingfor){
+                console.log(resource);
+                result.push(graph);
+            }
+        }
+    }
+    console.log(result);
+
+    var result2 = []
+    for(i = 0 ; i < result.length ; i++){
+        graphelements = result[i]['@graph'];
+        for(resourceID =0 ; resourceID < graphelements.length ; resourceID++){
+            resource = graphelements[resourceID];
+            if(resource['@id'] == result[i]['@id']){
+                console.log(resource);
+                result2.push(graph);
+            }
+        }
+    }
+
+    console.log(result2);
+    return $(element).attr('data-provenance');
 }
 function getProvenanceTitle(element){
     return $(element).text();
@@ -258,13 +291,6 @@ function jsonLdFollowIris(source,iri){
                         obj[dindex] = jsonLdFollowIris(source,id);
                     }else{
                         $.each(d,function(xindex,x){
-                            if(!x){
-                                //todo why?
-                                console.log(iri);
-                                console.log(dindex);
-                                console.log(JSON.stringify(d));
-                                console.log(xindex);
-                            }
                             if(x && x['@id']){
                                 var id = x['@id'];
                                 //break loops
@@ -361,16 +387,16 @@ function handleResource(){
                 loadError('No Data Found','Metaservice does not have any data for this uri :-(');
                 return;
             }
+            MS.raw = data;
             var result =jsonLdUnion(data);
             jsonld.compact(result,MS.context,function(err,compacted){
                 result = compacted;
                 result = jsonLdFollowIris(result,MS.resourceUrl);
-                console.log(data);
                 console.log(result);
 
                 var templatePath = [];
                 var type = result['@type'];
-                console.log(type);
+                //console.log(type);
                 if($.isArray(type)){
                     $.each(type,function(index,d){
                         if(d['ms:view']){
@@ -424,7 +450,7 @@ function handleResource(){
             });
         },
         error: function(){
-            loadError('Service unreachable','Could not reach the service /sparql :-(');
+            loadError('Service unreachable','Could not reach the service :-(');
         }
     });
 }

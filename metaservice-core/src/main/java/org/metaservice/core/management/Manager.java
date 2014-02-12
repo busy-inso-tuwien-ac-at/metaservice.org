@@ -44,14 +44,20 @@ public class Manager {
     private final RepositoryConnection repositoryConnection;
     private final ValueFactory valueFactory;
     private final JMSProducerUtil jmsProducerUtil;
+    private final RunManager runManager;
     private Scheduler scheduler;
 
     @Inject
     public Manager(
             RepositoryConnection repositoryConnection,
             ValueFactory valueFactory,
-            JMSProducerUtil jmsProducerUtil) throws ManagerException {
+            JMSProducerUtil jmsProducerUtil,
+            RunManager runManager,
+            Scheduler scheduler
+    ) throws ManagerException {
         this.jmsProducerUtil = jmsProducerUtil;
+        this.runManager = runManager;
+        this.scheduler = scheduler;
         File managerConfigFile = new File(managerConfigFileName);
         if(managerConfigFile.exists()){
             managerConfig = JAXB.unmarshal(new File(managerConfigFileName),ManagerConfig.class);
@@ -66,18 +72,8 @@ public class Manager {
     }
 
     public void init() throws ManagerException {
-        try {
-            SchedulerFactory schedulerFactory = new org.quartz.impl.StdSchedulerFactory();
-
-            scheduler = schedulerFactory.getScheduler();
-            scheduler.start();
-
-            for(ManagerConfig.Module module : managerConfig.getInstalledModules()){
-                scheduleCrawlers(module.getMetaserviceDescriptor());
-            }
-
-        } catch (SchedulerException e) {
-            throw new ManagerException(e);
+        for(ManagerConfig.Module module : managerConfig.getInstalledModules()){
+            scheduleCrawlers(module.getMetaserviceDescriptor());
         }
     }
 
@@ -108,39 +104,6 @@ public class Manager {
         }
     }
 
-    public void runProvider(ManagerConfig.Module module,MetaserviceDescriptor.ProviderDescriptor providerDescriptor){
-        ProcessBuilder pb = new ProcessBuilder("/opt/metaservice/run.sh",providerDescriptor.getId());
-
-        MetaserviceDescriptor.ModuleInfo moduleInfo =module.metaserviceDescriptor.getModuleInfo();
-        Map<String, String> env = pb.environment();
-        env.put("MAINCLASS", "org.metaservice.core.jms.JMSProviderRunner");
-        env.put("GROUP_ID", moduleInfo.getGroupId());
-        env.put("ARTIFACT_ID",moduleInfo.getArtifactId());
-        env.put("VERSION", moduleInfo.getVersion());
-        try {
-            Process p = pb.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public void runPostProcessor(ManagerConfig.Module module,MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor){
-        ProcessBuilder pb = new ProcessBuilder("/opt/metaservice/run.sh",postProcessorDescriptor.getId());
-
-        MetaserviceDescriptor.ModuleInfo moduleInfo =module.metaserviceDescriptor.getModuleInfo();
-        Map<String, String> env = pb.environment();
-        env.put("MAINCLASS", "org.metaservice.core.jms.JMSPostProcessorRunner");
-        env.put("GROUP_ID", moduleInfo.getGroupId());
-        env.put("ARTIFACT_ID",moduleInfo.getArtifactId());
-        env.put("VERSION",moduleInfo.getVersion());
-        try {
-            Process p = pb.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void uninstall(@NotNull ManagerConfig.Module module,boolean removeData) throws ManagerException {
         if(!managerConfig.getInstalledModules().contains(module)){
@@ -149,12 +112,11 @@ public class Manager {
 
         MetaserviceDescriptor descriptor = module.getMetaserviceDescriptor();
         uninstallOntologies(descriptor);
-       // uninstallTemplates(descriptor);
+        uninstallTemplates(descriptor);
         unscheduleCrawlers(descriptor);
         if(removeData){
             removeData(descriptor);
         }
-
     }
 
     private void removeData(MetaserviceDescriptor descriptor) {
@@ -182,16 +144,13 @@ public class Manager {
                 refreshPostProcessors(descriptor);
             }
 
-            // installTemplates(zipFs, descriptor);
+            installTemplates(zipFs, descriptor);
             installOntologies(zipFs,descriptor);
             scheduleCrawlers(descriptor);
 
             ManagerConfig.Module module = new ManagerConfig.Module();
             module.setLocation(f);
             module.setMetaserviceDescriptor(descriptor);
-            if(managerConfig.getInstalledModules() == null){
-                managerConfig.setInstalledModules(new ArrayList<ManagerConfig.Module>());
-            }
             managerConfig.getInstalledModules().add(module);
             saveConfig();
         } catch (IOException e) {
@@ -284,30 +243,27 @@ public class Manager {
         return null;
     }
 
+    public RunManager getRunManager() {
+        return runManager;
+    }
+
     @DisallowConcurrentExecution
     public static class CrawlJob implements Job{
 
+        @Inject
+        private RunManager runManager;
+
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
+            JobDataMap jobDataMap = context.getMergedJobDataMap();
             try {
-                JobDataMap jobDataMap = context.getMergedJobDataMap();
-                String id = jobDataMap.getString("REPOSITORY");
-                System.out.println("Starting Crawler " + id);
-                ProcessBuilder pb = new ProcessBuilder("/opt/metaservice/run.sh",id);
-                Map<String, String> env = pb.environment();
-                env.put("MAINCLASS", "org.metaservice.core.crawler.CrawlerRunner");
-                env.put("GROUP_ID", context.getMergedJobDataMap().getString("GROUP_ID"));
-                env.put("ARTIFACT_ID", context.getMergedJobDataMap().getString("ARTIFACT_ID"));
-                env.put("VERSION",context.getMergedJobDataMap().getString("VERSION"));
-                try {
-                    Process p = pb.start();
-                    p.waitFor();
-                    System.out.println("Finished Crawler " + id);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                runManager.runCrawlerAndWaitForFinish(
+                        jobDataMap.getString("REPOSITORY"),
+                        jobDataMap.getString("GROUP_ID"),
+                        jobDataMap.getString("ARTIFACT_ID"),
+                        jobDataMap.getString("VERSION"));
+            } catch (ManagerException e) {
+                throw new JobExecutionException(e);
             }
         }
     }
@@ -431,9 +387,6 @@ public class Manager {
             Files.copy(fileToAdd.toPath(),target,StandardCopyOption.REPLACE_EXISTING);
             module.setLocation(target.toFile());
             module.setMetaserviceDescriptor(descriptor);
-            if(managerConfig.getAvailableModules() == null){
-                managerConfig.setAvailableModules(new ArrayList<ManagerConfig.Module>());
-            }
             managerConfig.getAvailableModules().add(module);
             saveConfig();
         } catch (IOException e) {
@@ -441,7 +394,4 @@ public class Manager {
         }
     }
 
-    public void runFrontend() {
-
-    }
 }

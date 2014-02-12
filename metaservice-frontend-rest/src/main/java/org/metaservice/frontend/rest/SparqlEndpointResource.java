@@ -4,6 +4,8 @@ import com.sun.jersey.spi.resource.Singleton;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -27,13 +29,13 @@ public class SparqlEndpointResource {
 
     public SparqlEndpointResource() throws IOException {
         namespaces = generateNamespaceString();
-        searchQuery = loadSparql("sparql/search.sparql");
-        resourceQuery = loadSparql("sparql/resource.sparql");
+        searchQuery = loadSparql("/sparql/search.sparql");
+        resourceQuery = loadSparql("/sparql/resource.sparql");
     }
 
     private String loadSparql(String s) throws IOException {
         StringWriter stringWriter = new StringWriter();
-        InputStream inputStream =  ClassLoader.getSystemResourceAsStream(s);
+        InputStream inputStream =  SparqlEndpointResource.class.getResourceAsStream(s);
         IOUtils.copy(inputStream,stringWriter);
         return stringWriter.toString();
     }
@@ -73,12 +75,11 @@ public class SparqlEndpointResource {
 
     @GET
     @Path("/search")
-    //@Consumes("application/sparql-results+json")
     @Produces("application/sparql-results+json")
     public Response search(
-            @QueryParam("q") String q,
-            @QueryParam("limit") int limit,
-            @QueryParam("offset") int offset){
+            @Nullable @QueryParam("q") String q,
+            @Nullable @QueryParam("limit") Integer limit,
+            @Nullable @QueryParam("offset") Integer offset){
         try {
             return generateResponseSearch("application/sparql-results+json", q, limit, offset);
         } catch (IOException|URISyntaxException e) {
@@ -86,12 +87,22 @@ public class SparqlEndpointResource {
         }
     }
 
-    public Response generateResponseSearch(
-            String mimeType,
-            String q,
-            int limit,
-            int offset
+    public @NotNull Response generateResponseSearch(
+           @NotNull String mimeType,
+           @Nullable String q,
+           @Nullable Integer limit,
+           @Nullable Integer offset
     ) throws IOException, URISyntaxException {
+        if(q == null){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        //defaults
+        if(limit == null){
+            limit = 10;
+        }
+        if(offset == null){
+            offset = 0;
+        }
         String query = namespaces + searchQuery;
         query = query.replace("$q",stringToLiteral(q));
         query = query.replace("$limit",Integer.toString(limit));
@@ -103,38 +114,68 @@ public class SparqlEndpointResource {
     @Path("/resource")
     @Produces("application/ld+json")
     public Response resourceJsonLD(
-            @QueryParam("path")String path
+            @Nullable @QueryParam("path")String path
     ){
-        System.err.println("LD");
-        return generateResponseResearch("application/ld+json", path);
+        return generateResponseResearch("application/ld+json", path,false);
     }
 
     @GET
     @Path("/resource")
     @Produces("application/rdf+xml")
-    public Response resourceRdfXml(@QueryParam("path")String path){
-        System.err.println("XML");
-        return generateResponseResearch("application/rdf+xml", path);
+    public Response resourceRdfXml(
+            @Nullable @QueryParam("path")String path
+    ){
+        return generateResponseResearch("application/rdf+xml", path,false);
+    }
+
+    @GET
+    @Path("/resource/jsonld")
+    @Produces("application/ld+json")
+    public Response resourceJsonLDDownload(
+            @Nullable @QueryParam("path")String path
+    ){
+        return generateResponseResearch("application/ld+json", path,true);
+    }
+
+    @GET
+    @Path("/resource/rdf")
+    @Produces("application/rdf+xml")
+    public Response resourceRdfXmlDownload(
+            @Nullable @QueryParam("path")String path
+    ){
+        return generateResponseResearch("application/rdf+xml", path,true);
     }
 
 
-    public Response generateResponseResearch(
-            String mimeType,
-            String path
+    public @NotNull Response generateResponseResearch(
+            @NotNull String mimeType,
+            @Nullable String path,
+            boolean download
     ){
         try{
+            if(path == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            if(download){
+                path = path.replaceFirst("\\.(jsonld|rdf)$","");
+            }
             String query = namespaces +resourceQuery;
             query = query.replace("$path",stringToIri(path));
-            return Response.ok(querySparql(mimeType,query)).build();
+            Response.ResponseBuilder builder = Response
+                    .ok(querySparql(mimeType,query));
+            if(download){
+                builder.header("Content-Disposition", "attachment");
+            }
+            return builder.build();
         }  catch (URISyntaxException | IOException e) {
             return Response.serverError().build();
         }
     }
 
 
-    private InputStream querySparql(
-            String mimeType,
-            String query
+    private @NotNull InputStream querySparql(
+            @NotNull String mimeType,
+            @NotNull String query
     ) throws URISyntaxException, IOException {
         System.err.println(query);
         URIBuilder uriBuilder = new URIBuilder();
@@ -152,11 +193,11 @@ public class SparqlEndpointResource {
                 .returnContent().asStream();
     }
 
-    public String stringToLiteral(String value){
+    public @NotNull String stringToLiteral(@NotNull String value){
         return "'"+value.replace("'","\\'")+"'";
     }
 
-    public String stringToIri(String value){
+    public @NotNull String stringToIri(@NotNull String value){
         return "<"+value.replace(">","\\>")+">";
     }
 }

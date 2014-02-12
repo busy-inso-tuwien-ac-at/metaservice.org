@@ -1,16 +1,15 @@
 <ol class="breadcrumb">
     <li><a href="#">Debian Binary Packages</a></li>
-    <li><a href="{{admssw:release/admssw:project/ms:id}}">{{dc:title}}</a></li>
+    <li><a href="{{admssw:release/admssw:project}}">{{dc:title}}</a></li>
     <li><a href="{{admssw:release/ms:id}}">{{ms-deb:version}}</a></li>
     <li class="active">{{ms-deb:architecture}}</li>
 </ol>
-<button type="button"  class="refresh btn btn-default pull-right "><i class="fa fa-refresh"></i> Request Refresh</button>
-
+{{> button_controls}}
 <h1>{{dc:title}}</h1>
 <div class="row">
     <div class="col-md-8">
         <pre>{{ms-deb:description}}</pre>
-        Homepage: <a href="{{ms-deb:homepage}}">{{ms-deb:homepage}}</a>{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
+        Homegpage: <a class="external" href="{{ms-deb:homepage}}">{{ms-deb:homepage}}</a>{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
         <br>
         Maintainer:
         <ul>

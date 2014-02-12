@@ -9,7 +9,7 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import java.io.IOException;
 
-public class RefreshHandler {
+public class RestFrontend {
     public static void main(String[] args) throws IOException {
         GrizzlyWebServer grizzly = new GrizzlyWebServer(8088,"src/main/resources/WEB-INF");
 

@@ -3,7 +3,8 @@ SELECT DISTINCT
  WHERE {
   ?title bds:search $q ;
          bds:relevance  ?relevance .
-  ?subject a ?type;
+  ?subject a <http://usefulinc.com/ns/doap#Project>;
+           a ?type;
            dc:title ?title
      FILTER (
          ?type != <http://www.w3.org/2000/01/rdf-schema#Resource>

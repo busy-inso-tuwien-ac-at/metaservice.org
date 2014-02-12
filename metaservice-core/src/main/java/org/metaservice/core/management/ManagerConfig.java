@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +37,9 @@ public class ManagerConfig {
     @XmlElementWrapper
     @XmlElement(name = "module")
     public List<Module> getInstalledModules() {
+        if(installedModules == null){
+            installedModules = new ArrayList<>();
+        }
         return installedModules;
     }
 
@@ -46,6 +50,9 @@ public class ManagerConfig {
     @XmlElementWrapper
     @XmlElement(name = "module")
     public List<Module> getAvailableModules() {
+        if(availableModules == null){
+            availableModules = new ArrayList<>();
+        }
         return availableModules;
     }
 

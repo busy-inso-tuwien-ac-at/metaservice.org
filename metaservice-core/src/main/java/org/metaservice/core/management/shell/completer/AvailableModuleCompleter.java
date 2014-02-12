@@ -8,7 +8,7 @@ import org.metaservice.core.management.shell.DescriptorHelper;
 /**
  * Created by ilo on 10.02.14.
  */
-public class ModuleCompleter extends AbstractManagerCompleter {
+public class AvailableModuleCompleter extends AbstractManagerCompleter {
 
     @Override
     public void complete(ManagerCompleteInvocation completerInvocation) {

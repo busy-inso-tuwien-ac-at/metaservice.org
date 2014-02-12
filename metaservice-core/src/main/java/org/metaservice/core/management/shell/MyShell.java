@@ -51,6 +51,8 @@ public class MyShell {
                 .command(new SaveCommand(manager))
                 .command(new AddModuleCommand(manager))
                 .command(new InstallModuleCommand(manager))
+                .command(new UninstallModuleCommand(manager))
+                .command(new ShowStatisticsCommand(manager))
                 .command(new ListCommand(manager))
                 .command(new RunCommand(manager))
                 .create();

@@ -8,21 +8,17 @@ CONSTRUCT {_QUADMODE_
 WHERE{
     {
         SELECT DISTINCT ?graph ?relation ?value {
-            $path ?relation ?value.
             GRAPH ?graph { $path ?relation   ?value}.
             FILTER (?relation != <http://metaservice.org/ns/metaservice#dummy>).
             OPTIONAL {
-                ?graph ?grelation ?gvalue.
                 GRAPH ?ggraph { ?graph ?grelation ?gvalue.}
             }
         }
     }.
     OPTIONAL {
-        ?value ?vrelation ?vvalue
         GRAPH ?vgraph { ?value ?vrelation ?vvalue}.
         FILTER (?vrelation != <http://metaservice.org/ns/metaservice#dummy>).
         OPTIONAL {
-            ?vgraph ?vgrelation ?vgvalue.
             GRAPH ?vggraph {?vgraph ?vgrelation ?vgvalue.}
         }
     }

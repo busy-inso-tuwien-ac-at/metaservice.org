@@ -7,6 +7,7 @@ import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.management.Manager;
 import org.metaservice.core.management.ManagerConfig;
+import org.metaservice.core.management.ManagerException;
 import org.metaservice.core.management.shell.DescriptorHelper;
 import org.metaservice.core.management.shell.completer.PostProcessorCompleter;
 import org.metaservice.core.management.shell.completer.ProviderCompleter;
@@ -27,11 +28,14 @@ public class RunCommand extends AbstractManagerCommand {
     @Option(name = "count",shortName = 'n', description = "number of instances to be spawned", defaultValue = {"1"},validator = GreaterThanZeroValidator.class)
     int n;
 
-    @Option(name ="provider",shortName = 'c',completer = ProviderCompleter.class)
+    @Option(name ="provider",shortName = 's',completer = ProviderCompleter.class)
     String provider;
 
     @Option(name ="postprocessor",shortName = 'p',completer = PostProcessorCompleter.class)
     String postprocessor;
+
+    @Option(name="crawler",shortName = 'c')
+    String repository;
 
     @Option(name ="frontend",shortName = 'f',hasValue = false)
     boolean frontend;
@@ -39,21 +43,38 @@ public class RunCommand extends AbstractManagerCommand {
     @Override
     public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
-        ManagerConfig.Module module = DescriptorHelper.getModuleFromString(installedModules, provider);
 
         for(int i = 0; i < n ;i++){
             if(provider != null){
+                ManagerConfig.Module module = DescriptorHelper.getModuleFromString(installedModules, provider);
                 MetaserviceDescriptor.ProviderDescriptor providerDescriptor = DescriptorHelper.getProviderFromString(installedModules, provider);
-                manager.runProvider(module,providerDescriptor);
+                try {
+                    manager.getRunManager().runProvider(module,providerDescriptor);
+                } catch (ManagerException e) {
+                    e.printStackTrace();
+                }
             }
             if(postprocessor != null){
+                ManagerConfig.Module module = DescriptorHelper.getModuleFromString(installedModules, postprocessor);
                 MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor = DescriptorHelper.getPostProcessorFromString(installedModules, postprocessor);
-                manager.runPostProcessor(module,postProcessorDescriptor);
+                try {
+                    manager.getRunManager().runPostProcessor(module,postProcessorDescriptor);
+                } catch (ManagerException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(repository != null){
+                System.out.println("Starting crawler by shell is not yet implemented");
             }
         }
         if(frontend)
         {
-            manager.runFrontend();
+            System.out.println("Trying to start frontend");
+            try {
+                manager.getRunManager().runFrontend();
+            } catch (ManagerException e) {
+                e.printStackTrace();
+            }
         }
         return CommandResult.SUCCESS;
     }
