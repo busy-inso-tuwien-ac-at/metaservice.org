@@ -3,11 +3,11 @@
     <li class="active">{{dc:title}}</li>
 </ol>
 {{> button_controls}}
-<h1 data-provenance="dc:title">{{dc:title}}</h1>
+<h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
 <div class="row">
     <div class="col-md-8">
         <ul>
-            {{#eachNext doap:release}}<li data-provenance="release[{{ms:id}}]"> <a href="{{ms:id}}">{{ms-deb:version}}</a></li>{{/eachNext}}
+            {{#eachNext doap:release}}<li data-provenance="[{{../ms:id}}][doap:release][{{ms:id}}]"> <a href="{{ms:id}}">{{ms-deb:version}}</a></li>{{/eachNext}}
         </ul>
     </div>
     <div class="col-md-4">

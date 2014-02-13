@@ -10,7 +10,7 @@ public class ProductionConfig implements Config{
 
     @Override
     public String getSparqlEndpoint() {
-        return "http://metaservice.org/sparql";
+        return "http://metaservice.org:8080/sparql";
     }
 
     @Override

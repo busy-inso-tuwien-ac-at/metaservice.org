@@ -77,7 +77,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             Value timeValue = set.getBinding("time").getValue();
             Value repoValue = set.getBinding("repo").getValue();
             Value pathValue = set.getBinding("path").getValue();
-            URI oldMetadata = (URI) set.getBinding("sid").getValue();
+            URI oldMetadata = (URI) set.getBinding("metadata").getValue();
             String time = timeValue.stringValue();
             String repo = repoValue.stringValue();
             String path = pathValue.stringValue();

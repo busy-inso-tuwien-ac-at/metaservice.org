@@ -7,6 +7,7 @@
     <!--<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.runtime.js"></script>-->
     <link rel="stylesheet" href="http://metaservice.org/d/style.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/d/jquery-ui-1.10.4.custom.css">
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
     <script  src="http://metaservice.org/d/handlebarsloader.js"></script>
     <script  src="http://metaservice.org/d/jsonld.js"></script>
@@ -23,12 +24,13 @@
     </script>
     <script id="partial-button_controls" type="text/x-handlebars-template">
         <div class="btn-group pull-right">
-                <button type="button"  class="refresh btn btn-default" title="Request that this resource should be processed again"><i class="fa fa-refresh"></i> Refresh</button>
-        <button type="button"  class="export btn btn-default dropdown-toggle" data-toggle="dropdown" title="Export this page"><i class="fa fa-download"></i> Export <span class="caret"></span></button>
-        <ul class="dropdown-menu" role="menu">
+            <button type="button"  class="show-provenance btn btn-default" title="Show provenance information window"><i class="fa fa-eye"></i> Provenance</button>
+            <button type="button"  class="refresh btn btn-default" title="Request that this resource should be processed again"><i class="fa fa-refresh"></i> Refresh</button>
+            <button type="button"  class="export btn btn-default dropdown-toggle" data-toggle="dropdown" title="Export this page"><i class="fa fa-download"></i> Export <span class="caret"></span></button>
+            <ul class="dropdown-menu" role="menu">
                 <li><a href="{{ms:id}}.rdf">... as RDF/XML</a></li>
                 <li><a href="{{ms:id}}.jsonld">... as JSON/LD</a></li>
-        </ul>
+            </ul>
         </div>
     </script>
     <script id="searchResults" type="text/x-handlebars-template">
@@ -123,8 +125,49 @@
 	    metaservice.org
     </div>
 </div>
+<div id="provenancewindow" class="panel  panel-default" style="display: none">
+<div class="panel-heading">
+    <h4 class="panel-title">Provenance data</h4>
+</div>
+<div class="panel-content">
+</div>
+</div>
 </body>
+<script type="application/javascript" src="/d/jquery-ui-1.10.4.custom.js"></script>
 <script type="text/javascript">
+
+    div = $('#provenancewindow') ;
+    div.resizable(
+            {
+                stop: function(event, ui)
+                {
+                    var top = getTop(ui.helper);
+                    ui.helper.css('position', 'fixed');
+                    ui.helper.css('top', top+"px");
+                }
+                ,
+                minWidth: 300,
+                minHeight:300
+            });
+    div.draggable(
+            {
+                handle: ".panel-heading",
+                stop: function(event, ui)
+                {
+                    var top = getTop(ui.helper);
+                    ui.helper.css('position', 'fixed');
+                    ui.helper.css('top', top+"px");
+                }
+            });
+    function getTop(ele)
+    {
+        var eTop = ele.offset().top;
+        var wTop = $(window).scrollTop();
+        var top = eTop - wTop;
+
+        return top;
+    }
+
     $('#loader').modal({show:true,backdrop:"static"});
 </script>
 </html>

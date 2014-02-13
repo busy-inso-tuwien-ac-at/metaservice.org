@@ -2,6 +2,7 @@ package org.metaservice.core.deb;
 
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
@@ -34,17 +35,17 @@ public class DebianVersionReasoner implements PostProcessor {
     @Inject
     public DebianVersionReasoner(RepositoryConnection repositoryConnection, ValueFactory valueFactory) throws RepositoryException, MalformedQueryException {
         this.valueFactory = valueFactory;
-        String queryString  = "SELECT ?version ?title ?arch ?resource { ?project <" + ADMSSW.RELEASE+ "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource. ?resource <"+ PACKAGE_DEB.TITLE +"> ?title; <" + PACKAGE_DEB.VERSION + "> ?version; <"+PACKAGE_DEB.ARCHITECTURE+"> ?arch.}";
+        String queryString  = "SELECT ?version ?title ?arch ?resource { ?project <" + DOAP.RELEASE+ "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource. ?resource <"+ PACKAGE_DEB.TITLE +"> ?title; <" + PACKAGE_DEB.VERSION + "> ?version; <"+PACKAGE_DEB.ARCHITECTURE+"> ?arch.}";
         LOGGER.info(queryString);
         selectPackageVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-        queryString  = "SELECT ?version ?title ?resource {?project <" + ADMSSW.RELEASE+ "> ?resource. ?resource <"+ PACKAGE_DEB.TITLE +"> ?title; <" + PACKAGE_DEB.VERSION + "> ?version.}";
+        queryString  = "SELECT ?version ?title ?resource {?project <" + DOAP.RELEASE+ "> ?resource. ?resource <"+ PACKAGE_DEB.TITLE +"> ?title; <" + PACKAGE_DEB.VERSION + "> ?version.}";
         LOGGER.info(queryString);
         selectVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-        queryString  = "SELECT (SAMPLE(?package2) as ?package) ?arch {?project <" + ADMSSW.RELEASE+ "> ?version. ?version <"+ADMSSW.PACKAGE+"> ?package2. ?package2 <"+PACKAGE_DEB.ARCHITECTURE+"> ?arch} group by ?arch";
+        queryString  = "SELECT (SAMPLE(?package2) as ?package) ?arch {?project <" + DOAP.RELEASE+ "> ?version. ?version <"+ADMSSW.PACKAGE+"> ?package2. ?package2 <"+PACKAGE_DEB.ARCHITECTURE+"> ?arch} group by ?arch";
         LOGGER.info(queryString);
         selectPackageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
 
-        queryString = "SELECT ?project {{?project <" + ADMSSW.RELEASE+ "> ?resource.} UNION {?project <"+ ADMSSW.RELEASE + "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource }} LIMIT 1";
+        queryString = "SELECT ?project {{?project <" + DOAP.RELEASE+ "> ?resource.} UNION {?project <"+ DOAP.RELEASE + "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource }} LIMIT 1";
         LOGGER.info(queryString);
         selectProjectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
     }

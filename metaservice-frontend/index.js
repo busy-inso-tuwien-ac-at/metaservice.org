@@ -36,6 +36,7 @@ function initMs() {
         "xsd": "http://www.w3.org/2001/XMLSchema#"
     };
     MS.raw = {};
+    MS.provenanceCache = {};
     MS.resourceUrl = document.location.toString().replace(/\/$/,'').replace('#.*$','');
     $('#rdflink').attr('href',MS.resourceUrl);
 }
@@ -115,42 +116,73 @@ function handleSearch(){
     });
 }
 
+
+
 function getProvenanceContent(element){
-
-    //todo broken
-var searchingfor ="http://metaservice.org/d/packages/debian/libc6/2.18-0ubuntu2";
-    var result = [];
-
-    for(graphId =0; graphId < MS.raw.length; graphId++){
-        var graph = MS.raw[graphId];
-        var graphelements = graph['@graph']
-        for(resourceID =0 ; resourceID < graphelements.length ; resourceID++){
-            var resource = graphelements[resourceID];
-            if(resource['@id'] == searchingfor){
-                console.log(resource);
-                result.push(graph);
-            }
-        }
+    if(MS.provenanceCache[element]){
+       return MS.provenanceCache[element];
     }
-    console.log(result);
+    var container = $('<div></div>');
 
-    var result2 = []
-    for(i = 0 ; i < result.length ; i++){
-        graphelements = result[i]['@graph'];
-        for(resourceID =0 ; resourceID < graphelements.length ; resourceID++){
-            resource = graphelements[resourceID];
-            if(resource['@id'] == result[i]['@id']){
-                console.log(resource);
-                result2.push(graph);
+    function calculate(){
+        var regex =  /^\[([^\]]*)\]\[([^\]]*)\]\[([^\]]*)\]/;
+        var subject = element.replace(regex,'$1');
+        var predicate = element.replace(regex,'$2');
+        var object = element.replace(regex,'$3');
+        var result = [];
+        jsonld.compact(MS.raw,MS.context,function(err,compacted){
+            console.log(compacted);
+
+            for(graphId =0; graphId < compacted['@graph'].length; graphId++){
+                var graph = compacted['@graph'][graphId];
+                var graphelements = graph['@graph'];
+                for(resourceID =0 ; resourceID < graphelements.length ; resourceID++){
+                    var resource = graphelements[resourceID];
+                    if(resource['@id'] == subject){
+                        if(resource[predicate]) {
+                            if(resource[predicate] == object || resource[predicate]['@id'] == object)
+                            {
+                                result.push(graph);
+                            }
+                        }
+                    }
+                }
             }
-        }
-    }
 
-    console.log(result2);
-    return $(element).attr('data-provenance');
+            var result2 = [];
+            for(i = 0 ; i < result.length ; i++){
+                graph = result[i];
+                graphelements = graph['@graph'];
+                for(resourceID =0 ; resourceID < graphelements.length ; resourceID++){
+                    resource = graphelements[resourceID];
+                    if(resource['@id'] == result[i]['@id']){
+                        result2.push(resource);
+                    }
+                }
+            }
+            console.log(result2);
+            resultcontainer = $('<div/>');
+            $.each(result2,function(index,data){
+                panel = $('<div class="panel panel-info" ></div>');
+                panel.append('<div class="panel-heading"><h4 class="panel-title" >'+data['ms:generator']+'</h4></div>');
+                table = $('<table class="table"></table>');
+                table.append('<tr><th>Id</th><td>'+data['@id']+'</td></tr>');
+                table.append('<tr><th>Source</th><td>'+data['ms:source']+data['ms:path']+'</td></tr>');
+                table.append('<tr><th>Created</th><td>' +data['ms:creation_time']['@value']+'</td></tr>');
+                panel.append(table);
+                resultcontainer.append(panel);
+            });
+            container.empty();
+            container.append(resultcontainer);
+            MS.provenanceCache[element] = container;
+        });
+    }
+    container.append('loading....');
+    setTimeout(calculate(),0);
+    return container;
 }
 function getProvenanceTitle(element){
-    return $(element).text();
+    return 'Provenance Data';
 }
 
 
@@ -430,20 +462,34 @@ function handleResource(){
                             error:function(){console.log ('error')}
                         });
                     });
-                    $('*[data-provenance]').each(function(index,element){
-                        $(element).popover({
-                            html: true,
-                            placement: 'auto right',
-                            trigger: 'hover',
-                            title : function(){
-                                return getProvenanceTitle(element);
-                            },
-                            content: function(){
-                                return getProvenanceContent(element);
+                   /* $('*[data-provenance]').each(function(index,element){
+                       annotated = $(element);
+                       annotated.find('')
+                    });*/
+                    var window = $('#provenancewindow');
+                    $('*[data-provenance]').hover(function(event){
+                        if(window.is(":visible")
+                        ){
+                            hovered = $(event.target);
+                            if(!hovered.attr('data-provenance')){
+                                hovered = hovered.parent('*[data-provenance]');
                             }
-                        })
-                    });
+                            if(hovered && hovered.attr('data-provenance')){
+                                var contentpanel = window.find('.panel-content');
+                                contentpanel.empty();
+                                contentpanel.append(getProvenanceContent(hovered.attr('data-provenance')));
+                            }
 
+                        }
+                    },function(){});
+                    $('.show-provenance').click(function(){
+                        if( window.is(':visible') ) {
+                            window.hide();
+                        } else{
+                            window.show();
+                        }
+
+                    });
                 },function(){
                     loadError('Template missing','Could not retrieve ' +templatePath[0] +'  :-(');
                 });

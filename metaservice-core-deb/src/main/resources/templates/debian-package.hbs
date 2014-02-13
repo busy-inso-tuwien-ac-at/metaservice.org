@@ -5,10 +5,10 @@
     <li class="active">{{ms-deb:architecture}}</li>
 </ol>
 {{> button_controls}}
-<h1>{{dc:title}}</h1>
+<h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
 <div class="row">
     <div class="col-md-8">
-        <pre>{{ms-deb:description}}</pre>
+        <pre data-provenance="[{{ms:id}}][{ms-deb:description][{{ms-deb:description}}]">{{ms-deb:description}}</pre>
         Homegpage: <a class="external" href="{{ms-deb:homepage}}">{{ms-deb:homepage}}</a>{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
         <br>
         Maintainer:
@@ -37,10 +37,10 @@
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
-                <tr><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/ms-deb:version}}</a></td></tr>
+                <tr data-provenance="[{{ms:id}}][xhv:prev][{{xhv:prev/ms:id}}]"><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
+                <tr data-provenance="[{{ms:id}}][xhv:next][{{xhv:next/ms:id}}]"><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/ms-deb:version}}</a></td></tr>
                 <tr><th>Version</th><td><a href="{{admssw:release/ms:id}}">{{ms-deb:version}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{admssw:release/admssw:project/ms:id}}">{{dc:title}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{admssw:release/admssw:project}}">{{dc:title}}</a></td></tr>
                 <tr><th>Repository</th><td></td></tr>
             </table>
         </div>

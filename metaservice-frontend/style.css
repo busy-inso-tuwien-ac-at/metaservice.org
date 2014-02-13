@@ -20,3 +20,23 @@ a.external:after {
     text-decoration: none;
     padding-left: 3px;
 }
+
+#provenancewindow {
+    top:30%;
+    right:30%;
+    width:400px;
+    max-height: 80%;
+    overflow: hidden;
+    position:fixed;
+    -moz-box-shadow:    2px 2px 4px 5px #ccc;
+    -webkit-box-shadow: 2px 2px 4px 5px #ccc;
+    box-shadow:         2px 2px 4px 5px #ccc;
+}
+
+#provenancewindow .panel-heading {
+    cursor: move;
+}
+
+#provenancewindow .panel-content{
+    width: 100%;overflow-x:hidden; overflow-y:scroll;
+}
