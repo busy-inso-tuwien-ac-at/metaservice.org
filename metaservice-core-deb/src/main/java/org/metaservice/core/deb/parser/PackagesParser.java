@@ -140,7 +140,7 @@ public class PackagesParser extends BaseParser<Object> {
     public Action addAsChild() {
         return addAsChild("");
     }
-    public Action addAsChild(String s) {
+    public Action addAsChild(final String s) {
 
         return new Action() {
             @Override
@@ -178,9 +178,8 @@ public class PackagesParser extends BaseParser<Object> {
 
 
     Rule DependencyTerm() {
-        Var<SuperNode> node = new Var<SuperNode>(new DependencyDisjunction());
         return Sequence(
-                push(node.get()),
+                push(new DependencyDisjunction()),
                 PackageIdentifier(),
                 addAsChild("dis1"),
                         ZeroOrMore(

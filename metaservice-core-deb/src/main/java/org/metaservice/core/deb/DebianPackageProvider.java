@@ -203,21 +203,46 @@ public class DebianPackageProvider implements Provider<Package> {
     private void createDependencyEntry(final BasicSuperNode packageQuery, final URI packageURI, final Class c, final URI property, final RepositoryConnection resultConnection) throws RepositoryException, QueryEvaluationException {
         packageQuery
                 .forEachChild(c)
-                .forEachChild(DependencyConjunction.class)
-                .forEachChild(DependencyDisjunction.class)
-                .forEachChild(PackageIdentifier.class).execute(new SuperNodeQuery.Function() {
+                .forEachChild(DependencyConjunction.class).execute(new SuperNodeQuery.Function() {
             @Override
-            public void execute(@NotNull SuperNode n) throws RepositoryException {
-                PackageIdentifier id = (PackageIdentifier) n;
-                URI dependencyURI =  valueFactory.createURI(packageURI.toString()+"#",property.getLocalName()+id.getName());
-                resultConnection.add(packageURI, property, dependencyURI);
-                resultConnection.add(dependencyURI, DC.DESCRIPTION, valueFactory.createLiteral(id.toString()));
-                Version version = id.getVersion();
-                if(version != null)
-                    resultConnection.add(dependencyURI, PACKAGE_DEB.VERSION, valueFactory.createLiteral(version.toString()));
-                resultConnection.add(dependencyURI, property, createProjectUri(id.getName()));
+            public void execute(SuperNode n) throws RepositoryException, QueryEvaluationException {
+                BasicSuperNode query = new BasicSuperNode(n);
+                query.forEachChild(DependencyDisjunction.class).execute(new SuperNodeQuery.Function() {
+                    @Override
+                    public void execute(SuperNode n) throws RepositoryException, QueryEvaluationException {
+                        final BNode container = valueFactory.createBNode();
+                        resultConnection.add(container,RDF.TYPE,METASERVICE_SWDEP.ANY_ONE_OF_SW);
+                        resultConnection.add(packageURI, property, container);
+                        new BasicSuperNode(n)
+                                .forEachChild(PackageIdentifier.class).execute(new SuperNodeQuery.Function() {
+                            @Override
+                            public void execute(@NotNull SuperNode n) throws RepositoryException {
+                                URI dependencyURI =  createDependencyPackageIdentifier((PackageIdentifier) n,property,resultConnection);
+                                resultConnection.add(container,RDF.LI,dependencyURI);
+
+                            }
+                        });
+                    }
+                });
+                query.forEachChild(PackageIdentifier.class).execute(new SuperNodeQuery.Function() {
+                    @Override
+                    public void execute(SuperNode n) throws RepositoryException, QueryEvaluationException {
+                        URI dependencyURI = createDependencyPackageIdentifier((PackageIdentifier) n,property,resultConnection);
+                        resultConnection.add(packageURI, property, dependencyURI);
+                    }
+                });
             }
         });
+    }
+
+    public URI createDependencyPackageIdentifier(PackageIdentifier packageIdentifier, final URI property, RepositoryConnection resultConnection) throws RepositoryException {
+        URI dependencyURI = valueFactory.createURI(packageURI.toString() + "#", property.getLocalName() + "_" + packageIdentifier.getName());
+        resultConnection.add(dependencyURI, DC.DESCRIPTION, valueFactory.createLiteral(packageIdentifier.toString()));
+        Version version = packageIdentifier.getVersion();
+        if (version != null)
+            resultConnection.add(dependencyURI, PACKAGE_DEB.VERSION, valueFactory.createLiteral(version.toString()));
+        resultConnection.add(dependencyURI, property, createProjectUri(packageIdentifier.getName()));
+        return dependencyURI;
     }
 
     private void createStringEntry(@NotNull final BasicSuperNode packageQuery, @NotNull final URI packageURI, @NotNull final Class c, @NotNull final URI property,@NotNull final RepositoryConnection resultConnection) throws RepositoryException, QueryEvaluationException {

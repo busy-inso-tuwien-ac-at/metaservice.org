@@ -1,25 +1,29 @@
 CONSTRUCT {_QUADMODE_
-    GRAPH ?graph {$path ?relation ?value}.
-    GRAPH ?ggraph {?graph ?grelation ?gvalue}.
-    GRAPH ?vgraph { ?value ?vrelation ?vvalue}.
-    GRAPH ?vggraph {?vgraph ?vgrelation ?vgvalue}.
-    GRAPH ?vggraph {?vgraph <ex:reason> ?value}.
+    GRAPH ?graph1 {$path ?relation1 ?value1}.
+    GRAPH ?ggraph1 {?graph1 ?grelation1 ?gvalue1}.
+    GRAPH ?graph2 { ?value1 ?relation2 ?value2}.
+    GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2}.
+    GRAPH ?graph3 { ?value2 <dc:description> ?value3}.
+
 }
 WHERE{
     {
-        SELECT DISTINCT ?graph ?relation ?value {
-            GRAPH ?graph { $path ?relation   ?value}.
-            FILTER (?relation != <http://metaservice.org/ns/metaservice#dummy>).
+        SELECT DISTINCT ?graph1 ?relation1 ?value1 {
+            GRAPH ?graph1 { $path ?relation1   ?value1}.
+            FILTER (?relation1 != <http://metaservice.org/ns/metaservice#dummy>).
             OPTIONAL {
-                GRAPH ?ggraph { ?graph ?grelation ?gvalue.}
+                GRAPH ?ggraph1 { ?graph1 ?grelation1 ?gvalue1.}
             }
         }
     }.
     OPTIONAL {
-        GRAPH ?vgraph { ?value ?vrelation ?vvalue}.
-        FILTER (?vrelation != <http://metaservice.org/ns/metaservice#dummy>).
+        GRAPH ?graph2 { ?value1 ?relation2 ?value2}.
+        FILTER (?relation2 != <http://metaservice.org/ns/metaservice#dummy>).
         OPTIONAL {
-            GRAPH ?vggraph {?vgraph ?vgrelation ?vgvalue.}
+            GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2.}
+        }
+        OPTIONAL {
+              GRAPH ?graph3 { ?value2 <dc:description> ?value3}.
         }
     }
 }

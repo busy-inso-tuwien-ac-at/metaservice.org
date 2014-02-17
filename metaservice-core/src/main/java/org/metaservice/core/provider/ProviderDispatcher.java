@@ -63,15 +63,18 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         this.repositoryConnection = repositoryConnection;
         this.archives = archives;
         this.providerDescriptor = providerDescriptor;
-        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT ?repo ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path.}");
+        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repo ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path.}");
     }
 
     public void refresh(URI uri) {
         try {
+            LOGGER.error("refreshing: " + uri);
             repoSelect.setBinding("resource", uri);
             TupleQueryResult queryResult =repoSelect.evaluate();
             if(!queryResult.hasNext())
                 throw new QueryEvaluationException("Result set is empty");
+            while (queryResult.hasNext()){
+
             BindingSet set = queryResult.next();
 
             Value timeValue = set.getBinding("time").getValue();
@@ -126,6 +129,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             } catch (RepositoryException | ArchiveException e) {
                 LOGGER.error("Could not Refresh {}" ,address,e);
             }
+            }
         } catch (QueryEvaluationException e) {
             LOGGER.error("Could not Refresh" ,e);
         }
@@ -173,7 +177,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
     }
 
     private URI generateMetadata(ArchiveAddress address) throws RepositoryException {
-        //todo uniqueness in uri necessaryy
+        //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + provider.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         Value pathLiteral = valueFactory.createLiteral(address.getPath());
         Value timeLiteral = valueFactory.createLiteral(address.getTime());

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.metaservice.core.deb.parser.PackagesParser;
 import org.metaservice.core.utils.MetaserviceHttpClient;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.parboiled.Parboiled;
 import org.parboiled.errors.ErrorUtils;
 import org.parboiled.errors.ParseError;
@@ -106,6 +107,45 @@ public class PackagesParserTest {
 
         }
 
+    }
+    @Test
+    public void dependencytest() throws IOException {
+        String input = "Package: wordpress\n"+
+                "Priority: optional\n"+
+                "Section: universe/web\n"+
+                "Installed-Size: 8796\n"+
+                "Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>\n"+
+                "Original-Maintainer: Giuseppe Iuculano <iuculano@debian.org>\n"+
+                "Architecture: all\n"+
+                "Version: 2.9.2-1ubuntu1.2\n"+
+                "Depends: apache2 | httpd, mysql-client, libapache2-mod-php5 | php5, php5-mysql, libphp-phpmailer (>= 1.73-4), php5-gd, libjs-prototype, libjs-scriptaculous, tinymce (>= 3.2.6-0.1), libphp-snoopy, libjs-jquery (>= 1.3.3-1), php-gettext, libjs-cropper\n"+
+                "Recommends: wordpress-l10n\n"+
+                "Suggests: mysql-server (>> 4.0.20-8)\n"+
+                "Filename: pool/universe/w/wordpress/wordpress_2.9.2-1ubuntu1.2_all.deb\n"+
+                "Size: 2017410\n"+
+                "MD5sum: 339e8845494d62265ef2b4c3f6d48aea\n"+
+                "SHA1: 67826fe4241fdf011f42158bdd565e8cf2694f69\n"+
+                "SHA256: b32f503042c90917c5d012e4b3873923673ad9f14bbc20e432a1184748bd1b86\n"+
+                "Description: weblog manager\n"+
+                " WordPress is a full featured web blogging tool:\n"+
+                "    * Instant publishing (no rebuilding)\n"+
+                "    * Comment pingback support with spam protection\n"+
+                "    * Non-crufty URLs\n"+
+                "    * Themable\n"+
+                "    * Plugin support\n"+
+                "Homepage: http://wordpress.org\n"+
+                "Bugs: https://bugs.launchpad.net/ubuntu/+filebug\n"+
+                "Origin: Ubuntu\n";
+        ReportingParseRunner runner = new ReportingParseRunner(parser.List());
+        ParsingResult<?> result =  runner.run(input);
+        String parseTreePrintOut = ParseTreeUtils.printNodeTree(result);
+        System.err.println((result.valueStack.pop()));
+
+        System.err.println(ValueFactoryImpl.getInstance().createURI("http://"));
+        // System.out.println(parseTreePrintOut);
+        for(ParseError e : result.parseErrors){
+            ErrorUtils.printParseError(e);
+        }
     }
 
 

@@ -9,7 +9,7 @@
 <div class="row">
     <div class="col-md-8">
         <pre data-provenance="[{{ms:id}}][{ms-deb:description][{{ms-deb:description}}]">{{ms-deb:description}}</pre>
-        Homegpage: <a class="external" href="{{ms-deb:homepage}}">{{ms-deb:homepage}}</a>{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
+        Homegpage: {{#ms-deb:homepage}} <a class="external" href="{{this}}">{{this}}</a>{{/ms-deb:homepage}}{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
         <br>
         Maintainer:
         <ul>
@@ -22,11 +22,21 @@
         </ul>
         Depends:
         <ul>
-            {{#eachArray ms-deb:depends}}<li><a href="{{ms-deb:depends}}">{{dc:description}}</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:depends}}
+                <li>
+                {{#if dc:description}}
+                    <a href="{{ms-deb:depends}}">{{dc:description}}</a>
+                {{/if}}
+                {{#eachArray rdf:li}}
+                    <a href="{{ms-deb:depends}}">{{dc:description}}</a>
+                    <b>or</b>
+                {{/eachArray}}
+            </li>
+            {{/eachArray}}
         </ul>
         Suggests:
         <ul>
-            {{#eachArray ms-deb:suggests}}<li><a href="{{ms-deb:suggests}}">{{dc:description}}</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:suggests}}<li><a href="{{ms-deb:suggests}}">{{dc:description}}</a>{{#eachArray rdf:li}}{{/eachArray}}</li>{{/eachArray}}
         </ul>
         Recommends:
         <ul>

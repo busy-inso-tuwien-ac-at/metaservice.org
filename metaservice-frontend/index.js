@@ -340,6 +340,43 @@ function jsonLdFollowIris(source,iri){
 }
 
 
+function mergeData(object, dataIndex, toProcess) {
+    if($.isArray(object[dataIndex]) && $.isArray(toProcess)){
+        for(i = 0; i < toProcess.length;i++){
+            found = false;
+            for(j = 0; j < object[dataIndex].length;j++){
+                if(deepCompare(toProcess[i],object[dataIndex][j]))
+                    found = true;
+            }
+            if(!found){
+                object[dataIndex].push(toProcess[i]);
+            }
+        }
+    } else if ($.isArray(object[dataIndex])){
+        found = false;
+        for(j = 0; j < object[dataIndex].length;j++){
+            if(deepCompare(toProcess,object[dataIndex][j]))
+                found = true;
+        }
+        if(!found){
+            object[dataIndex].push(toProcess);
+        }
+    } else if ($.isArray(toProcess)){
+        found = false;
+        for(i = 0; i < toProcess.length;i++){
+            if(deepCompare(toProcess[i],object[dataIndex]))
+                found = true;
+        }
+        if(!found){
+            toProcess.push(object[dataIndex]);
+        }
+        object[dataIndex] = toProcess;
+    } else {
+        if(!deepCompare(toProcess,object[dataIndex])){
+            object[dataIndex] = [object[dataIndex],toProcess];
+        }
+    }
+}
 function jsonLdUnion(array){
     var result = {};
     $.each(array,function(graphIndex,graph){
@@ -363,50 +400,112 @@ function jsonLdUnion(array){
                     if(!object[dataIndex]){
                         object[dataIndex] = toProcess;
                     } else {
-                        if($.isArray(object[dataIndex]) && $.isArray(toProcess)){
-                            for(i = 0; i < toProcess.length;i++){
-                                found = false;
-                                for(j = 0; j < object[dataIndex].length;j++){
-                                    if(deepCompare(toProcess[i],object[dataIndex][j]))
-                                    found = true;
-                                }
-                                if(!found){
-                                    object[dataIndex].push(toProcess[i]);
-                                }
-                            }
-                        } else if ($.isArray(object[dataIndex])){
-                            found = false;
-                                for(j = 0; j < object[dataIndex].length;j++){
-                                    if(deepCompare(toProcess,object[dataIndex][j]))
-                                        found = true;
-                                }
-                            if(!found){
-                                object[dataIndex].push(toProcess);
-                            }
-                        } else if ($.isArray(toProcess)){
-                            found = false;
-                            for(i = 0; i < toProcess.length;i++){
-                                 if(deepCompare(toProcess[i],object[dataIndex]))
-                                    found = true;
-                            }
-                            if(!found){
-                                toProcess.push(object[dataIndex]);
-                            }
-                            object[dataIndex] = toProcess;
-                        } else {
-                            if(!deepCompare(toProcess,object[dataIndex])){
-                                object[dataIndex] = [object[dataIndex],toProcess];
-                            }
-                        }
+                        mergeData(object,dataIndex,toProcess);
                     }
                 }
             });
         });
     });
-    console.log(result);
     return result;
 }
 
+/**
+ * Everything but the blank node id is the same.
+ * todo fix recursive blank nodes
+ * @param o1
+ * @param o2
+ * @returns {boolean}
+ */
+function blankNodeEquals(o1,o2){
+    var ok = true;
+    $.each(o1,function(index,element){
+        if(!o2[index]){
+        //    console.log('index1' + index);
+            ok = false;
+        }
+    });
+    if(!ok)
+        return false;
+    $.each(o2,function(index,element){
+        if(!o1[index]){
+         //   console.log('index2' + index);
+            ok = false;
+        }
+    });
+    if(!ok)
+        return false;
+    $.each(o2,function(index,element){
+        if(index != 'ms:id'){
+            ok = ok && deepCompare(o1[index],o2[index]);
+         //   console.log('deep ' + index + " " + ok);
+        }
+    });
+    return ok;
+}
+
+function mergeIdenticalBlankNodes(data){
+    var result = {};
+    $.each(data,function(index, element){
+        if(element['ms:id'] && element['ms:id'].charAt(0) == '_'){
+            found = null;
+            $.each(result,function(index2,element2){
+                if(element2['ms:id'] && element2['ms:id'].charAt(0) == '_'){
+           //         console.log('DOING EQUALS ');
+           //         console.log(element2);console.log(element);
+                    if(blankNodeEquals(element,element2)){
+            //            console.log('ARE EQUAL');
+                        found = element2;
+                    }
+                }
+            });
+            if(found){
+                deepReplaceId(data,element['ms:id'],found['ms:id']);
+            }else{
+                result[index] = element;
+            }
+        }else{
+            result[index] = element;
+        }
+    });
+    return result;
+}
+
+function deepReplaceId(object,from,to){
+    if($.isArray(object) || $.isPlainObject(object)){
+        $.each(object,function(index,element){
+            if(!element)
+                return;
+            if(element == from){
+                object[index] = to;
+            } else if(element['@id'] == from){
+          //      console.log('renaming', from,to);
+           //     console.log(object);
+                found = false;
+                $.each(object,function(index2,element2){
+                    if(!element2)
+                        return;
+                    if(index2 != index && element2['@id'] == to){
+                        found = true;
+                    }
+                });
+                if(found){
+                    if($.isPlainObject(object)){
+            //            console.log('delete');
+                        delete object[index];
+                    }else{
+          //              console.log('splice');
+                        object.splice(index,1);
+                    }
+                } else{
+            //        console.log('rename');
+                    object[index] = to;
+                }
+            }else{
+                deepReplaceId(element,from,to);
+            }
+        });
+    }
+}
 
 function handleResource(){
     $.ajax({
@@ -420,7 +519,12 @@ function handleResource(){
                 return;
             }
             MS.raw = data;
+            console.log(data);
             var result =jsonLdUnion(data);
+            console.log(result);
+            result = mergeIdenticalBlankNodes(result);
+            console.log(result);
+
             jsonld.compact(result,MS.context,function(err,compacted){
                 result = compacted;
                 result = jsonLdFollowIris(result,MS.resourceUrl);
