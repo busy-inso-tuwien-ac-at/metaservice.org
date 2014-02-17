@@ -94,6 +94,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             }
 
             ArchiveAddress address = new ArchiveAddress(repo,time,path);
+            //todo add parameters to address
 
             try{
                 LOGGER.info("Starting to process " + address);
@@ -111,10 +112,11 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 resultConnection.commit();
                 HashSet<Statement> loadedStatements = new HashSet<>();
                 Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT), loadedStatements);
-                List<T> objects = parser.parse(content);
+                List<T> objects = parser.parse(content,address);
+                HashMap<String,String> parameters = new HashMap<>(address.getParameters());
                 for(T object: objects){
                     try {
-                        provider.provideModelFor(object,resultConnection);
+                        provider.provideModelFor(object,resultConnection,parameters);
                     } catch (ProviderException e) {
                         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                     }
@@ -157,11 +159,11 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             resultConnection.commit();
             HashSet<Statement> loadedStatements = new HashSet<>();
             Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT),loadedStatements);
-
-            List<T> objects = parser.parse(content);
+            List<T> objects = parser.parse(content,address);
+            HashMap<String,String> parameters = new HashMap<>(address.getParameters());
             for(T object: objects){
                 try {
-                    provider.provideModelFor(object,resultConnection);
+                    provider.provideModelFor(object,resultConnection,parameters);
                 } catch (ProviderException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }

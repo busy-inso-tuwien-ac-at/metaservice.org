@@ -1,6 +1,7 @@
 package org.metaservice.core.maven;
 
 import org.apache.maven.model.*;
+import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.provider.Provider;
 import org.metaservice.api.provider.ProviderException;
@@ -12,6 +13,8 @@ import org.openrdf.repository.RepositoryException;
 
 import javax.inject.Inject;
 
+
+import java.util.HashMap;
 
 import static org.metaservice.core.maven.PACKAGE_MAVEN.*;
 
@@ -25,7 +28,7 @@ public class MavenProvider implements Provider<org.apache.maven.model.Model> {
     }
 
     @Override
-    public void provideModelFor(org.apache.maven.model.Model pom, RepositoryConnection resultConnection) throws ProviderException {
+    public void provideModelFor(@NotNull org.apache.maven.model.Model pom,@NotNull RepositoryConnection resultConnection, @NotNull HashMap<String,String> properties) throws ProviderException {
 
         try{
         URI projectURI =   valueFactory.createURI(rooturl + pom.getGroupId() + "/" + pom.getArtifactId());

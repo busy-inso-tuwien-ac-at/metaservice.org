@@ -1,6 +1,8 @@
 import org.junit.Test;
 import org.metaservice.core.maven.MavenPomParser;
 
+import java.util.HashMap;
+
 /**
  * Created by ilo on 08.01.14.
  */
@@ -16,7 +18,7 @@ public class PomReaderTest {
                 "        <groupId>org.metaservice</groupId>\n" +
                 "    <artifactId>metaservice-core-maven</artifactId>\n" +
                 "    <version>1.0</version>\n" +
-                "</project>");
+                "</project>", new HashMap<String, String>());
     }
 
     @Test
@@ -35,6 +37,6 @@ public class PomReaderTest {
                 "        <groupId>org.metaservice</groupId>\n" +
                 "    <artifactId>metaservice-core-maven</artifactId>\n" +
                 "    <version>1.0</version>\n" +
-                "</project>");
+                "</project>", new HashMap<String, String>());
     }
 }

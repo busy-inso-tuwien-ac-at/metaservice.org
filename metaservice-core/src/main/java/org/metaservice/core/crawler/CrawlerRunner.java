@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveException;
+import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.injection.InjectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +44,18 @@ public class CrawlerRunner {
     private final Session session;
     private final Connection connection;
     private final MessageProducer producer;
+    private final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor;
 
     @Inject
     public CrawlerRunner(
             Crawler crawler,
             Archive archive,
-            ConnectionFactory connectionFactory) throws JMSException {
+            ConnectionFactory connectionFactory,
+            MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor
+    ) throws JMSException {
         this.crawler = crawler;
         this.archive = archive;
+        this.repositoryDescriptor = repositoryDescriptor;
 
         connection = connectionFactory.createConnection();
         connection.setClientID(this.getClass().getName() +"con");
@@ -73,6 +78,7 @@ public class CrawlerRunner {
                     try{
                         LOGGER.info("Sending " + commitTime +" s " + s);
                         ArchiveAddress archiveAddress = new ArchiveAddress(sourceBaseUri,commitTime,s);
+                        archiveAddress.setParameters(repositoryDescriptor.getProperties());
                         ObjectMessage message = session.createObjectMessage();
                         message.setObject(archiveAddress);
                         producer.send(message);

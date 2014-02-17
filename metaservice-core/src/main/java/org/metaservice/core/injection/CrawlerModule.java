@@ -47,6 +47,8 @@ public class CrawlerModule extends AbstractModule{
             parameters.setName(repositoryDescriptor.getCrawler());
             parameters.setStarturi(repositoryDescriptor.getStartUri());
             parameters.setArchive(archive);
+            bind(MetaserviceDescriptor.RepositoryDescriptor.class).toInstance(repositoryDescriptor);
+            bind(MetaserviceDescriptor.CrawlerDescriptor.class).toInstance(crawlerDescriptor);
             bind(CrawlerParameters.class).toInstance(parameters);
             bind(Crawler.class).toProvider(CrawlerProvider.class);
         }catch (ClassNotFoundException e) {

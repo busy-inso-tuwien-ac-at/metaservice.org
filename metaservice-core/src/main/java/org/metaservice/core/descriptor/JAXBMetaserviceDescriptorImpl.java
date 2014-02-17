@@ -8,6 +8,7 @@ import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +16,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -456,6 +458,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
                     ", \ncrawler='" + crawler + '\'' +
                     ", \nactive=" + active +
                     ", \narchiveClassName='" + archiveClassName + '\'' +
+                    ", \nproperties='" + properties + '\'' +
                     '}';
         }
 
@@ -465,6 +468,17 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         private Boolean active;
         private String archiveClassName;
 
+
+        private HashMap<String,String> properties;
+
+        @XmlJavaTypeAdapter(MapPropertiesAdapter.class)
+        public HashMap<String, String> getProperties() {
+            return properties;
+        }
+
+        public void setProperties(HashMap<String, String> properties) {
+            this.properties = properties;
+        }
 
         @XmlAttribute
         public String getBaseUri() {

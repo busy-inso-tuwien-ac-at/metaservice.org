@@ -216,11 +216,12 @@ public class GitCacheReader {
                     while(true){
                         Task t = queue.take();
                         //      System.err.println("WAITING " + running.decrementAndGet());
-                        try{
-                            List<Package> result = parser.parse(t.content);
+                       /*  try{
+                            //todo GitCacheReader isn't working correctly anymore...
+                           List<Package> result = parser.parse(t.content,null);
 
                         for (Package node :  result) {
-                         //   provider.create(node/*, t.source, t.time, t.path*/);
+                         //   provider.create(node/*, t.source, t.time, t.path);
                         }
                         }catch (Exception e){
                             try {
@@ -234,7 +235,7 @@ public class GitCacheReader {
                             } catch (IOException e1) {
                                 LOGGER.error("Error dumping",e1);
                             }
-                        }
+                        }*/
                         LOGGER.info("done processing {} {}",t.revision, t.path);
                     }
                 } catch (InterruptedException e) {

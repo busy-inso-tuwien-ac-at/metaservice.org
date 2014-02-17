@@ -36,9 +36,22 @@ public class METASERVICE_SWDEP {
     public static final URI SW;
     public static final URI ANY_ONE_OF_SW;
     public static final URI ANY_ONE_OF_HW;
-    public static final URI SOFTWARE_DEPENDENCY_RELATION;
+    public static final URI VERSION_DEPENDENCY_RELATION;
+    public static final URI EXACT_VERSION_DEPENDENCY_RELATION;
+    public static final URI LATER_THAN_VERSION_DEPENDENCY_RELATION;
+    public static final URI PRIOR_TO_VERSION_DEPENDENCY_RELATION;
+    public static final URI LATER_THAN_OR_EQUAL_VERSION_DEPENDENCY_RELATION;
+    public static final URI PRIOR_TO_OR_EQUAL_VERSION_DEPENDENCY_RELATION;
+
+
+    public static final URI DEPEND_ON;
+    public static final URI DEPENDENCY_OF;
+    public static final URI VERSION;
+
+
     static {
         ValueFactory factory = ValueFactoryImpl.getInstance();
+        //CLASSES
         DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"Dependency_Relation");
         TYPE_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"TypeDependency_Relation");
         EXPLICIT_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"Explicit_Dependency_Relation");
@@ -65,6 +78,15 @@ public class METASERVICE_SWDEP {
         SW = factory.createURI(NAMESPACE,"SW");
         ANY_ONE_OF_SW = factory.createURI(NAMESPACE,"AnyOneOfSW");
         ANY_ONE_OF_HW = factory.createURI(NAMESPACE,"AnyOneOfHW");
-        SOFTWARE_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"SoftwareDependency_Relation");
+        VERSION_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"VersionDependency_Relation");
+        EXACT_VERSION_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"ExactVersionDependency_Relation");
+        LATER_THAN_VERSION_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"LaterThanVersionDependency_Relation");
+        PRIOR_TO_VERSION_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"PriorToVersionDependency_Relation");
+        LATER_THAN_OR_EQUAL_VERSION_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"LaterThanOrEqualVersionDependency_Relation");
+        PRIOR_TO_OR_EQUAL_VERSION_DEPENDENCY_RELATION = factory.createURI(NAMESPACE,"PriorToOrEqualVersionDependency_Relation");
+
+        VERSION = factory.createURI(NAMESPACE,"version");
+        DEPEND_ON = factory.createURI(NAMESPACE,"dependOn");
+        DEPENDENCY_OF = factory.createURI(NAMESPACE,"dependencyOf");
     }
 }

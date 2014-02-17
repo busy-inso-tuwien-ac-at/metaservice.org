@@ -8,10 +8,8 @@ import org.metaservice.core.deb.parser.ast.*;
 import org.metaservice.core.deb.parser.ast.Package;
 import org.openrdf.model.*;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -23,14 +21,18 @@ import javax.mail.internet.InternetAddress;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class DebianPackageProvider implements Provider<Package> {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianPackageProvider.class);
+    public final static String PROPERTY_META_DISTRIBUTION = "meta-distribution";
+    public final static String PROPERTY_DISTRIBUTION = "distribution";
+    public final static String PROPERTY_DISTRIBUTION_REGEX = "distribution-regex";
+
 
     @NotNull
-    public static final String rooturl = "http://metaservice.org/d/packages/debian/";
+    public static final String rooturl = "http://metaservice.org/d/packages/";
 
-    private BooleanQuery checkMailExists;
     private final ValueFactory valueFactory;
 
     @Inject
@@ -46,9 +48,9 @@ public class DebianPackageProvider implements Provider<Package> {
     public static interface SuperNodeQuery{
         @NotNull
         public SuperNodeQuery forEachChild(Class c);
-        public void execute(Function f) throws RepositoryException, QueryEvaluationException;
+        public void execute(Function f) throws RepositoryException;
         public static interface Function{
-            public void execute(SuperNode n) throws RepositoryException, QueryEvaluationException;
+            public void execute(SuperNode n) throws RepositoryException;
         }
     }
 
@@ -82,7 +84,7 @@ public class DebianPackageProvider implements Provider<Package> {
         }
 
         @Override
-        public void execute(@NotNull Function f) throws RepositoryException, QueryEvaluationException {
+        public void execute(@NotNull Function f) throws RepositoryException {
             for(SuperNode node : nodeList){
                 f.execute(node);
             }
@@ -91,14 +93,9 @@ public class DebianPackageProvider implements Provider<Package> {
 
     //  public void setContext();
 
-    public void provideModelFor(@NotNull Package p, @NotNull final RepositoryConnection resultConnection) throws ProviderException {
+    public void provideModelFor(@NotNull Package p, @NotNull final RepositoryConnection resultConnection,@NotNull HashMap<String,String> properties) throws ProviderException {
         try{
-            try {
-                checkMailExists = resultConnection.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { ?package ?property ?x. ?x <" + FOAF.MBOX + "> ?mboxvalue; <" + FOAF.NAME + "> ?mboxname }");
-            } catch (MalformedQueryException e) {
-                e.printStackTrace();
-            }
-            calculateURIs(p);
+            calculateURIs(p,properties);
 
             BasicSuperNode packageQuery = new BasicSuperNode(p);
             packageQuery
@@ -129,6 +126,11 @@ public class DebianPackageProvider implements Provider<Package> {
             //package
             resultConnection.add(packageURI, RDF.TYPE, PACKAGE_DEB.PACKAGE);
             resultConnection.add(packageURI, ADMSSW.RELEASE, releaseURI);
+
+            resultConnection.add(releaseURI,PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_META_DISTRIBUTION)));
+            resultConnection.add(releaseURI,PACKAGE_DEB.DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_DISTRIBUTION)));
+
+            createStringEntry(packageQuery, packageURI, Entries.Source.class, PACKAGE_DEB.SOURCE, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.MD5sum.class, PACKAGE_DEB.MD5SUM, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.SHA1.class, PACKAGE_DEB.SHA1, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.SHA256.class, PACKAGE_DEB.SHA256, resultConnection);
@@ -139,46 +141,41 @@ public class DebianPackageProvider implements Provider<Package> {
             createEmailEntry(packageQuery, packageURI, Entries.Maintainer.class, PACKAGE_DEB.MAINTAINER_PROPERTY,resultConnection);
             createEmailEntry(packageQuery, packageURI, Entries.Uploaders.class, PACKAGE_DEB.UPLOADER,resultConnection);
 
-            createDependencyEntry(packageQuery, packageURI, Entries.Depends.class, PACKAGE_DEB.DEPENDS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.PreDepends.class, PACKAGE_DEB.PRE_DEPENDS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.Recommends.class, PACKAGE_DEB.RECOMMENDS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.Suggests.class, PACKAGE_DEB.SUGGESTS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.Breaks.class, PACKAGE_DEB.BREAKS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.Replaces.class, PACKAGE_DEB.REPLACES, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.Provides.class, PACKAGE_DEB.PROVIDES, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.BuiltUsing.class, PACKAGE_DEB.BUILT_USING, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.Conflicts.class, PACKAGE_DEB.CONFLICTS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.BuildConflicts.class, PACKAGE_DEB.BUILD_CONFLICTS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.BuildConflictsIndep.class, PACKAGE_DEB.BUILD_CONFLICTS_INDEP, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.BuildDepends.class, PACKAGE_DEB.BUILD_DEPENDS, resultConnection);
-            createDependencyEntry(packageQuery, packageURI, Entries.BuildDependsIndep.class, PACKAGE_DEB.BUILD_DEPENDS_INDEP, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.Depends.class, PACKAGE_DEB.DEPENDS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.PreDepends.class, PACKAGE_DEB.PRE_DEPENDS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.Recommends.class, PACKAGE_DEB.RECOMMENDS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.Suggests.class, PACKAGE_DEB.SUGGESTS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.Breaks.class, PACKAGE_DEB.BREAKS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.Replaces.class, PACKAGE_DEB.REPLACES, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.Provides.class, PACKAGE_DEB.PROVIDES, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.BuiltUsing.class, PACKAGE_DEB.BUILT_USING, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.Conflicts.class, PACKAGE_DEB.CONFLICTS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.BuildConflicts.class, PACKAGE_DEB.BUILD_CONFLICTS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.BuildConflictsIndep.class, PACKAGE_DEB.BUILD_CONFLICTS_INDEP, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.BuildDepends.class, PACKAGE_DEB.BUILD_DEPENDS, resultConnection);
+            createDependencyEntry(properties,packageQuery, packageURI, Entries.BuildDependsIndep.class, PACKAGE_DEB.BUILD_DEPENDS_INDEP, resultConnection);
             createVersionEntry(packageQuery,packageURI,PACKAGE_DEB.VERSION,resultConnection);
+
         } catch (RepositoryException | QueryEvaluationException e) {
             throw new ProviderException(e);
         }
     }
 
-    private void createEmailEntry(final BasicSuperNode packageQuery,final URI packageURI,final Class c,final URI property,final RepositoryConnection resultConnection) throws RepositoryException, QueryEvaluationException {
+    private void createEmailEntry(final BasicSuperNode packageQuery,final URI packageURI,final Class c,final URI property,final RepositoryConnection resultConnection) throws RepositoryException {
         packageQuery
                 .forEachChildStringNode(c)
                 .execute(new SuperNodeQuery.Function() {
                     @Override
-                    public void execute(@NotNull SuperNode n) throws RepositoryException, QueryEvaluationException {
+                    public void execute(@NotNull SuperNode n) throws RepositoryException {
                         try {
-                            checkMailExists.setBinding("package",packageURI);
-                            checkMailExists.setBinding("property",property);
                             for(InternetAddress a : InternetAddress.parse(n.toString(),false)){
                                 BNode bNode = valueFactory.createBNode();
                                 if(a.getAddress() != null && a.getPersonal() != null){
                                     URI mboxVal =    valueFactory.createURI("mailto:" + a.getAddress());
                                     Value nameVal = valueFactory.createLiteral(a.getPersonal());
-                                    checkMailExists.setBinding("mboxval",mboxVal);
-                                    checkMailExists.setBinding("nameval",nameVal);
-                                    if(!checkMailExists.evaluate()){
-                                        resultConnection.add(packageURI, property, bNode);
-                                        resultConnection.add(bNode, FOAF.MBOX, mboxVal);
-                                        resultConnection.add(bNode, FOAF.NAME, nameVal);
-                                    }
+                                    resultConnection.add(packageURI, property, bNode);
+                                    resultConnection.add(bNode, FOAF.MBOX, mboxVal);
+                                    resultConnection.add(bNode, FOAF.NAME, nameVal);
                                 }
                             }
                         } catch (AddressException e) {
@@ -200,16 +197,16 @@ public class DebianPackageProvider implements Provider<Package> {
                 });
     }
 
-    private void createDependencyEntry(final BasicSuperNode packageQuery, final URI packageURI, final Class c, final URI property, final RepositoryConnection resultConnection) throws RepositoryException, QueryEvaluationException {
+    private void createDependencyEntry(final HashMap<String,String> properties,final BasicSuperNode packageQuery, final URI packageURI, final Class c, final URI property, final RepositoryConnection resultConnection) throws RepositoryException, QueryEvaluationException {
         packageQuery
                 .forEachChild(c)
                 .forEachChild(DependencyConjunction.class).execute(new SuperNodeQuery.Function() {
             @Override
-            public void execute(SuperNode n) throws RepositoryException, QueryEvaluationException {
+            public void execute(SuperNode n) throws RepositoryException {
                 BasicSuperNode query = new BasicSuperNode(n);
                 query.forEachChild(DependencyDisjunction.class).execute(new SuperNodeQuery.Function() {
                     @Override
-                    public void execute(SuperNode n) throws RepositoryException, QueryEvaluationException {
+                    public void execute(SuperNode n) throws RepositoryException {
                         final BNode container = valueFactory.createBNode();
                         resultConnection.add(container,RDF.TYPE,METASERVICE_SWDEP.ANY_ONE_OF_SW);
                         resultConnection.add(packageURI, property, container);
@@ -217,7 +214,7 @@ public class DebianPackageProvider implements Provider<Package> {
                                 .forEachChild(PackageIdentifier.class).execute(new SuperNodeQuery.Function() {
                             @Override
                             public void execute(@NotNull SuperNode n) throws RepositoryException {
-                                URI dependencyURI =  createDependencyPackageIdentifier((PackageIdentifier) n,property,resultConnection);
+                                URI dependencyURI =  createDependencyPackageIdentifier(properties,(PackageIdentifier) n,property,resultConnection);
                                 resultConnection.add(container,RDF.LI,dependencyURI);
 
                             }
@@ -226,8 +223,8 @@ public class DebianPackageProvider implements Provider<Package> {
                 });
                 query.forEachChild(PackageIdentifier.class).execute(new SuperNodeQuery.Function() {
                     @Override
-                    public void execute(SuperNode n) throws RepositoryException, QueryEvaluationException {
-                        URI dependencyURI = createDependencyPackageIdentifier((PackageIdentifier) n,property,resultConnection);
+                    public void execute(SuperNode n) throws RepositoryException {
+                        URI dependencyURI = createDependencyPackageIdentifier(properties,(PackageIdentifier) n,property,resultConnection);
                         resultConnection.add(packageURI, property, dependencyURI);
                     }
                 });
@@ -235,13 +232,41 @@ public class DebianPackageProvider implements Provider<Package> {
         });
     }
 
-    public URI createDependencyPackageIdentifier(PackageIdentifier packageIdentifier, final URI property, RepositoryConnection resultConnection) throws RepositoryException {
+    public URI createDependencyPackageIdentifier(HashMap<String,String> properties,PackageIdentifier packageIdentifier, final URI property, RepositoryConnection resultConnection) throws RepositoryException {
         URI dependencyURI = valueFactory.createURI(packageURI.toString() + "#", property.getLocalName() + "_" + packageIdentifier.getName());
         resultConnection.add(dependencyURI, DC.DESCRIPTION, valueFactory.createLiteral(packageIdentifier.toString()));
         Version version = packageIdentifier.getVersion();
-        if (version != null)
-            resultConnection.add(dependencyURI, PACKAGE_DEB.VERSION, valueFactory.createLiteral(version.toString()));
-        resultConnection.add(dependencyURI, property, createProjectUri(packageIdentifier.getName()));
+        if (version != null){
+            resultConnection.add(dependencyURI, METASERVICE_SWDEP.VERSION, valueFactory.createLiteral(version.toString()));
+            if(version.relation != null) {
+                switch (version.relation){
+                    case ">>":
+                    case ">":
+                        resultConnection.add(dependencyURI,RDF.TYPE,METASERVICE_SWDEP.LATER_THAN_VERSION_DEPENDENCY_RELATION);
+                        break;
+                    case "<<":
+                    case "<":
+                        resultConnection.add(dependencyURI,RDF.TYPE,METASERVICE_SWDEP.PRIOR_TO_VERSION_DEPENDENCY_RELATION);
+                        break;
+                    case ">=":
+                        resultConnection.add(dependencyURI,RDF.TYPE,METASERVICE_SWDEP.LATER_THAN_OR_EQUAL_VERSION_DEPENDENCY_RELATION);
+                        break;
+                    case "<=":
+                        resultConnection.add(dependencyURI,RDF.TYPE,METASERVICE_SWDEP.PRIOR_TO_OR_EQUAL_VERSION_DEPENDENCY_RELATION);
+                        break;
+                    case "=":
+                    default:
+                        resultConnection.add(dependencyURI,RDF.TYPE,METASERVICE_SWDEP.EXACT_VERSION_DEPENDENCY_RELATION);
+                        break;
+                }
+            }else {
+                resultConnection.add(dependencyURI,RDF.TYPE,METASERVICE_SWDEP.VERSION_DEPENDENCY_RELATION);
+            }
+            resultConnection.add(dependencyURI, METASERVICE_SWDEP.DEPEND_ON, createReleaseUri(properties,packageIdentifier.getName(), version.toFileNameString()));
+
+        }else{
+            resultConnection.add(dependencyURI, METASERVICE_SWDEP.DEPEND_ON, createProjectUri(properties,packageIdentifier.getName()));
+        }
         return dependencyURI;
     }
 
@@ -261,7 +286,7 @@ public class DebianPackageProvider implements Provider<Package> {
     private URI releaseURI;
     private URI projectURI;
 
-    private void calculateURIs(@NotNull Package p) {
+    private void calculateURIs(@NotNull Package p,HashMap<String,String> properties) {
         PackageType type = null;
         String name = null;
         String version = null;
@@ -291,22 +316,23 @@ public class DebianPackageProvider implements Provider<Package> {
                 }
             }
         }
-        packageURI = createPackageUri(name,version,arch);
-        releaseURI = createReleaseUri(name,version);
-        projectURI = createProjectUri(name);
+        packageURI = createPackageUri(properties,name,version,arch);
+        releaseURI = createReleaseUri(properties,name,version);
+        projectURI = createProjectUri(properties,name);
     }
 
 
-    public URI createProjectUri(String projectName){
-        return  valueFactory.createURI(rooturl, projectName);
+    public URI createProjectUri(HashMap<String,String> properties, String projectName){
+        return  valueFactory.createURI(rooturl, properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName);
     }
-    public URI createPackageUri(String projectName,String version,String arch){
-        return  valueFactory.createURI(rooturl, projectName +"/" + version + "/" + arch);
+    public URI createPackageUri(HashMap<String,String> properties, String projectName,String version,String arch){
+        return  valueFactory.createURI(rooturl, properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName +"/" + version + "/" + arch);
     }
 
 
-    public URI createReleaseUri(String projectName,String version){
-        return valueFactory.createURI(rooturl, projectName+"/" + version);
+    public URI createReleaseUri(HashMap<String,String> properties, String projectName,String version){
+        return valueFactory.createURI(rooturl, properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName+"/" + version);
     }
+
 
 }

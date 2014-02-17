@@ -30,7 +30,6 @@ import java.io.IOException;
 
 import java.nio.file.*;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by ilo on 05.01.14.
@@ -77,21 +76,38 @@ public class Manager {
         }
     }
 
-    public Archive getArchiveWithName(@NotNull String name) throws ArchiveException {
+    public Archive getArchiveForRepository(@NotNull MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor) throws ArchiveException {
         ArchiveParameters archiveParameters = new ArchiveParametersImpl(null,null);
         return new GitArchive(archiveParameters);
     }
 
     public void loadAllDataFromArchive(@NotNull final String name) throws ManagerException {
         try {
+            MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor = null;
+            for(ManagerConfig.Module module :managerConfig.getInstalledModules()){
+               for(MetaserviceDescriptor.RepositoryDescriptor t : module.getMetaserviceDescriptor().getRepositoryList()){
+                   if(t.getId().equals(name)){
+                      repositoryDescriptor = t;
+                      break;
+                   }
+               }
+            }
+
+            if(repositoryDescriptor == null){
+                LOGGER.error("NO SUCH REPOSITORY {}", name);
+            }
+
+            final MetaserviceDescriptor.RepositoryDescriptor selectedRepositoryDescriptor = repositoryDescriptor;
+
             jmsProducerUtil.executeTopicProducerTask("VirtualTopic.Create", new JMSProducerUtil.ProducerTask<ArchiveException>()  {
                 @Override
                 public void execute(Session session, MessageProducer producer) throws JMSException,ArchiveException  {
-                    Archive gitArchive = getArchiveWithName(name);
+                    Archive gitArchive = getArchiveForRepository(selectedRepositoryDescriptor);
                     for(String commitTime : gitArchive.getTimes()){
                         for(String path : gitArchive.getChangedPaths(commitTime)){
                             LOGGER.info("Sending " + commitTime +" s " + path);
                             ArchiveAddress archiveAddress = new ArchiveAddress(gitArchive.getSourceBaseUri(),commitTime,path);
+                            archiveAddress.setParameters(selectedRepositoryDescriptor.getProperties());
                             ObjectMessage message = session.createObjectMessage();
                             message.setObject(archiveAddress);
                             producer.send(message);

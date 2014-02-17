@@ -1,5 +1,6 @@
 package org.metaservice.core.deb;
 
+import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.core.deb.parser.PackagesParser;
 import org.metaservice.core.deb.parser.ast.Package;
@@ -19,7 +20,10 @@ public class ParboiledDebParser implements Parser<Package> {
     public static final Logger LOGGER = LoggerFactory.getLogger(ParboiledDebParser.class);
 
     @Override
-    public List<Package> parse(String s) {
+    public List<Package> parse(String s, ArchiveAddress archiveParameters) {
+        String distribution = archiveParameters.getPath().replaceFirst(archiveParameters.getParameters().get(DebianPackageProvider.PROPERTY_DISTRIBUTION_REGEX),"$1");
+        archiveParameters.getParameters().put(DebianPackageProvider.PROPERTY_DISTRIBUTION,distribution);
+
         ArrayList<Package> result = new ArrayList<>();
         PackagesParser parser = Parboiled.createParser(PackagesParser.class);
         BasicParseRunner runner = new BasicParseRunner(parser.List());

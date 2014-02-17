@@ -2,6 +2,7 @@ package org.metaservice.api.descriptor;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 public interface MetaserviceDescriptor {
@@ -42,6 +43,7 @@ public interface MetaserviceDescriptor {
         boolean getActive();
         String getArchiveClassName();
         String getBaseUri();
+        HashMap<String, String> getProperties();
         String getStartUri();
         String getCrawler();
     }

@@ -27,6 +27,7 @@ import org.eclipse.aether.internal.impl.*;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.parser.Parser;
 
 import java.io.File;
@@ -95,7 +96,7 @@ public class MavenPomParser implements Parser<Model> {
     }
 
     @Override
-    public List<Model> parse(String s) {
+    public List<Model> parse(String s, ArchiveAddress archiveParameters) {
         File file = null;
         try {
             file = File.createTempFile("temp",".pom");

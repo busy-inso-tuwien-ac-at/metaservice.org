@@ -10,7 +10,7 @@
             model="org.metaservice.core.deb.parser.ast.Package"
             class="org.metaservice.core.deb.DebianPackageProvider"
             >
-    <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
+        <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <namespace prefix="ms-deb-pkg" uri="http://metaservice.org/d/packages/debian/"/>
@@ -26,6 +26,16 @@
             class="org.metaservice.core.deb.DebianVersionReasoner">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <namespace prefix="ms-deb-pkg" uri="http://metaservice.org/d/packages/debian/"/>
+    </postprocessor>
+
+    <postprocessor
+            id="debianProjectPostProcessor"
+            class="org.metaservice.core.deb.DebianProjectPostProcessor">
+    </postprocessor>
+
+    <postprocessor
+            id="ubuntuProjectPostProcessor"
+            class="org.metaservice.core.deb.UbuntuProjectPostProcessor">
     </postprocessor>
 
     <repository
@@ -62,8 +72,13 @@
             startUri="http://archive.debian.org/debian-volatile/dists/"
             crawler="debianarchive"
             active="false"
-            archiveClass="org.metaservice.core.deb.DebianGitArchive"
-            />
+            archiveClass="org.metaservice.core.deb.DebianGitArchive">
+        <properties>
+            <property name="meta-distribution">debian</property>
+            <property name="distribution-regex">^([^/]+/[^/]+)/.*$</property>
+        </properties>
+    </repository>
+
 
     <repository
             id="archive_ubuntu_org"
@@ -72,7 +87,12 @@
             startUri="http://archive.ubuntu.com/ubuntu/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
-            />
+            >
+        <properties>
+            <property name="meta-distribution">ubuntu</property>
+            <property name="distribution-regex">^([^/]+)/.*$</property>
+        </properties>
+    </repository>
 
     <crawler id="debianarchive"
              archiveClass="org.metaservice.core.deb.DebianGitArchive">
@@ -102,6 +122,6 @@
 
 
     <ontology
-        name="package-deb.rdf" apply="true" distribute="true"/>
+            name="package-deb.rdf" apply="true" distribute="true"/>
 
 </metaservice>

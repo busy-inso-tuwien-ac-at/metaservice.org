@@ -27,6 +27,11 @@ public class PACKAGE_DEB {
     public static final URI FILENAME;
     public static final URI MAINTAINER_PROPERTY;
     public static final URI UPLOADER;
+    public static final URI SOURCE;
+
+    public static final URI DISTRIBUTION;
+    public static final URI META_DISTRIBUTION;
+
 
     public static final URI DEPENDS;
     public static final URI PRE_DEPENDS;
@@ -63,7 +68,9 @@ public class PACKAGE_DEB {
         FILENAME = factory.createURI(PACKAGE_DEB.NAMESPACE,"filename");
         MAINTAINER_PROPERTY = factory.createURI(PACKAGE_DEB.NAMESPACE,"maintainer");
         UPLOADER = factory.createURI(PACKAGE_DEB.NAMESPACE,"uploader");
-
+        SOURCE = factory.createURI(PACKAGE_DEB.NAMESPACE,"source");
+        DISTRIBUTION = factory.createURI(PACKAGE_DEB.NAMESPACE,"distribution");
+        META_DISTRIBUTION = factory.createURI(PACKAGE_DEB.NAMESPACE,"meta-distribution");
 
 
         DEPENDS = factory.createURI(PACKAGE_DEB.NAMESPACE,"depends");
