@@ -41,7 +41,7 @@ public class RunCommand extends AbstractManagerCommand {
     boolean frontend;
 
     @Override
-    public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
+    public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
 
         for(int i = 0; i < n ;i++){

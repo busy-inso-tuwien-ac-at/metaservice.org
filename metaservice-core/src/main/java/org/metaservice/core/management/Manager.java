@@ -7,6 +7,8 @@ import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.core.Config;
+import org.metaservice.core.JaxbConfig;
+import org.metaservice.core.ProductionConfig;
 import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.metaservice.core.archive.GitArchive;
 import org.metaservice.api.archive.Archive;
@@ -63,8 +65,21 @@ public class Manager {
         }else{
             managerConfig = new ManagerConfig();
         }
-
+        //todo defaults
+        if(managerConfig.getConfig() == null){
+            JaxbConfig jaxbConfig = new JaxbConfig();
+            ProductionConfig productionConfig = new ProductionConfig();
+            jaxbConfig.setArchiveBasePath(productionConfig.getArchiveBasePath());
+            jaxbConfig.setBatchSize(productionConfig.getBatchSize());
+            jaxbConfig.setDumpRDFBeforeLoad(productionConfig.getDumpRDFBeforeLoad());
+            jaxbConfig.setDumpRDFDirectory(productionConfig.getDumpRDFDirectory());
+            jaxbConfig.setHttpdDataDirectory(productionConfig.getHttpdDataDirectory());
+            jaxbConfig.setJmsBroker(productionConfig.getJmsBroker());
+            jaxbConfig.setSparqlEndpoint(productionConfig.getSparqlEndpoint());
+            managerConfig.setConfig(jaxbConfig);
+        }
         this.config = managerConfig.getConfig();
+
         this.repositoryConnection = repositoryConnection;
         this.valueFactory = valueFactory;
         init();
@@ -73,6 +88,14 @@ public class Manager {
     public void init() throws ManagerException {
         for(ManagerConfig.Module module : managerConfig.getInstalledModules()){
             scheduleCrawlers(module.getMetaserviceDescriptor());
+        }
+    }
+
+    public void shutdown() throws ManagerException{
+        try {
+            scheduler.shutdown();
+        } catch (SchedulerException e) {
+            throw new ManagerException(e);
         }
     }
 
@@ -357,6 +380,8 @@ public class Manager {
     }
 
     public @NotNull Path getTemplatePath(@NotNull MetaserviceDescriptor.TemplateDescriptor templateDescriptor){
+        System.err.println(templateDescriptor);
+        System.err.println(config);
         return  Paths.get(config.getHttpdDataDirectory() + templateDescriptor.getName());
     }
 

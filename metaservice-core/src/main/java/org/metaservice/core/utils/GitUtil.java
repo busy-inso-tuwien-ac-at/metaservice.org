@@ -191,20 +191,7 @@ public class GitUtil {
 
     private void debug(@NotNull Process exec) throws GitException {
         try{
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(exec.getInputStream(), writer, "utf-8");
-            String input = writer.getBuffer().toString();
-            writer = new StringWriter();
-            IOUtils.copy(exec.getErrorStream(), writer, "utf-8");
-            String error = writer.getBuffer().toString();
-            exec.getErrorStream().close();
-            exec.getInputStream().close();
-            int ret = exec.waitFor();
-            if(ret != 0){
-                LOGGER.error(input);
-                LOGGER.error(error);
-                throw new RuntimeException("FOOO");
-            }
+            ProcessUtil.debug(exec);
         }catch (InterruptedException|IOException e){
             throw new GitException(e);
         }

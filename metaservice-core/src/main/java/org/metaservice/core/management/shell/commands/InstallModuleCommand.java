@@ -30,7 +30,7 @@ public class InstallModuleCommand extends AbstractManagerCommand {
     private List<String> moduleIdentifier;
 
     @Override
-    public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
+    public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
         if(installedModules == null)
             installedModules= new ArrayList<>();

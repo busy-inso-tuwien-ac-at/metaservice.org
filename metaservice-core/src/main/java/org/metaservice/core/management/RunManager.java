@@ -1,6 +1,7 @@
 package org.metaservice.core.management;
 
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.utils.ProcessUtil;
 
 import java.io.IOException;
 import java.util.Map;
@@ -71,8 +72,9 @@ public class RunManager {
             env.put(GROUP_ID, group_id);
             env.put(ARTIFACT_ID, artifact_id);
             env.put(VERSION,version);
+
             Process p = pb.start();
-            p.waitFor();
+            ProcessUtil.debug(p);
 
             System.out.println("Finished Crawler " + id);
         } catch (IOException | InterruptedException e) {

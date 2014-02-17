@@ -15,7 +15,7 @@ public class ShowStatisticsCommand extends AbstractManagerCommand {
     }
 
     @Override
-    public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
+    public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         System.out.println("NOT YET IMPLEMENTED");
         return null;
     }

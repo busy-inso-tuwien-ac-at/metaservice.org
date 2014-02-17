@@ -47,7 +47,7 @@ public class MyShell {
 
         Settings settings = builder.create();
         final CommandRegistry registry = new AeshCommandRegistryBuilder()
-                .command(ExitCommand.class)
+                .command(new ExitCommand(manager))
                 .command(new SaveCommand(manager))
                 .command(new AddModuleCommand(manager))
                 .command(new InstallModuleCommand(manager))
@@ -87,15 +87,5 @@ public class MyShell {
                 .create();
         aeshConsole.start();
 
-    }
-
-    @CommandDefinition(name="exit", description = "exit the program")
-    public static class ExitCommand implements Command {
-
-        @Override
-        public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
-            commandInvocation.stop();
-            return CommandResult.SUCCESS;
-        }
     }
 }

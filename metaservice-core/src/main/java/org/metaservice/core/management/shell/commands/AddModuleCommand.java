@@ -27,7 +27,7 @@ public class AddModuleCommand extends AbstractManagerCommand{
     boolean force;
 
     @Override
-    public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
+    public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         for(File f: fileToAdd){
             manager.add(f, force);
         }

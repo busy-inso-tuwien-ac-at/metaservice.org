@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 public class DebianVersionReasoner implements PostProcessor {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
-    final static String URI_REGEX = "^http://metaservice.org/d/packages/debian/[^/#]+/[^/#]+(/[^/#]+)?$";
+    final static String URI_REGEX = "^http://metaservice.org/d/packages/[^/#]+/[^/#]+/[^/#]+(/[^/#]+)?$";
 
     private final TupleQuery selectPackageVersionsOrderQuery;
     private final TupleQuery selectVersionsOrderQuery;

@@ -30,7 +30,7 @@ public class ListCommand extends AbstractManagerCommand {
     boolean sort;
 
     @Override
-    public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
+    public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         List<ManagerConfig.Module> result;
         if(showAll){
             result = manager.getManagerConfig().getAvailableModules();
