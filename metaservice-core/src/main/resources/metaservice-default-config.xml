@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manager-config>
+    <config>
+        <archiveBasePath>/opt/metaservice_data/</archiveBasePath>
+        <batchSize>100000</batchSize>
+        <dumpRDFBeforeLoad>false</dumpRDFBeforeLoad>
+        <dumpRDFDirectory>/opt/metaservice/dump</dumpRDFDirectory>
+        <httpdDataDirectory>/var/www/</httpdDataDirectory>
+        <jmsBroker>failover://tcp://localhost:61616</jmsBroker>
+        <sparqlEndpoint>http://metaservice.org:8080/sparql</sparqlEndpoint>
+    </config>
+</manager-config>

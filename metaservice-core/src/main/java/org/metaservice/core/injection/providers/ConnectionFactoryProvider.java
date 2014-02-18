@@ -1,7 +1,7 @@
 package org.metaservice.core.injection.providers;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.metaservice.core.Config;
+import org.metaservice.core.config.Config;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

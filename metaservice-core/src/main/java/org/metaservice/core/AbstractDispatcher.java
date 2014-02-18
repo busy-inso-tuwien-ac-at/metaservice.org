@@ -3,6 +3,7 @@ package org.metaservice.core;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.config.Config;
 import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
 import org.metaservice.core.postprocessor.PostProcessingTask;
 import org.openrdf.model.*;

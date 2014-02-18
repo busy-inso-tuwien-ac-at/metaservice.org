@@ -9,9 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.jms.*;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 
-public class JMSPostProcessorRunner extends AbstractJMSRunner {
+public class JMSPostProcessorRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSPostProcessorRunner.class);
 
     public static void main(String[] args) throws JMSException {
@@ -23,35 +25,33 @@ public class JMSPostProcessorRunner extends AbstractJMSRunner {
         String id = args[0];
         Injector injector = InjectorFactory.getInjectorForPostProcessor(id);
         JMSPostProcessorRunner runner = injector.getInstance(JMSPostProcessorRunner.class);
-        runner.run();
     }
 
 
     @Inject
     private JMSPostProcessorRunner(
-            ConnectionFactory connectionFactory,
-            final PostProcessorDispatcher postProcessorDispatcher
+            final PostProcessorDispatcher postProcessorDispatcher,
+            JMSUtil jmsUtil
     ) throws JMSException, RepositoryException {
-        super(connectionFactory);
-        this.add(new ListenerBean() {
+        jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
                 return "Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.PostProcess";
             }
 
             @Override
-            public Type getType() {
-                return Type.QUEUE;
+            public JMSUtil.Type getType() {
+                return JMSUtil.Type.QUEUE;
             }
 
             @Override
             public void onMessage(Message message) {
-                try  {
+                try {
                     ObjectMessage m = (ObjectMessage) message;
                     PostProcessingTask task = (PostProcessingTask) m.getObject();
-                    postProcessorDispatcher.process(task,message.getJMSTimestamp());
+                    postProcessorDispatcher.process(task, message.getJMSTimestamp());
                 } catch (JMSException e) {
-                    LOGGER.error("JMS Exception",e);
+                    LOGGER.error("JMS Exception", e);
                 }
             }
         });

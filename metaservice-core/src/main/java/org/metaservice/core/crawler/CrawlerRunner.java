@@ -23,7 +23,6 @@ public class CrawlerRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrawlerRunner.class);
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, InterruptedException, ArchiveException {
-        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
         if(args.length != 1)
         {
             LOGGER.error("Need crawler id");

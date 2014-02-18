@@ -9,7 +9,7 @@ import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.api.provider.Provider;
-import org.metaservice.core.Config;
+import org.metaservice.core.config.Config;
 import org.metaservice.core.provider.ProviderDispatcher;
 import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.slf4j.Logger;

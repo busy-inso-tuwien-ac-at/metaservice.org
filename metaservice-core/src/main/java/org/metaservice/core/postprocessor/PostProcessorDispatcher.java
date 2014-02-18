@@ -7,7 +7,7 @@ import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.core.AbstractDispatcher;
-import org.metaservice.core.Config;
+import org.metaservice.core.config.Config;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;

@@ -45,6 +45,7 @@
             startUri="http://ftp.debian.org/debian/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            active="false"
             />
 
     <repository
@@ -54,6 +55,7 @@
             startUri="http://ftp.debian.org/debian-backports/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            active="false"
             />
 
     <repository
@@ -63,6 +65,7 @@
             startUri="http://security.debian.org/dists/"
             crawler="debianarchive"
             archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            active="false"
             />
 
     <repository

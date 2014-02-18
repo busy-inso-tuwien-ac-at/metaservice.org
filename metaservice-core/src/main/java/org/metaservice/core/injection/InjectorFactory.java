@@ -3,7 +3,7 @@ package org.metaservice.core.injection;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.Config;
+import org.metaservice.core.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

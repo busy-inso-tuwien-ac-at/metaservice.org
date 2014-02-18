@@ -18,7 +18,7 @@ public class PomReaderTest {
                 "        <groupId>org.metaservice</groupId>\n" +
                 "    <artifactId>metaservice-core-maven</artifactId>\n" +
                 "    <version>1.0</version>\n" +
-                "</project>", new HashMap<String, String>());
+                "</project>",null);
     }
 
     @Test
@@ -37,6 +37,6 @@ public class PomReaderTest {
                 "        <groupId>org.metaservice</groupId>\n" +
                 "    <artifactId>metaservice-core-maven</artifactId>\n" +
                 "    <version>1.0</version>\n" +
-                "</project>", new HashMap<String, String>());
+                "</project>", null);
     }
 }

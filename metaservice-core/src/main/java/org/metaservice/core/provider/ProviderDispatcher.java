@@ -10,7 +10,7 @@ import org.metaservice.api.parser.Parser;
 import org.metaservice.api.provider.Provider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.core.AbstractDispatcher;
-import org.metaservice.core.Config;
+import org.metaservice.core.config.Config;
 import org.openrdf.model.*;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;

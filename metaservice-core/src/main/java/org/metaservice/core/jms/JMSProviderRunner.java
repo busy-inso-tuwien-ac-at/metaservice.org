@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.jms.*;
 
 
-public class JMSProviderRunner extends AbstractJMSRunner {
+public class JMSProviderRunner  {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSProviderRunner.class);
 
     public static void main(String[] args) throws JMSException {
@@ -22,49 +22,45 @@ public class JMSProviderRunner extends AbstractJMSRunner {
             System.exit(-1);
         }
         String id=  args[0];
-        AbstractJMSRunner runner = InjectorFactory.getInjectorForProvider(id).getInstance(JMSProviderRunner.class);
-        runner.run();
+        JMSProviderRunner runner = InjectorFactory.getInjectorForProvider(id).getInstance(JMSProviderRunner.class);
     }
 
     @Inject
     private JMSProviderRunner(
             final ValueFactory valueFactory,
-            final ConnectionFactory connectionFactory,
-            final ProviderDispatcher providerDispatcher) throws JMSException, RepositoryException {
-        super(connectionFactory);
-
-        this.add(new ListenerBean() {
+            final ProviderDispatcher providerDispatcher,
+            JMSUtil jmsUtil
+    ) throws JMSException, RepositoryException {
+        jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
-                return "Consumer." + getClass().getName().replaceAll("\\.","_") + ".VirtualTopic.Refresh";
+                return "Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.Refresh";
             }
 
             @Override
-            public Type getType() {
-                return Type.QUEUE;
+            public JMSUtil.Type getType() {
+                return JMSUtil.Type.QUEUE;
             }
 
             @Override
             public void onMessage(Message message) {
                 try {
-                    if(!(message instanceof TextMessage)){
+                    if (!(message instanceof TextMessage)) {
                         LOGGER.warn("ATTENTION: Message is not a TextMessage -> Ignoring");
                         return;
                     }
                     TextMessage m = (TextMessage) message;
                     providerDispatcher.refresh(valueFactory.createURI(m.getText()));
                 } catch (JMSException e) {
-                    LOGGER.error("JMS Exception",e);
+                    LOGGER.error("JMS Exception", e);
                 }
             }
         });
 
-
-
-        this.add(new ListenerBean() {
+        jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
-                return   "Consumer." + getClass().getName().replaceAll("\\.","_") + ".VirtualTopic.Create";
+                return "Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.Create";
             }
 
             @Override
@@ -75,13 +71,13 @@ public class JMSProviderRunner extends AbstractJMSRunner {
                     LOGGER.info("processing " + archiveAddress.getPath());
                     providerDispatcher.create(archiveAddress);
                 } catch (JMSException e) {
-                    LOGGER.error("JMS Exception",e);
+                    LOGGER.error("JMS Exception", e);
                 }
             }
 
             @Override
-            public Type getType() {
-                return Type.QUEUE;
+            public JMSUtil.Type getType() {
+                return JMSUtil.Type.QUEUE;
             }
         });
     }
