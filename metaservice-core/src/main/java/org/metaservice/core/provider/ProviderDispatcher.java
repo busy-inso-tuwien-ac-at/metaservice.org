@@ -11,6 +11,7 @@ import org.metaservice.api.provider.Provider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.config.Config;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.openrdf.model.*;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;
@@ -32,6 +33,7 @@ import java.util.*;
 public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
     private final Logger LOGGER = LoggerFactory.getLogger(ProviderDispatcher.class);
 
+    private final MetaserviceDescriptor metaserviceDescriptor;
     private final MetaserviceDescriptor.ProviderDescriptor providerDescriptor;
     private final Provider<T> provider;
     private final Parser<T> parser;
@@ -41,6 +43,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
     private final TupleQuery repoSelect;
     private final Set<Archive> archives;
 
+    private final Set<Statement> loadedStatements;
 
     //TODO make repoMap dynamic - such that it may be cloned automatically, or use an existing copy
     // this could be achieved by using a hash to search in the local filesystem
@@ -54,8 +57,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             ValueFactory valueFactory,
             ConnectionFactory connectionFactory,
             RepositoryConnection repositoryConnection,
-            Config config
-    ) throws RepositoryException, MalformedQueryException, JMSException {
+            Config config,
+            MetaserviceDescriptor metaserviceDescriptor) throws RepositoryException, MalformedQueryException, JMSException {
         super(repositoryConnection, config, connectionFactory, valueFactory, provider);
         this.provider = provider;
         this.parser = parser;
@@ -63,7 +66,22 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         this.repositoryConnection = repositoryConnection;
         this.archives = archives;
         this.providerDescriptor = providerDescriptor;
+        this.metaserviceDescriptor = metaserviceDescriptor;
         repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repo ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path.}");
+
+        loadedStatements = calculatePreloadedStatements();
+    }
+
+    private Set<Statement> calculatePreloadedStatements() throws RepositoryException {
+        Repository resultRepository = createTempRepository();
+        RepositoryConnection resultConnection = resultRepository.getConnection();
+
+        loadNamespaces(resultConnection,providerDescriptor.getNamespaceList());
+        loadOntologies(resultConnection,providerDescriptor.getLoadList());
+        resultConnection.commit();
+        HashSet<Statement> result  =new HashSet<>();
+        Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT),result);
+        return Collections.unmodifiableSet(result);
     }
 
     public void refresh(URI uri) {
@@ -74,66 +92,64 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             if(!queryResult.hasNext())
                 throw new QueryEvaluationException("Result set is empty");
             while (queryResult.hasNext()){
+                BindingSet set = queryResult.next();
 
-            BindingSet set = queryResult.next();
+                Value timeValue = set.getBinding("time").getValue();
+                Value repoValue = set.getBinding("repo").getValue();
+                Value pathValue = set.getBinding("path").getValue();
+                URI oldMetadata = (URI) set.getBinding("metadata").getValue();
+                String time = timeValue.stringValue();
+                String repo = repoValue.stringValue();
+                String path = pathValue.stringValue();
+                LOGGER.debug("READING time {}", time);
+                LOGGER.debug("READING repo {}", repo);
+                LOGGER.debug("READING path {}", path);
 
-            Value timeValue = set.getBinding("time").getValue();
-            Value repoValue = set.getBinding("repo").getValue();
-            Value pathValue = set.getBinding("path").getValue();
-            URI oldMetadata = (URI) set.getBinding("metadata").getValue();
-            String time = timeValue.stringValue();
-            String repo = repoValue.stringValue();
-            String path = pathValue.stringValue();
-            LOGGER.info("READING time {}",time);
-            LOGGER.info("READING repo {}",repo);
-            LOGGER.info("READING path {}", path);
-
-            Archive archive = getArchive(repo);
-            if(archive == null){
-                return;
-            }
-
-            ArchiveAddress address = new ArchiveAddress(repo,time,path);
-            //todo add parameters to address
-
-            try{
-                LOGGER.info("Starting to process " + address);
-                String content = archive.getContent(time,path);
-                if(content == null ||content.length() < 20){
-                    LOGGER.warn("Cannot process content '{}' of address {}, skipping.",content,address );
-                    return;
-                }
-
-                URI metadata =  generateMetadata(address);
-                Repository resultRepository = createTempRepository();
-                RepositoryConnection resultConnection = resultRepository.getConnection();
-                loadNamespaces(resultConnection,providerDescriptor.getNamespaceList());
-                loadOntologies(resultConnection,providerDescriptor.getLoadList());
-                resultConnection.commit();
-                HashSet<Statement> loadedStatements = new HashSet<>();
-                Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT), loadedStatements);
-                List<T> objects = parser.parse(content,address);
-                HashMap<String,String> parameters = new HashMap<>(address.getParameters());
-                for(T object: objects){
-                    try {
-                        provider.provideModelFor(object,resultConnection,parameters);
-                    } catch (ProviderException e) {
-                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                    }
-                }
-                resultConnection.commit();
-                repositoryConnection.clear(oldMetadata);
-                List<Statement> generatedStatements = getGeneratedStatements(resultConnection,loadedStatements);
-                sendData(resultConnection,metadata,generatedStatements);
-                Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
-                notifyPostProcessors(resourcesToPostProcess,null,null,null);
-                LOGGER.info("done processing {} {}", time, path);
-            } catch (RepositoryException | ArchiveException e) {
-                LOGGER.error("Could not Refresh {}" ,address,e);
-            }
+                refreshEntry(time,repo,path,oldMetadata);
             }
         } catch (QueryEvaluationException e) {
             LOGGER.error("Could not Refresh" ,e);
+        }
+    }
+
+    private void refreshEntry(String time, String repo, String path, URI oldMetadata) {
+        Archive archive = getArchive(repo);
+        if(archive == null){
+            return;
+        }
+
+        ArchiveAddress address = new ArchiveAddress(repo,time,path);
+        //todo add parameters to address
+
+        try{
+            LOGGER.info("Starting to process " + address);
+            String content = archive.getContent(time,path);
+            if(content == null ||content.length() < 20){
+                LOGGER.warn("Cannot process content '{}' of address {}, skipping.",content,address );
+                return;
+            }
+
+            URI metadata =  generateMetadata(address);
+            Repository resultRepository = createTempRepository();
+            RepositoryConnection resultConnection = resultRepository.getConnection();
+            List<T> objects = parser.parse(content,address);
+            HashMap<String,String> parameters = new HashMap<>(address.getParameters());
+            for(T object: objects){
+                try {
+                    provider.provideModelFor(object,resultConnection,parameters);
+                } catch (ProviderException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+            resultConnection.commit();
+            List<Statement> generatedStatements = getGeneratedStatements(resultConnection,loadedStatements);
+            sendData(resultConnection,metadata,generatedStatements);
+            repositoryConnection.clear(oldMetadata);
+            Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
+            notifyPostProcessors(resourcesToPostProcess,null,null,null);
+            LOGGER.info("done processing {} {}", time, path);
+        } catch (RepositoryException | ArchiveException e) {
+            LOGGER.error("Could not Refresh {}" ,address,e);
         }
     }
 
@@ -153,12 +169,6 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             URI metadata =  generateMetadata(address);
             Repository resultRepository = createTempRepository();
             RepositoryConnection resultConnection = resultRepository.getConnection();
-
-            loadNamespaces(resultConnection,providerDescriptor.getNamespaceList());
-            loadOntologies(resultConnection,providerDescriptor.getLoadList());
-            resultConnection.commit();
-            HashSet<Statement> loadedStatements = new HashSet<>();
-            Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT),loadedStatements);
             List<T> objects = parser.parse(content,address);
             HashMap<String,String> parameters = new HashMap<>(address.getParameters());
             for(T object: objects){
@@ -190,7 +200,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.SOURCE, repoLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
-        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(provider.getClass().getCanonicalName()),metadata);
+        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor)),metadata);
         repositoryConnection.commit();
         return metadata;
     }
@@ -203,6 +213,4 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         }
         return null;
     }
-
-
 }

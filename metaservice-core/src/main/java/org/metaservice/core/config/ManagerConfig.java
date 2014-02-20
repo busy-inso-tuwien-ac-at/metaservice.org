@@ -2,6 +2,7 @@ package org.metaservice.core.config;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.descriptor.JAXBMetaserviceDescriptorImpl;
 
@@ -37,6 +38,7 @@ public class ManagerConfig {
 
     @XmlElementWrapper
     @XmlElement(name = "module")
+    @NotNull
     public List<Module> getInstalledModules() {
         if(installedModules == null){
             installedModules = new ArrayList<>();
@@ -50,6 +52,7 @@ public class ManagerConfig {
 
     @XmlElementWrapper
     @XmlElement(name = "module")
+    @NotNull
     public List<Module> getAvailableModules() {
         if(availableModules == null){
             availableModules = new ArrayList<>();
@@ -74,6 +77,7 @@ public class ManagerConfig {
         }
 
         @XmlElement(name = "descriptor",type = JAXBMetaserviceDescriptorImpl.class)
+        @NotNull
         public MetaserviceDescriptor getMetaserviceDescriptor() {
             return metaserviceDescriptor;
         }

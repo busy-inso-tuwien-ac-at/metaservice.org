@@ -1,4 +1,4 @@
-package org.metaservice.manager.shell;
+package org.metaservice.core.descriptor;
 
 import org.metaservice.core.config.ManagerConfig;
 import org.jetbrains.annotations.NotNull;
@@ -49,10 +49,11 @@ public class DescriptorHelper {
         int colonPosition = identifierString.lastIndexOf(':');
         String provider = identifierString.substring(colonPosition+1);
         ManagerConfig.Module m = getModuleFromString(modules,identifierString);
-
-        for(MetaserviceDescriptor.ProviderDescriptor p : m.getMetaserviceDescriptor().getProviderList()){
-            if(provider.equals(p.getId())){
-                return p;
+        if(m != null){
+            for(MetaserviceDescriptor.ProviderDescriptor p : m.getMetaserviceDescriptor().getProviderList()){
+                if(provider.equals(p.getId())){
+                    return p;
+                }
             }
         }
         return null;
@@ -68,11 +69,14 @@ public class DescriptorHelper {
         String postProcessor = identifierString.substring(colonPosition+1);
 
         ManagerConfig.Module m = getModuleFromString(modules,identifierString);
-        for(MetaserviceDescriptor.PostProcessorDescriptor p : m.getMetaserviceDescriptor().getPostProcessorList()){
-            if(postProcessor.equals(p.getId())){
-                return p;
+        if(m != null){
+            for(MetaserviceDescriptor.PostProcessorDescriptor p : m.getMetaserviceDescriptor().getPostProcessorList()){
+                if(postProcessor.equals(p.getId())){
+                    return p;
+                }
             }
         }
+
         return null;
     }
 

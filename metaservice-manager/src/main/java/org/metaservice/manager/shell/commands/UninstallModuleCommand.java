@@ -3,7 +3,7 @@ package org.metaservice.manager.shell.commands;
 import org.metaservice.manager.Manager;
 import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.manager.ManagerException;
-import org.metaservice.manager.shell.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.manager.shell.completer.AvailableModuleCompleter;
 import org.metaservice.manager.shell.validator.ModuleValidator;
 import org.jboss.aesh.cl.Arguments;
@@ -35,8 +35,6 @@ public class UninstallModuleCommand extends AbstractManagerCommand{
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
-        if(installedModules == null)
-            installedModules= new ArrayList<>();
         for(String s : moduleIdentifier){
             ManagerConfig.Module installedModule = DescriptorHelper.getModuleFromString(installedModules, s);
             if(installedModule == null){

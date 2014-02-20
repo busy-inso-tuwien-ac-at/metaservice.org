@@ -1,8 +1,10 @@
 package org.metaservice.manager;
 
+import com.google.inject.Singleton;
+import org.jetbrains.annotations.Nullable;
 import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.core.injection.ManagerConfigProvider;
-import org.metaservice.manager.shell.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveException;
@@ -37,6 +39,7 @@ import java.util.*;
 /**
  * Created by ilo on 05.01.14.
  */
+@Singleton
 public class Manager {
     private static Logger LOGGER = LoggerFactory.getLogger(Manager.class);
 
@@ -60,12 +63,15 @@ public class Manager {
             ManagerConfig managerConfig,
             RunManager runManager,
             Scheduler scheduler,
-            MavenManager mavenManager) throws ManagerException {
+            MavenManager mavenManager
+    ) throws ManagerException {
         this.jmsUtil = jmsUtil;
         this.runManager = runManager;
         this.scheduler = scheduler;
         this.managerConfig = managerConfig;
         this.mavenManager = mavenManager;
+        //todo dirty circular dependency hack
+        this.mavenManager.setManager(this);
         this.config = managerConfig.getConfig();
 
         this.repositoryConnection = repositoryConnection;
@@ -75,6 +81,20 @@ public class Manager {
     }
 
     private static final String STATISTICSQUEUE = "metaservice.manager.statistics";
+
+    public void removeModule(ManagerConfig.Module availableModule) {
+        boolean delete = availableModule.getLocation().delete();
+        if(!delete)
+        {
+            LOGGER.warn("Attention could not delete {}", availableModule.getLocation());
+        }
+        if( availableModule.getLocation().exists() )        {
+            LOGGER.error("ERROR deleting {}" ,availableModule.getLocation());
+        }
+        managerConfig.getAvailableModules().remove(availableModule);
+        saveConfig();
+    }
+
     public static class ActiveMqstatisticsRequestJob implements Job{
         private final JMSUtil jmsUtil;
 
@@ -166,6 +186,7 @@ public class Manager {
     public void shutdown() throws ManagerException{
         try {
             activeMQStatisticsShutdownHandler.shutdown();
+            runManager.shutdown();
             scheduler.shutdown();
         } catch (SchedulerException e) {
             throw new ManagerException(e);
@@ -181,12 +202,12 @@ public class Manager {
         try {
             MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor = null;
             for(ManagerConfig.Module module :managerConfig.getInstalledModules()){
-               for(MetaserviceDescriptor.RepositoryDescriptor t : module.getMetaserviceDescriptor().getRepositoryList()){
-                   if(t.getId().equals(name)){
-                      repositoryDescriptor = t;
-                      break;
-                   }
-               }
+                for(MetaserviceDescriptor.RepositoryDescriptor t : module.getMetaserviceDescriptor().getRepositoryList()){
+                    if(t.getId().equals(name)){
+                        repositoryDescriptor = t;
+                        break;
+                    }
+                }
             }
 
             if(repositoryDescriptor == null){
@@ -226,12 +247,26 @@ public class Manager {
         uninstallOntologies(descriptor);
         uninstallTemplates(descriptor);
         unscheduleCrawlers(descriptor);
+        managerConfig.getInstalledModules().remove(module);
         if(removeData){
             removeData(descriptor);
         }
     }
 
     private void removeData(MetaserviceDescriptor descriptor) {
+        for(MetaserviceDescriptor.ProviderDescriptor providerDescriptor: descriptor.getProviderList()){
+            removeProviderData(descriptor,providerDescriptor);
+        }
+        for(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor : descriptor.getPostProcessorList()){
+            removePostProcessorData(descriptor,postProcessorDescriptor);
+        }
+    }
+
+    private void removePostProcessorData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) {
+
+    }
+
+    private void removeProviderData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor) {
 
     }
 
@@ -245,29 +280,25 @@ public class Manager {
         }
     }
 
-    public void install(@NotNull File f) throws ManagerException {
-        LOGGER.info("Installing {}",f.getName());
-        Path p = Paths.get(f.toURI());
+    public void install(@NotNull ManagerConfig.Module m) throws ManagerException {
+        LOGGER.info("Installing {}",m.getLocation().getName());
+        Path p = Paths.get(m.getLocation().toURI());
         try (FileSystem zipFs = FileSystems.newFileSystem(p,Thread.currentThread().getContextClassLoader())){
             MetaserviceDescriptor descriptor = new JAXBMetaserviceDescriptorProvider(Files.newInputStream(zipFs.getPath("/metaservice.xml"))).get();
             ManagerConfig.Module updateFrom = isUpdate(descriptor);
             if(updateFrom != null){
-                refreshProviders(descriptor);
-                refreshPostProcessors(descriptor);
+                uninstall(updateFrom, false);
+                refreshProviders(updateFrom.getMetaserviceDescriptor());
+                refreshPostProcessors(updateFrom.getMetaserviceDescriptor());
             }
-
             installTemplates(zipFs, descriptor);
             installOntologies(zipFs,descriptor);
             scheduleCrawlers(descriptor);
-
-            ManagerConfig.Module module = new ManagerConfig.Module();
-            module.setLocation(f);
-            module.setMetaserviceDescriptor(descriptor);
-            managerConfig.getInstalledModules().add(module);
+            managerConfig.getInstalledModules().add(m);
             saveConfig();
         } catch (IOException e) {
-            LOGGER.error("Could not install {}", f.getName(),e);
-            throw new ManagerException("Could not install "+ f.getName(),e);
+            LOGGER.error("Could not install {}", m.getLocation().getName(),e);
+            throw new ManagerException("Could not install "+ m.getLocation().getName(),e);
         }
         //run and monitor providers and postprocessors
         //if upgrade trigger refresh of outdated
@@ -351,7 +382,15 @@ public class Manager {
         }
     }
 
-    private ManagerConfig.Module isUpdate(@NotNull MetaserviceDescriptor descriptor) {
+    @Nullable
+    private ManagerConfig.Module isUpdate(@NotNull MetaserviceDescriptor moduleDescriptor) {
+       MetaserviceDescriptor.ModuleInfo i1 = moduleDescriptor.getModuleInfo();
+       for(ManagerConfig.Module installedModule : managerConfig.getInstalledModules()){
+           MetaserviceDescriptor.ModuleInfo i2 = installedModule.getMetaserviceDescriptor().getModuleInfo();
+            if(i1.getArtifactId().equals(i2.getArtifactId()) && i1.getGroupId().equals(i2.getGroupId())){
+                return installedModule;
+            }
+        }
         return null;
     }
 
@@ -386,6 +425,10 @@ public class Manager {
     private void scheduleCrawlers(@NotNull MetaserviceDescriptor descriptor) throws ManagerException {
         MetaserviceDescriptor.ModuleInfo moduleInfo = descriptor.getModuleInfo();
         for(MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor : descriptor.getRepositoryList()){
+            if(!repositoryDescriptor.getActive()){
+                LOGGER.debug("{} is disabled, not scheduling crawler",repositoryDescriptor.getId());
+                continue;
+            }
             JobDetail job = JobBuilder
                     .newJob()
                     .ofType(CrawlJob.class)
@@ -402,9 +445,10 @@ public class Manager {
                     .withSchedule(SimpleScheduleBuilder
                             .simpleSchedule()
                             .repeatForever()
-                            .withIntervalInMinutes(1)
+                            .withIntervalInHours(12)
                     )
                     .build();
+            LOGGER.info("{} crawler scheduled", repositoryDescriptor.getId());
             try {
                 scheduler.scheduleJob(job,trigger);
             } catch (SchedulerException e) {
@@ -457,8 +501,6 @@ public class Manager {
     }
 
     public @NotNull Path getTemplatePath(@NotNull MetaserviceDescriptor.TemplateDescriptor templateDescriptor){
-        System.err.println(templateDescriptor);
-        System.err.println(config);
         return  Paths.get(config.getHttpdDataDirectory() + templateDescriptor.getName());
     }
 

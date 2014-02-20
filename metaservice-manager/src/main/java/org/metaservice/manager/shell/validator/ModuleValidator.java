@@ -4,7 +4,7 @@ import org.jboss.aesh.cl.validator.OptionValidator;
 import org.jboss.aesh.cl.validator.OptionValidatorException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.config.ManagerConfig;
-import org.metaservice.manager.shell.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelper;
 
 /**
  * Created by ilo on 10.02.14.

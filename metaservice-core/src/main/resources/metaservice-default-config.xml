@@ -8,5 +8,7 @@
         <httpdDataDirectory>/var/www/</httpdDataDirectory>
         <jmsBroker>failover://tcp://localhost:61616</jmsBroker>
         <sparqlEndpoint>http://metaservice.org:8080/sparql</sparqlEndpoint>
+        <defaultProviderOpts>-verbose:gc -XX:+PrintGCDetails -Xmx4g -Dlogback.configurationFile=/opt/metaservice/logback.xml</defaultProviderOpts>
+        <defaultPostProcessorOpts>-verbose:gc -XX:+PrintGCDetails -Xmx4g -Dlogback.configurationFile=/opt/metaservice/logback.xml</defaultPostProcessorOpts>
     </config>
 </manager-config>

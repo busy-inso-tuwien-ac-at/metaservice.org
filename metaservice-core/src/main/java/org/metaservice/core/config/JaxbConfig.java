@@ -13,10 +13,39 @@ public class JaxbConfig implements Config {
     private int batchSize;
     private boolean dumpRDFBeforeLoad;
     private String dumpRDFDirectory;
+    private String defaultProviderOpts;
+    private String defaultPostProcessorOpts;
 
     @XmlElement
     public String getDumpRDFDirectory() {
         return dumpRDFDirectory;
+    }
+
+    @Override
+    @XmlElement
+    public String getDefaultProviderOpts() {
+        if(defaultProviderOpts == null){
+            defaultProviderOpts = "";
+        }
+        return defaultProviderOpts;
+    }
+
+    @Override
+    @XmlElement
+    public String getDefaultPostProcessorOpts() {
+        if(defaultPostProcessorOpts == null){
+            defaultPostProcessorOpts = "";
+        }
+        return defaultPostProcessorOpts;
+    }
+
+    public void setDefaultPostProcessorOpts(String defaultPostProcessorOpts) {
+        this.defaultPostProcessorOpts = defaultPostProcessorOpts;
+    }
+
+    public void setDefaultProviderOpts(String defaultProviderOpts) {
+
+        this.defaultProviderOpts = defaultProviderOpts;
     }
 
     public void setDumpRDFDirectory(String dumpRDFDirectory) {

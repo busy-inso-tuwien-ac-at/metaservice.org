@@ -1,5 +1,7 @@
 package org.metaservice.core.config;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 /**
@@ -17,4 +19,10 @@ public interface Config {
 
     boolean getDumpRDFBeforeLoad();
     String  getDumpRDFDirectory();
+
+    @NotNull
+    String getDefaultProviderOpts();
+
+    @NotNull
+    String getDefaultPostProcessorOpts();
 }

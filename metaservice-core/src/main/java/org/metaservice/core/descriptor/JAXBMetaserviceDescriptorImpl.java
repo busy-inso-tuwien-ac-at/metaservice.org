@@ -2,6 +2,7 @@ package org.metaservice.core.descriptor;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 
 import javax.xml.bind.JAXB;
@@ -53,9 +54,12 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         System.err.println(descriptor);
     }
 
+    @NotNull
     @Override
     @XmlElement(name="parser",type = ParserDescriptorImpl.class)
     public List<ParserDescriptor> getParserList() {
+        if(parserList == null)
+            parserList = new ArrayList<>();
         return parserList;
     }
 
@@ -63,24 +67,31 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         this.parserList = parserList;
     }
 
+    @NotNull
     @Override
     @XmlElement(name="repository", type = RepositoryDescriptorImpl.class)
     public List<RepositoryDescriptor> getRepositoryList() {
+        if(repositoryList == null)
+            repositoryList = new ArrayList<>();
         return repositoryList;
     }
 
     public void setRepositoryList(List<RepositoryDescriptor> repositoryList) {
         this.repositoryList = repositoryList;
     }
+    @NotNull
     @Override
     @XmlElement(name="crawler",type = CrawlerDescriptorImpl.class)
     public List<CrawlerDescriptor> getCrawlerList() {
+        if(crawlerList == null)
+            return new ArrayList<>();
         return crawlerList;
     }
 
     public void setCrawlerList(List<CrawlerDescriptor> crawlerList) {
         this.crawlerList = crawlerList;
     }
+    @NotNull
     @Override
     @XmlElement(name="template",type = TemplateDescriptorImpl.class)
     public List<TemplateDescriptor> getTemplateList() {
@@ -90,6 +101,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     public void setTemplateList(List<TemplateDescriptor> templateList) {
         this.templateList = templateList;
     }
+    @NotNull
     @Override
     @XmlElement(name="postprocessor", type = PostProcessorDescriptorImpl.class)
     public List<PostProcessorDescriptor> getPostProcessorList() {
@@ -170,6 +182,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         }
     }
 
+    @NotNull
     @Override
     @XmlElement(name="provider",type = ProviderDescriptorImpl.class)
     public List<ProviderDescriptor> getProviderList() {
@@ -235,12 +248,14 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
             return className;
         }
 
+        @NotNull
         @Override
         @XmlElement(name="namespace",type=NamespaceDescriptorImpl.class)
         public List<NamespaceDescriptor> getNamespaceList() {
             return namespaceList;
         }
 
+        @NotNull
         @Override
         @XmlElement(name="load",type = LoadDescriptorImpl.class)
         public List<LoadDescriptor> getLoadList() {
@@ -406,9 +421,12 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
                     '}';
         }
 
+        @NotNull
         @Override
         @XmlElement(name="namespace",type=NamespaceDescriptorImpl.class)
         public List<NamespaceDescriptor> getNamespaceList() {
+            if(namespaceList== null)
+                namespaceList = new ArrayList<>();
             return namespaceList;
         }
 
@@ -420,9 +438,12 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
             this.loadList = loadList;
         }
 
+        @NotNull
         @Override
         @XmlElement(name="load",type = LoadDescriptorImpl.class)
         public List<LoadDescriptor> getLoadList() {
+            if(loadList== null)
+                loadList = new ArrayList<>();
             return loadList;
         }
 
@@ -471,8 +492,11 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
 
         private HashMap<String,String> properties;
 
+        @NotNull
         @XmlJavaTypeAdapter(MapPropertiesAdapter.class)
         public HashMap<String, String> getProperties() {
+            if(properties == null)
+                properties=new HashMap<>();
             return properties;
         }
 

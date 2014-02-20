@@ -2,7 +2,6 @@ package org.metaservice.manager.shell;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.maven.repository.internal.MavenAetherModule;
 import org.metaservice.manager.injection.ManagerModule;
 import org.metaservice.manager.maven.MavenGuiceModule;
 import org.metaservice.manager.shell.commands.*;
@@ -55,24 +54,18 @@ public class ManagerShell {
                 .command(new ShowStatisticsCommand(manager))
                 .command(new ListCommand(manager))
                 .command(new RunCommand(manager))
-                .command(new AddMavenCommand(manager))
+                .command(new AddModuleMavenCommand(manager))
+                .command(new UpdateMavenCommand(manager))
+                .command(new RemoveModuleCommand(manager))
+                .command(new PsCommand(manager))
+                .command(new TailCommand(manager))
                 .create();
 
-        List<TerminalCharacter> chars = new ArrayList<>();
-        chars.add(new TerminalCharacter('[', new TerminalColor(Color.BLUE, Color.DEFAULT)));
-        for(char c : "metaservice".toCharArray()){
-            chars.add(new TerminalCharacter(c, new TerminalColor(Color.RED, Color.DEFAULT),
-                    CharacterType.ITALIC));
-        }
-        chars.add(new TerminalCharacter(']', new TerminalColor(Color.BLUE, Color.DEFAULT),
-                CharacterType.FAINT));
-        chars.add(new TerminalCharacter('$', new TerminalColor(Color.GREEN, Color.DEFAULT),
-                CharacterType.UNDERLINE));
-        chars.add(new TerminalCharacter(' ', new TerminalColor(Color.DEFAULT, Color.DEFAULT)));
+
         AeshConsole aeshConsole = new AeshConsoleBuilder()
                 .commandRegistry(registry)
                 .settings(settings)
-                .prompt(new Prompt(chars))
+                .prompt(new Prompt(getPromptString()))
                 .completerInvocationProvider(new CompleterInvocationProvider() {
                     @Override
                     public CompleterInvocation enhanceCompleterInvocation(CompleterInvocation completerInvocation) {
@@ -88,4 +81,18 @@ public class ManagerShell {
                 .create();
         aeshConsole.start();
     }
+
+    private static List<TerminalCharacter> getPromptString() {
+        List<TerminalCharacter> chars = new ArrayList<>();
+        chars.add(new TerminalCharacter('[', new TerminalColor(Color.WHITE, Color.DEFAULT)));
+        for(char c : "metaservice".toCharArray()){
+            chars.add(new TerminalCharacter(c, new TerminalColor(Color.GREEN, Color.DEFAULT)));
+        }
+        chars.add(new TerminalCharacter(']', new TerminalColor(Color.WHITE, Color.DEFAULT)));
+        chars.add(new TerminalCharacter('$', new TerminalColor(Color.GREEN, Color.DEFAULT)));
+        chars.add(new TerminalCharacter(' ', new TerminalColor(Color.DEFAULT, Color.DEFAULT)));
+        return chars;
+    }
+
+
 }

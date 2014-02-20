@@ -9,7 +9,7 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.manager.Manager;
-import org.metaservice.manager.shell.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.manager.shell.completer.PostProcessorCompleter;
 import org.metaservice.manager.shell.completer.ProviderCompleter;
 
@@ -58,7 +58,12 @@ public class RunCommand extends AbstractManagerCommand {
                 ManagerConfig.Module module = DescriptorHelper.getModuleFromString(installedModules, postprocessor);
                 MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor = DescriptorHelper.getPostProcessorFromString(installedModules, postprocessor);
                 try {
-                    manager.getRunManager().runPostProcessor(module,postProcessorDescriptor);
+                    if(module != null && postProcessorDescriptor != null){
+                        manager.getRunManager().runPostProcessor(module,postProcessorDescriptor);
+
+                    }else {
+                        LOGGER.error("module not found");
+                    }
                 } catch (ManagerException e) {
                     e.printStackTrace();
                 }

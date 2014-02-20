@@ -9,10 +9,9 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.manager.Manager;
 import org.metaservice.core.config.ManagerConfig;
-import org.metaservice.manager.shell.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelper;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,11 +31,7 @@ public class InstallModuleCommand extends AbstractManagerCommand {
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
-        if(installedModules == null)
-            installedModules= new ArrayList<>();
         Collection<ManagerConfig.Module> availableModules = manager.getManagerConfig().getAvailableModules();
-        if(availableModules == null)
-            availableModules = new ArrayList<>();
         for(String s : moduleIdentifier){
 
             ManagerConfig.Module installedModule = DescriptorHelper.getModuleFromString(installedModules, s);
@@ -45,8 +40,12 @@ public class InstallModuleCommand extends AbstractManagerCommand {
                 continue;
             }
             ManagerConfig.Module availableModule = DescriptorHelper.getModuleFromString(availableModules, s);
+            if(availableModule == null){
+                LOGGER.warn("module not found");
+                continue;
+            }
             try {
-                manager.install(availableModule.getLocation());
+                manager.install(availableModule);
             } catch (ManagerException e) {
                 e.printStackTrace();
             }

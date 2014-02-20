@@ -8,6 +8,7 @@ import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.config.Config;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -34,6 +35,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     private final Logger LOGGER = LoggerFactory.getLogger(PostProcessorDispatcher.class);
 
     private final PostProcessor postProcessor;
+    private final MetaserviceDescriptor metaserviceDescriptor;
     private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
     private final RepositoryConnection repositoryConnection;
     private final TupleQuery graphSelect;
@@ -44,11 +46,12 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             RepositoryConnection repositoryConnection,
             Config config,
             ConnectionFactory connectionFactory,
-            ValueFactory valueFactory,
+            MetaserviceDescriptor metaserviceDescriptor, ValueFactory valueFactory,
             PostProcessor postProcessor,
             MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor
     ) throws JMSException, MalformedQueryException, RepositoryException {
         super(repositoryConnection, config, connectionFactory, valueFactory, postProcessor);
+        this.metaserviceDescriptor = metaserviceDescriptor;
         this.postProcessor = postProcessor;
         this.postProcessorDescriptor = postProcessorDescriptor;
         this.repositoryConnection = repositoryConnection;
@@ -208,7 +211,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
-        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(postProcessor.getClass().getCanonicalName()), metadata);
+        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)), metadata);
          repositoryConnection.commit();
         return metadata;
     }

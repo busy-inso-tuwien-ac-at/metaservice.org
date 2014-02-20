@@ -6,7 +6,7 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.manager.Manager;
 import org.metaservice.core.config.ManagerConfig;
-import org.metaservice.manager.shell.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +36,6 @@ public class ListCommand extends AbstractManagerCommand {
             result = manager.getManagerConfig().getAvailableModules();
         } else{
             result = manager.getManagerConfig().getInstalledModules();
-        }
-        if(result == null){
-            result = new ArrayList<>();
         }
 
         if(result.size() == 0){

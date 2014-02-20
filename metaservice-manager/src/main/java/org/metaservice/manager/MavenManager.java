@@ -9,24 +9,23 @@ import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.*;
-import org.eclipse.aether.transfer.*;
 import org.eclipse.aether.version.Version;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.manager.maven.TransferListener;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
-import java.io.PrintStream;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by ilo on 18.02.14.
  */
 public class MavenManager {
+    private final static Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MavenManager.class);
     private final RepositorySystem system;
 
     private  final DefaultRepositorySystemSession session;
@@ -34,6 +33,13 @@ public class MavenManager {
 
     private  final RemoteRepository repo;
     private  final RemoteRepository repoSnapshot;
+
+
+    public void setManager(Manager manager) {
+        this.manager = manager;
+    }
+
+    private Manager manager;
 
     @Inject
     public MavenManager(
@@ -47,183 +53,74 @@ public class MavenManager {
         session  = MavenRepositorySystemUtils.newSession();
         session.setUpdatePolicy("always");
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, new LocalRepository( "local-modules" )));
-        session.setTransferListener(new AbstractTransferListener() {
+        session.setTransferListener(new TransferListener());
 
-            private PrintStream out = System.out;
-
-            private Map<TransferResource, Long> downloads = new ConcurrentHashMap<TransferResource, Long>();
-
-            private int lastLength;
-
-            @Override
-            public void transferInitiated( TransferEvent event )
-            {
-                String message = event.getRequestType() == TransferEvent.RequestType.PUT ? "Uploading" : "Downloading";
-
-                out.println( message + ": " + event.getResource().getRepositoryUrl() + event.getResource().getResourceName() );
-            }
-
-            @Override
-            public void transferProgressed( TransferEvent event )
-            {
-                TransferResource resource = event.getResource();
-                downloads.put( resource, Long.valueOf( event.getTransferredBytes() ) );
-
-                StringBuilder buffer = new StringBuilder( 64 );
-
-                for ( Map.Entry<TransferResource, Long> entry : downloads.entrySet() )
-                {
-                    long total = entry.getKey().getContentLength();
-                    long complete = entry.getValue().longValue();
-
-                    buffer.append( getStatus( complete, total ) ).append( "  " );
-                }
-
-                int pad = lastLength - buffer.length();
-                lastLength = buffer.length();
-                pad( buffer, pad );
-                buffer.append( '\r' );
-
-                out.print( buffer );
-            }
-
-            private String getStatus( long complete, long total )
-            {
-                if ( total >= 1024 )
-                {
-                    return toKB( complete ) + "/" + toKB( total ) + " KB ";
-                }
-                else if ( total >= 0 )
-                {
-                    return complete + "/" + total + " B ";
-                }
-                else if ( complete >= 1024 )
-                {
-                    return toKB( complete ) + " KB ";
-                }
-                else
-                {
-                    return complete + " B ";
-                }
-            }
-
-            private void pad( StringBuilder buffer, int spaces )
-            {
-                String block = "                                        ";
-                while ( spaces > 0 )
-                {
-                    int n = Math.min( spaces, block.length() );
-                    buffer.append( block, 0, n );
-                    spaces -= n;
-                }
-            }
-
-            @Override
-            public void transferSucceeded( TransferEvent event )
-            {
-                transferCompleted( event );
-
-                TransferResource resource = event.getResource();
-                long contentLength = event.getTransferredBytes();
-                if ( contentLength >= 0 )
-                {
-                    String type = ( event.getRequestType() == TransferEvent.RequestType.PUT ? "Uploaded" : "Downloaded" );
-                    String len = contentLength >= 1024 ? toKB( contentLength ) + " KB" : contentLength + " B";
-
-                    String throughput = "";
-                    long duration = System.currentTimeMillis() - resource.getTransferStartTime();
-                    if ( duration > 0 )
-                    {
-                        long bytes = contentLength - resource.getResumeOffset();
-                        DecimalFormat format = new DecimalFormat( "0.0", new DecimalFormatSymbols( Locale.ENGLISH ) );
-                        double kbPerSec = ( bytes / 1024.0 ) / ( duration / 1000.0 );
-                        throughput = " at " + format.format( kbPerSec ) + " KB/sec";
-                    }
-
-                    out.println( type + ": " + resource.getRepositoryUrl() + resource.getResourceName() + " (" + len
-                            + throughput + ")" );
-                }
-            }
-
-            @Override
-            public void transferFailed( TransferEvent event )
-            {
-                transferCompleted( event );
-
-                if ( !( event.getException() instanceof MetadataNotFoundException ) )
-                {
-                    event.getException().printStackTrace( out );
-                }
-            }
-
-            private void transferCompleted( TransferEvent event )
-            {
-                downloads.remove( event.getResource() );
-
-                StringBuilder buffer = new StringBuilder( 64 );
-                pad( buffer, lastLength );
-                buffer.append( '\r' );
-                out.print( buffer );
-            }
-
-            public void transferCorrupted( TransferEvent event )
-            {
-                event.getException().printStackTrace( out );
-            }
-
-            protected long toKB( long bytes )
-            {
-                return ( bytes + 1023 ) / 1024;
-            }
-
-        });
     }
 
 
-    public void addUpdateFromMaven(MetaserviceDescriptor.ModuleInfo moduleInfo){
+    private List<Version> getVersions(MetaserviceDescriptor.ModuleInfo moduleInfo) throws VersionRangeResolutionException, ManagerException {
+        Artifact artifact = new DefaultArtifact( moduleInfo.getGroupId()+
+                ":"+moduleInfo.getArtifactId()+":[0,)" );
+        VersionRangeRequest rangeRequest = new VersionRangeRequest();
+        rangeRequest.setArtifact(artifact);
+        rangeRequest.addRepository( repo );
+        rangeRequest.addRepository(repoSnapshot);
+        VersionRangeResult rangeResult = system.resolveVersionRange( session, rangeRequest );
+        List<Version> versions = rangeResult.getVersions();
+        LOGGER.debug("Available versions {}", versions);
+        retrieveArtifact(moduleInfo,versions.get(versions.size()-1).toString());
+        return versions;
+    }
 
+    private Version getLatestVersion(MetaserviceDescriptor.ModuleInfo moduleInfo) throws VersionRangeResolutionException, ManagerException {
+        List<Version> versions = getVersions(moduleInfo);
+        return versions.get(versions.size()-1);
+    }
+
+    public void updateModule(ManagerConfig.Module module) throws ManagerException {
+        Version latestVersion = null;
         try {
-            Artifact artifact = new DefaultArtifact( moduleInfo.getGroupId()+
-                    ":"+moduleInfo.getArtifactId()+":["+moduleInfo.getVersion()+",)" );
-            VersionRangeRequest rangeRequest = new VersionRangeRequest();
-            rangeRequest.setArtifact( artifact );
-            rangeRequest.addRepository( repo );
-            rangeRequest.addRepository(repoSnapshot);
-            VersionRangeResult rangeResult = system.resolveVersionRange( session, rangeRequest );
+            latestVersion = getLatestVersion(module.getMetaserviceDescriptor().getModuleInfo());
+            File file = retrieveArtifact(module.getMetaserviceDescriptor().getModuleInfo(),latestVersion.toString());
+            manager.add(file,true);
 
-            List<Version> versions = rangeResult.getVersions();
-
-            System.out.println( "Available versions " + versions );
-            retrieveArtifact(moduleInfo,versions.get(versions.size()-1).toString());
+            //todo check installed/notinstalled?
         } catch (VersionRangeResolutionException e) {
-            e.printStackTrace();
+            throw  new ManagerException("Could not update Artifact" , e);
         }
-
     }
 
-    public void retrieveArtifact(MetaserviceDescriptor.ModuleInfo moduleInfo,String version){
+
+    private File retrieveArtifact(MetaserviceDescriptor.ModuleInfo moduleInfo,String version) throws ManagerException {
         if(version == null)
             version = moduleInfo.getVersion();
-        try {
-            Artifact artifact = new DefaultArtifact( moduleInfo.getGroupId()+
-                    ":"+moduleInfo.getArtifactId()+":"+version );
-            System.out.println(version);
-            System.out.println(artifact);
-            invalidateLastUpdatedInSession(session);
+        return retrieveArtifact(moduleInfo.getGroupId(),moduleInfo.getArtifactId(),version);
+    }
 
+
+
+    private File retrieveArtifact(String groupId,String artifactId,String version) throws ManagerException {
+        try {
+            Artifact artifact = new DefaultArtifact( groupId+ ":"+artifactId+":"+version );
+            invalidateLastUpdatedInSession(session);
             ArtifactRequest artifactRequest = new ArtifactRequest();
             artifactRequest.setArtifact( artifact );
-
             artifactRequest.setRepositories(Arrays.asList(repo));
             ArtifactResult artifactResult = system.resolveArtifact( session, artifactRequest );
             artifact = artifactResult.getArtifact();
-            System.out.println( artifact + " resolved to  " + artifact.getFile() );
+            LOGGER.info(artifact + " resolved to  " + artifact.getFile());
+            return artifact.getFile();
         } catch (ArtifactResolutionException e) {
-            e.printStackTrace();
+            throw new ManagerException("could not resolve Artifact ", e );
         }
     }
 
     private void invalidateLastUpdatedInSession(DefaultRepositorySystemSession session) {
         session.getData().set("updateCheckManager.checks",null);
+    }
+
+
+    public void retrieveAndAddModule(String groupId, String artifactId, String version,boolean override) throws ManagerException {
+        manager.add(retrieveArtifact(groupId, artifactId, version), override);
     }
 }
