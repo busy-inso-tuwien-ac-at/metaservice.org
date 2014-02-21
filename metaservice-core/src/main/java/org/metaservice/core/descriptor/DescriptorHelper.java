@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.descriptor.JAXBMetaserviceDescriptorImpl;
+import org.openrdf.query.algebra.Regex;
 
 import java.util.Collection;
 
@@ -13,17 +14,16 @@ import java.util.Collection;
  */
 public class DescriptorHelper {
     public static @NotNull String getModuleIdentifierStringFromModule(@NotNull MetaserviceDescriptor.ModuleInfo moduleInfo){
-        return moduleInfo.getGroupId()+"/"+moduleInfo.getArtifactId()+"@" +moduleInfo.getVersion();
+        return moduleInfo.getGroupId()+":"+moduleInfo.getArtifactId()+":" +moduleInfo.getVersion();
     }
 
+    static String regex_module123 = "^([^:]+):([^:]+):([^:]+).*$";
+    static  String regex_module4 = "^[^:]+:[^:]+:[^:]+:([^:]+)$";
     public static @Nullable
     ManagerConfig.Module getModuleFromString(@NotNull Collection<ManagerConfig.Module> modules, @NotNull String identifierString){
-        int slashPosition = identifierString.indexOf('/');
-        int atPosition = identifierString.lastIndexOf('@');
-        int colonPosition = identifierString.lastIndexOf(':');
-        String groupId = identifierString.substring(0, slashPosition);
-        String artifactId = identifierString.substring(slashPosition+1,atPosition);
-        String version = (colonPosition==-1)?identifierString.substring(atPosition+1):identifierString.substring(atPosition+1,colonPosition);
+        String groupId = identifierString.replaceAll(regex_module123, "$1");
+        String artifactId = identifierString.replaceAll(regex_module123, "$2");
+        String version = identifierString.replaceAll(regex_module123,"$3");
 
 
         JAXBMetaserviceDescriptorImpl.ModuleInfoImpl search = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl();
@@ -41,13 +41,12 @@ public class DescriptorHelper {
     }
 
     public static @NotNull String getStringFromProvider(@NotNull MetaserviceDescriptor.ModuleInfo moduleInfo, @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor){
-        return moduleInfo.getGroupId()+"/"+moduleInfo.getArtifactId()+"@" +moduleInfo.getVersion() +":" + providerDescriptor.getId();
+        return getModuleIdentifierStringFromModule(moduleInfo) +":" + providerDescriptor.getId();
     }
 
     public static @Nullable
     MetaserviceDescriptor.ProviderDescriptor getProviderFromString(@NotNull Collection<ManagerConfig.Module> modules,@NotNull String identifierString){
-        int colonPosition = identifierString.lastIndexOf(':');
-        String provider = identifierString.substring(colonPosition+1);
+        String provider = identifierString.replaceAll(regex_module4, "$1");
         ManagerConfig.Module m = getModuleFromString(modules,identifierString);
         if(m != null){
             for(MetaserviceDescriptor.ProviderDescriptor p : m.getMetaserviceDescriptor().getProviderList()){
@@ -59,14 +58,14 @@ public class DescriptorHelper {
         return null;
     }
 
+    @NotNull
     public static String getStringFromPostProcessor(MetaserviceDescriptor.ModuleInfo moduleInfo, MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) {
-        return moduleInfo.getGroupId()+"/"+moduleInfo.getArtifactId()+"@" +moduleInfo.getVersion() +":" + postProcessorDescriptor.getId();
+        return getModuleIdentifierStringFromModule(moduleInfo) +":" + postProcessorDescriptor.getId();
     }
 
     public static @Nullable
     MetaserviceDescriptor.PostProcessorDescriptor getPostProcessorFromString(@NotNull Collection<ManagerConfig.Module> modules,@NotNull String identifierString){
-        int colonPosition = identifierString.lastIndexOf(':');
-        String postProcessor = identifierString.substring(colonPosition+1);
+        String postProcessor = identifierString.replaceAll(regex_module4,"$1");
 
         ManagerConfig.Module m = getModuleFromString(modules,identifierString);
         if(m != null){
@@ -76,8 +75,11 @@ public class DescriptorHelper {
                 }
             }
         }
-
         return null;
     }
 
+    @NotNull
+    public static String getStringFromRepository(@NotNull MetaserviceDescriptor.ModuleInfo moduleInfo, @NotNull String id) {
+        return getModuleIdentifierStringFromModule(moduleInfo) +":" + id;
+    }
 }

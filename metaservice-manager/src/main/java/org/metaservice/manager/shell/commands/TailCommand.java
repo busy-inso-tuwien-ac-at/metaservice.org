@@ -1,31 +1,114 @@
 package org.metaservice.manager.shell.commands;
 
+import org.jboss.aesh.cl.Arguments;
 import org.jboss.aesh.cl.CommandDefinition;
 import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
+import org.jboss.aesh.console.man.AeshFileDisplayer;
+import org.jboss.aesh.console.man.FileParser;
+import org.jboss.aesh.console.man.TerminalPage;
+import org.jboss.aesh.extensions.page.SimpleFileParser;
+import org.jboss.aesh.util.ANSI;
 import org.metaservice.manager.Manager;
-import org.metaservice.manager.ManagerException;
+import org.metaservice.manager.RunEntry;
 import org.metaservice.manager.shell.completer.MPidCompleter;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by ilo on 20.02.14.
  */
 @CommandDefinition(name="tail",description = "description")
-public class TailCommand extends AbstractManagerCommand{
-    public TailCommand(Manager manager) {
-        super(manager);
-    }
+public class TailCommand extends AeshFileDisplayer {
 
     @Option(name="mpid",shortName = 'p',required = true,completer = MPidCompleter.class)
     private int mpid;
 
+
+    @Arguments
+    List<File> arguments;
+
+    private SimpleFileParser loader;
+    private final Manager manager;
+
+    public TailCommand(Manager manager) {
+        super();
+        this.manager = manager;
+        //todo fix this such that it really is tail and not less ;-)
+        // take a look at http://commons.apache.org/proper/commons-io/javadocs/api-release/org/apache/commons/io/input/TailerListener.html
+
+    }
+
+    public void setFile(File file) throws IOException {
+        loader.setFile(file);
+    }
+
+    public void setFile(String filename) throws IOException {
+        loader.setFile(filename);
+    }
+
+    public void setInput(String input) throws IOException {
+        loader.readPageAsString(input);
+    }
+
     @Override
-    public CommandResult execute2(CommandInvocation commandInvocation) throws IOException, ManagerException {
-        commandInvocation.getShell().enableAlternateBuffer();
-        commandInvocation.getShell().enableMainBuffer();
-        return CommandResult.SUCCESS;
+    public FileParser getFileParser() {
+        return loader;
+    }
+
+    @Override
+    public void displayBottom() throws IOException {
+        if(getSearchStatus() == TerminalPage.Search.SEARCHING) {
+            clearBottomLine();
+            writeToConsole("/"+getSearchWord());
+        }
+        else if(getSearchStatus() == TerminalPage.Search.NOT_FOUND) {
+            clearBottomLine();
+            writeToConsole(ANSI.getInvertedBackground()+
+                    "Pattern not found (press RETURN)"+
+                    ANSI.defaultText());
+        }
+        else if(getSearchStatus() == TerminalPage.Search.RESULT) {
+            writeToConsole(":");
+        }
+        else if(getSearchStatus() == TerminalPage.Search.NO_SEARCH) {
+            if(isAtBottom())
+                writeToConsole(ANSI.getInvertedBackground()+"(END)"+ANSI.defaultText());
+            else
+                writeToConsole(":");
+        }
+    }
+
+    @Override
+    public CommandResult execute(CommandInvocation commandInvocation) throws IOException {
+        try {
+            loader = new SimpleFileParser();
+            setCommandInvocation(commandInvocation);
+            RunEntry runEntry = manager.getRunManager().getRunEntryByMPid(mpid);
+            if(runEntry == null){
+                System.out.println("Could not find process");
+                return CommandResult.FAILURE;
+            }
+            if( runEntry.getProcess() == null)
+            {
+                System.out.println("Could not access process");
+                return CommandResult.FAILURE;
+            }
+            if(runEntry.getStatus() == RunEntry.Status.STARTING){
+                System.out.println("Can only view started");
+                return CommandResult.FAILURE;
+            }
+            setFile(runEntry.getStdout());
+            afterAttach();
+            return CommandResult.SUCCESS;
+        }catch (Exception t){
+            LoggerFactory.getLogger(this.getClass()).error("Cannot tail ....", t);
+            throw t;
+        }
+
     }
 }

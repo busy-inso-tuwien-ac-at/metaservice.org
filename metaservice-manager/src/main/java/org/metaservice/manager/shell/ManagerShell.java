@@ -59,6 +59,7 @@ public class ManagerShell {
                 .command(new RemoveModuleCommand(manager))
                 .command(new PsCommand(manager))
                 .command(new TailCommand(manager))
+                .command(new KillCommand(manager))
                 .create();
 
 

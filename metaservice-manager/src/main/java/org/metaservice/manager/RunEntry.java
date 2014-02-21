@@ -6,7 +6,7 @@ import java.util.Date;
 public class RunEntry{
     public enum Status{
         RUNNING,
-        FINISHED
+        STARTING, FINISHED
     }
     private int mpid;
     private Process process;
@@ -16,6 +16,15 @@ public class RunEntry{
     private Date startTime;
     private String name;
     private Status status;
+    private String machine;
+
+    public String getMachine() {
+        return machine;
+    }
+
+    public void setMachine(String machine) {
+        this.machine = machine;
+    }
 
     public Status getStatus() {
         return status;

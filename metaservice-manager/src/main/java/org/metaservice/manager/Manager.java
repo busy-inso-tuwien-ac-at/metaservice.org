@@ -418,7 +418,10 @@ public class Manager {
                         jobDataMap.getString("ARTIFACT_ID"),
                         jobDataMap.getString("VERSION"));
             } catch (ManagerException e) {
+                LOGGER.error("could not crawler job",e);
                 throw new JobExecutionException(e);
+            }catch (Exception e){
+                LOGGER.error("WEIRD",e);
             }
         }
     }

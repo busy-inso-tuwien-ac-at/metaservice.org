@@ -18,19 +18,23 @@ public class ManagerConfigProvider implements Provider<ManagerConfig> {
     public static final Logger LOGGER = LoggerFactory.getLogger(ManagerConfigProvider.class);
     public final static String MANAGERCONFIG_XML = "managerconfig.xml";
 
+    private ManagerConfig managerConfig = null;
+
     @Override
     public ManagerConfig get() {
-        File file = new File(MANAGERCONFIG_XML);
-        if(!file.exists()){
-            try {
-                IOUtils.copy(ManagerConfigProvider.class.getResourceAsStream("/metaservice-default-config.xml"), new FileOutputStream(file));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        if(managerConfig == null){
+            File file = new File(MANAGERCONFIG_XML);
+            if(!file.exists()){
+                try {
+                    IOUtils.copy(ManagerConfigProvider.class.getResourceAsStream("/metaservice-default-config.xml"), new FileOutputStream(file));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            managerConfig = JAXB.unmarshal(file, ManagerConfig.class);
+            LOGGER.info("Loaded Configuration:");
+            LOGGER.info(String.valueOf(managerConfig.getConfig()));
         }
-        ManagerConfig managerConfig = JAXB.unmarshal(file, ManagerConfig.class);
-        LOGGER.info("Loaded Configuration:");
-        LOGGER.info(String.valueOf(managerConfig.getConfig()));
         return managerConfig;
     }
 }

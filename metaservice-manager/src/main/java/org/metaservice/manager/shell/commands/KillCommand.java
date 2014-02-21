@@ -1,5 +1,6 @@
 package org.metaservice.manager.shell.commands;
 
+import org.jboss.aesh.cl.CommandDefinition;
 import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
@@ -13,6 +14,7 @@ import java.io.IOException;
 /**
  * Created by ilo on 21.02.14.
  */
+@CommandDefinition(name = "kill",description = "send termination signal to process")
 public class KillCommand extends AbstractManagerCommand {
     public KillCommand(Manager manager) {
         super(manager);
@@ -24,6 +26,15 @@ public class KillCommand extends AbstractManagerCommand {
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException, ManagerException {
         RunEntry runEntry = manager.getRunManager().getRunEntryByMPid(mpid);
+        if(runEntry == null){
+            System.out.println("Could not find process");
+            return CommandResult.FAILURE;
+        }
+        if( runEntry.getProcess() == null)
+        {
+            System.out.println("Could not access process");
+            return CommandResult.FAILURE;
+        }
         runEntry.getProcess().destroy();
         return CommandResult.SUCCESS;
     }

@@ -2,9 +2,12 @@ package org.metaservice.manager;
 
 import com.google.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.config.Config;
 import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.core.descriptor.DescriptorHelper;
+import org.metaservice.core.descriptor.JAXBMetaserviceDescriptorImpl;
 import org.metaservice.core.utils.ProcessUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +15,12 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,11 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Singleton
 public class RunManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(RunManager.class);
-    private static final String RUN_EXECUTABLE = "/opt/metaservice/run.sh";
-    public static final String MAINCLASS = "MAINCLASS";
-    public static final String GROUP_ID = "GROUP_ID";
-    public static final String ARTIFACT_ID = "ARTIFACT_ID";
-    public static final String VERSION = "VERSION";
 
     private final List<RunEntry> runEntries = Collections.synchronizedList(new ArrayList<RunEntry>());
     private final AtomicInteger processCounter = new AtomicInteger();
@@ -36,11 +37,21 @@ public class RunManager {
         return runEntries;
     }
     private final Config config;
+    private final Path logdir;
     @Inject
-    public RunManager(Config config) {
+    public RunManager(Config config) throws ManagerException {
         this.config = config;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        logdir = Paths.get("/opt/metaservice/log/",format.format(new Date()));
+        try {
+            Files.createDirectory(logdir);
+        } catch (IOException e) {
+            if(!logdir.toFile().isDirectory())
+                throw new ManagerException("could not create log directory for run");
+        }
     }
 
+    @Nullable
     public RunEntry getRunEntryByMPid(int mpid){
         for(RunEntry runEntry : runEntries){
             if(runEntry.getMpid() == mpid)
@@ -58,98 +69,157 @@ public class RunManager {
         }
     }
 
-    public void runProvider(ManagerConfig.Module module,MetaserviceDescriptor.ProviderDescriptor providerDescriptor) throws ManagerException {
-        ProcessBuilder pb = new ProcessBuilder(RUN_EXECUTABLE,providerDescriptor.getId());
+    public void runProvider(
+            @NotNull ManagerConfig.Module module,
+            @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor
+    ) throws ManagerException {
 
-        MetaserviceDescriptor.ModuleInfo moduleInfo =module.getMetaserviceDescriptor().getModuleInfo();
-        Map<String, String> env = pb.environment();
-        env.put(MAINCLASS, "org.metaservice.core.jms.JMSProviderRunner");
-        env.put(GROUP_ID, moduleInfo.getGroupId());
-        env.put(ARTIFACT_ID,moduleInfo.getArtifactId());
-        env.put(VERSION, moduleInfo.getVersion());
-        try {
-            Process p = pb.start();
-        } catch (IOException e) {
-            throw new ManagerException(e);
-        }
+        run(
+                module.getMetaserviceDescriptor().getModuleInfo(),
+                DescriptorHelper.getStringFromProvider(module.getMetaserviceDescriptor().getModuleInfo(),providerDescriptor),
+                "org.metaservice.core.jms.JMSProviderRunner",
+                new String[]{providerDescriptor.getId()},
+                config.getDefaultProviderOpts().split(" "),
+                false
+        );
     }
 
-    public void runPostProcessor(@NotNull ManagerConfig.Module module,@NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) throws ManagerException {
-        MetaserviceDescriptor.ModuleInfo moduleInfo = module.getMetaserviceDescriptor().getModuleInfo();
-        Path directory;
-        File logFile =new File("/opt/metaservice/log/" + postProcessorDescriptor.getId() + new Date().toString()+".log");
-        File errorFile =new File("/opt/metaservice/log/" + postProcessorDescriptor.getId() + new Date().toString()+".err");
+    public void runPostProcessor(
+            @NotNull ManagerConfig.Module module,
+            @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor
+    ) throws ManagerException {
+        run(
+                module.getMetaserviceDescriptor().getModuleInfo(),
+                DescriptorHelper.getStringFromPostProcessor(module.getMetaserviceDescriptor().getModuleInfo(),postProcessorDescriptor),
+                "org.metaservice.core.jms.JMSPostProcessorRunner",
+                new String[]{postProcessorDescriptor.getId()},
+                config.getDefaultPostProcessorOpts().split(" "),
+                false
+        );
+    }
+
+    public void runFrontend() throws ManagerException {
+        MetaserviceDescriptor.ModuleInfo moduleInfo = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl("org.metaservice","metaservice-frontend-rest","0.1");
+        run(
+                moduleInfo,
+                "frontend",
+                "org.metaservice.frontend.rest.RestFrontend",
+                new String[]{},
+                config.getDefaultPostProcessorOpts().split(" "),//todo own defaults
+                false
+        );
+    }
+
+    public void runCrawlerAndWaitForFinish(
+            @NotNull String id,
+            @NotNull String group_id,
+            @NotNull String artifact_id,
+            @NotNull String version
+    ) throws ManagerException {
+        System.out.println("Starting Crawler " + id);
+        MetaserviceDescriptor.ModuleInfo moduleInfo = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl(group_id,artifact_id,version);
+        run(
+                moduleInfo,
+                DescriptorHelper.getStringFromRepository(moduleInfo, id),
+                "org.metaservice.core.crawler.CrawlerRunner",
+                new String[]{id},
+                config.getDefaultPostProcessorOpts().split(" "),//todo own defaults
+                true
+        );
+
+        System.out.println("Finished Crawler " + id);
+    }
+
+    private void run(@NotNull final MetaserviceDescriptor.ModuleInfo moduleInfo,String name,String mainClass,String[] args,String[] jvmargs,boolean wait) throws ManagerException {
+
+        final RunEntry runEntry = new RunEntry();
+        runEntry.setMpid(processCounter.incrementAndGet());
+        runEntry.setStatus(RunEntry.Status.STARTING);
+        runEntry.setName(name);
+        try {
+            runEntry.setMachine(InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            runEntry.setMachine("localhost");
+        }
+        runEntry.setStartTime(new Date());
+        setLogFile(runEntry);
+        setErrorFile(runEntry);
+        runEntries.add(runEntry);
+
+        final Path directory;
 
 
         try {
-             directory = Files.createTempDirectory(postProcessorDescriptor.getId());
+            directory = Files.createTempDirectory(runEntry.getMpid() + "_"  + name);
         } catch (IOException e) {
             LOGGER.error("could not create temp directory");
             throw new ManagerException(e);
         }
 
-        loadMaven(directory,module);
-
         ArrayList<String> command = new ArrayList<>();
         command.add("java");
-        command.addAll(Arrays.asList(config.getDefaultPostProcessorOpts().split(" ")));
+        command.addAll(Arrays.asList(jvmargs));
         command.add("-cp");
         command.add( moduleInfo.getArtifactId()+"-"+moduleInfo.getVersion()+".jar:lib/*");
-        command.add( "org.metaservice.core.jms.JMSPostProcessorRunner");
-        command.add(postProcessorDescriptor.getId());
-        ProcessBuilder pb =
+        command.add(mainClass );
+        command.addAll(Arrays.asList(args));
+
+
+
+        final ProcessBuilder pb =
                 new ProcessBuilder(command)
-                .directory(directory.toFile())
-                .redirectOutput(logFile)
-                .redirectError(errorFile);
+                        .directory(directory.toFile())
+                        .redirectOutput(runEntry.getStdout())
+                        .redirectError(runEntry.getStderr());
 
-        LOGGER.info("Standard Out: {}",logFile);
-        LOGGER.info("Standard Err: {}",errorFile);
-        LOGGER.info(pb.command().toString());
+        LOGGER.debug(pb.command().toString());
 
-        final RunEntry runEntry = new RunEntry();
-        runEntry.setName(postProcessorDescriptor.getId());
-        runEntry.setStartTime(new Date());
-        runEntry.setStderr(errorFile);
-        runEntry.setStdout(logFile);
-        runEntry.setStatus(RunEntry.Status.RUNNING);
-        runEntry.setMpid(processCounter.incrementAndGet());
-        try {
-            runEntry.setProcess(pb.start());
-            runEntries.add(runEntry);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        runEntry.getProcess().waitFor();
 
-                    } catch (InterruptedException e) {
-                    }
-                    runEntry.setStatus(RunEntry.Status.FINISHED);
-                    runEntry.setExitValue(runEntry.getProcess().exitValue());
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                LOGGER.info("STARTING waiting");
+                try {
+                    loadMaven(directory,moduleInfo);
+                    Process p = pb.start();
+                    runEntry.setStatus(RunEntry.Status.RUNNING);
+                    runEntry.setProcess(p);
+                    p.waitFor();
+
+                } catch (InterruptedException e) {
+                    LOGGER.error("INFO INTERRUPTED",e);
+                } catch (IOException e) {
+                    LOGGER.error("IO",e);
+                } catch (ManagerException e) {
+                    LOGGER.error("MANAGER",e);
                 }
-            }).start();
-
-            LOGGER.error("added RUNENTRY");
-
-        } catch (IOException e) {
-            throw new ManagerException(e);
+                runEntry.setStatus(RunEntry.Status.FINISHED);
+                LOGGER.info("Setting finished");
+                runEntry.setExitValue(runEntry.getProcess().exitValue());
+            }
+        };
+        if(wait){
+            runnable.run();
+        }else{
+            new Thread(runnable).start();
         }
+
     }
 
-    private void loadMaven(Path directory, ManagerConfig.Module module) throws ManagerException {
+
+    private void loadMaven(Path directory, MetaserviceDescriptor.ModuleInfo moduleInfo) throws ManagerException {
         try {
-        MetaserviceDescriptor.ModuleInfo moduleInfo =module.getMetaserviceDescriptor().getModuleInfo();
-        ProcessBuilder pb =
-                new ProcessBuilder(
-                        "mvn",
-                        "org.apache.maven.plugins:maven-dependency-plugin:2.7:get",
-                        "-DgroupId=" + moduleInfo.getGroupId(),
-                        "-DartifactId=" + moduleInfo.getArtifactId(),
-                        "-Dversion=" + moduleInfo.getVersion(),
-                        "-U")
-                        .directory(directory.toFile())
-                        .inheritIO();
+            ProcessBuilder pb =
+                    new ProcessBuilder(
+                            "mvn",
+                            "org.apache.maven.plugins:maven-dependency-plugin:2.7:get",
+                            "-DgroupId=" + moduleInfo.getGroupId(),
+                            "-DartifactId=" + moduleInfo.getArtifactId(),
+                            "-Dversion=" + moduleInfo.getVersion(),
+                            "-U")
+                            .directory(directory.toFile());
+            if(LOGGER.isDebugEnabled())
+                pb.inheritIO();
             LOGGER.debug(pb.command().toString());
 
             pb.start().waitFor();
@@ -169,48 +239,27 @@ public class RunManager {
                     "/root/.m2/repository/" + moduleInfo.getGroupId().replaceAll("\\.","/") + "/" + moduleInfo.getArtifactId()+ "/" + moduleInfo.getVersion() + "/" + moduleInfo.getArtifactId() +"-" +moduleInfo.getVersion() +".pom",
                     "-DoutputDirectory="+directory.toAbsolutePath().toString()+"/lib",
                     "-DexcludeTypes=test-jar"
-                    )
-                    .directory(directory.toFile())
-                    .inheritIO();
+            )
+                    .directory(directory.toFile());
+            if(LOGGER.isDebugEnabled())
+                    pb.inheritIO();
             LOGGER.debug(pb.command().toString());
-            pb.start().waitFor();
+            ProcessUtil.debug(pb.start());
         } catch (InterruptedException | IOException e) {
             throw new ManagerException(e);
         }
     }
 
-    public void runFrontend() throws ManagerException {
-        ProcessBuilder pb = new ProcessBuilder(RUN_EXECUTABLE);
-
-        Map<String, String> env = pb.environment();
-        env.put(MAINCLASS, "org.metaservice.frontend.rest.RestFrontend");
-        env.put(GROUP_ID, "org.metaservice");
-        env.put(ARTIFACT_ID,"metaservice-frontend-rest");
-        env.put(VERSION,"0.1");
-        try {
-            Process p = pb.start();
-        } catch (IOException e) {
-            throw new ManagerException(e);
-        }
+    private File setLogFile(RunEntry runEntry){
+        runEntry.setStdout(logdir.resolve(runEntry.getMpid() + "_" + runEntry.getName().replaceAll(":","_") + ".log").toFile());
+        return runEntry.getStdout();
     }
 
-    public void runCrawlerAndWaitForFinish(String id, String group_id, String artifact_id, String version) throws ManagerException {
-        try{
-            System.out.println("Starting Crawler " + id);
-            ProcessBuilder pb = new ProcessBuilder(RUN_EXECUTABLE,id);
-            Map<String, String> env = pb.environment();
-            env.put(MAINCLASS, "org.metaservice.core.crawler.CrawlerRunner");
-            env.put(GROUP_ID, group_id);
-            env.put(ARTIFACT_ID, artifact_id);
-            env.put(VERSION,version);
-
-            Process p = pb.start();
-            ProcessUtil.debug(p);
-
-            System.out.println("Finished Crawler " + id);
-        } catch (IOException | InterruptedException e) {
-            throw new ManagerException(e);
-        }
+    private File setErrorFile(RunEntry runEntry){
+        runEntry.setStderr(logdir.resolve(runEntry.getMpid() + "_" + runEntry.getName().replaceAll(":","_") + ".err").toFile());
+        return runEntry.getStderr();
     }
+
+
 }
 

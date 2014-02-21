@@ -123,6 +123,14 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     }
 
     public static class ModuleInfoImpl implements ModuleInfo{
+        public ModuleInfoImpl(){
+        }
+        public ModuleInfoImpl(String groupId, String artifactId, String version) {
+            this.groupId = groupId;
+            this.artifactId = artifactId;
+            this.version = version;
+        }
+
         private String groupId;
         private String artifactId;
         private String version;
@@ -186,6 +194,8 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     @Override
     @XmlElement(name="provider",type = ProviderDescriptorImpl.class)
     public List<ProviderDescriptor> getProviderList() {
+        if(providerList == null)
+            providerList = new ArrayList<>();
         return providerList;
     }
 
@@ -252,6 +262,8 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         @Override
         @XmlElement(name="namespace",type=NamespaceDescriptorImpl.class)
         public List<NamespaceDescriptor> getNamespaceList() {
+            if(namespaceList == null)
+                namespaceList = new ArrayList<>();
             return namespaceList;
         }
 
@@ -259,6 +271,8 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         @Override
         @XmlElement(name="load",type = LoadDescriptorImpl.class)
         public List<LoadDescriptor> getLoadList() {
+            if(loadList == null)
+                loadList = new ArrayList<>();
             return loadList;
         }
 
