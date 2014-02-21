@@ -41,6 +41,14 @@ public class RunManager {
         this.config = config;
     }
 
+    public RunEntry getRunEntryByMPid(int mpid){
+        for(RunEntry runEntry : runEntries){
+            if(runEntry.getMpid() == mpid)
+                return runEntry;
+        }
+        return null;
+    }
+
     public void shutdown(){
         for(RunEntry runEntry : runEntries){
             if(runEntry.getStatus() == RunEntry.Status.RUNNING){
