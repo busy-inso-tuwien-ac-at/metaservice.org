@@ -39,6 +39,7 @@ public class PsCommand  extends AbstractManagerCommand{
                 data.add(new String[]{
                         String.valueOf(runEntry.getMpid()),
                         runEntry.getName(),
+                        runEntry.getMachine(),
                         runEntry.getStartTime().toString(),
                         (runEntry.getStatus() == RunEntry.Status.FINISHED)?"finished("+String.valueOf(runEntry.getExitValue())+")":"running",
                         String.valueOf(runEntry.getStdout()),
@@ -46,7 +47,7 @@ public class PsCommand  extends AbstractManagerCommand{
                 }
                 );
             }
-            header = new String[]{"mPID","name","starttime","status","stdout","stderr"};
+            header = new String[]{"mPID","name","host","starttime","status","stdout","stderr"};
         }else if(overview){
             class AggregateData {
                 ArrayList<String> mpids = new ArrayList<>();

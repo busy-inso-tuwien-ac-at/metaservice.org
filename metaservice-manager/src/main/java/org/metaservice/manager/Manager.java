@@ -243,6 +243,7 @@ public class Manager {
             throw new ManagerException("Module currently not installed");
         }
 
+        runManager.shutdown(module, managerConfig.getInstalledModules());
         MetaserviceDescriptor descriptor = module.getMetaserviceDescriptor();
         uninstallOntologies(descriptor);
         uninstallTemplates(descriptor);
@@ -253,7 +254,7 @@ public class Manager {
         }
     }
 
-    private void removeData(MetaserviceDescriptor descriptor) {
+    private void removeData(MetaserviceDescriptor descriptor) throws ManagerException {
         for(MetaserviceDescriptor.ProviderDescriptor providerDescriptor: descriptor.getProviderList()){
             removeProviderData(descriptor,providerDescriptor);
         }
@@ -262,18 +263,47 @@ public class Manager {
         }
     }
 
-    private void removePostProcessorData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) {
+    private void removePostProcessorData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) throws ManagerException {
+        removeDataFromGenerator(DescriptorHelper.getStringFromPostProcessor(descriptor.getModuleInfo(), postProcessorDescriptor));
 
     }
 
-    private void removeProviderData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor) {
+    private void removeProviderData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor) throws ManagerException {
+        removeDataFromGenerator(DescriptorHelper.getStringFromProvider(descriptor.getModuleInfo(),providerDescriptor));
+    }
 
+
+    private void removeDataFromGenerator(String generator) throws ManagerException {
+        try {
+            TupleQuery repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata { ?metadata a <" + METASERVICE.METADATA + ">;  <" + METASERVICE.GENERATOR + "> ?generator }");
+            repoSelect.setBinding("generator",valueFactory.createLiteral(generator));
+            TupleQueryResult queryResult =repoSelect.evaluate();
+            ArrayList<URI> uris = new ArrayList<>();
+            while (queryResult.hasNext()){
+                BindingSet set = queryResult.next();
+                URI oldMetadata = (URI) set.getBinding("metadata").getValue();
+                if(oldMetadata != null) //safety check -> null deletes whole repository
+                    uris.add(oldMetadata);
+            }
+            if(uris.size() > 0)    //safety check -> empty deletes whole repository
+            {
+                LOGGER.info("Clearing {} contexts from generator {}",uris.size(),generator);
+                repositoryConnection.clear();
+            }
+        } catch (RepositoryException | MalformedQueryException | QueryEvaluationException e) {
+            throw new ManagerException(e);
+        }
     }
 
     private void unscheduleCrawlers(MetaserviceDescriptor descriptor) throws ManagerException {
         for(MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor : descriptor.getRepositoryList()){
             try {
-                scheduler.getTriggersOfJob(new JobKey(repositoryDescriptor.getId()));
+                JobKey jobKey = new JobKey(repositoryDescriptor.getId());
+                scheduler.deleteJob(jobKey);
+               /* for(Trigger trigger :  scheduler.getTriggersOfJob(jobKey)){
+
+                }*/
+
             } catch (SchedulerException e) {
                 throw new ManagerException(e);
             }

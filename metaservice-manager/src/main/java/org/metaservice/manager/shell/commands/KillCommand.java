@@ -35,7 +35,7 @@ public class KillCommand extends AbstractManagerCommand {
             System.out.println("Could not access process");
             return CommandResult.FAILURE;
         }
-        runEntry.getProcess().destroy();
+        manager.getRunManager().shutdown(runEntry);
         return CommandResult.SUCCESS;
     }
 }

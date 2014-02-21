@@ -62,10 +62,15 @@ public class RunManager {
 
     public void shutdown(){
         for(RunEntry runEntry : runEntries){
-            if(runEntry.getStatus() == RunEntry.Status.RUNNING){
-                LOGGER.info("Killing " + runEntry.getMpid() + " " + runEntry.getName());
-                runEntry.getProcess().destroy();
-            }
+           shutdown(runEntry);
+        }
+    }
+
+    public void shutdown(RunEntry runEntry){
+        if(runEntry.getStatus() == RunEntry.Status.RUNNING){
+            runEntry.setStatus(RunEntry.Status.SHUTTING_DOWN);
+            LOGGER.info("Killing " + runEntry.getMpid() + " " + runEntry.getName());
+            runEntry.getProcess().destroy();
         }
     }
 
@@ -261,5 +266,12 @@ public class RunManager {
     }
 
 
+    public void shutdown(ManagerConfig.Module module, List<ManagerConfig.Module> installedModules) {
+        for(RunEntry runEntry : runEntries){
+            if(module.equals(DescriptorHelper.getModuleFromString(installedModules, runEntry.getName()))){
+                shutdown(runEntry);
+            }
+        }
+    }
 }
 

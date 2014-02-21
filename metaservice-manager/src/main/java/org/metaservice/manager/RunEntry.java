@@ -6,7 +6,7 @@ import java.util.Date;
 public class RunEntry{
     public enum Status{
         RUNNING,
-        STARTING, FINISHED
+        STARTING, SHUTTING_DOWN, FINISHED
     }
     private int mpid;
     private Process process;
