@@ -6,6 +6,7 @@ import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.manager.Manager;
+import org.metaservice.manager.ManagerException;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,11 @@ public class AddModuleCommand extends AbstractManagerCommand{
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         for(File f: fileToAdd){
-            manager.add(f, force);
+            try {
+                manager.add(f, force);
+            } catch (ManagerException e) {
+                LOGGER.error("Could not add",e);
+            }
         }
         return CommandResult.SUCCESS;
     }

@@ -10,6 +10,7 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.*;
 import org.eclipse.aether.version.Version;
+import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.manager.maven.TransferListener;
@@ -77,10 +78,16 @@ public class MavenManager {
         return versions.get(versions.size()-1);
     }
 
-    public void updateModule(ManagerConfig.Module module) throws ManagerException {
+    public void updateModule(@NotNull ManagerConfig.Module module,boolean replace) throws ManagerException {
         Version latestVersion = null;
         try {
             latestVersion = getLatestVersion(module.getMetaserviceDescriptor().getModuleInfo());
+            //if inplace update replace
+            if(latestVersion.toString().equals(module.getMetaserviceDescriptor().getModuleInfo().getVersion())){
+                if(!replace){
+                    throw new ManagerException("Version already exists, use --replace to replace current version");
+                }
+            }
             File file = retrieveArtifact(module.getMetaserviceDescriptor().getModuleInfo(),latestVersion.toString());
             manager.add(file,true);
 

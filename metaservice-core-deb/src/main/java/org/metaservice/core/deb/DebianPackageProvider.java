@@ -114,8 +114,8 @@ public class DebianPackageProvider implements Provider<Package> {
             //package
             resultConnection.add(packageURI, RDF.TYPE, PACKAGE_DEB.PACKAGE);
 
-            resultConnection.add(releaseURI,PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_META_DISTRIBUTION)));
-            resultConnection.add(releaseURI,PACKAGE_DEB.DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_DISTRIBUTION)));
+            resultConnection.add(packageURI,PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_META_DISTRIBUTION)));
+            resultConnection.add(packageURI,PACKAGE_DEB.DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_DISTRIBUTION)));
 
             createStringEntry(packageQuery, packageURI, Entries.Source.class, PACKAGE_DEB.SOURCE, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.MD5sum.class, PACKAGE_DEB.MD5SUM, resultConnection);
@@ -271,8 +271,6 @@ public class DebianPackageProvider implements Provider<Package> {
     }
 
     private URI packageURI;
-    private URI releaseURI;
-    private URI projectURI;
 
     private void calculateURIs(@NotNull Package p,HashMap<String,String> properties) {
         PackageType type = null;
@@ -305,8 +303,6 @@ public class DebianPackageProvider implements Provider<Package> {
             }
         }
         packageURI = createPackageUri(properties,name,version,arch);
-        releaseURI = createReleaseUri(properties,name,version);
-        projectURI = createProjectUri(properties,name);
     }
 
 

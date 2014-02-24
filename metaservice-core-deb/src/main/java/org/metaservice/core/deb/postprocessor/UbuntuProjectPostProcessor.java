@@ -9,6 +9,8 @@ import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
@@ -17,6 +19,7 @@ import javax.inject.Inject;
  */
 public class UbuntuProjectPostProcessor  extends AbstractProjectPostProcessor
 {
+    public static final Logger LOGGER = LoggerFactory.getLogger(UbuntuProjectPostProcessor.class);
 
     @Inject
     protected UbuntuProjectPostProcessor(ValueFactory valueFactory, RepositoryConnection repositoryConnection) throws MalformedQueryException, RepositoryException {
@@ -26,12 +29,6 @@ public class UbuntuProjectPostProcessor  extends AbstractProjectPostProcessor
     @Override
     protected String getDistributionName() {
         return "ubuntu";
-    }
-
-
-    @Override
-    public void process(@NotNull URI uri, @NotNull RepositoryConnection resultConnection) throws PostProcessorException {
-
     }
 
     @Override

@@ -2,6 +2,7 @@ package org.metaservice.manager.shell.commands;
 
 import org.jboss.aesh.cl.Arguments;
 import org.jboss.aesh.cl.CommandDefinition;
+import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.core.config.ManagerConfig;
@@ -25,11 +26,15 @@ public class UpdateMavenCommand extends AbstractManagerCommand{
     }
     @Arguments(completer = AvailableModuleCompleter.class, validator = ModuleValidator.class)
     private List<String> moduleIdentifier;
+
+    @Option(name="replace",hasValue =false)
+    private boolean replace;
+
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> availableModules = manager.getManagerConfig().getAvailableModules();
         try {
-            manager.getMavenManager().updateModule(DescriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)));
+            manager.getMavenManager().updateModule(DescriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)),replace);
         } catch (ManagerException e) {
             e.printStackTrace();
         }

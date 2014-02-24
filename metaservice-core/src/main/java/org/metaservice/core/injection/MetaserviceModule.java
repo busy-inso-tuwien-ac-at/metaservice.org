@@ -19,12 +19,12 @@ public class MetaserviceModule implements Module {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind(ManagerConfig.class).toProvider(ManagerConfigProvider.class).asEagerSingleton();
-        binder.bind(Config.class).toProvider(ConfigProvider.class).asEagerSingleton();
-        binder.bind(MetaserviceDescriptor.class).toProvider(new JAXBMetaserviceDescriptorProvider(MetaserviceModule.this.getClass().getResourceAsStream("/metaservice.xml"))).asEagerSingleton();
+        binder.bind(ManagerConfig.class).toProvider(ManagerConfigProvider.class).in(Scopes.SINGLETON);
+        binder.bind(Config.class).toProvider(ConfigProvider.class).in(Scopes.SINGLETON);
+        binder.bind(MetaserviceDescriptor.class).toProvider(new JAXBMetaserviceDescriptorProvider(MetaserviceModule.this.getClass().getResourceAsStream("/metaservice.xml"))).in(Scopes.SINGLETON);
         binder.bind(ValueFactory.class).toProvider(ValueFactoryProvider.class).in(Scopes.SINGLETON);
-        binder.bind(Repository.class).toProvider(SPARQLRepositoryProvider.class);
-        binder.bind(RepositoryConnection.class).toProvider(RepositoryConnectionProvider.class);
+        binder.bind(Repository.class).toProvider(SPARQLRepositoryProvider.class).in(Scopes.SINGLETON);
+        binder.bind(RepositoryConnection.class).toProvider(RepositoryConnectionProvider.class).in(Scopes.SINGLETON);
         binder.bind(ConnectionFactory.class).toProvider(ConnectionFactoryProvider.class).in(Scopes.SINGLETON);
     }
 }

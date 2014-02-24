@@ -28,6 +28,7 @@ public class ManagerConfigProvider implements Provider<ManagerConfig> {
                 try {
                     IOUtils.copy(ManagerConfigProvider.class.getResourceAsStream("/metaservice-default-config.xml"), new FileOutputStream(file));
                 } catch (IOException e) {
+                    LOGGER.error("Error loading default ", e);
                     throw new RuntimeException(e);
                 }
             }

@@ -12,11 +12,15 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by ilo on 24.02.14.
  */
 public abstract class AbstractProjectPostProcessor implements PostProcessor {
+    public static final Logger LOGGER = LoggerFactory.getLogger(AbstractProjectPostProcessor.class);
+
     protected final ValueFactory valueFactory;
     protected final RepositoryConnection repositoryConnection;
     private final TupleQuery releaseQuery;
@@ -27,13 +31,13 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
         this.repositoryConnection = repositoryConnection;
         this.releaseQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
 
-        "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
+        "SELECT DISTINCT ?release ?packageName ?metaDistribution " +
                 "{ ?resource <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution." +
                 "  ?release  <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  <"+RDF.TYPE+">  <"+PACKAGE_DEB.RELEASE+">. }");
         projectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
-                "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
+                "SELECT DISTINCT ?release ?packageName ?metaDistribution " +
                         "{ ?resource <"+DOAP.RELEASE+"> ?release. " +
-                        "  ?release  <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  <"+RDF.TYPE+">  <"+PACKAGE_DEB.RELEASE+">. }");
+                        "  ?release   <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  <"+RDF.TYPE+">  <"+PACKAGE_DEB.RELEASE+">. }");
 
     }
 
@@ -46,17 +50,23 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
     @Override
     public void process(@NotNull URI uri, @NotNull RepositoryConnection resultConnection) throws PostProcessorException {
         try {
-            String projectName = uri.toString().replaceAll(getUriRegex(),"$1");
+            String projectName = uri.toString().replaceAll(getUriRegex(),"$2");
             URI projectURI = valueFactory.createURI("http://metaservice.org/d/projects/"+getDistributionName()+"/"+projectName);
+            LOGGER.debug(projectURI.toString());
             resultConnection.add(projectURI, RDF.TYPE, PACKAGE_DEB.PROJECT);
             processProject(resultConnection,uri,projectName);
             TupleQueryResult tupleQueryResult;
             if(uri.toString().startsWith("http://metaservice.org/d/releases")){
+                LOGGER.debug("releaseQuery");
                 releaseQuery.setBinding("resource",uri);
                 tupleQueryResult = releaseQuery.evaluate();
-            }else{
+            }else if(uri.toString().startsWith("http://metaservice.org/d/projects")){
+                LOGGER.debug("projectQuery");
                 projectQuery.setBinding("resource",uri);
                 tupleQueryResult = projectQuery.evaluate();
+            }else
+            {
+                throw new PostProcessorException("invalid uri " + uri);
             }
             while (tupleQueryResult.hasNext()){
                 BindingSet bindingSet = tupleQueryResult.next();
@@ -72,7 +82,7 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
 
     @Override
     public boolean abortEarly(@NotNull URI uri) throws PostProcessorException {
-        return false;
+        return !uri.stringValue().matches(getUriRegex());
     }
 
     public abstract void processProject(

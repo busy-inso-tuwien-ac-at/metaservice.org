@@ -106,7 +106,7 @@ public class PsCommand  extends AbstractManagerCommand{
                         String.valueOf(runEntry.getMpid()),
                         runEntry.getName(),
                         runEntry.getStartTime().toString(),
-                        (runEntry.getStatus() == RunEntry.Status.FINISHED)?"finished("+String.valueOf(runEntry.getExitValue())+")":"running"
+                        (runEntry.getStatus() == RunEntry.Status.FINISHED)?"FINISHED("+String.valueOf(runEntry.getExitValue())+")":runEntry.getStatus().toString()
                 }
                 );
             }

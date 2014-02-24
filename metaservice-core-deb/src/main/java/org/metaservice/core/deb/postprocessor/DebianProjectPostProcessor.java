@@ -9,6 +9,8 @@ import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
@@ -16,6 +18,8 @@ import javax.inject.Inject;
  * Created by ilo on 17.02.14.
  */
 public class DebianProjectPostProcessor extends AbstractProjectPostProcessor {
+    public static final Logger LOGGER = LoggerFactory.getLogger(DebianProjectPostProcessor.class);
+
     @Inject
     protected DebianProjectPostProcessor(ValueFactory valueFactory, RepositoryConnection repositoryConnection) throws MalformedQueryException, RepositoryException {
         super(valueFactory, repositoryConnection);

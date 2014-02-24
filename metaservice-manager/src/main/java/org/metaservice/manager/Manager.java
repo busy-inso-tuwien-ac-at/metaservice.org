@@ -614,12 +614,16 @@ public class Manager {
 
     }
 
-    public void add(File fileToAdd, boolean override) {
+    public void add(File fileToAdd, boolean override) throws ManagerException {
         LOGGER.info("Starting adding of {}",fileToAdd.getName());
         Path p = Paths.get(fileToAdd.toURI());
         try (FileSystem zipfs = FileSystems.newFileSystem(p,Thread.currentThread().getContextClassLoader())){
             MetaserviceDescriptor descriptor = new JAXBMetaserviceDescriptorProvider(Files.newInputStream(zipfs.getPath("/metaservice.xml"))).get();
             ManagerConfig.Module module = new ManagerConfig.Module();
+            module.setMetaserviceDescriptor(descriptor);
+            if(managerConfig.getInstalledModules().contains(module)){
+                throw new ManagerException("module is installed - please uninstall before adding");
+            }
             MetaserviceDescriptor.ModuleInfo moduleInfo = descriptor.getModuleInfo();
             Path target = Paths.get("./modules", moduleInfo.getGroupId(), moduleInfo.getArtifactId() + "-" + moduleInfo.getVersion() + ".jar");
             Files.createDirectories(target.getParent());
@@ -629,11 +633,13 @@ public class Manager {
             }
             Files.copy(fileToAdd.toPath(),target,StandardCopyOption.REPLACE_EXISTING);
             module.setLocation(target.toFile());
-            module.setMetaserviceDescriptor(descriptor);
+            if(managerConfig.getAvailableModules().contains(module)){
+                managerConfig.getAvailableModules().remove(module);
+            }
             managerConfig.getAvailableModules().add(module);
             saveConfig();
         } catch (IOException e) {
-            LOGGER.info("Could not add {}", fileToAdd.getName(),e);
+            throw new ManagerException("Could not add " + fileToAdd.getName(),e);
         }
     }
 
