@@ -81,7 +81,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
                 LOGGER.info("Not continuing processing because abortEarly({}) was true",resource);
                 return;
             }
-            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(postProcessor.getClass().getCanonicalName()));
+            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)));
             graphSelect.setBinding("resource",resource);
             TupleQueryResult queryResult = graphSelect.evaluate();
             XMLGregorianCalendar newestTime = null;

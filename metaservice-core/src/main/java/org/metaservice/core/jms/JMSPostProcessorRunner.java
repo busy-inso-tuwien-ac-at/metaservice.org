@@ -1,6 +1,8 @@
 package org.metaservice.core.jms;
 
 import com.google.inject.Injector;
+import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.core.injection.InjectorFactory;
 import org.metaservice.core.postprocessor.PostProcessingTask;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
@@ -31,12 +33,14 @@ public class JMSPostProcessorRunner {
     @Inject
     private JMSPostProcessorRunner(
             final PostProcessorDispatcher postProcessorDispatcher,
+            final MetaserviceDescriptor metaserviceDescriptor,
+            final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,
             JMSUtil jmsUtil
     ) throws JMSException, RepositoryException {
         jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
-                return "Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.PostProcess";
+                return "Consumer." + DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor).replaceAll("\\.", "_").replaceAll(":","-")+ ".VirtualTopic.PostProcess";
             }
 
             @Override

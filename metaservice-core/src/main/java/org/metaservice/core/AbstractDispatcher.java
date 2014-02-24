@@ -1,12 +1,21 @@
 package org.metaservice.core;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.fluent.Executor;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.core.config.Config;
 import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
 import org.metaservice.core.postprocessor.PostProcessingTask;
 import org.openrdf.model.*;
+import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -14,6 +23,8 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.ntriples.NTriplesParserFactory;
+import org.openrdf.rio.ntriples.NTriplesWriter;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
@@ -21,8 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -55,13 +67,37 @@ public abstract  class AbstractDispatcher<T> {
 
         Connection jmsConnection = connectionFactory.createConnection();
 
-        session = jmsConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
+        session = jmsConnection.createSession(true,Session.AUTO_ACKNOWLEDGE);
 
         this.producer = session.createProducer(session.createTopic("VirtualTopic.PostProcess"));
+
     }
 
 
+    protected void sendDataByLoad(URI metadata,List<Statement> generatedStatements) throws MetaserviceException {
+        StringWriter stringWriter = new StringWriter();
+        NTriplesWriter nTriplesWriter = new NTriplesWriter(stringWriter);
+
+        try {
+            nTriplesWriter.startRDF();
+            for(Statement statement : generatedStatements){
+                nTriplesWriter.handleStatement(statement);
+            }
+            nTriplesWriter.endRDF();
+
+            Executor executor = Executor.newInstance(HttpClientBuilder.create().setConnectionManager(new BasicHttpClientConnectionManager()).build());
+            Request
+                    .Post(config.getSparqlEndpoint() + "?context-uri=" + metadata.toString())
+                    .bodyStream(new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8")), ContentType.create("text/plain", Charset.forName("UTF-8")))
+                    .execute();
+        } catch (RDFHandlerException  | IOException e) {
+            throw new MetaserviceException(e);
+        }
+
+    }
+
     protected void sendData(RepositoryConnection resultConnection,URI metadata,List<Statement> generatedStatements) throws RepositoryException {
+
         LOGGER.info("starting to send data");
         RDFXMLPrettyWriter writer = null;
         String writerFile = null;
@@ -124,22 +160,25 @@ public abstract  class AbstractDispatcher<T> {
                 history.add(now);
             }
         }
-
-
-        for(URI uri : resourcesThatChanged){
-            try {
+        int count = 0;
+        try {
+            for(URI uri : resourcesThatChanged){
+                count++;
                 PostProcessingTask postProcessingTask = new PostProcessingTask(uri);
                 postProcessingTask.getHistory().addAll(history);
                 ObjectMessage objectMessage = session.createObjectMessage(postProcessingTask);
                 objectMessage.setJMSExpiration(1000*60*15); // 15 min
                 producer.send(objectMessage);
-            } catch (JMSException e) {
-                LOGGER.error("Couldn't notify PostProcessResource of {}",uri.toString(),e);
+                if(count > 100){
+                    count=0;
+                    session.commit();
+                }
             }
+            session.commit();
+        } catch (JMSException e) {
+            LOGGER.error("Couldn't notify PostProcessors",e);
         }
-
         LOGGER.info("STOP NOTIFICATION OF POSTPROCESSORS");
-
     }
 
     protected List<Statement> getGeneratedStatements(RepositoryConnection resultConnection,Set<Statement> loadedStatements) throws RepositoryException {

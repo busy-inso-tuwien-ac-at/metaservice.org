@@ -1,6 +1,8 @@
 package org.metaservice.core.jms;
 
 import org.metaservice.api.archive.ArchiveAddress;
+import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.core.injection.InjectorFactory;
 import org.metaservice.core.provider.ProviderDispatcher;
 import org.openrdf.model.ValueFactory;
@@ -28,13 +30,15 @@ public class JMSProviderRunner  {
     @Inject
     private JMSProviderRunner(
             final ValueFactory valueFactory,
+            final MetaserviceDescriptor.ProviderDescriptor providerDescriptor,
+            final MetaserviceDescriptor metaserviceDescriptor,
             final ProviderDispatcher providerDispatcher,
             JMSUtil jmsUtil
     ) throws JMSException, RepositoryException {
         jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
-                return "Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.Refresh";
+                return "Consumer." + DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor).replaceAll("\\.", "_").replaceAll(":","-") + ".VirtualTopic.Refresh";
             }
 
             @Override
@@ -60,7 +64,7 @@ public class JMSProviderRunner  {
         jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
-                return "Consumer." + getClass().getName().replaceAll("\\.", "_") + ".VirtualTopic.Create";
+                return "Consumer." + DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor).replaceAll("\\.", "_").replaceAll(":","-") + ".VirtualTopic.Create";
             }
 
             @Override

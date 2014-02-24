@@ -112,10 +112,6 @@ public class DebianPackageProvider implements Provider<Package> {
                     });
 
 
-            //project
-            resultConnection.add(projectURI, RDF.TYPE, PACKAGE_DEB.PROJECT);
-            resultConnection.add(projectURI, DOAP.RELEASE, releaseURI);
-
             //release
             resultConnection.add(releaseURI, ADMSSW.PACKAGE, packageURI);
             resultConnection.add(releaseURI,ADMSSW.PROJECT,projectURI);

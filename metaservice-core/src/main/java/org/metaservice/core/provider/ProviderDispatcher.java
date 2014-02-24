@@ -1,6 +1,7 @@
 package org.metaservice.core.provider;
 
 import info.aduna.iteration.Iterations;
+import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveException;
@@ -141,15 +142,18 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
+            resultConnection.add(loadedStatements);
             resultConnection.commit();
             List<Statement> generatedStatements = getGeneratedStatements(resultConnection,loadedStatements);
-            sendData(resultConnection,metadata,generatedStatements);
+            sendDataByLoad(metadata, generatedStatements);
             repositoryConnection.clear(oldMetadata);
             Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
             notifyPostProcessors(resourcesToPostProcess,null,null,null);
             LOGGER.info("done processing {} {}", time, path);
         } catch (RepositoryException | ArchiveException e) {
             LOGGER.error("Could not Refresh {}" ,address,e);
+        } catch (MetaserviceException e) {
+            e.printStackTrace();
         }
     }
 
@@ -178,13 +182,16 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
+            resultConnection.add(loadedStatements);
             resultConnection.commit();
             List<Statement> generatedStatements  = getGeneratedStatements(resultConnection,loadedStatements);
-            sendData(resultConnection,metadata,generatedStatements);
+            sendDataByLoad(metadata, generatedStatements);
             Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
             notifyPostProcessors(resourcesToPostProcess,null,null, null);
         } catch (RepositoryException | ArchiveException e) {
             LOGGER.error("Couldn't create {}",address,e);
+        } catch (MetaserviceException e) {
+            e.printStackTrace();
         }
     }
 

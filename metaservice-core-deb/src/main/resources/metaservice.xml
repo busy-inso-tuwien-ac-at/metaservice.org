@@ -31,11 +31,15 @@
     <postprocessor
             id="debianProjectPostProcessor"
             class="org.metaservice.core.deb.DebianProjectPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
     </postprocessor>
 
     <postprocessor
             id="ubuntuProjectPostProcessor"
             class="org.metaservice.core.deb.UbuntuProjectPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
     </postprocessor>
 
     <repository

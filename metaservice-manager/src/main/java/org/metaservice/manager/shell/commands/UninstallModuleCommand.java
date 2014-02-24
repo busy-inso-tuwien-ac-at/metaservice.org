@@ -5,6 +5,7 @@ import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.manager.ManagerException;
 import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.manager.shell.completer.AvailableModuleCompleter;
+import org.metaservice.manager.shell.completer.InstalledModuleCompleter;
 import org.metaservice.manager.shell.validator.ModuleValidator;
 import org.jboss.aesh.cl.Arguments;
 import org.jboss.aesh.cl.CommandDefinition;
@@ -26,7 +27,7 @@ public class UninstallModuleCommand extends AbstractManagerCommand{
         super(manager);
     }
 
-    @Arguments(completer = AvailableModuleCompleter.class, validator = ModuleValidator.class)
+    @Arguments(completer = InstalledModuleCompleter.class, validator = ModuleValidator.class)
     private List<String> moduleIdentifier;
 
     @Option(name = "remove-data",shortName = 'd',hasValue = false)

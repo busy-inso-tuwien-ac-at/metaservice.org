@@ -10,6 +10,8 @@ import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.metaservice.core.crawler.Crawler;
 import org.metaservice.core.crawler.CrawlerParameters;
 import org.metaservice.core.crawler.CrawlerProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -18,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
  * Created by ilo on 06.01.14.
  */
 public class CrawlerModule extends AbstractModule{
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrawlerModule.class);
     private final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor;
     private final MetaserviceDescriptor.CrawlerDescriptor crawlerDescriptor;
     private final Config config;
@@ -31,8 +34,8 @@ public class CrawlerModule extends AbstractModule{
     @Override
     protected void configure() {
         try {
-            System.err.println(crawlerDescriptor);
-            System.err.println(repositoryDescriptor);
+            LOGGER.debug("crawlerdescriptor {}",crawlerDescriptor);
+            LOGGER.debug("repodescriptor {}",repositoryDescriptor);
             ArchiveParameters archiveParameters = new ArchiveParametersImpl(
                     repositoryDescriptor.getBaseUri(),
                     new File(config.getArchiveBasePath() + repositoryDescriptor.getId()) //todo retrieve from cmdb?

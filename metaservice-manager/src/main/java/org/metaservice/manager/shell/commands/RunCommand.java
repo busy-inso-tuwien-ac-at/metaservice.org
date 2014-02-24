@@ -2,6 +2,7 @@ package org.metaservice.manager.shell.commands;
 
 import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.manager.ManagerException;
+import org.metaservice.manager.shell.completer.InstalledModuleCompleter;
 import org.metaservice.manager.shell.validator.GreaterThanZeroValidator;
 import org.jboss.aesh.cl.CommandDefinition;
 import org.jboss.aesh.cl.Option;
@@ -37,6 +38,9 @@ public class RunCommand extends AbstractManagerCommand {
     @Option(name="crawler",shortName = 'c')
     String repository;
 
+    @Option(name="allof",completer = InstalledModuleCompleter.class)
+    String moduleId;
+
     @Option(name ="frontend",shortName = 'f',hasValue = false)
     boolean frontend;
 
@@ -70,6 +74,25 @@ public class RunCommand extends AbstractManagerCommand {
             }
             if(repository != null){
                 System.out.println("Starting crawler by shell is not yet implemented");
+            }
+            if(moduleId !=null){
+                ManagerConfig.Module module = DescriptorHelper.getModuleFromString(manager.getManagerConfig().getInstalledModules(),moduleId);
+                if(module!=null){
+                    for(MetaserviceDescriptor.ProviderDescriptor providerDescriptor : module.getMetaserviceDescriptor().getProviderList()){
+                        try {
+                            manager.getRunManager().runProvider(module, providerDescriptor);
+                        } catch (ManagerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    for(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor : module.getMetaserviceDescriptor().getPostProcessorList()){
+                        try {
+                            manager.getRunManager().runPostProcessor(module,postProcessorDescriptor);
+                        } catch (ManagerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         }
         if(frontend)

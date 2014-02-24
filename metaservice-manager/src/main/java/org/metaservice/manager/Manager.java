@@ -2,6 +2,7 @@ package org.metaservice.manager;
 
 import com.google.inject.Singleton;
 import org.jetbrains.annotations.Nullable;
+import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.core.injection.ManagerConfigProvider;
 import org.metaservice.core.descriptor.DescriptorHelper;
@@ -18,8 +19,11 @@ import org.metaservice.api.archive.Archive;
 import org.metaservice.core.injection.providers.JAXBMetaserviceDescriptorProvider;
 import org.metaservice.core.jms.JMSMessageConverter;
 import org.metaservice.core.jms.JMSUtil;
+import org.metaservice.manager.bigdata.FastRangeCountRequestBuilder;
+import org.metaservice.manager.bigdata.MutationResult;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.*;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -93,6 +97,46 @@ public class Manager {
         }
         managerConfig.getAvailableModules().remove(availableModule);
         saveConfig();
+    }
+
+    public Map<String, Integer> getStatementStatistics() throws ManagerException {
+        HashMap<String,Integer> result = new HashMap<>();
+
+        MutationResult mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .execute();
+        result.put("Statements", mutationResult.getRangeCount());
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDF.TYPE)
+                .object(METASERVICE.METADATA)
+                .execute();
+        result.put("Graphs", mutationResult.getRangeCount());
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDF.TYPE)
+                .object(ADMSSW.SOFTWARE_REPOSITORY)
+                .execute();
+        result.put("Repositories", mutationResult.getRangeCount());
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDF.TYPE)
+                .object(ADMSSW.SOFTWARE_PROJECT)
+                .execute();
+        result.put("Projects", mutationResult.getRangeCount());
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDF.TYPE)
+                .object(ADMSSW.SOFTWARE_RELEASE)
+                .execute();
+        result.put("Releases", mutationResult.getRangeCount());
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDF.TYPE)
+                .object(ADMSSW.SOFTWARE_PACKAGE)
+                .execute();
+        result.put("Packages", mutationResult.getRangeCount());
+        return result;
     }
 
     public static class ActiveMqstatisticsRequestJob implements Job{
@@ -194,7 +238,10 @@ public class Manager {
     }
 
     public Archive getArchiveForRepository(@NotNull MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor) throws ArchiveException {
-        ArchiveParameters archiveParameters = new ArchiveParametersImpl(null,null);
+        ArchiveParameters archiveParameters = new ArchiveParametersImpl(
+                repositoryDescriptor.getBaseUri(),
+                new File(config.getArchiveBasePath() + repositoryDescriptor.getId()) //todo retrieve from cmdb?
+        );
         return new GitArchive(archiveParameters);
     }
 
@@ -212,6 +259,7 @@ public class Manager {
 
             if(repositoryDescriptor == null){
                 LOGGER.error("NO SUCH REPOSITORY {}", name);
+                return;
             }
 
             final MetaserviceDescriptor.RepositoryDescriptor selectedRepositoryDescriptor = repositoryDescriptor;
@@ -288,7 +336,7 @@ public class Manager {
             if(uris.size() > 0)    //safety check -> empty deletes whole repository
             {
                 LOGGER.info("Clearing {} contexts from generator {}",uris.size(),generator);
-                repositoryConnection.clear();
+                repositoryConnection.clear(uris.toArray(new URI[uris.size()]));
             }
         } catch (RepositoryException | MalformedQueryException | QueryEvaluationException e) {
             throw new ManagerException(e);
@@ -496,10 +544,12 @@ public class Manager {
 
     private void uninstallTemplates(@NotNull MetaserviceDescriptor descriptor) throws ManagerException {
         for(MetaserviceDescriptor.TemplateDescriptor templateDescriptor : descriptor.getTemplateList()){
-            Path to =  Paths.get(config.getHttpdDataDirectory() + templateDescriptor.getName());
-            LOGGER.info("Deleting {}",to);
+            Path template =  Paths.get(config.getHttpdDataDirectory() + templateDescriptor.getName());
+            LOGGER.info("Deleting {}",template);
             try{
-                Files.delete(to);
+                if(template.toFile().exists()){
+                    Files.delete(template);
+                }
                 Statement s = getTemplateStatement(templateDescriptor);
                 LOGGER.info("Removing Statement {} from the database", s);
                 repositoryConnection.remove(s);
