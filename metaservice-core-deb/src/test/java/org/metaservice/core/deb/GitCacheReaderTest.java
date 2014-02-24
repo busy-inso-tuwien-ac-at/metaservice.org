@@ -1,6 +1,7 @@
 package org.metaservice.core.deb;
 
 import org.junit.Test;
+import org.metaservice.core.deb.util.GitCacheReader;
 import org.metaservice.core.utils.GitUtil;
 
 /**

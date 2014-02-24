@@ -40,6 +40,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     private final RepositoryConnection repositoryConnection;
     private final TupleQuery graphSelect;
     private final ValueFactory valueFactory;
+    private final Set<Statement> loadedStatements;
 
     @Inject
     private PostProcessorDispatcher(
@@ -60,6 +61,20 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?creationtime { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <" + METASERVICE.CREATION_TIME+"> ?creationtime. }");
 
         LOGGER.info(graphSelect.toString());
+        loadedStatements = calculatePreloadedStatements();
+
+    }
+
+    private Set<Statement> calculatePreloadedStatements() throws RepositoryException {
+        Repository resultRepository = createTempRepository();
+        RepositoryConnection resultConnection = resultRepository.getConnection();
+
+        loadNamespaces(resultConnection,postProcessorDescriptor.getNamespaceList());
+        loadOntologies(resultConnection,postProcessorDescriptor.getLoadList());
+        resultConnection.commit();
+        HashSet<Statement> result  =new HashSet<>();
+        Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT),result);
+        return Collections.unmodifiableSet(result);
     }
 
 
@@ -108,19 +123,12 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
             Repository resultRepository = createTempRepository();
             RepositoryConnection resultConnection = resultRepository.getConnection();
-
-            loadNamespaces(resultConnection,postProcessorDescriptor.getNamespaceList());
-            loadOntologies(resultConnection,postProcessorDescriptor.getLoadList());
-            resultConnection.commit();
-            HashSet<Statement> loadedStatements = new HashSet<>();
-            Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT), loadedStatements);
-
-                try {
-                    postProcessor.process(resource, resultConnection);
-                } catch (PostProcessorException e) {
-                    e.printStackTrace();
-                }
-
+            try {
+                postProcessor.process(resource, resultConnection);
+            } catch (PostProcessorException e) {
+                e.printStackTrace();
+            }
+            resultConnection.add(loadedStatements);
             resultConnection.commit();
             List<Statement> generatedStatements  = getGeneratedStatements(resultConnection,loadedStatements);
             Set<URI> subjects = getSubjects(generatedStatements);

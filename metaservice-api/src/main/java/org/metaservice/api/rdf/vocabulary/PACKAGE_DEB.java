@@ -15,7 +15,7 @@ public class PACKAGE_DEB {
     public final static URI RELEASE;
     public final static URI MAINTAINER_CLASS;
 
-    /*public final static URI PACKAGE_NAME;*/
+    public final static URI PACKAGE_NAME;
     public final static URI DESCRIPTION;
     public final static URI ARCHITECTURE;
     public static final URI VERSION;
@@ -56,7 +56,7 @@ public class PACKAGE_DEB {
         RELEASE = factory.createURI(PACKAGE_DEB.NAMESPACE,"Release");
         MAINTAINER_CLASS = factory.createURI(PACKAGE_DEB.NAMESPACE,"Maintainer");
 
-     /*   PACKAGE_NAME = factory.createURI(PACKAGE_DEB.NAMESPACE,"packageName"); */
+        PACKAGE_NAME = factory.createURI(PACKAGE_DEB.NAMESPACE,"packageName");
         DESCRIPTION = factory.createURI(PACKAGE_DEB.NAMESPACE,"description");
         ARCHITECTURE = factory.createURI(PACKAGE_DEB.NAMESPACE,"architecture");
         VERSION = factory.createURI(PACKAGE_DEB.NAMESPACE,"version");

@@ -86,10 +86,10 @@ public abstract  class AbstractDispatcher<T> {
             nTriplesWriter.endRDF();
 
             Executor executor = Executor.newInstance(HttpClientBuilder.create().setConnectionManager(new BasicHttpClientConnectionManager()).build());
-            Request
+
+            executor.execute( Request
                     .Post(config.getSparqlEndpoint() + "?context-uri=" + metadata.toString())
-                    .bodyStream(new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8")), ContentType.create("text/plain", Charset.forName("UTF-8")))
-                    .execute();
+                    .bodyStream(new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8")), ContentType.create("text/plain", Charset.forName("UTF-8"))));
         } catch (RDFHandlerException  | IOException e) {
             throw new MetaserviceException(e);
         }

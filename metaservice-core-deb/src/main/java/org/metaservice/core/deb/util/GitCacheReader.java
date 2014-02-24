@@ -1,4 +1,4 @@
-package org.metaservice.core.deb;
+package org.metaservice.core.deb.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.api.provider.Provider;
+import org.metaservice.core.deb.ParboiledDebParser;
 import org.metaservice.core.deb.parser.ast.Package;
 import org.metaservice.core.utils.GitUtil;
 import org.openrdf.repository.RepositoryException;

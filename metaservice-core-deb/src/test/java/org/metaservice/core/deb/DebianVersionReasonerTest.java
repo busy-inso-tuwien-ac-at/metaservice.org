@@ -1,8 +1,9 @@
 package org.metaservice.core.deb;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
 import org.hamcrest.number.OrderingComparison;
 import org.junit.Test;
+import org.metaservice.core.deb.postprocessor.DebianVersionReasoner;
+import org.metaservice.core.deb.util.DebianVersionComparator;
 
 import java.util.Comparator;
 
@@ -149,9 +150,9 @@ public class DebianVersionReasonerTest {
     @Test
     public void testRegex(){
         assertEquals("http://metaservice.org/d/packages/debian/libc6/2.13-20ubuntu5.2/amd64".matches(DebianVersionReasoner.URI_REGEX),true);
-        assertEquals("http://metaservice.org/d/packages/debian/libc6/2.13-20ubuntu5.2".matches(DebianVersionReasoner.URI_REGEX),true);
-        assertEquals("http://metaservice.org/d/packages/debian/libc6".matches(DebianVersionReasoner.URI_REGEX),false);
-        assertEquals("http://metaservice.org/d/packages/debian/libc6/".matches(DebianVersionReasoner.URI_REGEX), false);
+        assertEquals("http://metaservice.org/d/releases/debian/libc6/2.13-20ubuntu5.2".matches(DebianVersionReasoner.URI_REGEX),true);
+        assertEquals("http://metaservice.org/d/projects/debian/libc6".matches(DebianVersionReasoner.URI_REGEX),false);
+        assertEquals("http://metaservice.org/d/releases/debian/libc6/".matches(DebianVersionReasoner.URI_REGEX), false);
         assertEquals("http://metaservice.org/d/packages/debian/libc6/2.13-20ubuntu5.2#".matches(DebianVersionReasoner.URI_REGEX),false);
 
     }

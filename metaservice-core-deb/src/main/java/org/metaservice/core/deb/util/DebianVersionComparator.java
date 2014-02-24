@@ -1,4 +1,4 @@
-package org.metaservice.core.deb;
+package org.metaservice.core.deb.util;
 
 
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package org.metaservice.core.deb;
+package org.metaservice.core.deb.util;
 
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;

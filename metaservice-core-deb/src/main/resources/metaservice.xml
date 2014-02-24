@@ -13,7 +13,7 @@
         <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
-        <namespace prefix="ms-deb-pkg" uri="http://metaservice.org/d/packages/debian/"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
     </provider>
 
     <parser
@@ -22,24 +22,36 @@
             class="org.metaservice.core.deb.ParboiledDebParser"/>
 
     <postprocessor
-            id="debVersionPostProcessor"
-            class="org.metaservice.core.deb.DebianVersionReasoner">
+            id="debVersionOrder"
+            class="org.metaservice.core.deb.postprocessor.DebianVersionReasoner">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
-        <namespace prefix="ms-deb-pkg" uri="http://metaservice.org/d/packages/debian/"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
     </postprocessor>
 
     <postprocessor
-            id="debianProjectPostProcessor"
-            class="org.metaservice.core.deb.DebianProjectPostProcessor">
+            id="debRelease"
+            class="org.metaservice.core.deb.postprocessor.ReleasePostProcessor">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+    </postprocessor>
+
+
+    <postprocessor
+            id="debianProject"
+            class="org.metaservice.core.deb.postprocessor.DebianProjectPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
     </postprocessor>
 
     <postprocessor
-            id="ubuntuProjectPostProcessor"
-            class="org.metaservice.core.deb.UbuntuProjectPostProcessor">
+            id="ubuntuProject"
+            class="org.metaservice.core.deb.postprocessor.UbuntuProjectPostProcessor">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
     </postprocessor>
 
     <repository
@@ -48,7 +60,7 @@
             baseUri="http://ftp.debian.org/debian/dists/"
             startUri="http://ftp.debian.org/debian/dists/"
             crawler="debianarchive"
-            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
             active="false"
             />
 
@@ -58,7 +70,7 @@
             baseUri="http://ftp.debian.org/debian-backports/dists/"
             startUri="http://ftp.debian.org/debian-backports/dists/"
             crawler="debianarchive"
-            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
             active="false"
             />
 
@@ -68,7 +80,7 @@
             baseUri="http://security.debian.org/dists/"
             startUri="http://security.debian.org/dists/"
             crawler="debianarchive"
-            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
             active="false"
             />
 
@@ -79,7 +91,7 @@
             startUri="http://archive.debian.org/debian-volatile/dists/"
             crawler="debianarchive"
             active="false"
-            archiveClass="org.metaservice.core.deb.DebianGitArchive">
+            archiveClass="org.metaservice.core.deb.util.DebianGitArchive">
         <properties>
             <property name="meta-distribution">debian</property>
             <property name="distribution-regex">^([^/]+/[^/]+)/.*$</property>
@@ -93,7 +105,7 @@
             baseUri="http://archive.ubuntu.com/ubuntu/dists/"
             startUri="http://archive.ubuntu.com/ubuntu/dists/"
             crawler="debianarchive"
-            archiveClass="org.metaservice.core.deb.DebianGitArchive"
+            archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
             >
         <properties>
             <property name="meta-distribution">ubuntu</property>
@@ -102,7 +114,7 @@
     </repository>
 
     <crawler id="debianarchive"
-             archiveClass="org.metaservice.core.deb.DebianGitArchive">
+             archiveClass="org.metaservice.core.deb.util.DebianGitArchive">
         <follow endsWith="/"> <!-- Distributions -->
             <follow endsWith="/" skippable="true">   <!-- volatile, updates , ... -->
                 <follow endsWith="/"> <!-- license -->

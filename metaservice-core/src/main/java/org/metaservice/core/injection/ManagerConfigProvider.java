@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class ManagerConfigProvider implements Provider<ManagerConfig> {
     public static final Logger LOGGER = LoggerFactory.getLogger(ManagerConfigProvider.class);
-    public final static String MANAGERCONFIG_XML = "managerconfig.xml";
+    public final static String MANAGERCONFIG_XML = "/opt/metaservice/managerconfig.xml";
 
     private ManagerConfig managerConfig = null;
 

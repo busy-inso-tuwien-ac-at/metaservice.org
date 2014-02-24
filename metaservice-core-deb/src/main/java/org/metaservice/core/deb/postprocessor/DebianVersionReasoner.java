@@ -1,4 +1,4 @@
-package org.metaservice.core.deb;
+package org.metaservice.core.deb.postprocessor;
 
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
@@ -6,6 +6,7 @@ import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.core.deb.util.DebianVersionComparator;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 
 public class DebianVersionReasoner implements PostProcessor {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
-    final static String URI_REGEX = "^http://metaservice.org/d/packages/[^/#]+/[^/#]+/[^/#]+(/[^/#]+)?$";
+    public final static String URI_REGEX = "^http://metaservice.org/d/(packages|releases|projects)/[^/#]+/[^/#]+/[^/#]+(/[^/#]+)?$";
 
     private final TupleQuery selectPackageVersionsOrderQuery;
     private final TupleQuery selectVersionsOrderQuery;

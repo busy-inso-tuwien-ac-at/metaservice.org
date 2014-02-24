@@ -105,23 +105,14 @@ public class DebianPackageProvider implements Provider<Package> {
                         @Override
                         public void execute(@NotNull SuperNode n) throws RepositoryException {
                             Value titleLiteral = valueFactory.createLiteral(n.toString());
-                            resultConnection.add(projectURI, DC.TITLE, titleLiteral);
-                            resultConnection.add(packageURI, DC.TITLE, titleLiteral);
-                            resultConnection.add(releaseURI, DC.TITLE, titleLiteral);
+                            resultConnection.add(packageURI, PACKAGE_DEB.PACKAGE_NAME, titleLiteral);
                         }
                     });
 
 
-            //release
-            resultConnection.add(releaseURI, ADMSSW.PACKAGE, packageURI);
-            resultConnection.add(releaseURI,ADMSSW.PROJECT,projectURI);
-            resultConnection.add(releaseURI, RDF.TYPE, PACKAGE_DEB.RELEASE);
-            createStringEntry(packageQuery, releaseURI, Entries.Version.class, PACKAGE_DEB.VERSION, resultConnection);
-            createVersionEntry(packageQuery,releaseURI,PACKAGE_DEB.VERSION,resultConnection);
 
             //package
             resultConnection.add(packageURI, RDF.TYPE, PACKAGE_DEB.PACKAGE);
-            resultConnection.add(packageURI, ADMSSW.RELEASE, releaseURI);
 
             resultConnection.add(releaseURI,PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_META_DISTRIBUTION)));
             resultConnection.add(releaseURI,PACKAGE_DEB.DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_DISTRIBUTION)));
@@ -134,6 +125,7 @@ public class DebianPackageProvider implements Provider<Package> {
             createStringEntry(packageQuery, packageURI, Entries.Architecture.class, PACKAGE_DEB.ARCHITECTURE, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.Description.class, PACKAGE_DEB.DESCRIPTION, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.Filename.class, PACKAGE_DEB.FILENAME, resultConnection);
+            createStringEntry(packageQuery, packageURI, Entries.Filename.class, DC.TITLE, resultConnection);
             createEmailEntry(packageQuery, packageURI, Entries.Maintainer.class, PACKAGE_DEB.MAINTAINER_PROPERTY,resultConnection);
             createEmailEntry(packageQuery, packageURI, Entries.Uploaders.class, PACKAGE_DEB.UPLOADER,resultConnection);
 

@@ -1,4 +1,4 @@
-package org.metaservice.core.deb;
+package org.metaservice.core.deb.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
