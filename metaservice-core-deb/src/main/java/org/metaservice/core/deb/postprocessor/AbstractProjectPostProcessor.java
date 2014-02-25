@@ -33,12 +33,13 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
 
         "SELECT DISTINCT ?release ?packageName ?metaDistribution " +
                 "{ ?resource <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution." +
-                "  ?release  <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  <"+RDF.TYPE+">  <"+PACKAGE_DEB.RELEASE+">. }");
+                "  ?release  <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  a  <"+PACKAGE_DEB.RELEASE+">. }");
         projectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
                 "SELECT DISTINCT ?release ?packageName ?metaDistribution " +
                         "{ ?resource <"+DOAP.RELEASE+"> ?release. " +
-                        "  ?release   <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  <"+RDF.TYPE+">  <"+PACKAGE_DEB.RELEASE+">. }");
-
+                        "  ?release   <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  a  <"+PACKAGE_DEB.RELEASE+">. }");
+        LOGGER.error(projectQuery.toString());
+        LOGGER.error(releaseQuery.toString());
     }
 
     private String getUriRegex(){

@@ -57,8 +57,111 @@
     <owl:AnnotationProperty rdf:about="&ms-deb;dependOn">
         <rdfs:domain rdf:resource="http://metaservice.org/ns/swdep-metaservice#Dependency_Relation"/>
     </owl:AnnotationProperty>
-    
 
+    <owl:DatatypeProperty rdf:about="&ms-deb;meta-distribution">
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="&ms-deb;packageName">
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="&ms-deb;version">
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="&ms-deb;architecture"/>
+    <owl:DatatypeProperty rdf:about="&ms-deb;distribution"/>
+    <owl:DatatypeProperty rdf:about="&ms-deb;meta-distribution"/>
+    <owl:DatatypeProperty rdf:about="&ms-deb;sha1sum"/>
+
+    <owl:DataProperty rdf:ID="description">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="architecture">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="homepage">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="version">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="md5sum">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.spdx.org/rdf/terms#checksum"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="sha1sum">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.spdx.org/rdf/terms#checksum"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="sha256sum">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.spdx.org/rdf/terms#checksum"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="filename">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:ObjectProperty rdf:ID="maintainer">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+        <rdfs:range rdf:resource="http://metaservice.org/ns/package-deb#Maintainer"/>
+    </owl:ObjectProperty>
+
+
+    <owl:ObjectProperty rdf:ID="breaks">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="built-using">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="conflicts">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="depends">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="pre-depends">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="provides">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="recommends">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="replaces">
+
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:ID="suggests">
+
+</owl:ObjectProperty>
+    <owl:DataProperty rdf:ID="filename">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="packageName">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="homepage">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="maintainer">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+    <owl:DataProperty rdf:ID="version">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+    </owl:DataProperty>
+
+    <owl:AnnotationProperty rdf:about="&ms-deb;depending">
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/swdep-metaservice#Dependency_Relation"/>
+    </owl:AnnotationProperty>
 
     <!-- http://metaservice.org/ns/ms-deb#depending -->
 

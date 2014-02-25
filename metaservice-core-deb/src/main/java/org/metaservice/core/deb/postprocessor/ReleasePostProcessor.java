@@ -39,12 +39,14 @@ public class ReleasePostProcessor implements PostProcessor {
         packageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
                 "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
                         "{ ?resource <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution." +
-                        "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; <"+RDF.TYPE+"> <"+PACKAGE_DEB.PACKAGE+">. }");
+                        "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">. }");
         releaseQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
                 "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
                         "{ ?resource <"+ADMSSW.PACKAGE+"> ?package. " +
-                        "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; <"+RDF.TYPE+"> <"+PACKAGE_DEB.PACKAGE+">. }");
+                        "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">. }");
 
+        LOGGER.error("package Query: "+packageQuery.toString());
+        LOGGER.error("release Query: "+releaseQuery.toString());
     }
 
     @Override
@@ -61,9 +63,11 @@ public class ReleasePostProcessor implements PostProcessor {
                 packageQuery.setBinding("resource",uri);
                 tupleQueryResult = packageQuery.evaluate();
 
-            }else{
+            }else if(uri.toString().startsWith("http://metaservice.org/d/releases")){
                 releaseQuery.setBinding("resource",uri);
-                tupleQueryResult = packageQuery.evaluate();
+                tupleQueryResult = releaseQuery.evaluate();
+            }else{
+                throw new PostProcessorException("wrong uri");
             }
 
             while (tupleQueryResult.hasNext()){

@@ -21,6 +21,8 @@ public interface MetaserviceDescriptor {
     @NotNull
     List<TemplateDescriptor> getTemplateList();
     @NotNull
+    List<OntologyDescriptor> getOntologyList();
+    @NotNull
     List<PostProcessorDescriptor> getPostProcessorList();
 
 
@@ -77,6 +79,13 @@ public interface MetaserviceDescriptor {
         String getName();
         String getAppliesTo();
     }
+
+    public static interface OntologyDescriptor{
+        String getName();
+        boolean getApply();
+        boolean getDistribute();
+    }
+
 
     public static interface NamespaceDescriptor {
         String getPrefix();

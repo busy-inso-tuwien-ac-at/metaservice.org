@@ -34,5 +34,19 @@
             name="adms_sw.rdf" apply="true" distribute="false"/>
 
     <ontology
+            name="doap.rdf" apply="true" distribute="false"/>
+    <ontology
+            name="dcterms.rdf" apply="true" distribute="false"/>
+    <ontology
+            name="dcelements.rdf" apply="true" distribute="false"/>
+    <ontology
+            name="dctype.rdf" apply="true" distribute="false"/>
+    <ontology
+            name="dcam.rdf" apply="true" distribute="false"/>
+    <ontology
+            name="owl.rdf" apply="true" distribute="false"/>
+    <ontology
             name="metaservice.rdf" apply="true" distribute="true"/>
+
+
 </metaservice>

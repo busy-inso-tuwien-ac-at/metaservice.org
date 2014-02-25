@@ -31,6 +31,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     private List<TemplateDescriptor> templateList = new ArrayList<>();
     private List<CrawlerDescriptor> crawlerList = new ArrayList<>();
     private List<RepositoryDescriptor> repositoryList = new ArrayList<>();
+    private List<OntologyDescriptor> ontologyList = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -96,6 +97,13 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
     @XmlElement(name="template",type = TemplateDescriptorImpl.class)
     public List<TemplateDescriptor> getTemplateList() {
         return templateList;
+    }
+
+    @NotNull
+    @Override
+    @XmlElement(name="ontology",type = OntologyDescriptorImpl.class)
+    public List<OntologyDescriptor> getOntologyList() {
+        return ontologyList;
     }
 
     public void setTemplateList(List<TemplateDescriptor> templateList) {
@@ -378,6 +386,49 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
                     '}';
         }
     }
+
+    public static class OntologyDescriptorImpl implements OntologyDescriptor {
+        private String name;
+        private boolean apply;
+        private boolean distribute;
+
+        @XmlAttribute
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @XmlAttribute
+        public boolean getApply() {
+            return apply;
+        }
+
+        public void setApply(boolean apply) {
+            this.apply = apply;
+        }
+
+        @XmlAttribute
+        public boolean getDistribute() {
+            return distribute;
+        }
+
+        public void setDistribute(boolean distribute) {
+            this.distribute = distribute;
+        }
+
+        @Override
+        public String toString() {
+            return "OntologyDescriptorImpl{" +
+                    "name='" + name + '\'' +
+                    ", apply=" + apply +
+                    ", distribute=" + distribute +
+                    '}';
+        }
+    }
+
     public static class ParserDescriptorImpl implements ParserDescriptor{
         private String id;
         private String className;

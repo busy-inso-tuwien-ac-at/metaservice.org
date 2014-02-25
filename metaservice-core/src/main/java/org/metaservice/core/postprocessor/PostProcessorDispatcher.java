@@ -80,12 +80,12 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
     public void process(PostProcessingTask task, long jmsTimestamp){
         URI resource = task.getChangedURI();
-        LOGGER.info("dispatching {}", resource);
+        LOGGER.debug("dispatching {}", resource);
         for(PostProcessingHistoryItem item  :task.getHistory()){
             if(item.getPostprocessorId().equals(postProcessorDescriptor.getId())){
                 for(URI uri: item.getResources()){
                     if(uri.equals(task.getChangedURI())){
-                        LOGGER.info("Not processing, because did already process");
+                        LOGGER.debug("Not processing, because did already process");
                     }
                 }
                 return;
@@ -93,18 +93,18 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         }
         try {
             if(postProcessor.abortEarly(resource)){
-                LOGGER.info("Not continuing processing because abortEarly({}) was true",resource);
+                LOGGER.debug("Not continuing processing because abortEarly({}) was true", resource);
                 return;
             }
-            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)));
+            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
             graphSelect.setBinding("resource",resource);
             TupleQueryResult queryResult = graphSelect.evaluate();
             XMLGregorianCalendar newestTime = null;
             while(queryResult.hasNext()){
                 BindingSet ser = queryResult.next();
-                LOGGER.info("EXISTING METADATA FOR THE RESOURCE : " + ser.getBinding("metadata"));
+                LOGGER.debug("EXISTING METADATA FOR THE RESOURCE : " + ser.getBinding("metadata"));
                 Binding binding =ser.getBinding("creationtime");
-                LOGGER.info(""+ ((Literal)binding.getValue()).getDatatype());
+                LOGGER.trace("" + ((Literal) binding.getValue()).getDatatype());
                 XMLGregorianCalendar creationTime =   ((Literal)binding.getValue()).calendarValue();
                 if(newestTime == null || creationTime.compare(newestTime) == DatatypeConstants.GREATER)
                     newestTime = creationTime;
@@ -112,9 +112,9 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
             if(newestTime != null){
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-                LOGGER.info("Comparing " + simpleDateFormat.format(newestTime.toGregorianCalendar().getTime()) + " with " + simpleDateFormat.format(new Date(jmsTimestamp)));
+                LOGGER.trace("Comparing " + simpleDateFormat.format(newestTime.toGregorianCalendar().getTime()) + " with " + simpleDateFormat.format(new Date(jmsTimestamp)));
                 if(newestTime.toGregorianCalendar().getTimeInMillis() > jmsTimestamp){
-                    LOGGER.info("Ignoring - because request is too old");
+                    LOGGER.debug("Ignoring - because request is too old");
                     return;
                 }
             }
@@ -137,9 +137,8 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             Set<URI> graphsToDelete = getGraphsToDelete(processableSubjects,repositoryConnection);
 
             for(URI context : graphsToDelete){
-                try {                LOGGER.warn("Dropping Graph {}", context);
-
-
+                try {
+                    LOGGER.warn("Dropping Graph {}", context);
                     Update dropGraphUpdate = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,"DROP GRAPH <"+context.toString()+">");
                   //  dropGraphUpdate.setBinding("graph", context);
                     dropGraphUpdate.execute();
@@ -197,9 +196,9 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             builder.append(StringUtils.join(uris," UNION" )).append("}");
 
             String query = builder.toString();
-          //  LOGGER.info(query);
+            LOGGER.trace(query);
             TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,query);
-            tupleQuery.setBinding("postprocessor", valueFactory.createLiteral(postProcessor.getClass().getCanonicalName()));
+            tupleQuery.setBinding("postprocessor", valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)));
             TupleQueryResult result  = tupleQuery.evaluate();
 
 
@@ -207,6 +206,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
                 BindingSet bindings = result.next();
                 resultSet.add((URI) bindings.getBinding("metadata").getValue());
             }
+            LOGGER.debug("Graphs To delete {}", resultSet);
         } catch (RepositoryException | QueryEvaluationException | MalformedQueryException e) {
             LOGGER.error("ERROR evaluation ", e);
         }

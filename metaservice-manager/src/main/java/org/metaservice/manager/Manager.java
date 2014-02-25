@@ -561,8 +561,16 @@ public class Manager {
         }
     }
 
-    private void installOntologies(@NotNull FileSystem zipFs,@NotNull MetaserviceDescriptor descriptor) {
-
+    private void installOntologies(@NotNull FileSystem zipFs,@NotNull MetaserviceDescriptor descriptor) throws IOException, ManagerException {
+        for(MetaserviceDescriptor.OntologyDescriptor ontologyDescriptor : descriptor.getOntologyList()){
+            if(ontologyDescriptor.getApply() || ontologyDescriptor.getDistribute()) //todo think about apply and distribute
+            {
+                Path from = zipFs.getPath("/ontologies/" + ontologyDescriptor.getName());
+                Path to = getOntologyPath(ontologyDescriptor);
+                LOGGER.info("Copying {} to {}",from,to);
+                Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
     }
 
     private void installTemplates(@NotNull FileSystem zipFs,@NotNull MetaserviceDescriptor descriptor) throws IOException, ManagerException {
@@ -584,8 +592,14 @@ public class Manager {
     }
 
     public @NotNull Path getTemplatePath(@NotNull MetaserviceDescriptor.TemplateDescriptor templateDescriptor){
-        return  Paths.get(config.getHttpdDataDirectory() + templateDescriptor.getName());
+        return  Paths.get(config.getHttpdDataDirectory(), templateDescriptor.getName());
     }
+
+
+    public @NotNull Path getOntologyPath(@NotNull MetaserviceDescriptor.OntologyDescriptor ontologyDescriptor){
+        return  Paths.get(config.getHttpdDataDirectory(),"ns",ontologyDescriptor.getName());
+    }
+
 
     public @NotNull Statement getTemplateStatement(@NotNull MetaserviceDescriptor.TemplateDescriptor templateDescriptor){
         URI subject= valueFactory.createURI(templateDescriptor.getAppliesTo());
@@ -631,7 +645,7 @@ public class Manager {
                 LOGGER.info("Already installed - please use override");
                 return;
             }
-            Files.copy(fileToAdd.toPath(),target,StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(fileToAdd.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
             module.setLocation(target.toFile());
             if(managerConfig.getAvailableModules().contains(module)){
                 managerConfig.getAvailableModules().remove(module);

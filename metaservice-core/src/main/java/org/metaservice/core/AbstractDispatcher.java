@@ -1,6 +1,7 @@
 package org.metaservice.core;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
@@ -16,6 +17,8 @@ import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
 import org.metaservice.core.postprocessor.PostProcessingTask;
 import org.openrdf.model.*;
 import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -33,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -149,7 +153,7 @@ public abstract  class AbstractDispatcher<T> {
     }
 
     protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @Nullable PostProcessingTask originalTask, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor, Set<URI> affectedProcessableSubjects){
-        LOGGER.info("START NOTIFICATION OF POSTPROCESSORS");
+        LOGGER.debug("START NOTIFICATION OF POSTPROCESSORS");
 
         ArrayList<PostProcessingHistoryItem> history = new ArrayList<>();
 
@@ -167,7 +171,7 @@ public abstract  class AbstractDispatcher<T> {
                 PostProcessingTask postProcessingTask = new PostProcessingTask(uri);
                 postProcessingTask.getHistory().addAll(history);
                 ObjectMessage objectMessage = session.createObjectMessage(postProcessingTask);
-                objectMessage.setJMSExpiration(1000*60*15); // 15 min
+                //objectMessage.setJMSExpiration(1000*60*15); // 15 min
                 producer.send(objectMessage);
                 if(count > 100){
                     count=0;
@@ -178,27 +182,28 @@ public abstract  class AbstractDispatcher<T> {
         } catch (JMSException e) {
             LOGGER.error("Couldn't notify PostProcessors",e);
         }
-        LOGGER.info("STOP NOTIFICATION OF POSTPROCESSORS");
+        LOGGER.debug("STOP NOTIFICATION OF POSTPROCESSORS");
     }
 
     protected List<Statement> getGeneratedStatements(RepositoryConnection resultConnection,Set<Statement> loadedStatements) throws RepositoryException {
         RepositoryResult<Statement> all = resultConnection.getStatements(null, null, null, true, NO_CONTEXT);
         ArrayList<Statement> allList = new ArrayList<>();
-      //  ArrayList<Statement> deletedList = new ArrayList<>();
+        HashSet<Resource> undefined = new HashSet<>();
         while(all.hasNext()){
             Statement s = all.next();
             if(!loadedStatements.contains(s)){
-                allList.add(s);
-          /*      LOGGER.debug("{}",s);
-            }else{
-                deletedList.add(s);*/
-            }
-
-            //todo fixme loaded statements are not deleted
+                if(s.getPredicate().equals(RDFS.SUBPROPERTYOF) || s.getPredicate().equals(RDFS.SUBCLASSOF)){
+                    undefined.add(s.getSubject());
+                }else{
+                    allList.add(s);
+                }
+           }
         }
-    /*    LOGGER.debug("ATTENTION: the following statements should be deleted {}", loadedStatements.size());
-        LOGGER.debug("ATTENTION: the following statements where deleted {}", deletedList.size());
-*/
+        if(undefined.size() != 0){
+            //grep for logfiles:
+            //grep "not defi"  *| sed -e 's/^.*WARN.*define://' | uniq | sort | uniq | sed -e 's/,/\n/g' | tr -d ' ' | sort | uniq
+            LOGGER.warn("Did not define: {}", StringUtils.join(undefined,", "));
+        }
         return  allList;
     }
 
