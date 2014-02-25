@@ -40,8 +40,15 @@ public class CrawlerModule extends AbstractModule{
                     repositoryDescriptor.getBaseUri(),
                     new File(config.getArchiveBasePath() + repositoryDescriptor.getId()) //todo retrieve from cmdb?
             );
+
+            String archiveClass;
+            if(crawlerDescriptor.getArchiveClassName() != null){
+                archiveClass =crawlerDescriptor.getArchiveClassName();
+            }else {
+                archiveClass = "org.metaservice.core.archive.GitArchive";
+            }
             final Class<? extends Archive> archiveClazz =
-                    (Class<? extends Archive>) Class.forName(crawlerDescriptor.getArchiveClassName());
+                    (Class<? extends Archive>) Class.forName(archiveClass);
             Archive archive = archiveClazz.getConstructor(ArchiveParameters.class).newInstance(archiveParameters);
             bind(Archive.class).toInstance(archive);
 

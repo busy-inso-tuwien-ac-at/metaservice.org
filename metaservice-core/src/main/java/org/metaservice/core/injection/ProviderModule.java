@@ -69,8 +69,14 @@ public class ProviderModule extends AbstractModule {
 
             for(final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor : repositoryDescriptors){
                 try {
+                    String archiveClass;
+                    if(repositoryDescriptor.getArchiveClassName() != null){
+                        archiveClass =repositoryDescriptor.getArchiveClassName();
+                    }else {
+                        archiveClass = "org.metaservice.core.archive.GitArchive";
+                    }
                     final Class<? extends Archive> archiveClazz =
-                            (Class<? extends Archive>) Class.forName(repositoryDescriptor.getArchiveClassName());
+                            (Class<? extends Archive>) Class.forName(archiveClass);
                     ArchiveParameters archiveParameters = new ArchiveParametersImpl(
                             repositoryDescriptor.getBaseUri(),
                             new File(config.getArchiveBasePath()+ repositoryDescriptor.getId()+"/") //todo retrieve from cmdb?
