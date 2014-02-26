@@ -37,14 +37,23 @@
                     <goals>
                         <goal>xjc</goal>
                     </goals>
+                  <!--  <configuration>
+                        <schemaFiles></schemaFiles>
+                        <packageName>org.metaservice.nist.cpe.jaxb</packageName>
+                        <staleFile>${project.build.directory}/jaxb2/.cpestale</staleFile>
+                    </configuration>-->
                 </execution>
+
             </executions>
             <configuration>
+                <schemaFiles>nvd-cve-feed_2.0.xsd</schemaFiles>
+                <packageName>org.metaservice.nist.jaxb</packageName>
+                <staleFile>${project.build.directory}/jaxb2/.stale</staleFile>
+                <extension>true</extension>
+                <bindingDirectory>src/main/resources/schema/</bindingDirectory>
+                <bindingFiles>jaxb-binding.xml</bindingFiles>
                 <schemaDirectory>src/main/resources/schema/</schemaDirectory>
-                <schemaFiles>cpe-naming_2.3.xsd</schemaFiles>
-                <packageName>org.metaservice.nist.cpe.jaxb</packageName>
-                <staleFile>${project.build.directory}/jaxb2/.schema2XjcStaleFlag</staleFile>
-                <clearOutputDir>false</clearOutputDir>
+                <clearOutputDir>true</clearOutputDir>
             </configuration>
         </plugin>
     </plugins>
