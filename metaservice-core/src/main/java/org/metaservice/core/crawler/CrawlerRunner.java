@@ -57,7 +57,7 @@ public class CrawlerRunner {
         this.repositoryDescriptor = repositoryDescriptor;
 
         connection = connectionFactory.createConnection();
-        connection.setClientID(this.getClass().getName() +"con");
+     //   connection.setClientID(this.getClass().getName() +"con");
         connection.start();
         session = connection.createSession(false,
                 Session.AUTO_ACKNOWLEDGE);
