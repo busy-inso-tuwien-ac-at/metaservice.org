@@ -18,11 +18,12 @@ public class CPE {
     public static final URI CHECK_SYSTEM;
     public static final URI CHECK_HREF;
     public static final URI NAME;
-
+    public static final URI DEPRECATION_DATE;
     static {
         ValueFactory valueFactory = ValueFactoryImpl.getInstance();
         CPE = valueFactory.createURI(NS,"CPE");
         DEPRECATED = valueFactory.createURI(NS,"deprecated");
+        DEPRECATION_DATE = valueFactory.createURI(NS,"deprecationDate");
         NOTE = valueFactory.createURI(NS,"note");
         CHECK = valueFactory.createURI(NS,"check");
         CHECK_VALUE = valueFactory.createURI(NS,"checkValue");
@@ -30,6 +31,4 @@ public class CPE {
         CHECK_HREF = valueFactory.createURI(NS,"checkHref");
         NAME = valueFactory.createURI(NS,"name");
     }
-
-
 }
