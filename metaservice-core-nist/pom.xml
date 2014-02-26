@@ -26,36 +26,43 @@
         </dependency>
     </dependencies>
     <build>
-    <plugins>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jaxb2-maven-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-                <execution>
-                    <id>xjc</id>
-                    <goals>
-                        <goal>xjc</goal>
-                    </goals>
-                  <!--  <configuration>
-                        <schemaFiles></schemaFiles>
-                        <packageName>org.metaservice.nist.cpe.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.cpestale</staleFile>
-                    </configuration>-->
-                </execution>
-
-            </executions>
-            <configuration>
-                <schemaFiles>nvd-cve-feed_2.0.xsd</schemaFiles>
-                <packageName>org.metaservice.nist.jaxb</packageName>
-                <staleFile>${project.build.directory}/jaxb2/.stale</staleFile>
-                <extension>true</extension>
-                <bindingDirectory>src/main/resources/schema/</bindingDirectory>
-                <bindingFiles>jaxb-binding.xml</bindingFiles>
-                <schemaDirectory>src/main/resources/schema/</schemaDirectory>
-                <clearOutputDir>true</clearOutputDir>
-            </configuration>
-        </plugin>
-    </plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>cpe-xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                            <schemaFiles>cpe-naming_2.3.xsd</schemaFiles>
+                            <packageName>org.metaservice.nist.cpe.jaxb</packageName>
+                            <staleFile>${project.build.directory}/jaxb2/.cpestale</staleFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cve-xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                            <schemaFiles>nvd-cve-feed_2.0.xsd</schemaFiles>
+                            <packageName>org.metaservice.nist.cve.jaxb</packageName>
+                            <staleFile>${project.build.directory}/jaxb2/.cvestale</staleFile>
+                            <extension>true</extension>
+                            <bindingDirectory>src/main/resources/schema/</bindingDirectory>
+                            <bindingFiles>jaxb-binding.xml</bindingFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <schemaDirectory>src/main/resources/schema/</schemaDirectory>
+                    <clearOutputDir>false</clearOutputDir>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

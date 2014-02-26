@@ -34,6 +34,49 @@
         <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml"/>
     </crawler>
 
+    <provider
+            id="cpeProvider"
+            type="cpe"
+            model="org.metaservice.nist.cpe.jaxb.ItemType"
+            class="org.metaservice.core.nist.cpe.CPEProvider"
+            >
+        <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
+        <load url="http://metaservice.org/ns/cpe.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </provider>
+
+
+    <parser
+            id="cveParser"
+            type="cve"
+            class="org.metaservice.core.nist.cve.CVEParser"/>
+
+    <repository
+            id="cveRepository"
+            type="cve"
+            baseUri="http://static.nvd.nist.gov/feeds/xml/cve/"
+            startUri="http://nvd.nist.gov/download.cfm"
+            crawler="cveCrawler"
+            >
+    </repository>
+
+    <crawler id="cveCrawler">
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2002.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2003.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2004.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2005.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2006.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2007.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2008.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2009.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2010.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2011.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2012.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2013.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2014.xml"/>
+    </crawler>
+
+
     <!--
     <template
             name="debian-version.hbs"

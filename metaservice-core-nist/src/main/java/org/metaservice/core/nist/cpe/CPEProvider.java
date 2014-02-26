@@ -26,7 +26,6 @@ import java.util.HashMap;
  */
 public class CPEProvider implements Provider<ItemType> {
     private final Logger LOGGER = LoggerFactory.getLogger(CPEProvider.class);
-    private final String ns ="http://metaservice.org/d/releases/cpe/";
     private final ValueFactory valueFactory;
 
     @Inject
@@ -42,7 +41,7 @@ public class CPEProvider implements Provider<ItemType> {
                 LOGGER.warn("name is null");
                 return;
             }
-            URI uri = getURI(o.getName());
+            URI uri = CPE.getById(o.getName());
             resultConnection.add(uri, RDF.TYPE,CPE.CPE);
             resultConnection.add(uri,CPE.NAME,valueFactory.createLiteral(o.getName()));
             resultConnection.add(uri, CPE.DEPRECATED,valueFactory.createLiteral(o.isDeprecated()));
@@ -97,10 +96,5 @@ public class CPEProvider implements Provider<ItemType> {
         } catch (RepositoryException e) {
             throw new ProviderException(e);
         }
-    }
-
-
-    private URI getURI(String name){
-        return valueFactory.createURI(ns,name);
     }
 }

@@ -1,5 +1,6 @@
 package org.metaservice.core.nist.cpe;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -19,6 +20,11 @@ public class CPE {
     public static final URI CHECK_HREF;
     public static final URI NAME;
     public static final URI DEPRECATION_DATE;
+
+
+    /* CUSTOM METASERVICE */
+    public static final URI REFERENCED_BY;
+
     static {
         ValueFactory valueFactory = ValueFactoryImpl.getInstance();
         CPE = valueFactory.createURI(NS,"CPE");
@@ -30,5 +36,14 @@ public class CPE {
         CHECK_SYSTEM = valueFactory.createURI(NS,"checkSystem");
         CHECK_HREF = valueFactory.createURI(NS,"checkHref");
         NAME = valueFactory.createURI(NS,"name");
+        REFERENCED_BY = valueFactory.createURI(NS,"referencedBy");
+    }
+
+    private static final String LOCAL_NS ="http://metaservice.org/d/releases/cpe/";
+
+    @NotNull
+    public static URI getById(@NotNull String id){
+        ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+        return valueFactory.createURI(LOCAL_NS,id);
     }
 }
