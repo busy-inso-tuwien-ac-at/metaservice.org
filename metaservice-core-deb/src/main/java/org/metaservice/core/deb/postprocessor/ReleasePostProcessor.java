@@ -5,7 +5,6 @@ import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.DC;
-import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -38,15 +37,15 @@ public class ReleasePostProcessor implements PostProcessor {
         this.valueFactory = valueFactory;
         packageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
                 "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
-                        "{ ?resource <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution." +
+                        "{ ?resource <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">." +
                         "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">. }");
         releaseQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
                 "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
-                        "{ ?resource <"+ADMSSW.PACKAGE+"> ?package. " +
+                        "{ ?resource <"+ADMSSW.PACKAGE+"> ?package; a <"+PACKAGE_DEB.RELEASE+">. " +
                         "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">. }");
 
-        LOGGER.error("package Query: "+packageQuery.toString());
-        LOGGER.error("release Query: "+releaseQuery.toString());
+        LOGGER.info("package Query: "+packageQuery.toString());
+        LOGGER.info("release Query: "+releaseQuery.toString());
     }
 
     @Override
@@ -69,7 +68,8 @@ public class ReleasePostProcessor implements PostProcessor {
             }else{
                 throw new PostProcessorException("wrong uri");
             }
-
+            if(!tupleQueryResult.hasNext())
+                    return;
             while (tupleQueryResult.hasNext()){
                 BindingSet bindingSet = tupleQueryResult.next();
                 URI packageURI = (URI) bindingSet.getBinding("package").getValue();

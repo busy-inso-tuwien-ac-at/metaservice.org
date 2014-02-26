@@ -2,6 +2,7 @@ package org.metaservice.manager;
 
 import com.google.inject.Singleton;
 import org.jetbrains.annotations.Nullable;
+import org.metaservice.api.provider.Provider;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.core.injection.ManagerConfigProvider;
@@ -108,6 +109,12 @@ public class Manager {
         result.put("Statements", mutationResult.getRangeCount());
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
+                .predicate(METASERVICE.DUMMY)
+                .object(METASERVICE.DUMMY)
+                .execute();
+        result.put("Empty/Dummy Graphs", mutationResult.getRangeCount());
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
                 .object(METASERVICE.METADATA)
                 .execute();
@@ -136,6 +143,33 @@ public class Manager {
                 .object(ADMSSW.SOFTWARE_PACKAGE)
                 .execute();
         result.put("Packages", mutationResult.getRangeCount());
+
+        for(ManagerConfig.Module module : managerConfig.getInstalledModules()){
+            MetaserviceDescriptor metaserviceDescriptor = module.getMetaserviceDescriptor();
+            MetaserviceDescriptor.ModuleInfo moduleInfo = metaserviceDescriptor.getModuleInfo();
+            int sum =0;
+            for(MetaserviceDescriptor.ProviderDescriptor providerDescriptor : metaserviceDescriptor.getProviderList()){
+                String id = DescriptorHelper.getStringFromProvider(moduleInfo,providerDescriptor);
+                mutationResult = new FastRangeCountRequestBuilder()
+                        .path(config.getSparqlEndpoint())
+                        .predicate(METASERVICE.GENERATOR)
+                        .object(valueFactory.createLiteral(id))
+                        .execute();
+                result.put("Provider " + providerDescriptor , mutationResult.getRangeCount());
+                sum += mutationResult.getRangeCount();
+            }
+            for(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor : metaserviceDescriptor.getPostProcessorList()){
+                String id = DescriptorHelper.getStringFromPostProcessor(moduleInfo, postProcessorDescriptor);
+                mutationResult = new FastRangeCountRequestBuilder()
+                        .path(config.getSparqlEndpoint())
+                        .predicate(METASERVICE.GENERATOR)
+                        .object(valueFactory.createLiteral(id))
+                        .execute();
+                result.put("PostProcessor " + postProcessorDescriptor , mutationResult.getRangeCount());
+                sum += mutationResult.getRangeCount();
+            }
+            result.put("Sum " + DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo),sum);
+        }
         return result;
     }
 

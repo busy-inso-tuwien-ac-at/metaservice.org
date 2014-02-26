@@ -30,22 +30,26 @@ public class PsCommand  extends AbstractManagerCommand{
     @Option(name = "overview", shortName = 'o',hasValue = false)
     private boolean overview;
 
+    @Option(name = "finished",shortName = 'f',hasValue = false)
+    private boolean finished;
+
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException, ManagerException {
         ArrayList<String[]> data = new ArrayList<>();
         String[] header;
         if(all){
             for(RunEntry runEntry : manager.getRunManager().getRunEntries()){
-                data.add(new String[]{
-                        String.valueOf(runEntry.getMpid()),
-                        runEntry.getName(),
-                        runEntry.getMachine(),
-                        runEntry.getStartTime().toString(),
-                        (runEntry.getStatus() == RunEntry.Status.FINISHED)?"finished("+String.valueOf(runEntry.getExitValue())+")":"running",
-                        String.valueOf(runEntry.getStdout()),
-                        String.valueOf(runEntry.getStderr())
+                if(finished || runEntry.getStatus() != RunEntry.Status.FINISHED){
+                    data.add(new String[]{
+                            String.valueOf(runEntry.getMpid()),
+                            runEntry.getName(),
+                            runEntry.getMachine(),
+                            runEntry.getStartTime().toString(),
+                            (runEntry.getStatus() == RunEntry.Status.FINISHED)?"finished("+String.valueOf(runEntry.getExitValue())+")":"running",
+                            String.valueOf(runEntry.getStdout()),
+                            String.valueOf(runEntry.getStderr())
+                    });
                 }
-                );
             }
             header = new String[]{"mPID","name","host","starttime","status","stdout","stderr"};
         }else if(overview){
@@ -102,13 +106,14 @@ public class PsCommand  extends AbstractManagerCommand{
         }
         else{
             for(RunEntry runEntry : manager.getRunManager().getRunEntries()){
-                data.add(new String[]{
-                        String.valueOf(runEntry.getMpid()),
-                        runEntry.getName(),
-                        runEntry.getStartTime().toString(),
-                        (runEntry.getStatus() == RunEntry.Status.FINISHED)?"FINISHED("+String.valueOf(runEntry.getExitValue())+")":runEntry.getStatus().toString()
+                if(finished || runEntry.getStatus() != RunEntry.Status.FINISHED){
+                    data.add(new String[]{
+                            String.valueOf(runEntry.getMpid()),
+                            runEntry.getName(),
+                            runEntry.getStartTime().toString(),
+                            (runEntry.getStatus() == RunEntry.Status.FINISHED)?"FINISHED("+String.valueOf(runEntry.getExitValue())+")":runEntry.getStatus().toString()
+                    });
                 }
-                );
             }
             header = new String[]{"mPID","name","starttime","status"};
         }

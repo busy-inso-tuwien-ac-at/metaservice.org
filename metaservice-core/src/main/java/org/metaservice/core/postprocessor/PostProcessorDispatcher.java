@@ -18,6 +18,7 @@ import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         this.repositoryConnection = repositoryConnection;
         this.valueFactory = valueFactory;
 
-        graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?creationtime { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <" + METASERVICE.CREATION_TIME+"> ?creationtime. }");
+        graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
 
         LOGGER.info(graphSelect.toString());
         loadedStatements = calculatePreloadedStatements();
@@ -80,45 +81,9 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
     public void process(PostProcessingTask task, long jmsTimestamp){
         URI resource = task.getChangedURI();
-        LOGGER.debug("dispatching {}", resource);
-        for(PostProcessingHistoryItem item  :task.getHistory()){
-            if(item.getPostprocessorId().equals(postProcessorDescriptor.getId())){
-                for(URI uri: item.getResources()){
-                    if(uri.equals(task.getChangedURI())){
-                        LOGGER.debug("Not processing, because did already process");
-                    }
-                }
+        try{
+            if(!isOkCheapCheck(task, jmsTimestamp) || isRequestTooOld(task,jmsTimestamp))
                 return;
-            }
-        }
-        try {
-            if(postProcessor.abortEarly(resource)){
-                LOGGER.debug("Not continuing processing because abortEarly({}) was true", resource);
-                return;
-            }
-            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
-            graphSelect.setBinding("resource",resource);
-            TupleQueryResult queryResult = graphSelect.evaluate();
-            XMLGregorianCalendar newestTime = null;
-            while(queryResult.hasNext()){
-                BindingSet ser = queryResult.next();
-                LOGGER.debug("EXISTING METADATA FOR THE RESOURCE : " + ser.getBinding("metadata"));
-                Binding binding =ser.getBinding("creationtime");
-                LOGGER.trace("" + ((Literal) binding.getValue()).getDatatype());
-                XMLGregorianCalendar creationTime =   ((Literal)binding.getValue()).calendarValue();
-                if(newestTime == null || creationTime.compare(newestTime) == DatatypeConstants.GREATER)
-                    newestTime = creationTime;
-            }
-
-            if(newestTime != null){
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-                LOGGER.trace("Comparing " + simpleDateFormat.format(newestTime.toGregorianCalendar().getTime()) + " with " + simpleDateFormat.format(new Date(jmsTimestamp)));
-                if(newestTime.toGregorianCalendar().getTimeInMillis() > jmsTimestamp){
-                    LOGGER.debug("Ignoring - because request is too old");
-                    return;
-                }
-            }
-
             LOGGER.info("Starting to process " + resource);
 
             Repository resultRepository = createTempRepository();
@@ -134,13 +99,26 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             Set<URI> subjects = getSubjects(generatedStatements);
             Set<URI> processableSubjects = getProcessableSubjects(subjects);
 
+            if(generatedStatements.size() == 0){
+                LOGGER.info("NO STATEMENTS GENERATED! -> adding empty statement");
+                generatedStatements.add(valueFactory.createStatement(task.getChangedURI(),METASERVICE.DUMMY,METASERVICE.DUMMY));
+            }
             Set<URI> graphsToDelete = getGraphsToDelete(processableSubjects,repositoryConnection);
+            if(graphsToDelete.size() == 1){
+                URI graph = graphsToDelete.iterator().next();
+                if(contentsUnchanged(graph, generatedStatements)){
+                    LOGGER.info("There was no change, only updating last checked time");
+                    repositoryConnection.remove(graph,METASERVICE.TIME,null);
+                    repositoryConnection.add(graph,METASERVICE.TIME,valueFactory.createLiteral(new Date()));
+                    return;
+                }
+            }
 
             for(URI context : graphsToDelete){
                 try {
                     LOGGER.warn("Dropping Graph {}", context);
                     Update dropGraphUpdate = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,"DROP GRAPH <"+context.toString()+">");
-                  //  dropGraphUpdate.setBinding("graph", context);
+                    //  dropGraphUpdate.setBinding("graph", context);
                     dropGraphUpdate.execute();
                 } catch (MalformedQueryException e) {
                     LOGGER.error("Could not parse drop query", e);
@@ -149,17 +127,21 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             }
 
             URI metadata =  generateMetadata();
-            if(generatedStatements.size() == 0){
-                LOGGER.info("NO STATEMENTS GENERATED! -> adding empty statement");
-                generatedStatements.add(valueFactory.createStatement(task.getChangedURI(),METASERVICE.DUMMY,METASERVICE.DUMMY));
-            }
             sendData(resultConnection,metadata,generatedStatements);
             notifyPostProcessors(subjects,task,postProcessorDescriptor,processableSubjects);
-        } catch (RepositoryException | PostProcessorException | QueryEvaluationException e) {
+        } catch (RepositoryException | PostProcessorException e) {
             LOGGER.error("Couldn't create {}",resource,e);
         } catch (UpdateExecutionException e) {
             LOGGER.error("Couldn't drop graph {}", e);
         }
+    }
+
+    private boolean contentsUnchanged(URI metadataUri, List<Statement> generatedStatements) throws RepositoryException {
+        RepositoryResult<Statement> fullQuery = repositoryConnection.getStatements(null, null, null, false, metadataUri);
+        Set<Statement> currentValues = Iterations.asSet(fullQuery);
+        Set<Statement> newValues = new HashSet<>();
+        newValues.addAll(generatedStatements);
+        return newValues.equals(currentValues);
     }
 
     private Set<URI> getProcessableSubjects(Set<URI> subjects) {
@@ -167,7 +149,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         for(URI subject: subjects){
             try {
                 if(!postProcessor.abortEarly(subject)){
-                   resultSet.add(subject);
+                    resultSet.add(subject);
                 }
             } catch (PostProcessorException ignored) {
             }
@@ -214,15 +196,69 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     }
 
     private URI generateMetadata() throws RepositoryException {
+        Date now = new Date();
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
-        repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
+        repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
+        repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)), metadata);
-         repositoryConnection.commit();
+        repositoryConnection.commit();
         return metadata;
     }
 
 
+    public boolean isOkCheapCheck(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException {
+        URI resource = task.getChangedURI();
+        LOGGER.debug("dispatching {}", resource);
+        for(PostProcessingHistoryItem item  :task.getHistory()){
+            if(item.getPostprocessorId().equals(postProcessorDescriptor.getId())){
+                for(URI uri: item.getResources()){
+                    if(uri.equals(task.getChangedURI())){
+                        LOGGER.debug("Not processing, because did already process");
+                    }
+                }
+                return false;
+            }
+        }
+        if(postProcessor.abortEarly(resource)){
+            LOGGER.debug("Not continuing processing because abortEarly({}) was true", resource);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isRequestTooOld(PostProcessingTask task, long jmsTimestamp){
+        try {
+
+            URI resource = task.getChangedURI();
+            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
+            graphSelect.setBinding("resource",resource);
+            TupleQueryResult queryResult = graphSelect.evaluate();
+            XMLGregorianCalendar newestTime = null;
+            while(queryResult.hasNext()){
+                BindingSet ser = queryResult.next();
+                LOGGER.debug("EXISTING METADATA FOR THE RESOURCE : " + ser.getBinding("metadata"));
+                Binding binding =ser.getBinding("lastchecked");
+                LOGGER.trace("" + ((Literal) binding.getValue()).getDatatype());
+                XMLGregorianCalendar creationTime =   ((Literal)binding.getValue()).calendarValue();
+                if(newestTime == null || creationTime.compare(newestTime) == DatatypeConstants.GREATER)
+                    newestTime = creationTime;
+            }
+
+            if(newestTime != null){
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+                LOGGER.trace("Comparing " + simpleDateFormat.format(newestTime.toGregorianCalendar().getTime()) + " with " + simpleDateFormat.format(new Date(jmsTimestamp)));
+                if(newestTime.toGregorianCalendar().getTimeInMillis() > jmsTimestamp){
+                    LOGGER.debug("Ignoring - because request is too old");
+                    return true;
+                }
+            }
+        } catch (QueryEvaluationException e) {
+            LOGGER.error("Could not check if too old ",e);
+            return true;
+        }
+        return false;
+    }
 }

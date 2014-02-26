@@ -38,7 +38,7 @@ public class JMSProviderRunner  {
         jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
-                return "Consumer." + DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor).replaceAll("\\.", "_").replaceAll(":","-") + ".VirtualTopic.Refresh";
+                return "Consumer." + DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor).replaceAll("\\.", "_").replaceAll(":","-") + ".VirtualTopic.Refresh?consumer.prefetchSize=10";
             }
 
             @Override
@@ -64,7 +64,7 @@ public class JMSProviderRunner  {
         jmsUtil.runListener(new JMSUtil.ListenerBean() {
             @Override
             public String getName() {
-                return "Consumer." + DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor).replaceAll("\\.", "_").replaceAll(":","-") + ".VirtualTopic.Create";
+                return "Consumer." + DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor).replaceAll("\\.", "_").replaceAll(":","-") + ".VirtualTopic.Create?consumer.prefetchSize=10";
             }
 
             @Override
