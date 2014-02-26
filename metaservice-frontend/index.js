@@ -37,7 +37,8 @@ function initMs() {
     };
     MS.raw = {};
     MS.provenanceCache = {};
-    MS.resourceUrl = document.location.toString().replace(/\/$/,'').replace('#.*$','');
+    MS.documentUrl = document.location.toString().replace(/\/$/,'').replace('#.*$','');
+    MS.resourceUrl = MS.documentUrl.replace(/www\.metaservice.org/,'metaservice.org');
     $('#rdflink').attr('href',MS.resourceUrl);
 }
 
@@ -54,7 +55,7 @@ function handleSearch(){
     var page = (offset/limit) +1;
 
     $.ajax({
-        url: "http://metaservice.org/d/search",
+        url: "/d/search",
         beforeSend: function(xhrObj){
             xhrObj.setRequestHeader("Accept","application/sparql-results+json");
         },
@@ -75,10 +76,10 @@ function handleSearch(){
                 result:[],
                 pagination:{
                     next:{
-                        url:"http://metaservice.org/d/search?q=" + q + "&limit=" + limit + "&offset="+ (offset + limit)
+                        url:"/d/search?q=" + q + "&limit=" + limit + "&offset="+ (offset + limit)
                     },
                     prev:{
-                        url:"http://metaservice.org/d/search?q=" + q + "&limit=" + limit + "&offset="+ (offset - limit)},
+                        url:"/d/search?q=" + q + "&limit=" + limit + "&offset="+ (offset - limit)},
                     pages:[
                     ]},
                 query:q
@@ -100,7 +101,7 @@ function handleSearch(){
             }
             for(var i = page -3 ; i < page+4;i++){
                 if(i>0){
-                    result.pagination.pages.push({url:"http://metaservice.org/d/search?q=" + q + "&limit=" + limit + "&offset="+(offset + (i-page)*limit),title:i, selected: i == page});
+                    result.pagination.pages.push({url:"/d/search?q=" + q + "&limit=" + limit + "&offset="+(offset + (i-page)*limit),title:i, selected: i == page});
                 }
             }
             console.log(result);
@@ -509,7 +510,7 @@ function deepReplaceId(object,from,to){
 
 function handleResource(){
     $.ajax({
-        url: MS.resourceUrl,
+        url: MS.documentUrl,
         beforeSend: function(xhrObj){
             xhrObj.setRequestHeader("Accept","application/ld+json");
         },
@@ -614,7 +615,7 @@ function main(){
     initMs();
     initSearchBar();
 
-    if(MS.resourceUrl.indexOf("metaservice.org/d/search") != -1){
+    if(MS.documentUrl.indexOf("metaservice.org/d/search") != -1){
         handleSearch();
     }else{
         handleResource();

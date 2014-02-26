@@ -3,14 +3,20 @@ RewriteEngine on
 RewriteRule ^packages.*\.jsonld$ /rest/resource/jsonld?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
 RewriteRule ^packages.*\.rdf$ /rest/resource/rdf?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
 
+RewriteRule ^releases.*\.jsonld$ /rest/resource/jsonld?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+RewriteRule ^releases.*\.rdf$ /rest/resource/rdf?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+
+RewriteRule ^projects.*\.jsonld$ /rest/resource/jsonld?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+RewriteRule ^projects.*\.rdf$ /rest/resource/rdf?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+
 # Route resources sparql
 RewriteCond %{HTTP_ACCEPT} application/rdf\+xml [NC,OR]
 RewriteCond %{HTTP_ACCEPT} application/ld\+json [NC]
-RewriteRule ^packages /rest/resource?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+RewriteRule ^(packages|projects|releases) /rest/resource?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
 
 # Route resources html
 RewriteCond %{HTTP_ACCEPT} text/html [NC]
-RewriteRule ^packages index.html [L]
+RewriteRule ^(packages|projects|releases) index.html [L]
 
 # Route search html
 RewriteCond %{HTTP_ACCEPT} text/html [NC]

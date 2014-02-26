@@ -83,6 +83,7 @@ public class SparqlEndpointResource {
         try {
             return generateResponseSearch("application/sparql-results+json", q, limit, offset);
         } catch (IOException|URISyntaxException e) {
+            e.printStackTrace();
             return Response.serverError().build();
         }
     }
@@ -159,6 +160,9 @@ public class SparqlEndpointResource {
             if(download){
                 path = path.replaceFirst("\\.(jsonld|rdf)$","");
             }
+            if(path.contains("http://www.metaservice.org")){
+                path =  path.replaceAll("http://www.metaservice.org", "http://metaservice.org");
+            }
             String query = namespaces +resourceQuery;
             query = query.replace("$path",stringToIri(path));
             Response.ResponseBuilder builder = Response
@@ -168,6 +172,7 @@ public class SparqlEndpointResource {
             }
             return builder.build();
         }  catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
             return Response.serverError().build();
         }
     }
@@ -180,7 +185,7 @@ public class SparqlEndpointResource {
         System.err.println(query);
         URIBuilder uriBuilder = new URIBuilder();
         uriBuilder.setScheme("http")
-                .setHost("metaservice.org")
+                .setHost("www.metaservice.org")
                 .setPort(8080)
                 .setPath("/sparql")
                 .setParameter("query", query);
