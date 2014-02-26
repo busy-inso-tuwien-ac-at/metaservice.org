@@ -104,6 +104,11 @@ public class MongoCache {
             object.put("contentId",result.get("_id"));
         } else {
             LOGGER.info("not found - adding file completely");
+            if(data.length > 16777215) //MAX BSON SIZE
+            {
+                LOGGER.warn("Couldn't add file because larger then max bson size");
+                return;
+            }
             DBObject file = new BasicDBObject();
             file.put("content",data);
             file.put("md5",md5);
