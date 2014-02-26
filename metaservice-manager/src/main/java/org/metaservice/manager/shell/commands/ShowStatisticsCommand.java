@@ -8,12 +8,12 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.jboss.aesh.terminal.Key;
 import org.jboss.aesh.terminal.Shell;
-import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.manager.Manager;
 import org.metaservice.manager.ManagerException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -96,9 +96,9 @@ public class ShowStatisticsCommand extends AbstractManagerCommand {
             try {
                 String[]   header = new String[]{"type","count"};
                 ArrayList<String[]> data = new ArrayList<>();
-                Map<String,Integer> result = manager.getStatementStatistics();
-                for(Map.Entry<String,Integer> entry : result.entrySet()){
-                    data.add(new String[]{entry.getKey(), String.format("%,d", entry.getValue())});
+                List<Manager.StatementStatisticsEntry> result = manager.getStatementStatistics();
+                for(Manager.StatementStatisticsEntry entry : result){
+                    data.add(new String[]{entry.getName(), String.format("%,d", entry.getCount())});
                 }
                 asciiprint(header, data.toArray(new String[data.size()][]),shell);
             } catch (ManagerException e) {

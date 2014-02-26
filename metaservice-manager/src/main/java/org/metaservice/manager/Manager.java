@@ -25,6 +25,7 @@ import org.metaservice.manager.bigdata.MutationResult;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.*;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -100,49 +101,81 @@ public class Manager {
         saveConfig();
     }
 
-    public Map<String, Integer> getStatementStatistics() throws ManagerException {
-        HashMap<String,Integer> result = new HashMap<>();
+    public static class StatementStatisticsEntry{
+        public StatementStatisticsEntry(String name, int count) {
+            this.name = name;
+            this.count = count;
+        }
+
+        private String name;
+        private int count;
+
+        public String getName() {
+            return name;
+        }
+
+
+        public int getCount() {
+            return count;
+        }
+
+    }
+
+    public List<StatementStatisticsEntry> getStatementStatistics() throws ManagerException {
+        List<StatementStatisticsEntry> result = new ArrayList<>();
 
         MutationResult mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .execute();
-        result.put("Statements", mutationResult.getRangeCount());
+        result.add(new StatementStatisticsEntry("Statements", mutationResult.getRangeCount()));
+        int bugcount = 0;
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDFS.SUBCLASSOF)
+                .execute();
+        bugcount += mutationResult.getRangeCount();
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDFS.SUBPROPERTYOF)
+                .execute();
+        bugcount += mutationResult.getRangeCount();
+        result.add(new StatementStatisticsEntry("Bug Statements", bugcount));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(METASERVICE.DUMMY)
                 .object(METASERVICE.DUMMY)
                 .execute();
-        result.put("Empty/Dummy Graphs", mutationResult.getRangeCount());
+        result.add(new StatementStatisticsEntry("Empty/Dummy Graphs", mutationResult.getRangeCount()));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
                 .object(METASERVICE.METADATA)
                 .execute();
-        result.put("Graphs", mutationResult.getRangeCount());
+        result.add(new StatementStatisticsEntry("Graphs", mutationResult.getRangeCount()));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
                 .object(ADMSSW.SOFTWARE_REPOSITORY)
                 .execute();
-        result.put("Repositories", mutationResult.getRangeCount());
+        result.add(new StatementStatisticsEntry("Repositories", mutationResult.getRangeCount()));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
                 .object(ADMSSW.SOFTWARE_PROJECT)
                 .execute();
-        result.put("Projects", mutationResult.getRangeCount());
+        result.add(new StatementStatisticsEntry("Projects", mutationResult.getRangeCount()));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
                 .object(ADMSSW.SOFTWARE_RELEASE)
                 .execute();
-        result.put("Releases", mutationResult.getRangeCount());
+        result.add(new StatementStatisticsEntry("Releases", mutationResult.getRangeCount()));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
                 .object(ADMSSW.SOFTWARE_PACKAGE)
                 .execute();
-        result.put("Packages", mutationResult.getRangeCount());
+        result.add(new StatementStatisticsEntry("Packages", mutationResult.getRangeCount()));
 
         for(ManagerConfig.Module module : managerConfig.getInstalledModules()){
             MetaserviceDescriptor metaserviceDescriptor = module.getMetaserviceDescriptor();
@@ -155,7 +188,7 @@ public class Manager {
                         .predicate(METASERVICE.GENERATOR)
                         .object(valueFactory.createLiteral(id))
                         .execute();
-                result.put("Provider " + providerDescriptor , mutationResult.getRangeCount());
+                result.add(new StatementStatisticsEntry("Provider " + id, mutationResult.getRangeCount()));
                 sum += mutationResult.getRangeCount();
             }
             for(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor : metaserviceDescriptor.getPostProcessorList()){
@@ -165,10 +198,10 @@ public class Manager {
                         .predicate(METASERVICE.GENERATOR)
                         .object(valueFactory.createLiteral(id))
                         .execute();
-                result.put("PostProcessor " + postProcessorDescriptor , mutationResult.getRangeCount());
+                result.add(new StatementStatisticsEntry("PostProcessor " + id, mutationResult.getRangeCount()));
                 sum += mutationResult.getRangeCount();
             }
-            result.put("Sum " + DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo),sum);
+            result.add(new StatementStatisticsEntry("Sum " + DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo), sum));
         }
         return result;
     }

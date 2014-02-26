@@ -62,16 +62,16 @@ public class FastRangeCountRequestBuilder {
 
             URIBuilder uriBuilder = new URIBuilder(path);
             if(subject != null){
-                uriBuilder.setParameter("s","<"+subject.stringValue()+">");
+                uriBuilder.setParameter("s",format(subject));
             }
             if(object != null){
-                uriBuilder.setParameter("o","<"+object.stringValue()+">");
+                uriBuilder.setParameter("o",format(object));
             }
             if(predicate != null){
-                uriBuilder.setParameter("p","<"+predicate.stringValue() +">");
+                uriBuilder.setParameter("p",format(predicate));
             }
             if(context != null){
-                uriBuilder.setParameter("c","<" +context.stringValue()+">");
+                uriBuilder.setParameter("c",format(context));
             }
             uriBuilder.addParameter("ESTCARD",null);
             URI uri = uriBuilder.build();
@@ -89,6 +89,14 @@ public class FastRangeCountRequestBuilder {
             throw new ManagerException(e);
         }
 
+    }
+
+    private String format(Value value) {
+        if(value instanceof  org.openrdf.model.URI){
+            return "<"+value.stringValue()+">";
+        }else{
+            return  "\"" +value.stringValue()+"\"";
+        }
     }
 
 }
