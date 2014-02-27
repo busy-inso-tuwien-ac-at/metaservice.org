@@ -74,6 +74,11 @@ function convertToJson(data,root){
     return result[root];
 }
 
+Handlebars.registerHelper('mboxToAddress',function(context,options){
+    if(!context)
+        return "";
+    return context.replace(/^mailto:/,'');
+});
 
 Handlebars.registerHelper('eachArray', function(context, options) {
     if(!context)
@@ -81,10 +86,14 @@ Handlebars.registerHelper('eachArray', function(context, options) {
   var ret = "";
   if($.isArray(context)){
   	for(var i=0, j=context.length; i<j; i++) {
-    		ret = ret + options.fn(context[i]);
+        options.data.index = i;
+        options.data.isFirst = i === 0;
+        options.data.isLast = i === context.length - 1;
+        ret = ret + options.fn(context[i],options);
   	}
   }else{
-	ret = options.fn(context);
+      options.data.isFirst = true;
+      ret = options.fn(context,options);
   }
   return ret;
 });

@@ -22,15 +22,35 @@
             </span>
         </div>
     </script>
+    <script id=partial-dependency type="text/x-handlebars-template">
+        {{#eachArray this}}
+        <li>
+            {{#if dc:description}}
+            <a href="{{ms-swdep:dependOn/ms:id}}">{{dc:description}}</a>
+            {{/if}}
+            {{#eachArray rdf:li}}
+                {{#if @index}}<b>or</b>{{/if}}
+                <a href="{{ms-swdep:dependOn/ms:id}}">{{dc:description}}</a>
+            {{/eachArray}}
+        </li>
+        {{/eachArray}}
+    </script>
     <script id="partial-button_controls" type="text/x-handlebars-template">
         <div class="btn-group pull-right">
-            <button type="button"  class="show-provenance btn btn-default" title="Show provenance information window"><i class="fa fa-eye"></i> Provenance</button>
+            <button type="button"  class="show-provenance btn btn-default" title="Show provenance information window"><i class="fa fa-info"></i> Provenance</button>
             <button type="button"  class="refresh btn btn-default" title="Request that this resource should be processed again"><i class="fa fa-refresh"></i> Refresh</button>
-            <button type="button"  class="export btn btn-default dropdown-toggle" data-toggle="dropdown" title="Export this page"><i class="fa fa-download"></i> Export <span class="caret"></span></button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="{{ms:id}}.rdf">... as RDF/XML</a></li>
-                <li><a href="{{ms:id}}.jsonld">... as JSON/LD</a></li>
-            </ul>
+            <div class="btn-group">
+                <button type="button"  class="export btn btn-default dropdown-toggle" data-toggle="dropdown" title="Export this page"><i class="fa fa-download"></i> Export <span class="caret"></span></button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{{ms:id}}.rdf">... as RDF/XML</a></li>
+                    <li><a href="{{ms:id}}.jsonld">... as JSON/LD</a></li>
+                </ul>
+            </div>
+            <div class="btn-group">
+                <button type="button"  class="document btn btn-default dropdown-toggle" data-toggle="dropdown" title="Change View Template"><i class="fa fa-eye"></i> Template <span class="caret"></span></button>
+                <ul id="template-menu" class="dropdown-menu" role="menu">
+                </ul>
+            </div>
         </div>
     </script>
     <script id="searchResults" type="text/x-handlebars-template">
@@ -126,11 +146,11 @@
     </div>
 </div>
 <div id="provenancewindow" class="panel  panel-default" style="display: none">
-<div class="panel-heading">
-    <h4 class="panel-title">Provenance data</h4>
-</div>
-<div class="panel-content">
-</div>
+    <div class="panel-heading">
+        <h4 class="panel-title">Provenance data</h4>
+    </div>
+    <div class="panel-content">
+    </div>
 </div>
 </body>
 <script type="application/javascript" src="/d/jquery-ui-1.10.4.custom.js"></script>

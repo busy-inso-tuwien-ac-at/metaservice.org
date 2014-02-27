@@ -1,37 +1,31 @@
-<ol class="breadcrumb">
-    <li><a href="#">Generic Packages</a></li>
-    <li><a href="/d/packages/debian/{{title}}">{{title}}</a></li>
-    <li><a href="/d/packages/debian/{{title}}/{{version}}">{{version}}</a></li>
-    <li class="active">{{arch}}</li>
-</ol>
-{{> button_controls}}
-<h1>{{title}}</h1>
+<div class="row">
+    <div class="col-md-12">
+        {{> button_controls}}
+        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb">
+            <li>Generic</li>
+            <li><a href="{{admssw:release/admssw:project/ms:id}}">{{admssw:release/admssw:project/ms:id}}</a></li>
+            <li><a href="{{admssw:release/ms:id}}">{{admssw:release/ms:id}}</a></li>
+            <li class="active">architecture</li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-8">
-        <pre>{{description}}</pre>
-        Homepage: <a href="{{homepage}}">{{homepage}}</a>{{^homepage}}-{{/homepage}}
-
+        <pre data-provenance="[{{ms:id}}][{dc:description][{{dc:description}}]">{{dc:description}}</pre>
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
-
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr><th>Previous</th><td><a href="/d/packages/debian/{{title}}/{{prev.version}}/{{arch}}">{{prev.version}}</a></td>
-                <tr><th>Next</th><td><a href="/d/packages/debian/{{title}}/{{next.version}}/{{arch}}">{{next.version}}</a></td>
-                <tr><th>Version</th><td><a href="/d/packages/debian/{{title}}/{{version}}">{{version}}</a></td>
-                <tr><th>Project</th><td><a href="/d/packages/debian/{{title}}">{{title}}</a></td>
-                <tr><th>Repository</th><td></td>
-            </table>
-        </div>
-
-        <div class="panel panel-default">
-            <div class="panel-heading"><h4 class="panel-title">File Information</h4></div>
-            <table class="table">
-                <tr><th>Filename</th><td>{{> copyInputField filename}}</td>
-                <tr><th>MD5sum</th><td>{{> copyInputField md5sum}}</td>
-                <tr><th>SHA-1sum</th><td>{{> copyInputField sha1sum}}</td>
-                <tr><th>SHA-256sum</th><td>{{> copyInputField sha256sum}}</td>
+                <tr data-provenance="[{{ms:id}}][xhv:prev][{{xhv:prev/ms:id}}]"><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
+                <tr data-provenance="[{{ms:id}}][xhv:next][{{xhv:next/ms:id}}]"><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/ms-deb:version}}</a></td></tr>
+                <tr><th>Version</th><td><a href="{{admssw:release/ms:id}}">{{admssw:release/ms:id}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{admssw:release/admssw:project/ms:id}}">{{admssw:release/admssw:project/ms:id}}</a></td></tr>
             </table>
         </div>
     </div>

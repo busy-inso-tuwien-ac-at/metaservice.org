@@ -1,10 +1,18 @@
-<ol class="breadcrumb">
-    <li><a href="/d/projects/debian/">Debian Binary Packages</a></li>
-    <li><a href="{{admssw:project/ms:id}}">{{dc:title}}</a></li>
-    <li class="active">{{ms-deb:version}}</li>
-</ol>
-{{> button_controls}}
-<h1>{{title}}</h1>
+<div class="row">
+    <div class="col-md-12">
+        {{> button_controls}}
+        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb">
+            <li><img src="/{{ms-deb:meta-distribution}}.png"  alt="{{ms-deb:meta-distribution}}" style="height: 1em; vertical-align: baseline;"></li>
+            <li><a href="{{admssw:project/ms:id}}">{{dc:title}}</a></li>
+            <li class="active">{{ms-deb:version}}</li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-8">
         <ul>

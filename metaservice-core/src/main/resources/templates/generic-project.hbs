@@ -1,16 +1,24 @@
-<ol class="breadcrumb">
-    <li><a href="#">Generic Project</a></li>
-    <li><a href="{{resourceURI}}">{{title}}</a></li>
-    <li class="active">{{arch}}</li>
-</ol>
-{{> button_controls}}
-<h1>{{title}}</h1>
+<div class="row">
+    <div class="col-md-12">
+        {{> button_controls}}
+        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb">
+            <li>Generic</li>
+            <li class="active">{{dc:title}}</li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-8">
-        <pre>{{description}}</pre>
-        Homepage: <a href="{{homepage}}">{{homepage}}</a>{{^homepage}}-{{/homepage}}
         <ul>
-            {{#eachArray release}}<li> <a href="{{resourceURI}}">{{title}}</a></li>{{/eachArray}}
+            {{#eachNext doap:release}}<li data-provenance="[{{../ms:id}}][doap:release][{{ms:id}}]"> <a href="{{ms:id}}">{{ms-deb:version}}</a></li>{{/eachNext}}
         </ul>
+    </div>
+    <div class="col-md-4">
+
     </div>
 </div>

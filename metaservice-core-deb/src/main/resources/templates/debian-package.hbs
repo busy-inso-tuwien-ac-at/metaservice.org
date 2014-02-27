@@ -1,11 +1,19 @@
-<ol class="breadcrumb">
-    <li><a href="#">Debian Binary Packages</a></li>
-    <li><a href="{{admssw:release/admssw:project}}">{{dc:title}}</a></li>
-    <li><a href="{{admssw:release/ms:id}}">{{ms-deb:version}}</a></li>
-    <li class="active">{{ms-deb:architecture}}</li>
-</ol>
-{{> button_controls}}
-<h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+<div class="row">
+    <div class="col-md-12">
+        {{> button_controls}}
+        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb">
+            <li><img src="/{{ms-deb:meta-distribution}}.png" alt="{{ms-deb:meta-distribution}}" style="height: 1em; vertical-align: baseline;"></li>
+            <li><a href="{{admssw:release/admssw:project/ms:id}}">{{ms-deb:packageName}}</a></li>
+            <li><a href="{{admssw:release/ms:id}}">{{ms-deb:version}}</a></li>
+            <li class="active">{{ms-deb:architecture}}</li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-8">
         <pre data-provenance="[{{ms:id}}][{ms-deb:description][{{ms-deb:description}}]">{{ms-deb:description}}</pre>
@@ -13,7 +21,7 @@
         <br>
         Maintainer:
         <ul>
-            {{#eachArray ms-deb:maintainer}}<li><a href="{{foaf:mbox}}">{{foaf:name}} &lt;{{foaf:mbox}}&gt;</a></li>{{/eachArray}}
+            {{#eachArray ms-deb:maintainer}}<li><a href="{{foaf:mbox/ms:id}}">{{foaf:name}} &lt; {{#mboxToAddress foaf:mbox/ms:id}}{{/mboxToAddress}}&gt;</a></li>{{/eachArray}}
         </ul>
         <br>
         Uploader:
@@ -22,25 +30,27 @@
         </ul>
         Depends:
         <ul>
-            {{#eachArray ms-deb:depends}}
-                <li>
-                {{#if dc:description}}
-                    <a href="{{ms-deb:depends}}">{{dc:description}}</a>
-                {{/if}}
-                {{#eachArray rdf:li}}
-                    <a href="{{ms-deb:depends}}">{{dc:description}}</a>
-                    <b>or</b>
-                {{/eachArray}}
-            </li>
-            {{/eachArray}}
+            {{>dependency  ms-deb:depends}}
         </ul>
         Suggests:
         <ul>
-            {{#eachArray ms-deb:suggests}}<li><a href="{{ms-deb:suggests}}">{{dc:description}}</a>{{#eachArray rdf:li}}{{/eachArray}}</li>{{/eachArray}}
+            {{>dependency  ms-deb:suggests}}
         </ul>
         Recommends:
         <ul>
-            {{#eachArray ms-deb:recommends}}<li><a href="{{ms-deb:recommends}}">{{dc:description}}</a></li>{{/eachArray}}
+            {{>dependency  ms-deb:recommends}}
+        </ul>
+        Breaks:
+        <ul>
+            {{>dependency  ms-deb:breaks}}
+        </ul>
+        Conflicts:
+        <ul>
+            {{>dependency  ms-deb:conflicts}}
+        </ul>
+        Replaces:
+        <ul>
+            {{>dependency  ms-deb:replaces}}
         </ul>
     </div>
     <div class="col-md-4">
@@ -50,8 +60,8 @@
                 <tr data-provenance="[{{ms:id}}][xhv:prev][{{xhv:prev/ms:id}}]"><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
                 <tr data-provenance="[{{ms:id}}][xhv:next][{{xhv:next/ms:id}}]"><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/ms-deb:version}}</a></td></tr>
                 <tr><th>Version</th><td><a href="{{admssw:release/ms:id}}">{{ms-deb:version}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{admssw:release/admssw:project}}">{{dc:title}}</a></td></tr>
-                <tr><th>Repository</th><td></td></tr>
+                <tr><th>Project</th><td><a href="{{admssw:release/admssw:project/ms:id}}">{{ms-deb:packageName}}</a></td></tr>
+                <tr><th>Distribution</th><td>{{ms-deb:distribution}}</td></tr>
             </table>
         </div>
 

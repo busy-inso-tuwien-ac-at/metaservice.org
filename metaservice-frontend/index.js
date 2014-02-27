@@ -10,6 +10,7 @@ function loadError(title,content){
 function initHandleBars() {
     Handlebars.registerPartial("copyInputField", $("#partial-copytextinputfield").html());
     Handlebars.registerPartial("button_controls", $("#partial-button_controls").html());
+    Handlebars.registerPartial("dependency", $("#partial-dependency").html());
 }
 
 var MS;
@@ -24,6 +25,7 @@ function initMs() {
         "doap": "http://usefulinc.com/ns/doap#",
         "foaf":"http://xmlns.com/foaf/0.1/",
         "ms": "http://metaservice.org/ns/metaservice#",
+        "ms-swdep": "http://metaservice.org/ns/metaservice-swdep#",
         "ms-deb": "http://metaservice.org/ns/metaservice-deb#",
         "owl": "http://www.w3.org/2002/07/owl#",
         "rad": "http://www.w3.org/ns/radion#",
@@ -508,6 +510,65 @@ function deepReplaceId(object,from,to){
     }
 }
 
+function renderTemplate(t, result) {
+    getTemplateAjax(t, function(template) {
+        $('#content').children().not('nav, #loader').remove();
+        $('#content').append(template(result));
+        $('#loader').modal('hide');
+        $('.refresh').click(function(){
+            console.log('Sending Refresh request for ' + MS.resourceUrl );
+            $.ajax({
+                url:'/rest/refresh',
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data:JSON.stringify({"url": MS.resourceUrl}),
+                success:function(){console.log('success')},
+                error:function(){console.log ('error')}
+            });
+        });
+        $.each(MS.templates,function(index,element){
+            var item = $('<li><a  href="#">'+element+'</a></li>');
+            item.click(function(event){
+                event.preventDefault();
+                $('#loader').modal('show');
+                renderTemplate(element,result);
+            });
+            $('#template-menu').append(item);
+            console.log('appended' + element);
+        });
+        /* $('*[data-provenance]').each(function(index,element){
+         annotated = $(element);
+         annotated.find('')
+         });*/
+        var window = $('#provenancewindow');
+        $('*[data-provenance]').hover(function(event){
+            if(window.is(":visible")
+                ){
+                var hovered = $(event.target);
+                if(!hovered.attr('data-provenance')){
+                    hovered = hovered.parent('*[data-provenance]');
+                }
+                if(hovered && hovered.attr('data-provenance')){
+                    var contentpanel = window.find('.panel-content');
+                    contentpanel.empty();
+                    contentpanel.append(getProvenanceContent(hovered.attr('data-provenance')));
+                }
+
+            }
+        },function(){});
+        $('.show-provenance').click(function(){
+            if( window.is(':visible') ) {
+                window.hide();
+            } else{
+                window.show();
+            }
+
+        });
+    },function(){
+        loadError('Template missing','Could not retrieve ' +templatePath[0] +'  :-(');
+    });
+}
 function handleResource(){
     $.ajax({
         url: MS.documentUrl,
@@ -531,73 +592,26 @@ function handleResource(){
                 result = jsonLdFollowIris(result,MS.resourceUrl);
                 console.log(result);
 
-                var templatePath = [];
+                MS.templates = [];
                 var type = result['@type'];
                 //console.log(type);
                 if($.isArray(type)){
                     $.each(type,function(index,d){
                         if(d['ms:view']){
-                            templatePath.push("/" + d['ms:view']);
+                            MS.templates.push("/" + d['ms:view']);
                         }
                     });
                 }else if ($.isPlainObject(type)){
                     if(type['ms:view']){
-                        templatePath.push("/" + type['ms:view']);
+                        MS.templates.push("/" + type['ms:view']);
                     }
                 }
 
-                if(templatePath.length ==0){
+                if(MS.templates.length ==0){
                     loadError('Template missing','There is no view specified for this type of data  :-(');
                     return;
                 }
-
-                getTemplateAjax(templatePath[0], function(template) {
-
-                    $('#content').append(template(result));
-                    $('#loader').modal('hide');
-                    $('.refresh').click(function(){
-                        console.log('Sending Refresh request for ' + MS.resourceUrl );
-                        $.ajax({
-                            url:'/rest/refresh',
-                            type: "POST",
-                            dataType: "json",
-                            contentType: "application/json; charset=utf-8",
-                            data:JSON.stringify({"url": MS.resourceUrl}),
-                            success:function(){console.log('success')},
-                            error:function(){console.log ('error')}
-                        });
-                    });
-                   /* $('*[data-provenance]').each(function(index,element){
-                       annotated = $(element);
-                       annotated.find('')
-                    });*/
-                    var window = $('#provenancewindow');
-                    $('*[data-provenance]').hover(function(event){
-                        if(window.is(":visible")
-                        ){
-                            hovered = $(event.target);
-                            if(!hovered.attr('data-provenance')){
-                                hovered = hovered.parent('*[data-provenance]');
-                            }
-                            if(hovered && hovered.attr('data-provenance')){
-                                var contentpanel = window.find('.panel-content');
-                                contentpanel.empty();
-                                contentpanel.append(getProvenanceContent(hovered.attr('data-provenance')));
-                            }
-
-                        }
-                    },function(){});
-                    $('.show-provenance').click(function(){
-                        if( window.is(':visible') ) {
-                            window.hide();
-                        } else{
-                            window.show();
-                        }
-
-                    });
-                },function(){
-                    loadError('Template missing','Could not retrieve ' +templatePath[0] +'  :-(');
-                });
+                renderTemplate(MS.templates[0],result);
             });
         },
         error: function(){
