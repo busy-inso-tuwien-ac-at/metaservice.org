@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 public class ArchiveAddress implements Serializable{
     private static final long serialVersionUID = -5874232640077304953L;
+    private String repository;
     private String archiveUri;
     private String time;
     private String path;
@@ -18,7 +19,8 @@ public class ArchiveAddress implements Serializable{
         this.parameters = parameters;
     }
 
-    public ArchiveAddress(String archiveUri, String time, String path) {
+    public ArchiveAddress(String repository,String archiveUri, String time, String path) {
+        this.repository = repository;
         this.archiveUri = archiveUri;
         this.time = time;
         this.path = path;
@@ -48,10 +50,19 @@ public class ArchiveAddress implements Serializable{
         this.path = path;
     }
 
+    public String getRepository() {
+        return repository;
+    }
+
+    public void setRepository(String repository) {
+        this.repository = repository;
+    }
+
     @Override
     public String toString() {
         return "ArchiveAddress{" +
-                "archiveUri='" + archiveUri + '\'' +
+                "repository='" + repository + '\'' +
+                ", archiveUri='" + archiveUri + '\'' +
                 ", time='" + time + '\'' +
                 ", path='" + path + '\'' +
                 ", parameters=" + parameters +

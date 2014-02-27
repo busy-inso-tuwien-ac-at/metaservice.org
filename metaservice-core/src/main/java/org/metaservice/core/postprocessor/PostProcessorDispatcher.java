@@ -137,9 +137,15 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     }
 
     private boolean contentsUnchanged(URI metadataUri, List<Statement> generatedStatements) throws RepositoryException {
-        RepositoryResult<Statement> fullQuery = repositoryConnection.getStatements(null, null, null, false, metadataUri);
-        Set<Statement> currentValues = Iterations.asSet(fullQuery);
+        Set<Statement> currentValues = new HashSet<>();
         Set<Statement> newValues = new HashSet<>();
+        RepositoryResult<Statement> fullQuery = repositoryConnection.getStatements(null, null, null, false, metadataUri);
+        while (fullQuery.hasNext()){
+            Statement statement = fullQuery.next();
+            if(!statement.getSubject().equals(metadataUri)){
+                currentValues.add(statement);
+            }
+        }
         newValues.addAll(generatedStatements);
         return newValues.equals(currentValues);
     }

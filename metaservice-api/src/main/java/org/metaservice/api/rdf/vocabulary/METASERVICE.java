@@ -9,6 +9,7 @@ public class METASERVICE {
 
     public static final URI METADATA;
 
+    public static final URI REPOSITORY_ID;
     public static final URI SOURCE;
     public static final URI TIME;
     public static final URI PATH;
@@ -22,6 +23,7 @@ public class METASERVICE {
 
     static {
         ValueFactory factory = ValueFactoryImpl.getInstance();
+        REPOSITORY_ID = factory.createURI(NAMESPACE,"repositoryId");
         SOURCE = factory.createURI(NAMESPACE,"source");
         TIME = factory.createURI(NAMESPACE,"time");
         PATH = factory.createURI(NAMESPACE,"path");
@@ -33,7 +35,6 @@ public class METASERVICE {
         SCOPE = factory.createURI(NAMESPACE,"scope");
         DUMMY = factory.createURI( NAMESPACE,"dummy" );
     }
-
 
 
 }

@@ -83,7 +83,7 @@ public class ShowStatisticsCommand extends AbstractManagerCommand {
         if(activemq){
             String[]   header = new String[]{"Queue","Count"};
             ArrayList<String[]> data = new ArrayList<>();
-            Map<String,Map<String,Object>> stats = manager.getCurrentActiveMQStatisitics();
+            Map<String,Map<String,Object>> stats = manager.getCurrentActiveMQStatistics();
             for(Map<String,Object> entry: stats.values()){
                 data.add(new String[]{
                         String.valueOf(entry.get("destinationName")),

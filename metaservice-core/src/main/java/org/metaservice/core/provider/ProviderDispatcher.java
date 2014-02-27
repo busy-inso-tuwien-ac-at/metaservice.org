@@ -68,7 +68,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         this.archives = archives;
         this.providerDescriptor = providerDescriptor;
         this.metaserviceDescriptor = metaserviceDescriptor;
-        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repo ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path.}");
+        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repositoryId ?repo ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.REPOSITORY_ID+"> ?repositoryId.}");
 
         loadedStatements = calculatePreloadedStatements();
     }
@@ -98,43 +98,60 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 Value timeValue = set.getBinding("time").getValue();
                 Value repoValue = set.getBinding("repo").getValue();
                 Value pathValue = set.getBinding("path").getValue();
+                Value idValue = set.getBinding("repositoryId").getValue();
                 URI oldMetadata = (URI) set.getBinding("metadata").getValue();
                 String time = timeValue.stringValue();
                 String repo = repoValue.stringValue();
                 String path = pathValue.stringValue();
+                String repositoryId = idValue.stringValue();
+                LOGGER.debug("READING repositoryId {}", repositoryId);
                 LOGGER.debug("READING time {}", time);
                 LOGGER.debug("READING repo {}", repo);
                 LOGGER.debug("READING path {}", path);
 
-                refreshEntry(time,repo,path,oldMetadata);
+
+                MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor = null;
+                for(MetaserviceDescriptor.RepositoryDescriptor descriptor : metaserviceDescriptor.getRepositoryList()){
+                     if(DescriptorHelper.getStringFromRepository(metaserviceDescriptor.getModuleInfo(),descriptor).equals(repositoryId)){
+                         repositoryDescriptor = descriptor;
+                         break;
+                     }
+                }
+                if(repositoryDescriptor  == null){
+                    LOGGER.error("Repository not found {} ", repositoryId );
+                    return;
+                }
+                ArchiveAddress address = new ArchiveAddress(
+                        DescriptorHelper.getStringFromRepository(metaserviceDescriptor.getModuleInfo(),repositoryDescriptor),
+                        repo,
+                        time,
+                        path);
+                address.setParameters(repositoryDescriptor.getProperties());
+                refreshEntry(address, oldMetadata);
             }
         } catch (QueryEvaluationException e) {
             LOGGER.error("Could not Refresh" ,e);
         }
     }
 
-    private void refreshEntry(String time, String repo, String path, URI oldMetadata) {
-        Archive archive = getArchive(repo);
+    private void refreshEntry(ArchiveAddress archiveAddress, URI oldMetadata) {
+        Archive archive = getArchive(archiveAddress.getArchiveUri());
         if(archive == null){
             return;
         }
-
-        ArchiveAddress address = new ArchiveAddress(repo,time,path);
-        //todo add parameters to address
-
         try{
-            LOGGER.info("Starting to process " + address);
-            String content = archive.getContent(time,path);
+            LOGGER.info("Starting to process " + archiveAddress);
+            String content = archive.getContent(archiveAddress.getTime(),archiveAddress.getPath());
             if(content == null ||content.length() < 20){
-                LOGGER.warn("Cannot process content '{}' of address {}, skipping.",content,address );
+                LOGGER.warn("Cannot process content '{}' of address {}, skipping.",content,archiveAddress );
                 return;
             }
 
-            URI metadata =  generateMetadata(address);
             Repository resultRepository = createTempRepository();
             RepositoryConnection resultConnection = resultRepository.getConnection();
-            List<T> objects = parser.parse(content,address);
-            HashMap<String,String> parameters = new HashMap<>(address.getParameters());
+            List<T> objects = parser.parse(content,archiveAddress);
+            HashMap<String,String> parameters = new HashMap<>(archiveAddress.getParameters());
+            URI metadata =  generateMetadata(archiveAddress, parameters);
             for(T object: objects){
                 try {
                     provider.provideModelFor(object,resultConnection,parameters);
@@ -149,9 +166,9 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             repositoryConnection.clear(oldMetadata);
             Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
             notifyPostProcessors(resourcesToPostProcess,null,null,null);
-            LOGGER.info("done processing {} {}", time, path);
+            LOGGER.info("done processing {} {}", archiveAddress.getTime(), archiveAddress.getPath());
         } catch (RepositoryException | ArchiveException e) {
-            LOGGER.error("Could not Refresh {}" ,address,e);
+            LOGGER.error("Could not Refresh {}" ,archiveAddress,e);
         } catch (MetaserviceException e) {
             e.printStackTrace();
         }
@@ -170,11 +187,11 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 LOGGER.warn("Cannot process content '{}' of address {}, skipping.",content,address );
                 return;
             }
-            URI metadata =  generateMetadata(address);
             Repository resultRepository = createTempRepository();
             RepositoryConnection resultConnection = resultRepository.getConnection();
             List<T> objects = parser.parse(content,address);
             HashMap<String,String> parameters = new HashMap<>(address.getParameters());
+            URI metadata =  generateMetadata(address,parameters);
             for(T object: objects){
                 try {
                     provider.provideModelFor(object,resultConnection,parameters);
@@ -195,20 +212,25 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         }
     }
 
-    private URI generateMetadata(ArchiveAddress address) throws RepositoryException {
+    private URI generateMetadata(ArchiveAddress address, HashMap<String, String> parameters) throws RepositoryException {
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + provider.getClass().getSimpleName() + "/" + System.currentTimeMillis());
+        Value idLiteral = valueFactory.createLiteral(address.getRepository());
         Value pathLiteral = valueFactory.createLiteral(address.getPath());
         Value timeLiteral = valueFactory.createLiteral(address.getTime());
         Value repoLiteral = valueFactory.createLiteral(address.getArchiveUri());
         repositoryConnection.begin();
-        repositoryConnection.add(metadata, RDF.TYPE,METASERVICE.METADATA,metadata);
-        repositoryConnection.add(metadata, METASERVICE.PATH, pathLiteral,metadata);
+        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
+        repositoryConnection.add(metadata, METASERVICE.PATH, pathLiteral, metadata);
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.SOURCE, repoLiteral,metadata);
+        repositoryConnection.add(metadata, METASERVICE.REPOSITORY_ID, idLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor)),metadata);
         repositoryConnection.commit();
+        parameters.put("metadata_path",address.getPath());
+        parameters.put("metadata_time",address.getTime());
+        parameters.put("metadata_source",address.getArchiveUri());
         return metadata;
     }
 

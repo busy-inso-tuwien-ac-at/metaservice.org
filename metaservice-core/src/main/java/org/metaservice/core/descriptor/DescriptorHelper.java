@@ -82,4 +82,8 @@ public class DescriptorHelper {
     public static String getStringFromRepository(@NotNull MetaserviceDescriptor.ModuleInfo moduleInfo, @NotNull String id) {
         return getModuleIdentifierStringFromModule(moduleInfo) +":" + id;
     }
+    @NotNull
+    public static String getStringFromRepository(@NotNull MetaserviceDescriptor.ModuleInfo moduleInfo, @NotNull MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor) {
+        return getModuleIdentifierStringFromModule(moduleInfo) +":" + repositoryDescriptor.getId();
+    }
 }

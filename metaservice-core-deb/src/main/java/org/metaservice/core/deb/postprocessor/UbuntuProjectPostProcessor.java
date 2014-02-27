@@ -3,6 +3,7 @@ package org.metaservice.core.deb.postprocessor;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.rdf.vocabulary.DOAP;
+import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.OWL;
@@ -40,6 +41,7 @@ public class UbuntuProjectPostProcessor  extends AbstractProjectPostProcessor
         //resultConnection.add(uri, DOAP.BUG_DATABASE,valueFactory.createLiteral("http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=" + name));
         resultConnection.add(projectURI, DOAP.BUG_DATABASE,valueFactory.createLiteral("https://bugs.launchpad.net/ubuntu/+source/" +projectName));
         resultConnection.add(projectURI, OWL.SAMEAS,valueFactory.createURI("https://launchpad.net/"+projectName+"/+rdf"));
+        resultConnection.add(projectURI, PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral("ubuntu"));
     }
 
     @Override

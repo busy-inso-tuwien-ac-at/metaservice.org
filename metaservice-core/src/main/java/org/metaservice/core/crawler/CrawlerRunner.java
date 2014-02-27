@@ -5,6 +5,7 @@ import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.core.injection.InjectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,17 +45,20 @@ public class CrawlerRunner {
     private final Connection connection;
     private final MessageProducer producer;
     private final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor;
+    private final MetaserviceDescriptor metaserviceDescriptor;
 
     @Inject
     public CrawlerRunner(
-            Crawler crawler,
-            Archive archive,
-            ConnectionFactory connectionFactory,
-            MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor
+            final Crawler crawler,
+            final Archive archive,
+            final ConnectionFactory connectionFactory,
+            final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor,
+            final MetaserviceDescriptor metaserviceDescriptor
     ) throws JMSException {
         this.crawler = crawler;
         this.archive = archive;
         this.repositoryDescriptor = repositoryDescriptor;
+        this.metaserviceDescriptor = metaserviceDescriptor;
 
         connection = connectionFactory.createConnection();
      //   connection.setClientID(this.getClass().getName() +"con");
@@ -76,7 +80,11 @@ public class CrawlerRunner {
                 for(String s : archive.getLastChangedPaths()){
                     try{
                         LOGGER.info("Sending " + commitTime +" s " + s);
-                        ArchiveAddress archiveAddress = new ArchiveAddress(sourceBaseUri,commitTime,s);
+                        ArchiveAddress archiveAddress = new ArchiveAddress(
+                                DescriptorHelper.getStringFromRepository(metaserviceDescriptor.getModuleInfo(),repositoryDescriptor),
+                                sourceBaseUri,
+                                commitTime,
+                                s);
                         archiveAddress.setParameters(repositoryDescriptor.getProperties());
                         ObjectMessage message = session.createObjectMessage();
                         message.setObject(archiveAddress);

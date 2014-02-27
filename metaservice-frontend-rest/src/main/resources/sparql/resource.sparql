@@ -3,7 +3,7 @@ CONSTRUCT {_QUADMODE_
     GRAPH ?ggraph1 {?graph1 ?grelation1 ?gvalue1}.
     GRAPH ?graph2 { ?value1 ?relation2 ?value2}.
     GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2}.
-    GRAPH ?graph3 { ?value2 <dc:description> ?value3}.
+    GRAPH ?graph3 { ?value2 ?relation3 ?value3}.
 
 }
 WHERE{
@@ -23,7 +23,8 @@ WHERE{
             GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2.}
         }
         OPTIONAL {
-              GRAPH ?graph3 { ?value2 <dc:description> ?value3}.
+              FILTER NOT EXISTS { ?value3 a ?any }.
+              GRAPH ?graph3 { ?value2 ?relation3 ?value3}.
         }
     }
 }

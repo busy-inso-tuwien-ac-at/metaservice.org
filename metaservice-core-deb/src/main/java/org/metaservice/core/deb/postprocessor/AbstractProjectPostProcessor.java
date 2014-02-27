@@ -55,7 +55,7 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             URI projectURI = valueFactory.createURI("http://metaservice.org/d/projects/"+getDistributionName()+"/"+projectName);
             LOGGER.debug(projectURI.toString());
             resultConnection.add(projectURI, RDF.TYPE, PACKAGE_DEB.PROJECT);
-            processProject(resultConnection,uri,projectName);
+            processProject(resultConnection,projectURI,projectName);
             TupleQueryResult tupleQueryResult;
             if(uri.toString().startsWith("http://metaservice.org/d/releases")){
                 LOGGER.debug("releaseQuery");

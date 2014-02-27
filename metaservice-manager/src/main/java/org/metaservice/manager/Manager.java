@@ -2,7 +2,6 @@ package org.metaservice.manager;
 
 import com.google.inject.Singleton;
 import org.jetbrains.annotations.Nullable;
-import org.metaservice.api.provider.Provider;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.core.config.ManagerConfig;
 import org.metaservice.core.injection.ManagerConfigProvider;
@@ -56,7 +55,7 @@ public class Manager {
     private final JMSUtil jmsUtil;
     private final RunManager runManager;
     private final Scheduler scheduler;
-    private final Map<String, Map<String, Object>> currentActiveMQStatisitics;
+    private final Map<String, Map<String, Object>> currentActiveMQStatistics;
     private final MavenManager mavenManager;
 
     private JMSUtil.ShutDownHandler activeMQStatisticsShutdownHandler;
@@ -82,7 +81,7 @@ public class Manager {
 
         this.repositoryConnection = repositoryConnection;
         this.valueFactory = valueFactory;
-        this.currentActiveMQStatisitics = Collections.synchronizedMap(new HashMap<String, Map<String, Object>>());
+        this.currentActiveMQStatistics = Collections.synchronizedMap(new HashMap<String, Map<String, Object>>());
         init();
     }
 
@@ -137,6 +136,12 @@ public class Manager {
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDFS.SUBPROPERTYOF)
+                .execute();
+        bugcount += mutationResult.getRangeCount();
+        mutationResult = new FastRangeCountRequestBuilder()
+                .path(config.getSparqlEndpoint())
+                .predicate(RDF.TYPE)
+                .object(RDFS.CLASS)
                 .execute();
         bugcount += mutationResult.getRangeCount();
         result.add(new StatementStatisticsEntry("Bug Statements", bugcount));
@@ -268,7 +273,7 @@ public class Manager {
                         if(message instanceof MapMessage){
                             try {
                                 String destinationName = ((MapMessage) message).getString("destinationName");
-                                currentActiveMQStatisitics.put(destinationName, JMSMessageConverter.getMap((MapMessage) message));
+                                currentActiveMQStatistics.put(destinationName, JMSMessageConverter.getMap((MapMessage) message));
                             } catch (JMSException e) {
                                 e.printStackTrace();
                             }
@@ -338,7 +343,11 @@ public class Manager {
                     for (String commitTime : gitArchive.getTimes()) {
                         for (String path : gitArchive.getChangedPaths(commitTime)) {
                             LOGGER.info("Sending " + commitTime + " s " + path);
-                            ArchiveAddress archiveAddress = new ArchiveAddress(gitArchive.getSourceBaseUri(), commitTime, path);
+                            ArchiveAddress archiveAddress = new ArchiveAddress(
+                                    selectedRepositoryDescriptor.getId(),
+                                    gitArchive.getSourceBaseUri(),
+                                    commitTime,
+                                    path);
                             archiveAddress.setParameters(selectedRepositoryDescriptor.getProperties());
                             ObjectMessage message = session.createObjectMessage();
                             message.setObject(archiveAddress);
@@ -543,8 +552,8 @@ public class Manager {
         return runManager;
     }
 
-    public Map<String, Map<String, Object>> getCurrentActiveMQStatisitics() {
-        return currentActiveMQStatisitics;
+    public Map<String, Map<String, Object>> getCurrentActiveMQStatistics() {
+        return currentActiveMQStatistics;
     }
 
     @DisallowConcurrentExecution

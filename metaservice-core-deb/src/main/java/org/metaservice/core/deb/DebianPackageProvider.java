@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class DebianPackageProvider implements Provider<Package> {
 
 
     @NotNull
-    public static final String rooturl = "http://metaservice.org/d/packages/";
+    public static final String rooturl = "http://metaservice.org/d/";
 
     private final ValueFactory valueFactory;
 
@@ -93,11 +94,11 @@ public class DebianPackageProvider implements Provider<Package> {
 
     //  public void setContext();
 
-    public void provideModelFor(@NotNull Package p, @NotNull final RepositoryConnection resultConnection,@NotNull HashMap<String,String> properties) throws ProviderException {
+    public void provideModelFor(@NotNull Package p, @NotNull final RepositoryConnection resultConnection,@NotNull final HashMap<String,String> properties) throws ProviderException {
         try{
             calculateURIs(p,properties);
 
-            BasicSuperNode packageQuery = new BasicSuperNode(p);
+            final BasicSuperNode packageQuery = new BasicSuperNode(p);
             packageQuery
                     .forEachChild(Entries.Package.class)
                     .forEachChild(PackageIdentifier.class)
@@ -124,8 +125,19 @@ public class DebianPackageProvider implements Provider<Package> {
             createStringEntry(packageQuery, packageURI, Entries.Homepage.class, PACKAGE_DEB.HOMEPAGE, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.Architecture.class, PACKAGE_DEB.ARCHITECTURE, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.Description.class, PACKAGE_DEB.DESCRIPTION, resultConnection);
-            createStringEntry(packageQuery, packageURI, Entries.Filename.class, PACKAGE_DEB.FILENAME, resultConnection);
-            createStringEntry(packageQuery, packageURI, Entries.Filename.class, DC.TITLE, resultConnection);
+            packageQuery
+                    .forEachChildStringNode( Entries.Filename.class)
+                    .execute(new SuperNodeQuery.Function() {
+                        @Override
+                        public void execute(@NotNull SuperNode n) throws RepositoryException {
+                            String filename = Paths.get(n.toString()).getFileName().toString();
+                            Literal fileNameLiteral = valueFactory.createLiteral(filename);
+                            resultConnection.add(packageURI, PACKAGE_DEB.FILENAME,fileNameLiteral );
+                            resultConnection.add(packageURI,  DC.TITLE, fileNameLiteral);
+                            resultConnection.add(packageURI, DC.SUBJECT,valueFactory.createURI(properties.get("metadata_source")+"../" +n.toString()));
+                        }
+                    });
+
             createEmailEntry(packageQuery, packageURI, Entries.Maintainer.class, PACKAGE_DEB.MAINTAINER_PROPERTY,resultConnection);
             createEmailEntry(packageQuery, packageURI, Entries.Uploaders.class, PACKAGE_DEB.UPLOADER,resultConnection);
 
@@ -307,15 +319,15 @@ public class DebianPackageProvider implements Provider<Package> {
 
 
     public URI createProjectUri(HashMap<String,String> properties, String projectName){
-        return  valueFactory.createURI(rooturl, properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName);
+        return  valueFactory.createURI(rooturl, "projects/" + properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName);
     }
     public URI createPackageUri(HashMap<String,String> properties, String projectName,String version,String arch){
-        return  valueFactory.createURI(rooturl, properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName +"/" + version + "/" + arch);
+        return  valueFactory.createURI(rooturl, "packages/" +properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName +"/" + version + "/" + arch);
     }
 
 
     public URI createReleaseUri(HashMap<String,String> properties, String projectName,String version){
-        return valueFactory.createURI(rooturl, properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName+"/" + version);
+        return valueFactory.createURI(rooturl, "releases/" + properties.get(PROPERTY_META_DISTRIBUTION) + "/" + projectName+"/" + version);
     }
 
 

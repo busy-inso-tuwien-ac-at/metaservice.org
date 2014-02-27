@@ -13,6 +13,7 @@
         <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/dcterms.rdf"/>
         <load url="http://metaservice.org/ns/dcelements.rdf"/>
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
@@ -29,6 +30,7 @@
             id="debVersionOrder"
             class="org.metaservice.core.deb.postprocessor.DebianVersionReasoner">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
@@ -39,6 +41,7 @@
             class="org.metaservice.core.deb.postprocessor.ReleasePostProcessor">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
     </postprocessor>
@@ -49,6 +52,7 @@
             class="org.metaservice.core.deb.postprocessor.DebianProjectPostProcessor">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
     </postprocessor>
@@ -58,6 +62,7 @@
             class="org.metaservice.core.deb.postprocessor.UbuntuProjectPostProcessor">
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
     </postprocessor>
@@ -138,7 +143,7 @@
     </crawler>
 
     <template
-            name="debian-version.hbs"
+            name="debian-release.hbs"
             appliesTo="http://metaservice.org/ns/metaservice-deb#Release"/>
     <template
             name="debian-package.hbs"

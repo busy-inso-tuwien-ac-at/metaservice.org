@@ -54,7 +54,7 @@ public class CVE {
         CWE = valueFactory.createURI(NS,"cwe");
     }
 
-    private static final String LOCAL_NS ="http://metaservice.org/d/report/cve/";
+    private static final String LOCAL_NS ="http://metaservice.org/d/reports/cve/";
 
 
 

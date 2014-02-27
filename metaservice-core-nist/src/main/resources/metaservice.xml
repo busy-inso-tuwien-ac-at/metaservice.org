@@ -35,13 +35,13 @@
     </crawler>
 
     <provider
-            id="cpeProvider"
-            type="cpe"
-            model="org.metaservice.nist.cpe.jaxb.ItemType"
-            class="org.metaservice.core.nist.cpe.CPEProvider"
+            id="cveProvider"
+            type="cve"
+            model="org.metaservice.nist.cve.jaxb.VulnerabilityType"
+            class="org.metaservice.core.nist.cve.CVEProvider"
             >
         <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
-        <load url="http://metaservice.org/ns/cpe.rdf"/>
+        <load url="http://metaservice.org/ns/cve.rdf"/>
         <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
     </provider>
 
@@ -91,5 +91,6 @@
 -->
     <ontology
             name="cpe.rdf" apply="true" distribute="true"/>
-
+    <ontology
+            name="cve.rdf" apply="true" distribute="true"/>
 </metaservice>
