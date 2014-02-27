@@ -21,7 +21,7 @@
         -->
 
     <template
-            name="generic-version.hbs"
+            name="generic-release.hbs"
             appliesTo="http://purl.org/adms/sw/SoftwareRelease"/>
     <template
             name="generic-package.hbs"
@@ -32,7 +32,8 @@
 
     <ontology
             name="adms_sw.rdf" apply="true" distribute="false"/>
-
+    <ontology
+            name="rdfs.rdf" apply="true" distribute="false"/>
     <ontology
             name="doap.rdf" apply="true" distribute="false"/>
     <ontology
@@ -49,5 +50,6 @@
             name="metaservice.rdf" apply="true" distribute="true"/>
     <ontology
             name="metaservice-swdep.rdf" apply="true" distribute="true"/>
+
 
 </metaservice>
