@@ -1,38 +1,42 @@
 CONSTRUCT {_QUADMODE_
-    GRAPH ?graph1 {$path ?relation1 ?value1}.
-    GRAPH ?ggraph1 {?graph1 ?grelation1 ?gvalue1}.
-    GRAPH ?graph2 { ?value1 ?relation2 ?value2}.
-    GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2}.
-    GRAPH ?graph3 { ?value2 ?relation3 ?value3}.
+    GRAPH ?c {?s ?p ?o}.
+    GRAPH ?cc {?c ?cp ?co}.
 }
 WITH {
 SELECT DISTINCT *
 {
-   GRAPH ?graph1 { $path ?relation1   ?value1}.
-   FILTER (?relation1 != <http://metaservice.org/ns/metaservice#dummy>). 
+   BIND ($path AS ?s).
+   GRAPH ?c{ ?s ?p ?o}.
+   FILTER (?p != <http://metaservice.org/ns/metaservice#dummy>). 
 }
 } as %level1
 WITH {
-SELECT DISTINCT ?graph2 ?value1 ?relation2 ?value2 {
-   INCLUDE %level1
-   GRAPH ?graph2 { ?value1 ?relation2 ?value2}.
-   FILTER (?relation2 != <http://metaservice.org/ns/metaservice#dummy>).        
-}
+SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
+  SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
+    INCLUDE %level1
+     GRAPH ?c2{ ?o ?p2 ?o2}.
+     FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).        
+    }
+  }
 } as %level2
+WITH {
+  SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
+  SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
+      INCLUDE %level2
+      GRAPH ?c2{ ?o ?p2 ?o2}.
+      FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).        
+    }
+  }
+} as %level3
 WHERE{
 {
  INCLUDE %level1
- OPTIONAL {
-    GRAPH ?ggraph1 {?graph1 ?grelation1 ?gvalue1.}
- }  
 } UNION {
  INCLUDE %level2
- OPTIONAL {
-     GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2.}
- }
 } UNION {
- INCLUDE %level2
- FILTER (isLiteral(?value3) || ?relation3 = <http://metaservice.org/ns/metaservice-swdep#dependOn>).
- GRAPH ?graph3 { ?value2 ?relation3 ?value3}.
+ INCLUDE %level3
 }
+ OPTIONAL {
+    GRAPH ?cc {?c ?cp ?co}.
+ }
 }
