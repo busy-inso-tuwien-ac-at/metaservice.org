@@ -77,7 +77,17 @@ function convertToJson(data,root){
 Handlebars.registerHelper('mboxToAddress',function(context,options){
     if(!context)
         return "";
+    if($.isPlainObject(context)){
+        context = context['ms:id'];
+    }
     return context.replace(/^mailto:/,'');
+});
+
+Handlebars.registerHelper('uri',function(context,options){
+    if($.isPlainObject(context)){
+        return context['ms:id'];
+    }
+    return context;
 });
 
 Handlebars.registerHelper('eachArray', function(context, options) {

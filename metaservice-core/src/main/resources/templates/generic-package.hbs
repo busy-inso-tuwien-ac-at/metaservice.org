@@ -8,8 +8,8 @@
     <div class="col-md-12">
         <ol class="breadcrumb">
             <li>Generic</li>
-            <li><a href="{{admssw:release/admssw:project/ms:id}}">{{admssw:release/admssw:project/ms:id}}</a></li>
-            <li><a href="{{admssw:release/ms:id}}">{{admssw:release/ms:id}}</a></li>
+            <li><a href="{{uri admssw:release/admssw:project}}">{{uri admssw:release/admssw:project}}</a></li>
+            <li><a href="{{uri admssw:release}}">{{uri admssw:release}}</a></li>
             <li class="active">architecture</li>
         </ol>
     </div>
@@ -22,10 +22,10 @@
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr data-provenance="[{{ms:id}}][xhv:prev][{{xhv:prev/ms:id}}]"><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
-                <tr data-provenance="[{{ms:id}}][xhv:next][{{xhv:next/ms:id}}]"><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/ms-deb:version}}</a></td></tr>
-                <tr><th>Version</th><td><a href="{{admssw:release/ms:id}}">{{admssw:release/ms:id}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{admssw:release/admssw:project/ms:id}}">{{admssw:release/admssw:project/ms:id}}</a></td></tr>
+                <tr data-provenance="[{{ms:id}}][xhv:prev][{{uri xhv:prev}}]"><th>Previous</th><td><a href="{{uri xhv:prev}}">{{uri xhv:prev}}</a></td></tr>
+                <tr data-provenance="[{{ms:id}}][xhv:next][{{uri xhv:next}}]"><th>Next</th><td><a href="{{uri xhv:next}}">{{uri xhv:next}}</a></td></tr>
+                <tr><th>Version</th><td><a href="{{uri admssw:release}}">{{uri admssw:release}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{uri admssw:release/admssw:project}}">{{uri admssw:release/admssw:project}}</a></td></tr>
             </table>
         </div>
     </div>

@@ -26,11 +26,11 @@
         {{#eachArray this}}
         <li>
             {{#if dc:description}}
-            <a href="{{ms-swdep:dependOn/ms:id}}">{{dc:description}}</a>
+            <a href="{{uri ms-swdep:dependOn}}">{{dc:description}}</a>
             {{/if}}
             {{#eachArray rdf:li}}
                 {{#if @index}}<b>or</b>{{/if}}
-                <a href="{{ms-swdep:dependOn/ms:id}}">{{dc:description}}</a>
+                <a href="{{uri ms-swdep:dependOn}}">{{dc:description}}</a>
             {{/eachArray}}
         </li>
         {{/eachArray}}

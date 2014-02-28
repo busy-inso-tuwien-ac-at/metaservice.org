@@ -4,7 +4,6 @@ CONSTRUCT {_QUADMODE_
     GRAPH ?graph2 { ?value1 ?relation2 ?value2}.
     GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2}.
     GRAPH ?graph3 { ?value2 ?relation3 ?value3}.
-
 }
 WHERE{
     {
@@ -23,7 +22,7 @@ WHERE{
             GRAPH ?ggraph2 {?graph2 ?grelation2 ?gvalue2.}
         }
         OPTIONAL {
-              FILTER NOT EXISTS { ?value3 a ?any }.
+              FILTER (isLiteral(?value3) || ?relation3 = <http://metaservice.org/ns/metaservice-swdep#dependOn>).
               GRAPH ?graph3 { ?value2 ?relation3 ?value3}.
         }
     }

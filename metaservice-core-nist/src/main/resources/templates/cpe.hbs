@@ -17,41 +17,6 @@
 <div class="row">
     <div class="col-md-8">
         <pre data-provenance="[{{ms:id}}][{ms-deb:description][{{ms-deb:description}}]">{{ms-deb:description}}</pre>
-        Homegpage: {{#ms-deb:homepage}} <a class="external" href="{{this}}">{{this}}</a>{{/ms-deb:homepage}}{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
-        <br>
-        Maintainer:
-        <ul>
-            {{#eachArray ms-deb:maintainer}}<li><a href="{{uri foaf:mbox}}">{{foaf:name}} &lt;{{mboxToAddress foaf:mbox}}&gt;</a></li>{{/eachArray}}
-        </ul>
-        <br>
-        Uploader:
-        <ul>
-            {{#eachArray ms-deb:uploader}}<li><a href="{{foaf:mbox}}">{{foaf:name}}</a></li>{{/eachArray}}
-        </ul>
-        Depends:
-        <ul>
-            {{>dependency  ms-deb:depends}}
-        </ul>
-        Suggests:
-        <ul>
-            {{>dependency  ms-deb:suggests}}
-        </ul>
-        Recommends:
-        <ul>
-            {{>dependency  ms-deb:recommends}}
-        </ul>
-        Breaks:
-        <ul>
-            {{>dependency  ms-deb:breaks}}
-        </ul>
-        Conflicts:
-        <ul>
-            {{>dependency  ms-deb:conflicts}}
-        </ul>
-        Replaces:
-        <ul>
-            {{>dependency  ms-deb:replaces}}
-        </ul>
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
