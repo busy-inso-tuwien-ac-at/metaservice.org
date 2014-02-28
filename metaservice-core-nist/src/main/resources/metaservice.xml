@@ -77,18 +77,13 @@
     </crawler>
 
 
-    <!--
     <template
-            name="debian-version.hbs"
-            appliesTo="http://metaservice.org/ns/metaservice-deb#Release"/>
+            name="cpe.hbs"
+            appliesTo="http://metaservice.org/ns/cpe#CPE"/>
     <template
-            name="debian-package.hbs"
-            appliesTo="http://metaservice.org/ns/metaservice-deb#Package"/>
-    <template
-            name="debian-project.hbs"
-            appliesTo="http://metaservice.org/ns/metaservice-deb#Project"/>
+            name="cve.hbs"
+            appliesTo="http://metaservice.org/ns/cve#CVE"/>
 
--->
     <ontology
             name="cpe.rdf" apply="true" distribute="true"/>
     <ontology

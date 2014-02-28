@@ -35,7 +35,9 @@ function initMs() {
         "skos":"http://www.w3.org/2004/02/skos/core#",
         "vcard":"http://www.w3.org/2006/vcard/ns#",
         "xhv":"http://www.w3.org/1999/xhtml/vocab#",
-        "xsd": "http://www.w3.org/2001/XMLSchema#"
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "cve": "http://metaservice.org/ns/cve#",
+        "cpe": "http://metaservice.org/ns/cpe#"
     };
     MS.raw = {};
     MS.provenanceCache = {};

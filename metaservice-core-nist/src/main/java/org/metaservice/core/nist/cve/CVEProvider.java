@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.provider.Provider;
 import org.metaservice.api.provider.ProviderException;
+import org.metaservice.api.rdf.vocabulary.DCTERMS;
 import org.metaservice.core.nist.cpe.CPE;
 import org.metaservice.nist.cve.jaxb.*;
 import org.openrdf.model.BNode;
@@ -80,6 +81,7 @@ public class CVEProvider implements Provider<VulnerabilityType> {
             if(o.getVulnerableSoftwareList() != null && o.getVulnerableSoftwareList().getProducts() != null){
                 for(String cpeId : o.getVulnerableSoftwareList().getProducts()){
                     resultConnection.add(uri,CVE.VULNERABLE_SOFTWARE,CPE.getById(cpeId));
+                    resultConnection.add(CPE.getById(cpeId), DCTERMS.IS_REFERENCED_BY,uri);
                 }
             }
 

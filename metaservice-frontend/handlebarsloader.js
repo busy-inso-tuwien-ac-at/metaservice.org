@@ -90,6 +90,18 @@ Handlebars.registerHelper('uri',function(context,options){
     return context;
 });
 
+Handlebars.registerHelper('text',function(context,options){
+    if($.isPlainObject(context)){
+        return context['@value'];
+    }
+    return context;
+});
+Handlebars.registerHelper('date',function(context,options){
+    if($.isPlainObject(context)){
+        return context['@value'];
+    }
+    return context;
+});
 Handlebars.registerHelper('eachArray', function(context, options) {
     if(!context)
     return "";
