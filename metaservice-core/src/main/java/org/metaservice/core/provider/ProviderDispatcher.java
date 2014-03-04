@@ -83,7 +83,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         loadOntologies(resultConnection,providerDescriptor.getLoadList());
         resultConnection.commit();
         HashSet<Statement> result  =new HashSet<>();
-        Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT),result);
+        Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT), result);
         return Collections.unmodifiableSet(result);
     }
 
@@ -206,12 +206,24 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         try {
             LOGGER.info("Starting to process " + archiveAddress);
             Archive.Contents contents = archive.getContent(archiveAddress.getTime(),archiveAddress.getPath());
-            if(contents == null ||contents.now == null ||contents.prev == null){
+            if(contents == null){
                 LOGGER.warn("Cannot process content  of address {}, skipping.",archiveAddress );
                 return;
             }
-            List<Statement> nowGeneratedStatements = getStatmenets(contents.now,archiveAddress);
-            List<Statement> prevGeneratedStatements = getStatmenets(contents.prev,archiveAddress);
+            List<Statement> nowGeneratedStatements;
+            List<Statement> prevGeneratedStatements;
+            if (contents.now == null){
+                nowGeneratedStatements = new ArrayList<>();
+            }  else {
+                nowGeneratedStatements  = getStatmenets(contents.now,archiveAddress);
+
+            }
+            if (contents.prev == null){
+                prevGeneratedStatements = new ArrayList<>();
+            }  else {
+                prevGeneratedStatements  = getStatmenets(contents.prev,archiveAddress);
+
+            }
             URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,"add"); //todo
             URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,"remove");//todo
 

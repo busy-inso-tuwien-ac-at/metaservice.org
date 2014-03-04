@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.archive.ArchiveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,7 +194,7 @@ public class GitUtil {
     private void debug(@NotNull Process exec) throws GitException {
         try{
             ProcessUtil.debug(exec);
-        }catch (InterruptedException|IOException e){
+        }catch (InterruptedException | IOException | MetaserviceException e){
             throw new GitException(e);
         }
     }
@@ -234,8 +235,8 @@ public class GitUtil {
             debug(process);
             return writer.getBuffer().toString();
         } catch (GitException e) {
-           LOGGER.warn("Process did not terminate silently",e);
-            return null;
+           LOGGER.debug("Process did not terminate correctly",e);
+           return null;
         } catch (IOException e) {
             throw new ArchiveException(e);
         }
