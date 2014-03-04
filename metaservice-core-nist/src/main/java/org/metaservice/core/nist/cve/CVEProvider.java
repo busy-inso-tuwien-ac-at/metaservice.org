@@ -2,7 +2,7 @@ package org.metaservice.core.nist.cve;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.metaservice.api.provider.Provider;
+import org.metaservice.api.provider.AbstractProvider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.api.rdf.vocabulary.DCTERMS;
 import org.metaservice.core.nist.cpe.CPE;
@@ -18,51 +18,18 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
 import javax.inject.Inject;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.HashMap;
 
 /**
  * Created by ilo on 26.02.14.
  */
-public class CVEProvider implements Provider<VulnerabilityType> {
-    private final ValueFactory valueFactory;
+public class CVEProvider extends AbstractProvider<VulnerabilityType> {
 
     @Inject
     public CVEProvider(ValueFactory valueFactory) {
-        this.valueFactory = valueFactory;
+        super(valueFactory);
     }
 
-    public void addIfNotNull(@NotNull RepositoryConnection resultConnection, @NotNull Resource subject, @NotNull URI predicate,@Nullable String text,@Nullable String language) throws RepositoryException {
-        if(text != null){
-            if(language != null)
-                resultConnection.add(subject, predicate, valueFactory.createLiteral(text,language));
-            else
-                resultConnection.add(subject, predicate, valueFactory.createLiteral(text));
-        }
-
-    }
-
-    public void addIfNotNull(@NotNull RepositoryConnection resultConnection, @NotNull Resource subject, @NotNull URI predicate,@Nullable String object) throws RepositoryException {
-        if(object != null)
-            resultConnection.add(subject, predicate, valueFactory.createLiteral(object));
-    }
-    public void addIfNotNull(@NotNull RepositoryConnection resultConnection, @NotNull Resource subject, @NotNull URI predicate,@Nullable XMLGregorianCalendar object) throws RepositoryException {
-        if(object != null)
-            resultConnection.add(subject, predicate, valueFactory.createLiteral(object));
-    }
-    public void addIfNotNull(@NotNull RepositoryConnection resultConnection, @NotNull Resource subject, @NotNull URI predicate,@Nullable Integer object) throws RepositoryException {
-        if(object != null)
-            resultConnection.add(subject, predicate, valueFactory.createLiteral(object));
-    }
-    public void addIfNotNull(@NotNull RepositoryConnection resultConnection, @NotNull Resource subject, @NotNull URI predicate,@Nullable Boolean object) throws RepositoryException {
-        if(object != null)
-            resultConnection.add(subject, predicate, valueFactory.createLiteral(object));
-    }
-
-    private void addIfNotEmpty(@NotNull RepositoryConnection resultConnection,@NotNull Resource uri,@NotNull URI relation,@NotNull BNode bNode) throws RepositoryException {
-        if(resultConnection.getStatements(bNode,null,null,false).hasNext())
-            resultConnection.add(uri,relation,bNode);
-    }
 
     @Override
     public void provideModelFor(@NotNull VulnerabilityType o, @NotNull RepositoryConnection resultConnection, @NotNull HashMap<String, String> properties) throws ProviderException {

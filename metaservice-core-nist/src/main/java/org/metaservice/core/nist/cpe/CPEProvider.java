@@ -2,16 +2,22 @@ package org.metaservice.core.nist.cpe;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.metaservice.api.provider.Provider;
+import org.jetbrains.annotations.Nullable;
+import org.metaservice.api.provider.AbstractProvider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.api.rdf.vocabulary.DC;
 import org.metaservice.nist.cpe.jaxb.CheckType;
 import org.metaservice.nist.cpe.jaxb.ItemType;
 import org.metaservice.nist.cpe.jaxb.NotesType;
 import org.metaservice.nist.cpe.jaxb.TextType;
+import org.mitre.cpe.common.LogicalValue;
+import org.mitre.cpe.common.WellFormedName;
+import org.mitre.cpe.naming.util.CPEFactory;
 import org.openrdf.model.BNode;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -19,18 +25,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.text.ParseException;
 import java.util.HashMap;
 
 /**
  * Created by ilo on 25.02.14.
  */
-public class CPEProvider implements Provider<ItemType> {
+public class CPEProvider extends AbstractProvider<ItemType> {
     private final Logger LOGGER = LoggerFactory.getLogger(CPEProvider.class);
-    private final ValueFactory valueFactory;
-
+    protected void addIfNotAny(@NotNull RepositoryConnection resultConnection, @NotNull Resource subject, @NotNull URI predicate,@Nullable Object object) throws RepositoryException {
+        if(object != null && !LogicalValue.ANY.equals(object))
+            resultConnection.add(subject, predicate, valueFactory.createLiteral(object.toString()));
+    }
     @Inject
     public CPEProvider(ValueFactory valueFactory) {
-        this.valueFactory = valueFactory;
+        super(valueFactory);
     }
 
     @Override
@@ -43,8 +52,26 @@ public class CPEProvider implements Provider<ItemType> {
             }
             URI uri = CPE.getById(o.getName());
             resultConnection.add(uri, RDF.TYPE,CPE.CPE);
-            resultConnection.add(uri,CPE.NAME,valueFactory.createLiteral(o.getName()));
+            String name = o.getName();
+
+            resultConnection.add(uri, OWL.SAMEAS, valueFactory.createURI(name));
+            resultConnection.add(uri, CPE.NAME,valueFactory.createLiteral(name));
             resultConnection.add(uri, CPE.DEPRECATED,valueFactory.createLiteral(o.isDeprecated()));
+            try {
+                WellFormedName wellFormedName = CPEFactory.newCPEName(name).getWellFormedName();
+                addIfNotAny(resultConnection, uri, CPE.PART, wellFormedName.get(WellFormedName.Attribute.PART));
+                addIfNotAny(resultConnection, uri, CPE.VENDOR, wellFormedName.get(WellFormedName.Attribute.VENDOR));
+                addIfNotAny(resultConnection, uri, CPE.VERSION, wellFormedName.get(WellFormedName.Attribute.VERSION));
+                addIfNotAny(resultConnection, uri, CPE.UPDATE, wellFormedName.get(WellFormedName.Attribute.UPDATE));
+                addIfNotAny(resultConnection, uri, CPE.EDITION, wellFormedName.get(WellFormedName.Attribute.EDITION));
+                addIfNotAny(resultConnection, uri, CPE.LANGUAGE, wellFormedName.get(WellFormedName.Attribute.LANGUAGE));
+                addIfNotAny(resultConnection, uri, CPE.SW_EDITION,wellFormedName.get(WellFormedName.Attribute.SW_EDITION));
+                addIfNotAny(resultConnection, uri, CPE.TARGET_SW, wellFormedName.get(WellFormedName.Attribute.TARGET_SW));
+                addIfNotAny(resultConnection, uri, CPE.TARGET_HW, wellFormedName.get(WellFormedName.Attribute.TARGET_HW));
+                addIfNotAny(resultConnection, uri, CPE.OTHER, wellFormedName.get(WellFormedName.Attribute.OTHER));
+            } catch (ParseException e) {
+                throw new ProviderException("Could not parse",e);
+            }
             if(o.getDeprecationDate() != null){
                 resultConnection.add(uri,CPE.DEPRECATION_DATE,valueFactory.createLiteral(o.getDeprecationDate()));
             }

@@ -20,6 +20,17 @@ public class CPE {
     public static final URI CHECK_HREF;
     public static final URI NAME;
     public static final URI DEPRECATION_DATE;
+    public static final URI PART;
+    public static final URI VENDOR;
+    public static final URI PRODUCT;
+    public static final URI VERSION;
+    public static final URI UPDATE;
+    public static final URI EDITION;
+    public static final URI LANGUAGE;
+    public static final URI SW_EDITION;
+    public static final URI TARGET_SW;
+    public static final URI TARGET_HW;
+    public static final URI OTHER;
 
 
     /* CUSTOM METASERVICE */
@@ -37,6 +48,18 @@ public class CPE {
         CHECK_HREF = valueFactory.createURI(NS,"checkHref");
         NAME = valueFactory.createURI(NS,"name");
         REFERENCED_BY = valueFactory.createURI(NS,"referencedBy");
+        PART          = valueFactory.createURI(NS,"part");
+        VENDOR        = valueFactory.createURI(NS,"vendor");
+        PRODUCT       = valueFactory.createURI(NS,"product");
+        VERSION       = valueFactory.createURI(NS,"version");
+        UPDATE = valueFactory.createURI(NS,"update");
+        EDITION = valueFactory.createURI(NS,"edition");
+        LANGUAGE = valueFactory.createURI(NS,"language");
+        SW_EDITION = valueFactory.createURI(NS,"swEdition");
+        TARGET_SW = valueFactory.createURI(NS,"targetSw");
+        TARGET_HW = valueFactory.createURI(NS,"targetHw");
+        OTHER = valueFactory.createURI(NS,"other");
+
     }
 
     private static final String LOCAL_NS ="http://metaservice.org/d/releases/cpe/";

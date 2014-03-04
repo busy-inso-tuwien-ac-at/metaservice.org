@@ -61,6 +61,9 @@ public class GitArchive implements Archive {
                 Contents contents = new Contents();
                 contents.now =  processPath(revision,new File( path));
                 contents.prev = processPath(revision+"^",new File(path));
+                if(contents.prev == null){
+                    contents.prev = "";
+                }
                 return contents;
             }
             return null;  //To change body of implemented methods use File | Settings | File Templates.

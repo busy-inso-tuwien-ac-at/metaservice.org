@@ -368,6 +368,7 @@ public class Manager {
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
+        repositoryConnection.add(metadata, METASERVICE.ACTION, valueFactory.createLiteral("add"),metadata);
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);
         repositoryConnection.commit();

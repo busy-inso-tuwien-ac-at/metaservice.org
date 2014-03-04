@@ -3,6 +3,7 @@ package org.metaservice.core.utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.archive.ArchiveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,7 +216,8 @@ public class GitUtil {
         return (hashes.length >0);
     }
 
-    public String getFileContent(String revisison, String path) throws ArchiveException {
+    @Nullable
+    public String getFileContent( @NotNull String revisison,@NotNull String path) throws ArchiveException {
         try {
             if(path.contains(workdir.getPath())){
                 path = path.replaceFirst(workdir.getPath(),"");
@@ -232,7 +234,8 @@ public class GitUtil {
             debug(process);
             return writer.getBuffer().toString();
         } catch (GitException e) {
-            throw new ArchiveException(e);
+           LOGGER.warn("Process did not terminate silently",e);
+            return null;
         } catch (IOException e) {
             throw new ArchiveException(e);
         }

@@ -24,7 +24,7 @@
     <repository
             id="cpeRepository"
             type="cpe"
-            baseUri="http://http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/"
+            baseUri="http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/"
             startUri="http://nvd.nist.gov/cpe.cfm"
             crawler="cpeCrawler"
             >
