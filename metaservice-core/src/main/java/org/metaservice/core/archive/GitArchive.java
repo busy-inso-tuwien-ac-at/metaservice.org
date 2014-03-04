@@ -1,6 +1,8 @@
 package org.metaservice.core.archive;
 
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.archive.ArchiveException;
@@ -9,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -20,9 +22,11 @@ public class GitArchive implements Archive {
     protected final GitUtil gitUtil;
     protected final File workdir;
     protected final String sourceBaseUri;
+    protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 
 
-    public GitArchive(ArchiveParameters archiveParameters) throws ArchiveException {
+
+    public GitArchive(@NotNull ArchiveParameters archiveParameters) throws ArchiveException {
         this.workdir = archiveParameters.getDirectory();
         this.sourceBaseUri = archiveParameters.getSourceBaseUri();
         try {
@@ -34,20 +38,22 @@ public class GitArchive implements Archive {
         }
     }
 
+    @NotNull
     @Override
     public String getSourceBaseUri() {
 
         return sourceBaseUri;
     }
 
+    @Nullable
     @Override
     /**
      * Path must be of form /asdf/asd
      */
-    public String getContent(String time, String path) throws ArchiveException {
+    public String getContent(@NotNull Date time,@NotNull String path) throws ArchiveException {
         String revision = null;
         try {
-            revision = gitUtil.findFirsRevisionWithMessage(time);
+            revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(time));
             LOGGER.info("FOUND REVISION: " + revision);
             if(revision!= null){
                 return processPath(time,new File( path));
@@ -58,11 +64,12 @@ public class GitArchive implements Archive {
         }
     }
 
-    public String processPath(String time, File f) throws ArchiveException {
+    @Nullable
+    public String processPath(@NotNull Date time,@NotNull File f) throws ArchiveException {
         try {
             f = new File(workdir.getAbsolutePath() + "/"+  f.getPath());
         LOGGER.info("Processing {}", f.getAbsolutePath());
-            return gitUtil.getFileContent(gitUtil.findFirsRevisionWithMessage(time),f.getPath());
+            return gitUtil.getFileContent(gitUtil.findFirsRevisionWithMessage(dateFormat.format(time)),f.getPath());
         } catch (GitUtil.GitException e) {
             throw new ArchiveException(e);
         }
@@ -90,8 +97,17 @@ public class GitArchive implements Archive {
     }
                              */
     @Override
-    public List<String> getTimes() throws ArchiveException{
-        return Arrays.asList(gitUtil.getCommitMessages());
+    @NotNull
+    public List<Date> getTimes() throws ArchiveException{
+        ArrayList<Date> result = new ArrayList();
+        for(String s: gitUtil.getCommitMessages()){
+            try {
+                result.add(dateFormat.parse(s));
+            } catch (ParseException e) {
+                LOGGER.error("Could not parse message '{}'",s,e);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -104,7 +120,7 @@ public class GitArchive implements Archive {
     }
 
     @Override
-    public void addContent(String path, InputStream inputStream) throws ArchiveException {
+    public void addContent(@NotNull String path,@NotNull InputStream inputStream) throws ArchiveException {
         ensureOnHead();
 
         File outFile = new File(workdir.getAbsolutePath()  +"/"+ path);
@@ -132,7 +148,6 @@ public class GitArchive implements Archive {
     public boolean commitContent() throws ArchiveException{
         try {
             //todo maybe use a specified date?
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
            String date = dateFormat.format(new Date());
             if(gitUtil.hasChangesToCommit()){
                 gitUtil.commitChanges(date);
@@ -145,15 +160,17 @@ public class GitArchive implements Archive {
     }
 
     @Override
-    public String getLastCommitTime() throws ArchiveException {
+    @NotNull
+    public Date getLastCommitTime() throws ArchiveException {
         try {
-            return gitUtil.getCurrentMessage();
-        } catch (GitUtil.GitException e) {
+            return dateFormat.parse(gitUtil.getCurrentMessage());
+        } catch (GitUtil.GitException | ParseException e) {
             throw new ArchiveException(e);
         }
     }
 
     @Override
+    @NotNull
     public String[] getLastChangedPaths() throws ArchiveException{
         try {
             ArrayList<String> res = new ArrayList<>();
@@ -167,9 +184,10 @@ public class GitArchive implements Archive {
     }
 
     @Override
-    public String[] getChangedPaths(String commitTime) throws ArchiveException {
+    @NotNull
+    public String[] getChangedPaths(@NotNull Date commitTime) throws ArchiveException {
         try {
-           String revision = gitUtil.findFirsRevisionWithMessage(commitTime);
+           String revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(commitTime));
             ArrayList<String> res = new ArrayList<>();
             for(File f: gitUtil.getChangedFiles(revision)){
                 res.add(f.getPath());

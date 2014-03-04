@@ -1,8 +1,6 @@
 package org.metaservice.core;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -17,7 +15,6 @@ import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
 import org.metaservice.core.postprocessor.PostProcessingTask;
 import org.openrdf.model.*;
 import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -26,7 +23,6 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.ntriples.NTriplesParserFactory;
 import org.openrdf.rio.ntriples.NTriplesWriter;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
@@ -36,13 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 import java.io.*;
-import java.lang.reflect.Array;
-import java.net.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by ilo on 17.01.14.
@@ -152,13 +143,13 @@ public abstract  class AbstractDispatcher<T> {
         return subjects;
     }
 
-    protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @Nullable PostProcessingTask originalTask, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor, Set<URI> affectedProcessableSubjects){
+    protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @NotNull List<PostProcessingHistoryItem> oldHistory,@NotNull Date time, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,@Nullable Set<URI> affectedProcessableSubjects){
         LOGGER.debug("START NOTIFICATION OF POSTPROCESSORS");
 
         ArrayList<PostProcessingHistoryItem> history = new ArrayList<>();
+        history.addAll(oldHistory);
 
-        if(originalTask != null && affectedProcessableSubjects != null){
-            history.addAll(originalTask.getHistory());
+        if(affectedProcessableSubjects != null){
             if(postProcessorDescriptor != null){
                 PostProcessingHistoryItem now = new PostProcessingHistoryItem(postProcessorDescriptor.getId(),affectedProcessableSubjects.toArray(new URI[affectedProcessableSubjects.size()]));
                 history.add(now);
@@ -168,7 +159,7 @@ public abstract  class AbstractDispatcher<T> {
         try {
             for(URI uri : resourcesThatChanged){
                 count++;
-                PostProcessingTask postProcessingTask = new PostProcessingTask(uri);
+                PostProcessingTask postProcessingTask = new PostProcessingTask(uri,time);
                 postProcessingTask.getHistory().addAll(history);
                 ObjectMessage objectMessage = session.createObjectMessage(postProcessingTask);
                 //objectMessage.setJMSExpiration(1000*60*15); // 15 min

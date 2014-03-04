@@ -1,13 +1,14 @@
 package org.metaservice.api.archive;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 
 public class ArchiveAddress implements Serializable{
     private static final long serialVersionUID = -5874232640077304953L;
     private String repository;
     private String archiveUri;
-    private String time;
+    private Date time;
     private String path;
     private HashMap<String,String> parameters = new HashMap<>();
 
@@ -19,7 +20,7 @@ public class ArchiveAddress implements Serializable{
         this.parameters = parameters;
     }
 
-    public ArchiveAddress(String repository,String archiveUri, String time, String path) {
+    public ArchiveAddress(String repository,String archiveUri, Date time, String path) {
         this.repository = repository;
         this.archiveUri = archiveUri;
         this.time = time;
@@ -34,11 +35,11 @@ public class ArchiveAddress implements Serializable{
         this.archiveUri = archiveUri;
     }
 
-    public String getTime() {
+    public Date getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Date time) {
         this.time = time;
     }
 

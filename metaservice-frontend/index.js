@@ -324,7 +324,7 @@ function jsonLdFollowIris(source,iri){
                     if(d['@id']){
                         var id = d['@id'];
                         //break loops
-                        delete obj[dindex];
+                        obj[dindex] = null;
                         obj[dindex] = jsonLdFollowIris(source,id);
                     }else{
                         $.each(d,function(xindex,x){
@@ -332,6 +332,7 @@ function jsonLdFollowIris(source,iri){
                                 var id = x['@id'];
                                 //break loops
                             //    delete d[xindex];
+                                d[xindex] = null;
                                 d[xindex] = jsonLdFollowIris(source,id);
                             }
                         });

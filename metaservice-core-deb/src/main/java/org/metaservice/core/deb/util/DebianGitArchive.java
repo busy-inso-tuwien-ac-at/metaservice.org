@@ -2,6 +2,7 @@ package org.metaservice.core.deb.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.core.archive.GitArchive;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DebianGitArchive extends GitArchive {
     private final static Logger LOGGER = LoggerFactory.getLogger(DebianGitArchive.class);
@@ -19,25 +21,27 @@ public class DebianGitArchive extends GitArchive {
         super(configuration);
     }
 
+    @NotNull
     @Override
-    public String getContent(String time, String path) throws ArchiveException {
+    public String getContent(@NotNull Date time, @NotNull String path) throws ArchiveException {
         return processPath(time,new File(path));
     }
 
+    @Nullable
     @Override
-    public String processPath(String time,File f) throws ArchiveException {
+    public String processPath(@NotNull Date time, @NotNull File f) throws ArchiveException {
         LOGGER.info("Processing {}", f.getPath());
         try {
             if("Packages".equals(f.getName())){
                 GitUtil.Line[] changes;
                 //String relpath =  f.getAbsolutePath().replace(workdir.getAbsolutePath()+"/","");
-                String commit = gitUtil.findFirsRevisionWithMessage(time);
+                String commit = gitUtil.findFirsRevisionWithMessage(dateFormat.format(time));
                 changes = gitUtil.getChangeList(f.getPath(),commit);
                 String[] packageAreas = extractFullPackages(changes);
                 String s =  StringUtils.join(packageAreas, "\n");
                 return s;
             }
-            return null;
+            return null;//todo NOTNULL?
         } catch (GitUtil.GitException e) {
             throw new ArchiveException(e);
         }

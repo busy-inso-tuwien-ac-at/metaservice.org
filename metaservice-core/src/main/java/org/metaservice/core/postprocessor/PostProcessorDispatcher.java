@@ -2,6 +2,7 @@ package org.metaservice.core.postprocessor;
 
 import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
@@ -126,9 +127,9 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
             }
 
-            URI metadata =  generateMetadata();
+            URI metadata =  generateMetadata(task);
             sendData(resultConnection,metadata,generatedStatements);
-            notifyPostProcessors(subjects,task,postProcessorDescriptor,processableSubjects);
+            notifyPostProcessors(subjects,task.getHistory(),task.getTime(),postProcessorDescriptor,processableSubjects);
         } catch (RepositoryException | PostProcessorException e) {
             LOGGER.error("Couldn't create {}",resource,e);
         } catch (UpdateExecutionException e) {
@@ -201,12 +202,14 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         return resultSet;
     }
 
-    private URI generateMetadata() throws RepositoryException {
+    @NotNull
+    private URI generateMetadata(@NotNull PostProcessingTask task) throws RepositoryException {
         Date now = new Date();
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
+        repositoryConnection.add(metadata, METASERVICE.TIME, valueFactory.createLiteral(task.getTime()),metadata); //todo fix it to be based on the used data
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)), metadata);

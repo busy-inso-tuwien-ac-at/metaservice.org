@@ -13,7 +13,9 @@ import org.metaservice.api.provider.ProviderException;
 import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.config.Config;
 import org.metaservice.core.descriptor.DescriptorHelper;
+import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
 import org.openrdf.model.*;
+import org.openrdf.model.impl.CalendarLiteralImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
@@ -100,7 +102,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 Value pathValue = set.getBinding("path").getValue();
                 Value idValue = set.getBinding("repositoryId").getValue();
                 URI oldMetadata = (URI) set.getBinding("metadata").getValue();
-                String time = timeValue.stringValue();
+                Date time = ((CalendarLiteralImpl)timeValue).calendarValue().toGregorianCalendar().getTime();
                 String repo = repoValue.stringValue();
                 String path = pathValue.stringValue();
                 String repositoryId = idValue.stringValue();
@@ -165,7 +167,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             sendDataByLoad(metadata, generatedStatements);
             repositoryConnection.clear(oldMetadata);
             Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
-            notifyPostProcessors(resourcesToPostProcess,null,null,null);
+            notifyPostProcessors(resourcesToPostProcess,new ArrayList<PostProcessingHistoryItem>(),archiveAddress.getTime(),null,null);
             LOGGER.info("done processing {} {}", archiveAddress.getTime(), archiveAddress.getPath());
         } catch (RepositoryException | ArchiveException e) {
             LOGGER.error("Could not Refresh {}" ,archiveAddress,e);
@@ -204,7 +206,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             List<Statement> generatedStatements  = getGeneratedStatements(resultConnection,loadedStatements);
             sendDataByLoad(metadata, generatedStatements);
             Set<URI> resourcesToPostProcess = getSubjects(generatedStatements);
-            notifyPostProcessors(resourcesToPostProcess,null,null, null);
+            notifyPostProcessors(resourcesToPostProcess,new ArrayList<PostProcessingHistoryItem>(),address.getTime(),null, null);
         } catch (RepositoryException | ArchiveException e) {
             LOGGER.error("Couldn't create {}",address,e);
         } catch (MetaserviceException e) {
@@ -213,7 +215,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
     }
 
     private URI generateMetadata(ArchiveAddress address, HashMap<String, String> parameters) throws RepositoryException {
-        //todo uniqueness in uri necessary
+        // todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + provider.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         Value idLiteral = valueFactory.createLiteral(address.getRepository());
         Value pathLiteral = valueFactory.createLiteral(address.getPath());
@@ -229,7 +231,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(),providerDescriptor)),metadata);
         repositoryConnection.commit();
         parameters.put("metadata_path",address.getPath());
-        parameters.put("metadata_time",address.getTime());
+        parameters.put("metadata_time",address.getTime().toString());//todo fix format?
         parameters.put("metadata_source",address.getArchiveUri());
         return metadata;
     }

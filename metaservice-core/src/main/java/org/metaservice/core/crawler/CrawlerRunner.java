@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.jms.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
 
 /**
@@ -75,7 +76,7 @@ public class CrawlerRunner {
         crawler.execute(new HashSet<String>());
         try {
             if(archive.commitContent()){
-                String commitTime = archive.getLastCommitTime();
+                Date commitTime = archive.getLastCommitTime();
                 String sourceBaseUri =  archive.getSourceBaseUri();
                 for(String s : archive.getLastChangedPaths()){
                     try{

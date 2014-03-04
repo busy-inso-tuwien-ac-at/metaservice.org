@@ -7,34 +7,74 @@ SELECT DISTINCT *
 {
    BIND ($path AS ?s).
    GRAPH ?c{ ?s ?p ?o}.
-   FILTER (?p != <http://metaservice.org/ns/metaservice#dummy>). 
+   FILTER (?p != <http://metaservice.org/ns/metaservice#dummy>).
 }
 } as %level1
 WITH {
-SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
+  SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
   SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
-    INCLUDE %level1
-     GRAPH ?c2{ ?o ?p2 ?o2}.
-     FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).        
+      INCLUDE %level1filtered.
+      GRAPH ?c2{ ?o ?p2 ?o2}.
+      FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
     }
   }
 } as %level2
+
 WITH {
   SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
   SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
-      INCLUDE %level2
+      INCLUDE %level2filtered.
       GRAPH ?c2{ ?o ?p2 ?o2}.
-      FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).        
+      FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
     }
   }
 } as %level3
+WITH {
+SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+    INCLUDE %level1.
+    ?c <http://metaservice.org/ns/metaservice#time> ?time.
+} GROUP BY ?s ?p ?o
+} as %level1max
+WITH {
+SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+    INCLUDE %level2.
+    ?c <http://metaservice.org/ns/metaservice#time> ?time.
+} GROUP BY ?s ?p ?o
+} as %level2max
+WITH {
+SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+    INCLUDE %level3.
+    ?c <http://metaservice.org/ns/metaservice#time> ?time.
+}GROUP BY ?s ?p ?o
+} as %level3max
+WITH {
+SELECT ?c ?s ?p ?o {
+ INCLUDE %level1.
+ ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+   include %level1max.
+}
+} as %level1filtered
+WITH {
+SELECT ?c ?s ?p ?o {
+ INCLUDE %level2.
+ ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+ include %level2max.
+}
+} as %level2filtered
+WITH {
+SELECT ?c ?s ?p ?o {
+ INCLUDE %level3.
+  ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+   include %level3max.
+}
+} as %level3filtered
 WHERE{
 {
- INCLUDE %level1
+ INCLUDE %level1filtered
 } UNION {
- INCLUDE %level2
+ INCLUDE %level2filtered
 } UNION {
- INCLUDE %level3
+ INCLUDE %level3filtered
 }
  OPTIONAL {
     GRAPH ?cc {?c ?cp ?co}.

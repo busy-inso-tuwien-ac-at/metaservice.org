@@ -340,7 +340,7 @@ public class Manager {
                 @Override
                 public void execute(Session session, MessageProducer producer) throws JMSException, ArchiveException {
                     Archive gitArchive = getArchiveForRepository(selectedRepositoryDescriptor);
-                    for (String commitTime : gitArchive.getTimes()) {
+                    for (Date commitTime : gitArchive.getTimes()) {
                         for (String path : gitArchive.getChangedPaths(commitTime)) {
                             LOGGER.info("Sending " + commitTime + " s " + path);
                             ArchiveAddress archiveAddress = new ArchiveAddress(
@@ -359,6 +359,19 @@ public class Manager {
         } catch (JMSException|ArchiveException e) {
             throw new ManagerException(e);
         }
+    }
+    private URI generateMetadata(MetaserviceDescriptor.ModuleInfo moduleInfo) throws RepositoryException {
+        //todo uniqueness in uri necessary
+        URI metadata = valueFactory.createURI("http://metaservice.org/m/" + DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo) + "/" + System.currentTimeMillis());
+
+        Value timeLiteral = valueFactory.createLiteral("0");
+        repositoryConnection.begin();
+        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
+        repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
+        repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
+        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);
+        repositoryConnection.commit();
+        return metadata;
     }
 
 
@@ -656,13 +669,13 @@ public class Manager {
             Path to = getTemplatePath(templateDescriptor);
             LOGGER.info("Copying {} to {}",from,to);
             Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
-
-            Statement s = getTemplateStatement(templateDescriptor);
+            Statement s = null;
             try{
+                s= getTemplateStatement(templateDescriptor);
                 LOGGER.info("Adding Statement {} to the database", s);
-                repositoryConnection.add(s);
+                repositoryConnection.add(s,generateMetadata(descriptor.getModuleInfo()));
             } catch (RepositoryException e) {
-                throw new ManagerException("Could not add the Statement " + s.toString() +" to the database",e);
+                throw new ManagerException("Could not add the Statement " + s +" to the database",e);
             }
         }
     }
