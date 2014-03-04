@@ -250,7 +250,7 @@ public class RunManager {
                     pb.inheritIO();
             LOGGER.debug(pb.command().toString());
             ProcessUtil.debug(pb.start());
-        } catch (InterruptedException | IOException e) {
+        } catch (InterruptedException | IOException |ProcessUtil.ProcessUtilException e) {
             throw new ManagerException(e);
         }
     }

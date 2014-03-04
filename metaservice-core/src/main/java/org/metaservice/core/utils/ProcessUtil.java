@@ -15,7 +15,7 @@ import java.io.StringWriter;
 public class ProcessUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessUtil.class);
 
-    public static void debug(@NotNull Process exec) throws IOException, InterruptedException, MetaserviceException {
+    public static void debug(@NotNull Process exec) throws IOException, InterruptedException, ProcessUtilException {
         StringWriter writer = new StringWriter();
         IOUtils.copy(exec.getInputStream(), writer, "utf-8");
         String input = writer.getBuffer().toString();
@@ -26,10 +26,27 @@ public class ProcessUtil {
         exec.getInputStream().close();
         int ret = exec.waitFor();
         if(ret != 0){
-            LOGGER.error(input);
-            LOGGER.error(error);
-            throw new MetaserviceException("Error during execution");
+            throw new ProcessUtilException("Error during execution",input,error);
         }
 
+    }
+
+    public static class ProcessUtilException extends MetaserviceException {
+        private String stdout;
+        private String stderr;
+
+        public ProcessUtilException(String message, String stdout, String stderr) {
+            super(message);
+            this.stdout = stdout;
+            this.stderr = stderr;
+        }
+
+        public String getStdout() {
+            return stdout;
+        }
+
+        public String getStderr() {
+            return stderr;
+        }
     }
 }

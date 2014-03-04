@@ -18,7 +18,7 @@
         <h2>Affected Products</h2>
         <ul>
             {{#eachArray cve:vulnerableSoftware}}
-                <li> <a href="{{uri this}}">{{text dc:title}}</a> </li>
+                <li> <a href="{{uri this}}">{{#if dc:title}}{{text dc:title}}{{else}}{{uri this}}{{/if}}</a> </li>
             {{/eachArray}}
         </ul>
     </div>
@@ -31,16 +31,6 @@
                 <tr data-provenance="[{{ms:id}}][cve:discoveredDatetime][{{cve:discoveredDatetime}}]"><th>Dicovered</th><td>{{date cve:discoveredDatetime}}</td></tr>
                 <tr data-provenance="[{{ms:id}}][cve:disclosureDatetime][{{cve:disclosureDatetime}}]"><th>Disclosured</th><td>{{date cve:disclosureDatetime}}</td></tr>
                 <tr data-provenance="[{{ms:id}}][cve:lastModifiedDatetime][{{cve:lastModifiedDatetime}}]"><th>Last Modified</th><td>{{date cve:lastModifiedDatetime}}</td></tr>
-            </table>
-        </div>
-
-        <div class="panel panel-default">
-            <div class="panel-heading"><h4 class="panel-title">File Information</h4></div>
-            <table class="table">
-                <tr><th>Filename</th><td>{{> copyInputField  ms-deb:filename}}</td></tr>
-                <tr><th>MD5sum</th><td>{{> copyInputField ms-deb:md5sum}}</td></tr>
-                <tr><th>SHA-1sum</th><td>{{> copyInputField  ms-deb:sha1sum}}</td></tr>
-                <tr><th>SHA-256sum</th><td>{{> copyInputField  ms-deb:sha256sum}}</td></tr>
             </table>
         </div>
     </div>

@@ -9,10 +9,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -115,46 +117,60 @@ public class SparqlEndpointResource {
     @Path("/resource")
     @Produces("application/ld+json")
     public Response resourceJsonLD(
-            @Nullable @QueryParam("path")String path
+            @Nullable @QueryParam("path")String path,
+            @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/ld+json", path,false);
+        return generateResponseResearch("application/ld+json", path,date,false);
     }
 
     @GET
     @Path("/resource")
     @Produces("application/rdf+xml")
     public Response resourceRdfXml(
-            @Nullable @QueryParam("path")String path
+            @Nullable @QueryParam("path")String path,
+            @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/rdf+xml", path,false);
+        return generateResponseResearch("application/rdf+xml", path,date,false);
     }
 
     @GET
     @Path("/resource/jsonld")
     @Produces("application/ld+json")
     public Response resourceJsonLDDownload(
-            @Nullable @QueryParam("path")String path
+            @Nullable @QueryParam("path")String path,
+            @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/ld+json", path,true);
+        return generateResponseResearch("application/ld+json", path,date,true);
     }
 
     @GET
     @Path("/resource/rdf")
     @Produces("application/rdf+xml")
     public Response resourceRdfXmlDownload(
-            @Nullable @QueryParam("path")String path
+            @Nullable @QueryParam("path")String path,
+            @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/rdf+xml", path,true);
+        return generateResponseResearch("application/rdf+xml", path,date,true);
     }
 
 
     public @NotNull Response generateResponseResearch(
             @NotNull String mimeType,
             @Nullable String path,
+            @Nullable String date,
             boolean download
     ){
         try{
             if(path == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            if(date == null){
+                date = "2025-01-01T00:00:00Z";//todo year 2025 bug ;-)
+            }
+            Calendar calendar;
+            try{
+                calendar = DatatypeConverter.parseDateTime(date);
+            }catch (IllegalArgumentException e){
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             if(download){
@@ -165,6 +181,7 @@ public class SparqlEndpointResource {
             }
             String query = namespaces +resourceQuery;
             query = query.replace("$path",stringToIri(path));
+            query = query.replace("$selectedTime",dateToLiteral(calendar));
             Response.ResponseBuilder builder = Response
                     .ok(querySparql(mimeType,query));
             if(download){
@@ -176,6 +193,7 @@ public class SparqlEndpointResource {
             return Response.serverError().build();
         }
     }
+
 
 
     private @NotNull InputStream querySparql(
@@ -205,4 +223,9 @@ public class SparqlEndpointResource {
     public @NotNull String stringToIri(@NotNull String value){
         return "<"+value.replace(">","\\>")+">";
     }
+
+    public @NotNull String dateToLiteral(@NotNull Calendar date) {
+        return "\""+DatatypeConverter.printDateTime(date)+"\"^^xsd:dateTime";
+    }
+
 }

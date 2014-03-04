@@ -364,7 +364,7 @@ public class Manager {
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo) + "/" + System.currentTimeMillis());
 
-        Value timeLiteral = valueFactory.createLiteral("0");
+        Value timeLiteral = valueFactory.createLiteral(new Date(0));
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);

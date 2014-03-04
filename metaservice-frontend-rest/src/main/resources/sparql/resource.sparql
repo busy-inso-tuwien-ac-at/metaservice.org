@@ -34,6 +34,7 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?s ?p ?o{
         INCLUDE %level1.
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        FILTER( ?time < $selectedTime)
     } GROUP BY ?s ?p ?o
 } AS %level1max
 
@@ -41,6 +42,7 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?s ?p ?o{
         INCLUDE %level2.
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        FILTER( ?time < $selectedTime)
     } GROUP BY ?s ?p ?o
 } AS %level2max
 
@@ -48,6 +50,7 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?s ?p ?o{
         INCLUDE %level3.
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        FILTER( ?time < $selectedTime)
     }GROUP BY ?s ?p ?o
 } AS %level3max
 

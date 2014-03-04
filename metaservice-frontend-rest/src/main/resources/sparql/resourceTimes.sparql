@@ -1,0 +1,40 @@
+SELECT DISTINCT ?time
+WITH {
+    SELECT DISTINCT * {
+        BIND (<http://metaservice.org/d/releases/cpe/cpe:/o:cisco:ios_xr> AS ?s).
+        GRAPH ?c{ ?s ?p ?o}.
+        FILTER (?p != <http://metaservice.org/ns/metaservice#dummy>).
+    }
+} AS %level1
+
+WITH {
+    SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
+        SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
+            INCLUDE %level1.
+            GRAPH ?c2{ ?o ?p2 ?o2}.
+            FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
+        }
+    }
+} AS %level2
+
+WITH {
+    SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
+        SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
+            INCLUDE %level2.
+            GRAPH ?c2{ ?o ?p2 ?o2}.
+            FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
+        }
+    }
+} AS %level3
+WHERE {
+    {
+        INCLUDE %level1
+    } UNION {
+        INCLUDE %level2
+    } UNION {
+        INCLUDE %level3
+    }
+    ?c <http://metaservice.org/ns/metaservice#time> ?time.
+    FILTER(?time != 0)
+}
+ORDER BY DESC(?time)
