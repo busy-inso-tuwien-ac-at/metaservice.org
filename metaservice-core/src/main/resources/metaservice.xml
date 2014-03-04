@@ -31,7 +31,7 @@
             appliesTo="http://purl.org/adms/sw/SoftwareProject"/>
 
     <ontology
-            name="adms_sw.rdf" apply="true" distribute="false"/>
+      name="adms_sw.rdf" apply="true" distribute="false"/>
     <ontology
             name="rdfs.rdf" apply="true" distribute="false"/>
     <ontology

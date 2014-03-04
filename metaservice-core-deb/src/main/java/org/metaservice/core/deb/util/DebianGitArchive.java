@@ -23,29 +23,43 @@ public class DebianGitArchive extends GitArchive {
 
     @NotNull
     @Override
-    public String getContent(@NotNull Date time, @NotNull String path) throws ArchiveException {
-        return processPath(time,new File(path));
+    public Contents getContent(@NotNull Date time, @NotNull String path) throws ArchiveException {
+        String revision = null;
+        try {
+            revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(time));
+            LOGGER.info("FOUND REVISION: " + revision);
+            if(revision!= null){
+                return getContents(revision,new File( path));
+            }
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        } catch (GitUtil.GitException e) {
+            throw new ArchiveException(e);
+        }
     }
 
-    @Nullable
-    @Override
-    public String processPath(@NotNull Date time, @NotNull File f) throws ArchiveException {
+    private  Contents getContents(String revision, File f) throws ArchiveException {
         LOGGER.info("Processing {}", f.getPath());
         try {
             if("Packages".equals(f.getName())){
+                Contents contents =new Contents();
                 GitUtil.Line[] changes;
                 //String relpath =  f.getAbsolutePath().replace(workdir.getAbsolutePath()+"/","");
-                String commit = gitUtil.findFirsRevisionWithMessage(dateFormat.format(time));
-                changes = gitUtil.getChangeList(f.getPath(),commit);
+                changes = gitUtil.getChangeList(f.getPath(),revision,revision+"^");
                 String[] packageAreas = extractFullPackages(changes);
-                String s =  StringUtils.join(packageAreas, "\n");
-                return s;
+                changes= null;
+                contents.now  = StringUtils.join(packageAreas, "\n");
+                changes = gitUtil.getChangeList(f.getPath(),revision+"^",revision);
+                packageAreas = extractFullPackages(changes);
+                changes= null;
+                contents.prev  = StringUtils.join(packageAreas, "\n");
+                return contents;
             }
             return null;//todo NOTNULL?
         } catch (GitUtil.GitException e) {
             throw new ArchiveException(e);
         }
     }
+
 
 
     public static String[] extractFullPackages(@NotNull GitUtil.Line[] changes) {

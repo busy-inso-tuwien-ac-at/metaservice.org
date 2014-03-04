@@ -45,18 +45,23 @@ public class GitArchive implements Archive {
         return sourceBaseUri;
     }
 
+
+
     @Nullable
     @Override
     /**
      * Path must be of form /asdf/asd
      */
-    public String getContent(@NotNull Date time,@NotNull String path) throws ArchiveException {
+    public Contents getContent(@NotNull Date time,@NotNull String path) throws ArchiveException {
         String revision = null;
         try {
             revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(time));
             LOGGER.info("FOUND REVISION: " + revision);
             if(revision!= null){
-                return processPath(time,new File( path));
+                Contents contents = new Contents();
+                contents.now =  processPath(revision,new File( path));
+                contents.prev = processPath(revision+"^",new File(path));
+                return contents;
             }
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         } catch (GitUtil.GitException e) {
@@ -65,41 +70,16 @@ public class GitArchive implements Archive {
     }
 
     @Nullable
-    public String processPath(@NotNull Date time,@NotNull File f) throws ArchiveException {
-        try {
-            f = new File(workdir.getAbsolutePath() + "/"+  f.getPath());
+    public String processPath(@NotNull String commit,@NotNull File f) throws ArchiveException {
+        f = new File(workdir.getAbsolutePath() + "/"+  f.getPath());
         LOGGER.info("Processing {}", f.getAbsolutePath());
-            return gitUtil.getFileContent(gitUtil.findFirsRevisionWithMessage(dateFormat.format(time)),f.getPath());
-        } catch (GitUtil.GitException e) {
-            throw new ArchiveException(e);
-        }
-
+        return gitUtil.getFileContent(commit,f.getPath());
     }
 
-                           /*these are not correct anymore as they depend on currently checked out files
-    private void parseAllFiles(String currentRevision) throws RepositoryException, IOException, InterruptedException {
-        for(File f : FileUtils.listFiles(workdir, null, true)){
-            if("Packages".equals(f.getName())){
-                LOGGER.info("All: {} ",f) ;
-            //    parseFile(currentRevision,f);
-            }
-
-        }
-    }
-
-    private void parseChangedFiles(String currentRevision) throws GitUtil.GitException {
-        for(File f: gitUtil.getChangedFilesInHead()){
-            if("Packages".equals(f.getName())){
-                LOGGER.info("Changed: {} ",f) ;
-              //  parseFile(currentRevision,f);
-            }
-        }
-    }
-                             */
     @Override
     @NotNull
     public List<Date> getTimes() throws ArchiveException{
-        ArrayList<Date> result = new ArrayList();
+        ArrayList<Date> result = new ArrayList<>();
         for(String s: gitUtil.getCommitMessages()){
             try {
                 result.add(dateFormat.parse(s));
@@ -148,7 +128,7 @@ public class GitArchive implements Archive {
     public boolean commitContent() throws ArchiveException{
         try {
             //todo maybe use a specified date?
-           String date = dateFormat.format(new Date());
+            String date = dateFormat.format(new Date());
             if(gitUtil.hasChangesToCommit()){
                 gitUtil.commitChanges(date);
                 return true;
@@ -187,7 +167,7 @@ public class GitArchive implements Archive {
     @NotNull
     public String[] getChangedPaths(@NotNull Date commitTime) throws ArchiveException {
         try {
-           String revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(commitTime));
+            String revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(commitTime));
             ArrayList<String> res = new ArrayList<>();
             for(File f: gitUtil.getChangedFiles(revision)){
                 res.add(f.getPath());

@@ -12,8 +12,13 @@ public interface Archive {
     @NotNull
     String getSourceBaseUri();
 
+    public static class Contents{
+        public String now;
+        public String prev;
+    }
+
     @Nullable
-    String getContent(@NotNull Date time,@NotNull String path) throws ArchiveException;
+    Contents getContent(@NotNull Date time,@NotNull String path) throws ArchiveException;
     @NotNull
     List<Date> getTimes() throws ArchiveException;
     void synchronizeWithCentral() throws ArchiveException;

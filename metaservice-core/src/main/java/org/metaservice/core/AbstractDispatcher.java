@@ -69,7 +69,7 @@ public abstract  class AbstractDispatcher<T> {
     }
 
 
-    protected void sendDataByLoad(URI metadata,List<Statement> generatedStatements) throws MetaserviceException {
+    protected void sendDataByLoad(URI metadata,Collection<Statement> generatedStatements) throws MetaserviceException {
         StringWriter stringWriter = new StringWriter();
         NTriplesWriter nTriplesWriter = new NTriplesWriter(stringWriter);
 
@@ -145,7 +145,7 @@ public abstract  class AbstractDispatcher<T> {
 
     protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @NotNull List<PostProcessingHistoryItem> oldHistory,@NotNull Date time, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,@Nullable Set<URI> affectedProcessableSubjects){
         LOGGER.debug("START NOTIFICATION OF POSTPROCESSORS");
-
+        //todo only let postprocessing happen for date = or >
         ArrayList<PostProcessingHistoryItem> history = new ArrayList<>();
         history.addAll(oldHistory);
 

@@ -260,16 +260,13 @@ public class GitUtil {
         }
     }
 
-    public Line[] getChangeListInHead(@NotNull String relPath) throws GitException {
-        return getChangeList(relPath,"HEAD");
-    }
-
-    public Line[] getChangeList(@NotNull String relPath,String revision) throws GitException {
+    @NotNull
+    public Line[] getChangeList(@NotNull String relPath,@NotNull String revision,String revision2) throws GitException {
         try{
             if(relPath.startsWith("/"))
                 relPath = relPath.replaceFirst("/","");
 
-            ProcessBuilder builder =   new ProcessBuilder("git","difftool","--extcmd=diff -d --old-line-format=-%L --new-line-format=+%L --unchanged-line-format=_%L","-y",revision +"^",revision,relPath).directory(workdir);
+            ProcessBuilder builder =   new ProcessBuilder("git","difftool","--extcmd=diff -d --old-line-format=-%L --new-line-format=+%L --unchanged-line-format=_%L","-y",revision2,revision,relPath).directory(workdir);
             LOGGER.info(StringUtils.join(builder.command(), " "));
             Process p  = builder.start();
 
