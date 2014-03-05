@@ -6,6 +6,8 @@ import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.api.sparql.SparqlQueryBuilderImpl;
+import org.metaservice.api.sparql.Variable;
 import org.metaservice.core.deb.util.DebianVersionComparator;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -22,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import static org.metaservice.api.sparql.SparqlQueryBuilderImpl.*;
+
 public class DebianVersionReasoner implements PostProcessor {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
     public final static String URI_REGEX = "^http://metaservice.org/d/(packages|releases|projects)/[^/#]+/[^/#]+/[^/#]+(/[^/#]+)?$";
@@ -33,20 +37,87 @@ public class DebianVersionReasoner implements PostProcessor {
 
     private final ValueFactory valueFactory;
 
+    private final Variable resource = new Variable("resource");
+    private final Variable version = new Variable("version");
+    private final Variable project = new Variable("project");
+    private final Variable title = new Variable("title");
+    private final Variable release = new Variable("release");
+    private final Variable arch = new Variable("arch");
+    private final Variable _package = new Variable("package");
+    private final Variable _package2 = new Variable("package2");
+
     @Inject
     public DebianVersionReasoner(RepositoryConnection repositoryConnection, ValueFactory valueFactory) throws RepositoryException, MalformedQueryException {
         this.valueFactory = valueFactory;
-        String queryString  = "SELECT ?version ?title ?arch ?resource { ?project <" + DOAP.RELEASE+ "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource. ?resource <"+ PACKAGE_DEB.TITLE +"> ?title; <" + PACKAGE_DEB.VERSION + "> ?version; <"+PACKAGE_DEB.ARCHITECTURE+"> ?arch.}";
+
+
+        String queryString;
+        queryString = SparqlQueryBuilderImpl.getInstance()
+                .select(
+                        var(version),
+                        var(title),
+                        var(arch),
+                        var(resource)
+                )
+                .where(triplePattern(project,DOAP.RELEASE,release),
+                        triplePattern(release,ADMSSW.PACKAGE,resource),
+                        triplePattern(resource,PACKAGE_DEB.TITLE,title),
+                        triplePattern(resource,PACKAGE_DEB.VERSION,version),
+                        triplePattern(resource,PACKAGE_DEB.ARCHITECTURE,arch)
+
+                )
+                .build();
         LOGGER.info(queryString);
         selectPackageVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-        queryString  = "SELECT ?version ?title ?resource {?project <" + DOAP.RELEASE+ "> ?resource. ?resource <"+ PACKAGE_DEB.TITLE +"> ?title; <" + PACKAGE_DEB.VERSION + "> ?version.}";
+
+
+        queryString = SparqlQueryBuilderImpl.getInstance()
+                .select(
+                        var(version),
+                        var(title),
+                        var(resource)
+                )
+                .where(
+                        triplePattern(project, DOAP.RELEASE, resource),
+                        triplePattern(resource, PACKAGE_DEB.TITLE, title),
+                        triplePattern(resource, PACKAGE_DEB.VERSION, version)
+                )
+                .build();
         LOGGER.info(queryString);
         selectVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-        queryString  = "SELECT (SAMPLE(?package2) as ?package) ?arch {?project <" + DOAP.RELEASE+ "> ?version. ?version <"+ADMSSW.PACKAGE+"> ?package2. ?package2 <"+PACKAGE_DEB.ARCHITECTURE+"> ?arch} group by ?arch";
+
+
+        queryString = SparqlQueryBuilderImpl.getInstance()
+                .select(
+                        aggregate("SAMPLE", _package2, _package),
+                        var(arch)
+                )
+                .where(
+                        triplePattern(project, DOAP.RELEASE, release),
+                        triplePattern(release, ADMSSW.PACKAGE, _package2),
+                        triplePattern(_package2, PACKAGE_DEB.ARCHITECTURE, arch)
+                )
+                .groupBy(arch)
+                .build();
         LOGGER.info(queryString);
         selectPackageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
 
-        queryString = "SELECT ?project {{?project <" + DOAP.RELEASE+ "> ?resource.} UNION {?project <"+ DOAP.RELEASE + "> ?release. ?release <"+ADMSSW.PACKAGE+"> ?resource }} LIMIT 1";
+
+        queryString = SparqlQueryBuilderImpl.getInstance()
+                .select(var(project))
+                .where(
+                        union(
+                                graphPattern(
+                                        triplePattern(project,DOAP.RELEASE,resource)
+                                ),
+                                graphPattern(
+                                        triplePattern(project,DOAP.RELEASE,release),
+                                        triplePattern(release,ADMSSW.PACKAGE,resource)
+                                )
+                        )
+                )
+                .limit(1)
+                .build();
         LOGGER.info(queryString);
         selectProjectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
     }
@@ -56,27 +127,27 @@ public class DebianVersionReasoner implements PostProcessor {
         LOGGER.info("Processing versions");
         updateVersion(uri,resultConnection);
 
-        selectPackageQuery.setBinding("project", valueFactory.createURI(uri));
+        selectPackageQuery.setBinding(project.toString(), valueFactory.createURI(uri));
         TupleQueryResult result = selectPackageQuery.evaluate();
         while (result.hasNext()){
             BindingSet set = result.next();
-            LOGGER.info("Processing {}", set.getValue("arch").stringValue());
-            updatePackage(uri, set.getValue("arch").stringValue(), resultConnection);
+            LOGGER.info("Processing {}", set.getValue(arch.toString()).stringValue());
+            updatePackage(uri, set.getValue(arch.toString()).stringValue(), resultConnection);
         }
 
 
     }
 
     private void updateVersion(String uri,RepositoryConnection resultConnection) throws QueryEvaluationException, RepositoryException {
-        selectVersionsOrderQuery.setBinding("project", valueFactory.createURI(uri));
+        selectVersionsOrderQuery.setBinding(this.project.toString(), valueFactory.createURI(uri));
 
         TupleQueryResult result = selectVersionsOrderQuery.evaluate();
         ArrayList<String> list = new ArrayList<>();
         HashMap<String,String> versionUriMap = new HashMap<>();
         while (result.hasNext()){
             BindingSet set = result.next();
-            String version = set.getValue("version").stringValue();
-            versionUriMap.put(version, set.getValue("resource").stringValue());
+            String version = set.getValue(this.version.toString()).stringValue();
+            versionUriMap.put(version, set.getValue(this.resource.toString()).stringValue());
             LOGGER.info(version);
             list.add(version);
         }
@@ -92,19 +163,19 @@ public class DebianVersionReasoner implements PostProcessor {
     }
 
     public void updatePackage(String project, String arch,RepositoryConnection resultConnection) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
-        selectPackageVersionsOrderQuery.setBinding("arch", valueFactory.createLiteral(arch));
-        selectPackageVersionsOrderQuery.setBinding("project", valueFactory.createURI(project));
+        selectPackageVersionsOrderQuery.setBinding(this.arch.toString(), valueFactory.createLiteral(arch));
+        selectPackageVersionsOrderQuery.setBinding(this.project.toString(), valueFactory.createURI(project));
         TupleQueryResult result = selectPackageVersionsOrderQuery.evaluate();
         ArrayList<String> list = new ArrayList<>();
 
 
-        HashMap<String,String> versionUriMap = new HashMap<>();
+        HashMap<String,String> releaseUriMap = new HashMap<>();
         while (result.hasNext()){
             BindingSet set = result.next();
-            String version = set.getValue("version").stringValue();
-            versionUriMap.put(version, set.getValue("resource").stringValue());
-            LOGGER.info(version);
-            list.add(version);
+            String release = set.getValue(this.release.toString()).stringValue();
+            releaseUriMap.put(release, set.getValue(this.resource.toString()).stringValue());
+            LOGGER.info(release);
+            list.add(release);
         }
         Collections.sort(list, DebianVersionComparator.getInstance());
         LOGGER.info("SORTED:");
@@ -113,7 +184,7 @@ public class DebianVersionReasoner implements PostProcessor {
         }
 
         for(int i = 0; i < list.size()-1;i++){
-            addStatements(versionUriMap.get(list.get(i)),versionUriMap.get(list.get(i+1)),resultConnection);
+            addStatements(releaseUriMap.get(list.get(i)), releaseUriMap.get(list.get(i + 1)), resultConnection);
         }
     }
 
@@ -128,7 +199,7 @@ public class DebianVersionReasoner implements PostProcessor {
     @Override
     public void process(@NotNull final URI uri,@NotNull final RepositoryConnection resultConnection) throws PostProcessorException{
         try{
-            selectProjectQuery.setBinding("resource",uri);
+            selectProjectQuery.setBinding(resource.toString(),uri);
             TupleQueryResult result = selectProjectQuery.evaluate();
             if(result == null)
             {
@@ -138,7 +209,7 @@ public class DebianVersionReasoner implements PostProcessor {
             try{
                 if(result.hasNext()){
                     BindingSet bindings = result.next();
-                    Binding binding = bindings.getBinding("project");
+                    Binding binding = bindings.getBinding(project.toString());
                     Value value = binding.getValue();
                     update(value.stringValue(),resultConnection);
                 }else {
