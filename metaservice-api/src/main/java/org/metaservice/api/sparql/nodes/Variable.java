@@ -1,4 +1,4 @@
-package org.metaservice.api.sparql;
+package org.metaservice.api.sparql.nodes;
 
 import org.openrdf.model.Value;
 

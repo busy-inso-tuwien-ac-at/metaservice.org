@@ -3,9 +3,12 @@ package org.metaservice.core.deb.postprocessor;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
+import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
+import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
@@ -14,6 +17,8 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * Created by ilo on 24.02.14.
@@ -26,18 +31,46 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
     private final TupleQuery releaseQuery;
     private final TupleQuery projectQuery;
 
+    private final Variable resource = new Variable("resource");
+    private final Variable release = new Variable("release");
+    private final Variable packageName = new Variable("packageName");
+    private final Variable metaDistribution = new Variable("metaDistribution");
+
     protected AbstractProjectPostProcessor(ValueFactory valueFactory, RepositoryConnection repositoryConnection) throws MalformedQueryException, RepositoryException {
         this.valueFactory = valueFactory;
         this.repositoryConnection = repositoryConnection;
-        this.releaseQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
-
-        "SELECT DISTINCT ?release ?packageName ?metaDistribution " +
-                "{ ?resource <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  a  <"+PACKAGE_DEB.RELEASE+">. " +
-                "  ?release  <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  a  <"+PACKAGE_DEB.RELEASE+">. }");
-        projectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
-                "SELECT DISTINCT ?release ?packageName ?metaDistribution " +
-                        "{ ?resource <"+DOAP.RELEASE+"> ?release; a  <"+PACKAGE_DEB.PROJECT+">. " +
-                        "  ?release   <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution;  a  <"+PACKAGE_DEB.RELEASE+">. }");
+        this.releaseQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, new PostProcessorSparqlQuery(){
+            @Override
+            public String build() {
+                return select(
+                        true,
+                        var(release),var(packageName),var(metaDistribution))
+                        .where(
+                                triplePattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName),
+                                triplePattern(resource, PACKAGE_DEB.META_DISTRIBUTION,metaDistribution),
+                                triplePattern(resource, RDF.TYPE,PACKAGE_DEB.RELEASE),
+                                triplePattern(release,PACKAGE_DEB.PACKAGE_NAME,packageName),
+                                triplePattern(release, PACKAGE_DEB.META_DISTRIBUTION,metaDistribution),
+                                triplePattern(release, RDF.TYPE,PACKAGE_DEB.RELEASE)
+                        )
+                        .build();
+            }
+        }.toString());
+        projectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,   new PostProcessorSparqlQuery(){
+            @Override
+            public String build() {
+                return select(
+                        true,
+                        var(release),var(packageName),var(metaDistribution))
+                        .where(
+                                triplePattern(resource, DOAP.RELEASE, release),
+                                triplePattern(release, PACKAGE_DEB.PACKAGE_NAME, packageName),
+                                triplePattern(release, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution),
+                                triplePattern(release, RDF.TYPE, PACKAGE_DEB.RELEASE)
+                        )
+                        .build();
+            }
+        }.toString());
         LOGGER.info(projectQuery.toString());
         LOGGER.info(releaseQuery.toString());
     }
@@ -49,8 +82,11 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
     protected abstract String getDistributionName();
 
     @Override
-    public void process(@NotNull URI uri, @NotNull RepositoryConnection resultConnection) throws PostProcessorException {
+    public void process(@NotNull URI uri, @NotNull RepositoryConnection resultConnection, Date time) throws PostProcessorException {
         try {
+            releaseQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
+            projectQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
+
             String projectName = uri.toString().replaceAll(getUriRegex(),"$2");
             URI projectURI = valueFactory.createURI("http://metaservice.org/d/projects/"+getDistributionName()+"/"+projectName);
             LOGGER.debug(projectURI.toString());
@@ -59,11 +95,11 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             TupleQueryResult tupleQueryResult;
             if(uri.toString().startsWith("http://metaservice.org/d/releases")){
                 LOGGER.debug("releaseQuery");
-                releaseQuery.setBinding("resource",uri);
+                releaseQuery.setBinding(resource.toString(),uri);
                 tupleQueryResult = releaseQuery.evaluate();
             }else if(uri.toString().startsWith("http://metaservice.org/d/projects")){
                 LOGGER.debug("projectQuery");
-                projectQuery.setBinding("resource",uri);
+                projectQuery.setBinding(resource.toString(),uri);
                 tupleQueryResult = projectQuery.evaluate();
             }else
             {
@@ -71,7 +107,7 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             }
             while (tupleQueryResult.hasNext()){
                 BindingSet bindingSet = tupleQueryResult.next();
-                URI releaseURI = (URI) bindingSet.getBinding("release").getValue();
+                URI releaseURI = (URI) bindingSet.getBinding(release.toString()).getValue();
                 resultConnection.add(releaseURI, ADMSSW.PROJECT,projectURI);
                 resultConnection.add(projectURI, DOAP.RELEASE, releaseURI);
                 processRelease(resultConnection,projectURI,releaseURI);

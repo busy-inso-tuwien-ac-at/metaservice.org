@@ -3,9 +3,13 @@ package org.metaservice.core.deb.postprocessor;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
+import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.DC;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
+import org.metaservice.api.sparql.buildingcontexts.DefaultSparqlQuery;
+import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
@@ -16,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.Date;
 
 /**
  * Created by ilo on 24.02.14.
@@ -29,27 +34,73 @@ public class ReleasePostProcessor implements PostProcessor {
     private final TupleQuery packageQuery;
     private final TupleQuery releaseQuery;
 
+    private final Variable resource = new Variable("resource");
+    private final Variable version = new Variable("version");
+    private final Variable project = new Variable("project");
+    private final Variable title = new Variable("title");
+    private final Variable release = new Variable("release");
+    private final Variable arch = new Variable("arch");
+    private final Variable _package = new Variable("package");
+    private final Variable packageName = new Variable("packageName");
+    private final Variable metaDistribution = new Variable("metaDistribution");
+
     @Inject
     public ReleasePostProcessor(
             ValueFactory valueFactory,
             RepositoryConnection repositoryConnection
     ) throws MalformedQueryException, RepositoryException {
         this.valueFactory = valueFactory;
-        packageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
-                "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
-                        "{ ?resource <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">." +
-                        "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">. }");
-        releaseQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
-                "SELECT DISTINCT ?package ?version ?packageName ?metaDistribution " +
-                        "{ ?resource <"+ADMSSW.PACKAGE+"> ?package; a <"+PACKAGE_DEB.RELEASE+">. " +
-                        "  ?package  <"+PACKAGE_DEB.VERSION+"> ?version; <"+PACKAGE_DEB.PACKAGE_NAME+"> ?packageName; <"+PACKAGE_DEB.META_DISTRIBUTION+"> ?metaDistribution; a <"+PACKAGE_DEB.PACKAGE+">. }");
+        final  Variable graph = new Variable("g");
+        final  Variable graph2 = new Variable("g2");
 
+        //quad because we want to have from single source (this is a first level postprocessor) and it optimized better in timescope
+        packageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
+                new PostProcessorSparqlQuery(){
+                    @Override
+                    public String build() {
+                        return select(
+                                true,
+                                var(_package),var(version),var(packageName),var(metaDistribution))
+                                .where(
+                                        quadPattern(resource, PACKAGE_DEB.VERSION, version, graph2),
+                                        quadPattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName, graph2),
+                                        quadPattern(resource, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph2),
+                                        quadPattern(resource, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph2),
+                                        quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
+                                        quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
+                                        quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                        quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                )
+                                .build();
+                    }
+                }.toString());
+
+        releaseQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
+                new DefaultSparqlQuery(){
+                    @Override
+                    public String build() {
+                        return select(
+                                true,
+                                var(_package),var(version),var(packageName),var(metaDistribution))
+                                .where(
+                                        triplePattern(resource, ADMSSW.PACKAGE, _package),
+                                        triplePattern(resource, RDF.TYPE, PACKAGE_DEB.RELEASE),
+                                        quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
+                                        quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
+                                        quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                        quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                )
+                                .build();
+                    }
+                }.toString());
         LOGGER.info("package Query: "+packageQuery.toString());
         LOGGER.info("release Query: "+releaseQuery.toString());
     }
 
     @Override
-    public void process(@NotNull URI uri, @NotNull RepositoryConnection resultConnection) throws PostProcessorException {
+    public void process(@NotNull URI uri, @NotNull RepositoryConnection resultConnection, Date time) throws PostProcessorException {
+        releaseQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
+        packageQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
         final String distribution = uri.toString().replaceAll(URI_REGEX,"$2");
         final String project = uri.toString().replaceAll(URI_REGEX,"$3");
         final String version = uri.toString().replaceAll(URI_REGEX,"$4");

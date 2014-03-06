@@ -4,9 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 
+import java.util.Date;
+
 
 public interface PostProcessor {
-    public void process(@NotNull final URI uri,@NotNull final RepositoryConnection resultConnection) throws PostProcessorException;
+    public void process(@NotNull final URI uri, @NotNull final RepositoryConnection resultConnection, Date time) throws PostProcessorException;
 
     /**
      * This method should not do the same as process, but be a lightweight check.

@@ -148,8 +148,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 LOGGER.warn("Cannot process content  of address {}, skipping.",archiveAddress );
                 return;
             }
-            List<Statement> nowGeneratedStatements = getStatmenets(contents.now,archiveAddress);
-            List<Statement> prevGeneratedStatements = getStatmenets(contents.prev,archiveAddress);
+            List<Statement> nowGeneratedStatements = getStatements(contents.now, archiveAddress);
+            List<Statement> prevGeneratedStatements = getStatements(contents.prev, archiveAddress);
             URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,"add"); //todo
             URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,"remove");//todo
 
@@ -178,12 +178,12 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         }
     }
 
-    private List<Statement> getStatmenets(String now,ArchiveAddress archiveAddress) throws RepositoryException {
+    private List<Statement> getStatements(String now, ArchiveAddress archiveAddress) throws RepositoryException {
         Repository tempRepository = createTempRepository();
         RepositoryConnection tempRepositoryConnection = tempRepository.getConnection();
+        List<T> objects = parser.parse(now,archiveAddress);
         HashMap<String,String> parameters = new HashMap<>(archiveAddress.getParameters());
         copyMetadataToProperty(archiveAddress,parameters);
-        List<T> objects = parser.parse(now,archiveAddress);
         for(T object: objects){
             try {
                 provider.provideModelFor(object,tempRepositoryConnection,parameters);
@@ -212,16 +212,16 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             }
             List<Statement> nowGeneratedStatements;
             List<Statement> prevGeneratedStatements;
-            if (contents.now == null){
+            if (contents.now == null || contents.now.length() < 20){
                 nowGeneratedStatements = new ArrayList<>();
             }  else {
-                nowGeneratedStatements  = getStatmenets(contents.now,archiveAddress);
+                nowGeneratedStatements  = getStatements(contents.now, archiveAddress);
 
             }
-            if (contents.prev == null){
+            if (contents.prev == null || contents.prev.length() < 20){
                 prevGeneratedStatements = new ArrayList<>();
             }  else {
-                prevGeneratedStatements  = getStatmenets(contents.prev,archiveAddress);
+                prevGeneratedStatements  = getStatements(contents.prev, archiveAddress);
 
             }
             URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,"add"); //todo

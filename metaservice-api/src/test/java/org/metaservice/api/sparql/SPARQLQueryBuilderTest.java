@@ -4,13 +4,12 @@ import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
-import org.openrdf.model.URI;
+import org.metaservice.api.sparql.builders.QueryBuilder;
+import org.metaservice.api.sparql.impl.SparqlQueryBuilderImpl;
+import org.metaservice.api.sparql.nodes.Variable;
+import org.openrdf.model.Literal;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-
-import java.util.Date;
-
-import static org.metaservice.api.sparql.SparqlQueryBuilderImpl.*;
 
 /**
  * Created by ilo on 05.03.14.
@@ -24,57 +23,12 @@ public class SPARQLQueryBuilderTest {
     private final Variable arch = new Variable("arch");
     private final Variable _package = new Variable("package");
     private final Variable _package2 = new Variable("package2");
-    @Test
-    public void genericTest(){
-        ValueFactory valueFactory = ValueFactoryImpl.getInstance();
-        Variable time = new Variable("time");
-        Variable resource = new Variable("resource");
-        String query =
-                SparqlQueryBuilderImpl.getInstance()
-                .select(
-                        var(time)
-                )
-                .where(
-                        triplePattern(resource, METASERVICE.TIME, valueFactory.createLiteral(new Date())),
-                        filter(
-                                and(
-                                        sameTerm(val(time),val(time)),
-                                        or(
-                                                not(sameTerm(val(time),val(time))),
-                                                not(sameTerm(val(time),val(time)))
-                                        )
-                                )
-                        )
-                )
-                .orderByAsc(time)
-                .build();
+    ValueFactory valueFactory = ValueFactoryImpl.getInstance();
 
-        System.err.println(query);
-    }
-
-    @Test
-    public  void pTesT(){
-        String query = SparqlQueryBuilderImpl.getPrettyInstance()
-                .select(
-                        var(version),
-                        var(title),
-                        var(arch),
-                        var(resource)
-                )
-                .where(
-                        triplePattern(project, DOAP.RELEASE, release),
-                        triplePattern(release, ADMSSW.PACKAGE, resource),
-                        triplePattern(resource, PACKAGE_DEB.TITLE, title),
-                        triplePattern(resource, PACKAGE_DEB.VERSION, version),
-                        triplePattern(resource, PACKAGE_DEB.ARCHITECTURE, arch)
-                )
-                .build();
-        System.err.println(query);
-    }
-
+/*
     @Test
     public void asdf(){
-        String query = SparqlQueryBuilderImpl.getPrettyInstance()
+        String query = SparqlQueryBuilderImpl.getInstance()
                 .select(
                         aggregate("SAMPLE",_package2,_package),
                         var(arch))
@@ -85,13 +39,13 @@ public class SPARQLQueryBuilderTest {
                         triplePattern(_package2, PACKAGE_DEB.ARCHITECTURE, arch)
                 )
                 .groupBy(arch)
-                .build();
+                .build(true);
         System.err.println(query);
     }
-      
+
     @Test
     public void testUnion(){
-        String query = SparqlQueryBuilderImpl.getPrettyInstance()
+        String query = SparqlQueryBuilderImpl.getInstance()
                 .select(
                         var(project)
                 )
@@ -107,8 +61,17 @@ public class SPARQLQueryBuilderTest {
                         )
                 )
                 .limit(1)
-                .build();
+                .build(true);
         System.err.println(query);
 
     }
+
+    @Test
+    public void fooAutomated(){
+
+    }
+    @Test
+    public void foo(){
+
+    }*/
 }

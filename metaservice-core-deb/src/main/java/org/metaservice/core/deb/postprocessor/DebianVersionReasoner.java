@@ -1,13 +1,14 @@
 package org.metaservice.core.deb.postprocessor;
 
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
+import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
-import org.metaservice.api.sparql.SparqlQueryBuilderImpl;
-import org.metaservice.api.sparql.Variable;
+import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.core.deb.util.DebianVersionComparator;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -22,9 +23,8 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
-
-import static org.metaservice.api.sparql.SparqlQueryBuilderImpl.*;
 
 public class DebianVersionReasoner implements PostProcessor {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
@@ -52,72 +52,87 @@ public class DebianVersionReasoner implements PostProcessor {
 
 
         String queryString;
-        queryString = SparqlQueryBuilderImpl.getInstance()
-                .select(
+        queryString = new PostProcessorSparqlQuery(){
+            @Override
+            public String build() {
+                return select(true,
                         var(version),
                         var(title),
                         var(arch),
                         var(resource)
                 )
-                .where(triplePattern(project,DOAP.RELEASE,release),
-                        triplePattern(release,ADMSSW.PACKAGE,resource),
-                        triplePattern(resource,PACKAGE_DEB.TITLE,title),
-                        triplePattern(resource,PACKAGE_DEB.VERSION,version),
-                        triplePattern(resource,PACKAGE_DEB.ARCHITECTURE,arch)
-
-                )
-                .build();
+                        .where(triplePattern(project,DOAP.RELEASE,release),
+                                triplePattern(release,ADMSSW.PACKAGE,resource),
+                                triplePattern(resource,PACKAGE_DEB.TITLE,title),
+                                triplePattern(resource,PACKAGE_DEB.VERSION,version),
+                                triplePattern(resource,PACKAGE_DEB.ARCHITECTURE,arch)
+                        )
+                        .build();
+            }
+        }.toString();
         LOGGER.info(queryString);
         selectPackageVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 
 
-        queryString = SparqlQueryBuilderImpl.getInstance()
-                .select(
+        queryString = new PostProcessorSparqlQuery(){
+            @Override
+            public String build() {
+                return select(true,
                         var(version),
                         var(title),
                         var(resource)
                 )
-                .where(
-                        triplePattern(project, DOAP.RELEASE, resource),
-                        triplePattern(resource, PACKAGE_DEB.TITLE, title),
-                        triplePattern(resource, PACKAGE_DEB.VERSION, version)
-                )
-                .build();
+                        .where(
+                                triplePattern(project, DOAP.RELEASE, resource),
+                                triplePattern(resource, PACKAGE_DEB.TITLE, title),
+                                triplePattern(resource, PACKAGE_DEB.VERSION, version)
+                        )
+                        .build();
+            }
+        }.toString();
         LOGGER.info(queryString);
         selectVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 
 
-        queryString = SparqlQueryBuilderImpl.getInstance()
-                .select(
+        queryString =new PostProcessorSparqlQuery(){
+            @Override
+            public String build() {
+                return select(true,
                         aggregate("SAMPLE", _package2, _package),
                         var(arch)
                 )
-                .where(
-                        triplePattern(project, DOAP.RELEASE, release),
-                        triplePattern(release, ADMSSW.PACKAGE, _package2),
-                        triplePattern(_package2, PACKAGE_DEB.ARCHITECTURE, arch)
-                )
-                .groupBy(arch)
-                .build();
+                        .where(
+                                triplePattern(project, DOAP.RELEASE, release),
+                                triplePattern(release, ADMSSW.PACKAGE, _package2),
+                                triplePattern(_package2, PACKAGE_DEB.ARCHITECTURE, arch)
+                        )
+                        .groupBy(arch)
+                        .build();
+            }
+        }.toString();
         LOGGER.info(queryString);
         selectPackageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
 
 
-        queryString = SparqlQueryBuilderImpl.getInstance()
-                .select(var(project))
-                .where(
-                        union(
-                                graphPattern(
-                                        triplePattern(project,DOAP.RELEASE,resource)
-                                ),
-                                graphPattern(
-                                        triplePattern(project,DOAP.RELEASE,release),
-                                        triplePattern(release,ADMSSW.PACKAGE,resource)
+        queryString = new PostProcessorSparqlQuery(){
+            @Override
+            public String build() {
+                return select(true,var(project))
+                        .where(
+                                union(
+                                        graphPattern(
+                                                triplePattern(project,DOAP.RELEASE,resource)
+                                        ),
+                                        graphPattern(
+                                                triplePattern(project,DOAP.RELEASE,release),
+                                                triplePattern(release,ADMSSW.PACKAGE,resource)
+                                        )
                                 )
                         )
-                )
-                .limit(1)
-                .build();
+                        .limit(1)
+                        .build();
+            }
+        }.toString();
         LOGGER.info(queryString);
         selectProjectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
     }
@@ -197,8 +212,12 @@ public class DebianVersionReasoner implements PostProcessor {
     }
 
     @Override
-    public void process(@NotNull final URI uri,@NotNull final RepositoryConnection resultConnection) throws PostProcessorException{
+    public void process(@NotNull final URI uri, @NotNull final RepositoryConnection resultConnection, Date time) throws PostProcessorException{
         try{
+            selectProjectQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
+            selectPackageQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
+            selectPackageVersionsOrderQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
+            selectVersionsOrderQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
             selectProjectQuery.setBinding(resource.toString(),uri);
             TupleQueryResult result = selectProjectQuery.evaluate();
             if(result == null)

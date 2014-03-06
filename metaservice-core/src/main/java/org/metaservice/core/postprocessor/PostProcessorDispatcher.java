@@ -90,7 +90,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             Repository resultRepository = createTempRepository();
             RepositoryConnection resultConnection = resultRepository.getConnection();
             try {
-                postProcessor.process(resource, resultConnection);
+                postProcessor.process(resource, resultConnection,task.getTime());
             } catch (PostProcessorException e) {
                 e.printStackTrace();
             }
@@ -127,7 +127,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
             }
 
-            URI metadata =  generateMetadata(task);
+            URI metadata =  generateMetadata(task,"add");
             sendData(resultConnection,metadata,generatedStatements);
             notifyPostProcessors(subjects,task.getHistory(),task.getTime(),postProcessorDescriptor,processableSubjects);
         } catch (RepositoryException | PostProcessorException e) {
@@ -203,12 +203,13 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     }
 
     @NotNull
-    private URI generateMetadata(@NotNull PostProcessingTask task) throws RepositoryException {
+    private URI generateMetadata(@NotNull PostProcessingTask task, String action) throws RepositoryException {
         Date now = new Date();
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
+        repositoryConnection.add(metadata, METASERVICE.ACTION, valueFactory.createLiteral(action), metadata);
         repositoryConnection.add(metadata, METASERVICE.TIME, valueFactory.createLiteral(task.getTime()),metadata); //todo fix it to be based on the used data
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
