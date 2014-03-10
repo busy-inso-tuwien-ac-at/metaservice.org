@@ -1,0 +1,25 @@
+SELECT DISTINCT
+    ?time
+WITH {
+SELECT
+    *
+WHERE {
+    GRAPH ?g2{<http://metaservice.org/d/packages/ubuntu/kubuntu-restricted-extras/57/amd64> <http://metaservice.org/ns/metaservice-deb#version> ?version}.
+    GRAPH ?g2{<http://metaservice.org/d/packages/ubuntu/kubuntu-restricted-extras/57/amd64> <http://metaservice.org/ns/metaservice-deb#packageName> ?packageName}.
+    GRAPH ?g2{<http://metaservice.org/d/packages/ubuntu/kubuntu-restricted-extras/57/amd64> <http://metaservice.org/ns/metaservice-deb#meta-distribution> ?metaDistribution}.
+    GRAPH ?g2{<http://metaservice.org/d/packages/ubuntu/kubuntu-restricted-extras/57/amd64> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://metaservice.org/ns/metaservice-deb#Package>}.
+    GRAPH ?g{?package <http://metaservice.org/ns/metaservice-deb#version> ?version}.
+    GRAPH ?g{?package <http://metaservice.org/ns/metaservice-deb#packageName> ?packageName}.
+    GRAPH ?g{?package <http://metaservice.org/ns/metaservice-deb#meta-distribution> ?metaDistribution}.
+    GRAPH ?g{?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://metaservice.org/ns/metaservice-deb#Package>}.
+}
+} as %heuristic
+
+
+WHERE {
+     { INCLUDE %heuristic
+          ?g2 <http://metaservice.org/ns/metaservice#time> ?time.}
+     UNION
+     { INCLUDE %heuristic
+          ?g <http://metaservice.org/ns/metaservice#time> ?time.}
+}

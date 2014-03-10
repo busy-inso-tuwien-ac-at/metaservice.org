@@ -6,20 +6,23 @@ import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.buildingcontexts.BigdataSparqlQuery;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.*;
-import org.metaservice.api.sparql.builders.QueryBuilder;
-import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by ilo on 05.03.14.
  */
-public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostProcessorSparqlBuilder.class);
+public class PostProcessorTimeSparqlBuilder extends AbstractDeferredQueryBuilder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostProcessorTimeSparqlBuilder.class);
+
+    public PostProcessorTimeSparqlBuilder(){
+    }
 
 
 
@@ -126,5 +129,4 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
         };
         return sparqlQuery.toString();
     }
-
 }

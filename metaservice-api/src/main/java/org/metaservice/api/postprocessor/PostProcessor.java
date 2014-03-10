@@ -1,10 +1,12 @@
 package org.metaservice.api.postprocessor;
 
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 
 import java.util.Date;
+import java.util.List;
 
 
 public interface PostProcessor {
@@ -21,4 +23,9 @@ public interface PostProcessor {
      * @throws PostProcessorException
      */
     public boolean abortEarly(@NotNull final URI uri) throws PostProcessorException;
+
+
+    public List<SparqlQuery> getQueries(){
+
+    }
 }
