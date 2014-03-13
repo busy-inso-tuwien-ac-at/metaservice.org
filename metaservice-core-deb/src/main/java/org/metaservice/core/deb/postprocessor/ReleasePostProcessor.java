@@ -36,13 +36,11 @@ public class ReleasePostProcessor implements PostProcessor {
 
     private final Variable resource = new Variable("resource");
     private final Variable version = new Variable("version");
-    private final Variable project = new Variable("project");
-    private final Variable title = new Variable("title");
-    private final Variable release = new Variable("release");
-    private final Variable arch = new Variable("arch");
     private final Variable _package = new Variable("package");
     private final Variable packageName = new Variable("packageName");
     private final Variable metaDistribution = new Variable("metaDistribution");
+    private final  Variable graph = new Variable("g");
+    private final  Variable graph2 = new Variable("g2");
 
     @Inject
     public ReleasePostProcessor(
@@ -50,8 +48,7 @@ public class ReleasePostProcessor implements PostProcessor {
             RepositoryConnection repositoryConnection
     ) throws MalformedQueryException, RepositoryException {
         this.valueFactory = valueFactory;
-        final  Variable graph = new Variable("g");
-        final  Variable graph2 = new Variable("g2");
+
 
         //quad because we want to have from single source (this is a first level postprocessor) and it optimized better in timescope
         packageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,

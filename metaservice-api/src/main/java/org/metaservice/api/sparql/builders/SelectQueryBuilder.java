@@ -9,7 +9,7 @@ import org.metaservice.api.sparql.nodes.Variable;
 /**
  * Created by ilo on 04.03.14.
  */
-public interface SelectQueryBuilder extends NamedSubQueriesBuilder {
+public interface SelectQueryBuilder extends NamedSubQueriesBuilder,GraphPatternValue{
 
     @NotNull
     public SelectQueryBuilder select(boolean distinct,SelectTerm... selectTerms);

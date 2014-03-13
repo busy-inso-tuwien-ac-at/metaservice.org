@@ -1,8 +1,10 @@
 package org.metaservice.api.sparql.impl;
 
+import com.sun.org.apache.bcel.internal.generic.Select;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.api.sparql.builders.QueryBuilder;
 import org.metaservice.api.sparql.nodes.*;
@@ -442,13 +444,19 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
                 this.union(pretty, builder, union);
             } else if (graphPatternValue instanceof Include) {
                 this.include(pretty, builder, (Include) graphPatternValue);
-            } else {
+            } else if (graphPatternValue instanceof SelectQueryBuilder){
+                this.subselect(pretty,builder, (SelectQueryBuilder) graphPatternValue);
+            }else {
                 throw new UnsupportedOperationException();
             }
         }
         builder.append("}");
 
         return builder.toString();
+    }
+
+    private void subselect(boolean pretty, StringBuilder builder, SelectQueryBuilder graphPatternValue) {
+        builder.append(graphPatternValue.build());
     }
 
     public String whereClause(boolean pretty) {
