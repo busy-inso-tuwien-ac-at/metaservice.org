@@ -43,6 +43,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     private final TupleQuery graphSelect;
     private final ValueFactory valueFactory;
     private final Set<Statement> loadedStatements;
+    private final Debug debug;
 
     @Inject
     private PostProcessorDispatcher(
@@ -51,14 +52,15 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             ConnectionFactory connectionFactory,
             MetaserviceDescriptor metaserviceDescriptor, ValueFactory valueFactory,
             PostProcessor postProcessor,
-            MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor
-    ) throws JMSException, MalformedQueryException, RepositoryException {
+            MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,
+            Debug debug) throws JMSException, MalformedQueryException, RepositoryException {
         super(repositoryConnection, config, connectionFactory, valueFactory, postProcessor);
         this.metaserviceDescriptor = metaserviceDescriptor;
         this.postProcessor = postProcessor;
         this.postProcessorDescriptor = postProcessorDescriptor;
         this.repositoryConnection = repositoryConnection;
         this.valueFactory = valueFactory;
+        this.debug = debug;
 
         graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
 
@@ -220,6 +222,10 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
 
 
     public boolean isOkCheapCheck(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException {
+        if(debug.isEnabled() &&!debug.process(task)){
+            LOGGER.debug("not processing -> debug");
+            return false;
+        }
         URI resource = task.getChangedURI();
         LOGGER.debug("dispatching {}", resource);
         for(PostProcessingHistoryItem item  :task.getHistory()){

@@ -11,13 +11,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class GitUtil {
     private static Logger LOGGER = LoggerFactory.getLogger(GitUtil.class);
 
-    private String hashes[];
-    private String messages[];
-    private final File workdir;
+    protected String hashes[];
+    protected String messages[];
+    protected final File workdir;
 
     public GitUtil(File workdir) throws GitException {
         this.workdir = workdir;
@@ -203,8 +204,8 @@ public class GitUtil {
         return messages[getRevisionIndex(getCurrentRevision())];
     }
 
-    public void pull() throws GitException {
-        debug(execInWorkdir("git pull"));
+    public void fetch() throws GitException {
+        debug(execInWorkdir("git fetch --all"));
         reInit();
     }
 
@@ -217,8 +218,36 @@ public class GitUtil {
         return (hashes.length >0);
     }
 
+    public String[] getParentHashes(@NotNull String revision) throws GitException {
+        Process process = execInWorkdir("git rev-list --parents -n 1 " + revision );
+        StringWriter writer = new StringWriter();
+        try {
+            IOUtils.copy(process.getInputStream(), writer);
+            String s = writer.getBuffer().toString();
+            debug(process);
+            //ignore current
+            LOGGER.info(s);
+            s = s.replaceAll("^" +revision+"[^\\s]*","").trim();
+            HashSet<String> parents = new HashSet<>();
+            int i = 0;
+            LOGGER.info(s);
+            while(!s.isEmpty() && i++ < 10){
+                String x = s.replaceAll("^([^\\s])+", "$0");
+                 LOGGER.info("X " +x);
+                if(x.length() > 1)
+                    parents.add(x);
+                s = s.replaceAll("^([^\\s])+","").trim();
+                LOGGER.info(s);
+            }
+            LOGGER.info("parents: " + revision +" -> " + parents );
+            return parents.toArray(new String[parents.size()]);
+        } catch (IOException e) {
+            throw new GitException(e);
+        }
+    }
+
     @Nullable
-    public String getFileContent( @NotNull String revisison,@NotNull String path) throws ArchiveException {
+    public String getFileContent( @NotNull String revision,@NotNull String path) throws GitException {
         try {
             if(path.contains(workdir.getPath())){
                 path = path.replaceFirst(workdir.getPath(),"");
@@ -228,8 +257,8 @@ public class GitUtil {
             }
             //todo fix it in the first place when sending...
 
-            Process process = execInWorkdir("git show "+revisison+":"+path);
-            LOGGER.info("git show "+revisison+":"+path);
+            Process process = execInWorkdir("git show "+revision+":"+path);
+            LOGGER.info("git show "+revision+":"+path);
             StringWriter writer = new StringWriter();
             IOUtils.copy(process.getInputStream(), writer);
             debug(process);
@@ -238,10 +267,19 @@ public class GitUtil {
            LOGGER.debug("Process did not terminate correctly",e);
            return null;
         } catch (IOException e) {
-            throw new ArchiveException(e);
+            throw new GitException(e);
         }
     }
 
+    public void clone(String s) throws GitException {
+        Process process = execInWorkdir("git clone " + s +" .");
+        debug(process);
+        reInit();
+    }
+
+    public String[] getHashes() {
+        return hashes;
+    }
 
     public static class Line{
         public enum ChangeType {

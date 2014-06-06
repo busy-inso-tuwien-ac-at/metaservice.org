@@ -73,7 +73,10 @@ public class DOAP {
 
 	public final static URI CREATED;
 
-	static {
+    public final static URI SVN_REPOSITORY;
+    public final static URI GIT_REPOSITORY;
+
+    static {
 		ValueFactory factory = ValueFactoryImpl.getInstance();
 		PROJECT = factory.createURI(DOAP.NAMESPACE, "Project");
 		VERSION = factory.createURI(DOAP.NAMESPACE, "Version");
@@ -95,5 +98,8 @@ public class DOAP {
 		DOCUMENTER = factory.createURI(DOAP.NAMESPACE, "documenter");
 		RELEASE = factory.createURI(DOAP.NAMESPACE, "release");
 		CREATED = factory.createURI(DOAP.NAMESPACE, "created");
+
+        SVN_REPOSITORY = factory.createURI(DOAP.NAMESPACE,"SVNRepository");
+        GIT_REPOSITORY = factory.createURI(DOAP.NAMESPACE,"GitRepository");
 	}
 }

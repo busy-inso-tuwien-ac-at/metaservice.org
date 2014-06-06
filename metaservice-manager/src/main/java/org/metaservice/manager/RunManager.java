@@ -74,7 +74,19 @@ public class RunManager {
         }
     }
 
-    public void runProvider(
+    public void runVcs() throws ManagerException {
+        MetaserviceDescriptor.ModuleInfo moduleInfo = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl("org.metaservice","metaservice-core-vcs","1.0-SNAPSHOT");
+        run(
+                moduleInfo,
+                "vcs",
+                "org.metaservice.core.vcs.VcsRunner",
+                new String[]{},
+                config.getDefaultPostProcessorOpts().split(" "),//todo own defaults
+                false
+        );
+    }
+
+        public void runProvider(
             @NotNull ManagerConfig.Module module,
             @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor
     ) throws ManagerException {
@@ -91,14 +103,19 @@ public class RunManager {
 
     public void runPostProcessor(
             @NotNull ManagerConfig.Module module,
-            @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor
-    ) throws ManagerException {
+            @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,
+            boolean debug) throws ManagerException {
+        ArrayList<String> args = new ArrayList<>();
+        Collections.addAll(args,config.getDefaultPostProcessorOpts().split(" "));
+        if(debug){
+            args.add("-Dmsdebug");
+        }
         run(
                 module.getMetaserviceDescriptor().getModuleInfo(),
                 DescriptorHelper.getStringFromPostProcessor(module.getMetaserviceDescriptor().getModuleInfo(),postProcessorDescriptor),
                 "org.metaservice.core.jms.JMSPostProcessorRunner",
                 new String[]{postProcessorDescriptor.getId()},
-                config.getDefaultPostProcessorOpts().split(" "),
+                args.toArray(new String[args.size()]),
                 false
         );
     }

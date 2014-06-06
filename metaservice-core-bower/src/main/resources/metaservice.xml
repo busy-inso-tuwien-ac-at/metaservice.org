@@ -1,0 +1,74 @@
+<metaservice>
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
+    <provider
+            id="debianPackageProvider"
+            type="deb"
+            model="org.metaservice.core.deb.parser.ast.Package"
+            class="org.metaservice.core.deb.DebianPackageProvider"
+            >
+        <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/dcterms.rdf"/>
+        <load url="http://metaservice.org/ns/dcelements.rdf"/>
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </provider>
+
+    <parser
+            id="bowerParser"
+            type="bower"
+            class="org.metaservice.core.bower.BowerParser"/>
+
+
+    <postprocessor
+            id="ubuntuProject"
+            class="org.metaservice.core.deb.postprocessor.UbuntuProjectPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+    </postprocessor>
+
+
+    <repository
+            id="archive_ubuntu_org"
+            type="deb"
+            baseUri="http://archive.ubuntu.com/ubuntu/dists/"
+            startUri="http://archive.ubuntu.com/ubuntu/dists/"
+            crawler="debianarchive"
+            archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
+            >
+        <properties>
+            <property name="meta-distribution">ubuntu</property>
+            <property name="distribution-regex">^([^/]+)/.*$</property>
+        </properties>
+    </repository>
+
+    <crawler id="bowercrawler"
+             archiveClass="org.metaservice.core.archive.GitArchive">
+        <fetch exactly="/" />
+    </crawler>
+
+    <template
+            name="debian-release.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice-deb#Release"/>
+    <template
+            name="debian-package.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice-deb#Package"/>
+    <template
+            name="debian-project.hbs"
+            appliesTo="http://metaservice.org/ns/metaservice-deb#Project"/>
+
+
+    <ontology
+            name="package-deb.rdf" apply="true" distribute="true"/>
+
+</metaservice>

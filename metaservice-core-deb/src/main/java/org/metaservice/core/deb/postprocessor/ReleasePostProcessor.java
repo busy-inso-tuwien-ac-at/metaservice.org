@@ -9,6 +9,7 @@ import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.DC;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.sparql.buildingcontexts.DefaultSparqlQuery;
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by ilo on 24.02.14.
@@ -137,5 +139,10 @@ public class ReleasePostProcessor implements PostProcessor {
     @Override
     public boolean abortEarly(@NotNull URI uri) throws PostProcessorException {
         return !uri.stringValue().matches(URI_REGEX);
+    }
+
+    @Override
+    public List<SparqlQuery> getQueries() {
+        return null;
     }
 }

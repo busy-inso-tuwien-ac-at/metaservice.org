@@ -44,6 +44,12 @@ public class RunCommand extends AbstractManagerCommand {
     @Option(name ="frontend",shortName = 'f',hasValue = false)
     boolean frontend;
 
+    @Option(name ="debug",shortName = 'd',hasValue = false)
+    boolean debug;
+
+    @Option(name= "vcs",shortName = 'v',hasValue = false)
+    boolean vcs;
+
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
@@ -63,7 +69,7 @@ public class RunCommand extends AbstractManagerCommand {
                 MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor = DescriptorHelper.getPostProcessorFromString(installedModules, postprocessor);
                 try {
                     if(module != null && postProcessorDescriptor != null){
-                        manager.getRunManager().runPostProcessor(module,postProcessorDescriptor);
+                        manager.getRunManager().runPostProcessor(module,postProcessorDescriptor,debug);
 
                     }else {
                         LOGGER.error("module not found");
@@ -87,7 +93,7 @@ public class RunCommand extends AbstractManagerCommand {
                     }
                     for(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor : module.getMetaserviceDescriptor().getPostProcessorList()){
                         try {
-                            manager.getRunManager().runPostProcessor(module,postProcessorDescriptor);
+                            manager.getRunManager().runPostProcessor(module,postProcessorDescriptor, debug);
                         } catch (ManagerException e) {
                             e.printStackTrace();
                         }
@@ -100,6 +106,14 @@ public class RunCommand extends AbstractManagerCommand {
             System.out.println("Trying to start frontend");
             try {
                 manager.getRunManager().runFrontend();
+            } catch (ManagerException e) {
+                e.printStackTrace();
+            }
+        }
+        if(vcs){
+            System.out.println("Trying to start vcs");
+            try {
+                manager.getRunManager().runVcs();
             } catch (ManagerException e) {
                 e.printStackTrace();
             }

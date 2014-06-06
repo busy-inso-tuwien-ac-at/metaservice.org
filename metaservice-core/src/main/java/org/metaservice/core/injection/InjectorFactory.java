@@ -128,4 +128,9 @@ public class InjectorFactory {
                 new CrawlerModule(selectedRepository,selectedCrawler, injector.getInstance(Config.class)));
         return injector;
     }
+
+    public static Injector getBasicInjector() {
+        return Guice.createInjector(
+                new MetaserviceModule());
+    }
 }

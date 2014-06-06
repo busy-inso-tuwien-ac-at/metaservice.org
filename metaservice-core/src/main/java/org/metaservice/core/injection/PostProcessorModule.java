@@ -5,6 +5,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.postprocessor.PostProcessor;
+import org.metaservice.core.postprocessor.Debug;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 
 import java.lang.reflect.Type;
@@ -26,6 +27,9 @@ public class PostProcessorModule extends AbstractModule {
                     (Class<? extends PostProcessor>) Class.forName(postProcessorDescriptor.getClassName());
             Type dispatcherType = Types.newParameterizedType(PostProcessorDispatcher.class, postProcessorClazz);
 
+            Debug debug;
+                debug = new Debug();
+            bind(Debug.class).toInstance(debug);
             bind(PostProcessor.class).to(postProcessorClazz);
             bind(MetaserviceDescriptor.PostProcessorDescriptor.class).toInstance(postProcessorDescriptor);
             bind(new TypeLiteral<PostProcessorDispatcher>(){}).to((TypeLiteral<? extends PostProcessorDispatcher>) TypeLiteral.get(dispatcherType));

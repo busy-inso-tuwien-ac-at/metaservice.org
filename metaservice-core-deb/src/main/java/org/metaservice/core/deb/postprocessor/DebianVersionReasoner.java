@@ -8,6 +8,7 @@ import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.core.deb.util.DebianVersionComparator;
 import org.openrdf.model.Resource;
@@ -21,10 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 public class DebianVersionReasoner implements PostProcessor {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
@@ -247,5 +245,10 @@ public class DebianVersionReasoner implements PostProcessor {
     @Override
     public boolean abortEarly(@NotNull final URI uri) throws PostProcessorException{
         return !uri.stringValue().matches(URI_REGEX);
+    }
+
+    @Override
+    public List<SparqlQuery> getQueries() {
+        return null;
     }
 }

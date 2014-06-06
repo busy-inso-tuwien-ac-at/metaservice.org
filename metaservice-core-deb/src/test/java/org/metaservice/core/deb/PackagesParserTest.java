@@ -3,6 +3,7 @@ package org.metaservice.core.deb;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+import org.metaservice.core.archive.TestUtils;
 import org.metaservice.core.deb.parser.PackagesParser;
 import org.metaservice.core.utils.MetaserviceHttpClient;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -31,7 +32,7 @@ public class PackagesParserTest {
     PackagesParser parser = Parboiled.createParser(PackagesParser.class);
     @Test
     public void checkLocalFileSplit() throws IOException {
-        String input = readFile("crawlertest/error12933");
+        String input = TestUtils.readFile("crawlertest/error12933");
         String[] splitInput = input.split("\nPackage:");
         boolean first = true;
         for(String s : splitInput){
@@ -46,7 +47,7 @@ public class PackagesParserTest {
 
     @Test
     public void checkLocalFile() throws IOException {
-        String input = readFile("crawlertest/error12933");
+        String input = TestUtils.readFile("crawlertest/error12933");
       checkString(input);
     }
 
@@ -68,12 +69,7 @@ public class PackagesParserTest {
         }
     }
 
-    String readFile(String file) throws IOException {
-        FileReader fileInputStream = new FileReader(file);
-        StringWriter stringWriter = new StringWriter();
-        IOUtils.copy(fileInputStream,stringWriter);
-        return stringWriter.getBuffer().toString();
-    }
+
 
 
 

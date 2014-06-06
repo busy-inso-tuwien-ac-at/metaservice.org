@@ -71,9 +71,13 @@ public class GitArchive implements Archive {
 
     @Nullable
     public String processPath(@NotNull String commit,@NotNull File f) throws ArchiveException {
-        f = new File(workdir.getAbsolutePath() + "/"+  f.getPath());
-        LOGGER.info("Processing {}", f.getAbsolutePath());
-        return gitUtil.getFileContent(commit,f.getPath());
+        try {
+            f = new File(workdir.getAbsolutePath() + "/" + f.getPath());
+            LOGGER.info("Processing {}", f.getAbsolutePath());
+            return gitUtil.getFileContent(commit, f.getPath());
+        }catch (GitUtil.GitException e){
+            throw new ArchiveException(e);
+        }
     }
 
     @Override
@@ -93,7 +97,7 @@ public class GitArchive implements Archive {
     @Override
     public void synchronizeWithCentral() throws ArchiveException {
         try {
-            gitUtil.pull();
+            gitUtil.fetch();
         } catch (GitUtil.GitException e) {
             throw new ArchiveException();
         }
