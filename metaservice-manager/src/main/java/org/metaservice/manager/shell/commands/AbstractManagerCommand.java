@@ -3,6 +3,7 @@ package org.metaservice.manager.shell.commands;
 import org.jboss.aesh.console.command.Command;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
+import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.manager.Manager;
 import org.metaservice.manager.ManagerException;
 import org.slf4j.Logger;
@@ -17,8 +18,10 @@ public abstract  class AbstractManagerCommand implements Command{
     protected final Manager manager;
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
+    protected final DescriptorHelper descriptorHelper;
     public AbstractManagerCommand(Manager manager) {
         this.manager = manager;
+        descriptorHelper = manager.getDescriptorHelper();
     }
 
     @Override

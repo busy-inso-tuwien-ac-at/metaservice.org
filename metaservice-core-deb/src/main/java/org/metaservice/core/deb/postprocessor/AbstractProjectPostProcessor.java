@@ -15,9 +15,12 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sparql.query.QueryStringUtil;
+import org.openrdf.repository.sparql.query.SPARQLTupleQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -76,7 +79,7 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
     }
 
     private String getUriRegex(){
-        return "^http://metaservice.org/d/(releases|projects)/"+getDistributionName()+"/([^/#]+)(/[^/#]+)?$";
+        return "^http://metaservice.org/d/(releases|projects)/"+getDistributionName()+"/([^/#\n\r]+)(/[^/#\n\r]+)?$";
     }
 
     protected abstract String getDistributionName();
@@ -96,6 +99,15 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             if(uri.toString().startsWith("http://metaservice.org/d/releases")){
                 LOGGER.debug("releaseQuery");
                 releaseQuery.setBinding(resource.toString(),uri);
+                if(projectURI.toString().contains("openssl")) {
+                    System.err.println(Arrays.asList(((SPARQLTupleQuery) releaseQuery).getBindingsArray()));
+                    System.err.println(QueryStringUtil.getQueryString(releaseQuery.toString(), releaseQuery.getBindings()));
+                    try {
+                        Thread.sleep(120000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 tupleQueryResult = releaseQuery.evaluate();
             }else if(uri.toString().startsWith("http://metaservice.org/d/projects")){
                 LOGGER.debug("projectQuery");
@@ -108,6 +120,7 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             while (tupleQueryResult.hasNext()){
                 BindingSet bindingSet = tupleQueryResult.next();
                 URI releaseURI = (URI) bindingSet.getBinding(release.toString()).getValue();
+                LOGGER.info("ADDING " + releaseURI);
                 resultConnection.add(releaseURI, ADMSSW.PROJECT,projectURI);
                 resultConnection.add(projectURI, DOAP.RELEASE, releaseURI);
                 processRelease(resultConnection,projectURI,releaseURI);

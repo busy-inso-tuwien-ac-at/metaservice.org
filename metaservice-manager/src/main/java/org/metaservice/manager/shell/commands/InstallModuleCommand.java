@@ -1,5 +1,6 @@
 package org.metaservice.manager.shell.commands;
 
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.manager.ManagerException;
 import org.metaservice.manager.shell.completer.AvailableModuleCompleter;
 import org.metaservice.manager.shell.validator.ModuleValidator;
@@ -8,8 +9,7 @@ import org.jboss.aesh.cl.CommandDefinition;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.manager.Manager;
-import org.metaservice.core.config.ManagerConfig;
-import org.metaservice.core.descriptor.DescriptorHelper;
+import org.metaservice.api.messaging.config.ManagerConfig;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -34,12 +34,12 @@ public class InstallModuleCommand extends AbstractManagerCommand {
         Collection<ManagerConfig.Module> availableModules = manager.getManagerConfig().getAvailableModules();
         for(String s : moduleIdentifier){
 
-            ManagerConfig.Module installedModule = DescriptorHelper.getModuleFromString(installedModules, s);
+            ManagerConfig.Module installedModule = descriptorHelper.getModuleFromString(installedModules, s);
             if(installedModule != null){
                 commandInvocation.getShell().out().println("already installed: " + s);
                 continue;
             }
-            ManagerConfig.Module availableModule = DescriptorHelper.getModuleFromString(availableModules, s);
+            ManagerConfig.Module availableModule = descriptorHelper.getModuleFromString(availableModules, s);
             if(availableModule == null){
                 LOGGER.warn("module not found");
                 continue;

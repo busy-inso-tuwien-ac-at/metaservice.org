@@ -15,8 +15,11 @@ import java.io.IOException;
 @CommandDefinition(name = "test",description = "")
 public class Test extends AbstractManagerCommand{
 
-    @Option(name="reponame",required = true)
+    @Option(name="reponame")
     String repo;
+
+    @Option(name="packages",hasValue = false)
+    boolean packages;
 
     public Test(Manager manager) {
         super(manager);
@@ -24,7 +27,12 @@ public class Test extends AbstractManagerCommand{
 
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException, ManagerException {
-        manager.loadAllDataFromArchive(repo);
+        if(repo != null) {
+            manager.loadAllDataFromArchive(repo);
+        }
+        if(packages){
+            manager.postProcessAllPackages();
+        }
         return CommandResult.SUCCESS;
     }
 }

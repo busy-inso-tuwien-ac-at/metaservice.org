@@ -5,14 +5,14 @@ import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.core.injection.InjectorFactory;
+import org.metaservice.api.messaging.MessageHandler;
+import org.metaservice.api.messaging.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
-import javax.jms.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.Date;
@@ -42,9 +42,7 @@ public class CrawlerRunner {
 
     private final Crawler crawler;
     private final Archive archive;
-    private final Session session;
-    private final Connection connection;
-    private final MessageProducer producer;
+    private final MessageHandler producer;
     private final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor;
     private final MetaserviceDescriptor metaserviceDescriptor;
 
@@ -52,24 +50,20 @@ public class CrawlerRunner {
     public CrawlerRunner(
             final Crawler crawler,
             final Archive archive,
-            final ConnectionFactory connectionFactory,
+            final MessageHandler producer,
             final MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor,
             final MetaserviceDescriptor metaserviceDescriptor
-    ) throws JMSException {
+    ) {
         this.crawler = crawler;
         this.archive = archive;
         this.repositoryDescriptor = repositoryDescriptor;
         this.metaserviceDescriptor = metaserviceDescriptor;
-
-        connection = connectionFactory.createConnection();
-     //   connection.setClientID(this.getClass().getName() +"con");
-        connection.start();
-        session = connection.createSession(false,
-                Session.AUTO_ACKNOWLEDGE);
-
-
-        Destination destination = session.createTopic("VirtualTopic.Create");
-        producer = session.createProducer(destination);
+        this.producer = producer;
+        try {
+            producer.init();
+        } catch (MessagingException e) {
+            LOGGER.error("messaging", e);
+        }
     }
 
     public  void run(){
@@ -82,15 +76,13 @@ public class CrawlerRunner {
                     try{
                         LOGGER.info("Sending " + commitTime +" s " + s);
                         ArchiveAddress archiveAddress = new ArchiveAddress(
-                                DescriptorHelper.getStringFromRepository(metaserviceDescriptor.getModuleInfo(),repositoryDescriptor),
+                                repositoryDescriptor.getId(),
                                 sourceBaseUri,
                                 commitTime,
                                 s);
                         archiveAddress.setParameters(repositoryDescriptor.getProperties());
-                        ObjectMessage message = session.createObjectMessage();
-                        message.setObject(archiveAddress);
-                        producer.send(message);
-                    } catch (JMSException e) {
+                        producer.send(archiveAddress);
+                    }  catch (MessagingException e) {
                         e.printStackTrace();
                     }
                 }
@@ -98,10 +90,9 @@ public class CrawlerRunner {
                 LOGGER.info("Nothing changed");
             }
             producer.close();
-            connection.close();
         } catch (ArchiveException e) {
             e.printStackTrace();
-        } catch (JMSException e) {
+        } catch (MessagingException e) {
             e.printStackTrace();
         }
     }

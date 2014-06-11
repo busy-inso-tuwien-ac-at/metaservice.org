@@ -20,6 +20,7 @@ public class ArchiveAddress implements Serializable{
         this.parameters = parameters;
     }
 
+    private ArchiveAddress(){}
     public ArchiveAddress(String repository,String archiveUri, Date time, String path) {
         this.repository = repository;
         this.archiveUri = archiveUri;

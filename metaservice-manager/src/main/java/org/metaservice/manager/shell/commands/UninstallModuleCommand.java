@@ -1,10 +1,9 @@
 package org.metaservice.manager.shell.commands;
 
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.manager.Manager;
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.config.ManagerConfig;
 import org.metaservice.manager.ManagerException;
-import org.metaservice.core.descriptor.DescriptorHelper;
-import org.metaservice.manager.shell.completer.AvailableModuleCompleter;
 import org.metaservice.manager.shell.completer.InstalledModuleCompleter;
 import org.metaservice.manager.shell.validator.ModuleValidator;
 import org.jboss.aesh.cl.Arguments;
@@ -14,7 +13,6 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,7 +35,7 @@ public class UninstallModuleCommand extends AbstractManagerCommand{
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
         for(String s : moduleIdentifier){
-            ManagerConfig.Module installedModule = DescriptorHelper.getModuleFromString(installedModules, s);
+            ManagerConfig.Module installedModule = descriptorHelper.getModuleFromString(installedModules, s);
             if(installedModule == null){
                 commandInvocation.getShell().out().println("not installed: " + s);
                 continue;

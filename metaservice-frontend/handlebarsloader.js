@@ -74,6 +74,12 @@ function convertToJson(data,root){
     return result[root];
 }
 
+Handlebars.registerHelper('hostname',function(context,options){
+   var result = document.createElement('a');
+   result.href=context;
+   return result.hostname;
+});
+
 Handlebars.registerHelper('mboxToAddress',function(context,options){
     if(!context)
         return "";
@@ -121,13 +127,10 @@ Handlebars.registerHelper('eachArray', function(context, options) {
 });
 
 Handlebars.registerHelper('eachNext', function(context, options) {
-    console.log('TRYING');
-    console.log(context);
     if(!context)
         return "";
 
     //set prev
-    /*
     if($.isArray(context)){
         for(i=0, j=context.length; i<j; i++) {
             if(context[i]['xhv:next'] && !context[i]['xhv:next']['xhv:prev']){
@@ -141,7 +144,7 @@ Handlebars.registerHelper('eachNext', function(context, options) {
                 x['xhv:next']['xhv:prev'] = x;
             }
         }
-    }*/
+    }
     if($.isArray(context)){
         var first = [];
         for(i=0, j=context.length; i<j; i++) {
@@ -150,6 +153,8 @@ Handlebars.registerHelper('eachNext', function(context, options) {
             }
         }
          context = first;
+    }else{
+        context = [context];
     }
     var ret = "";
 

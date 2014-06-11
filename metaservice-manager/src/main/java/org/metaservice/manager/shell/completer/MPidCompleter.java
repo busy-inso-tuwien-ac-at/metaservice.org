@@ -1,5 +1,6 @@
 package org.metaservice.manager.shell.completer;
 
+import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.manager.RunEntry;
 
 import java.util.List;

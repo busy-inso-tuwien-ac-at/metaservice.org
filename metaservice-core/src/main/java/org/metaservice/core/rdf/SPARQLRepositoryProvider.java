@@ -1,7 +1,7 @@
 package org.metaservice.core.rdf;
 
 import com.google.inject.Provider;
-import org.metaservice.core.config.Config;
+import org.metaservice.api.messaging.Config;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sparql.SPARQLRepository;
 

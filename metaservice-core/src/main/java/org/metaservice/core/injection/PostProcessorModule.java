@@ -32,8 +32,7 @@ public class PostProcessorModule extends AbstractModule {
             bind(Debug.class).toInstance(debug);
             bind(PostProcessor.class).to(postProcessorClazz);
             bind(MetaserviceDescriptor.PostProcessorDescriptor.class).toInstance(postProcessorDescriptor);
-            bind(new TypeLiteral<PostProcessorDispatcher>(){}).to((TypeLiteral<? extends PostProcessorDispatcher>) TypeLiteral.get(dispatcherType));
-
+            bind(new TypeLiteral<org.metaservice.api.messaging.dispatcher.PostProcessorDispatcher>(){}).to((TypeLiteral<? extends PostProcessorDispatcher>) TypeLiteral.get(dispatcherType));
         } catch (ClassNotFoundException e) {
             addError(e);
         }

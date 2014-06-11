@@ -5,7 +5,7 @@ import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.config.Config;
+import org.metaservice.api.messaging.Config;
 import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.metaservice.core.crawler.Crawler;
 import org.metaservice.core.crawler.CrawlerParameters;

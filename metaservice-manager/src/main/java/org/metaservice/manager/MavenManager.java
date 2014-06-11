@@ -12,7 +12,7 @@ import org.eclipse.aether.resolution.*;
 import org.eclipse.aether.version.Version;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.config.ManagerConfig;
 import org.metaservice.manager.maven.TransferListener;
 import org.slf4j.Logger;
 

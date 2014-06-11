@@ -3,8 +3,9 @@ package org.metaservice.core.vcs;
 import com.google.inject.Injector;
 import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.core.AbstractDispatcher;
-import org.metaservice.core.config.Config;
+import org.metaservice.api.messaging.Config;
 import org.metaservice.core.injection.InjectorFactory;
+import org.metaservice.api.messaging.MessageHandler;
 import org.metaservice.core.vcs.git.GitProvider;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -17,8 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
 
 /**
  * Created by ilo on 01.06.2014.
@@ -27,8 +26,8 @@ public class VcsRunner extends AbstractDispatcher<String>{
     private final static Logger LOGGER = LoggerFactory.getLogger(VcsRunner.class);
 
     @Inject
-    protected VcsRunner(RepositoryConnection repositoryConnection, Config config, ConnectionFactory connectionFactory, ValueFactory valueFactory) throws JMSException {
-        super(repositoryConnection, config, connectionFactory, valueFactory, "vcsrunner");
+    protected VcsRunner(RepositoryConnection repositoryConnection, Config config, MessageHandler messageHandler, ValueFactory valueFactory){
+        super(repositoryConnection, config, messageHandler, valueFactory, "vcsrunner");
         this.repositoryConnection = repositoryConnection;
     }
 

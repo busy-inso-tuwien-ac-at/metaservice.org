@@ -4,12 +4,16 @@ import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.api.messaging.PostProcessingHistoryItem;
+import org.metaservice.api.messaging.PostProcessingTask;
+import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.core.AbstractDispatcher;
-import org.metaservice.core.config.Config;
-import org.metaservice.core.descriptor.DescriptorHelper;
+import org.metaservice.api.messaging.Config;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
+import org.metaservice.api.messaging.MessageHandler;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -24,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.jms.*;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
@@ -33,7 +36,7 @@ import java.util.*;
 /**
  * Created by ilo on 17.01.14.
  */
-public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
+public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> implements org.metaservice.api.messaging.dispatcher.PostProcessorDispatcher {
     private final Logger LOGGER = LoggerFactory.getLogger(PostProcessorDispatcher.class);
 
     private final PostProcessor postProcessor;
@@ -44,23 +47,27 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     private final ValueFactory valueFactory;
     private final Set<Statement> loadedStatements;
     private final Debug debug;
+    private final DescriptorHelper descriptorHelper;
 
     @Inject
     private PostProcessorDispatcher(
             RepositoryConnection repositoryConnection,
             Config config,
-            ConnectionFactory connectionFactory,
+            MessageHandler messageHandler,
             MetaserviceDescriptor metaserviceDescriptor, ValueFactory valueFactory,
             PostProcessor postProcessor,
             MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,
-            Debug debug) throws JMSException, MalformedQueryException, RepositoryException {
-        super(repositoryConnection, config, connectionFactory, valueFactory, postProcessor);
+            Debug debug,
+            DescriptorHelper descriptorHelper
+    ) throws MalformedQueryException, RepositoryException {
+        super(repositoryConnection, config, messageHandler, valueFactory, postProcessor);
         this.metaserviceDescriptor = metaserviceDescriptor;
         this.postProcessor = postProcessor;
         this.postProcessorDescriptor = postProcessorDescriptor;
         this.repositoryConnection = repositoryConnection;
         this.valueFactory = valueFactory;
         this.debug = debug;
+        this.descriptorHelper = descriptorHelper;
 
         graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
 
@@ -82,6 +89,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
     }
 
 
+    @Override
     public void process(PostProcessingTask task, long jmsTimestamp){
         URI resource = task.getChangedURI();
         try{
@@ -189,7 +197,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
             String query = builder.toString();
             LOGGER.trace(query);
             TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,query);
-            tupleQuery.setBinding("postprocessor", valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)));
+            tupleQuery.setBinding("postprocessor", valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
             TupleQueryResult result  = tupleQuery.evaluate();
 
 
@@ -215,12 +223,13 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         repositoryConnection.add(metadata, METASERVICE.TIME, valueFactory.createLiteral(task.getTime()),metadata); //todo fix it to be based on the used data
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
-        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor)), metadata);
+        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)), metadata);
         repositoryConnection.commit();
         return metadata;
     }
 
 
+    @Override
     public boolean isOkCheapCheck(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException {
         if(debug.isEnabled() &&!debug.process(task)){
             LOGGER.debug("not processing -> debug");
@@ -249,7 +258,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> {
         try {
 
             URI resource = task.getChangedURI();
-            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
+            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
             graphSelect.setBinding("resource",resource);
             TupleQueryResult queryResult = graphSelect.evaluate();
             XMLGregorianCalendar newestTime = null;

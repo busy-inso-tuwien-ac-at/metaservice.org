@@ -124,6 +124,7 @@ public class ReleasePostProcessor implements PostProcessor {
                 BindingSet bindingSet = tupleQueryResult.next();
                 URI packageURI = (URI) bindingSet.getBinding("package").getValue();
                 resultConnection.add(packageURI, ADMSSW.RELEASE, releaseURI);
+                LOGGER.info("adding {} -> {}",packageURI,releaseURI);
                 resultConnection.add(releaseURI, ADMSSW.PACKAGE, packageURI);
             }
             resultConnection.add(releaseURI, RDF.TYPE, PACKAGE_DEB.RELEASE);

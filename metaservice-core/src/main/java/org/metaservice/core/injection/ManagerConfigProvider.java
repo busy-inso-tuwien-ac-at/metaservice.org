@@ -2,7 +2,7 @@ package org.metaservice.core.injection;
 
 import com.google.inject.Provider;
 import org.apache.commons.io.IOUtils;
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.config.ManagerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

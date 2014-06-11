@@ -5,10 +5,10 @@ import org.jboss.aesh.cl.CommandDefinition;
 import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.config.ManagerConfig;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.manager.Manager;
 import org.metaservice.manager.ManagerException;
-import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.manager.shell.completer.AvailableModuleCompleter;
 import org.metaservice.manager.shell.validator.ModuleValidator;
 
@@ -34,7 +34,7 @@ public class UpdateMavenCommand extends AbstractManagerCommand{
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> availableModules = manager.getManagerConfig().getAvailableModules();
         try {
-            manager.getMavenManager().updateModule(DescriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)),replace);
+            manager.getMavenManager().updateModule(descriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)),replace);
         } catch (ManagerException e) {
             e.printStackTrace();
         }

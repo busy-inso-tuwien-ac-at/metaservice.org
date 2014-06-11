@@ -4,8 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.config.Config;
-import org.metaservice.core.injection.providers.ConnectionFactoryProvider;
+import org.metaservice.api.messaging.Config;
 import org.metaservice.core.injection.providers.JAXBMetaserviceDescriptorProvider;
 import org.metaservice.core.rdf.RepositoryConnectionProvider;
 import org.metaservice.core.rdf.SPARQLRepositoryProvider;
@@ -14,7 +13,6 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 
-import javax.jms.ConnectionFactory;
 import java.util.List;
 
 /**
@@ -80,6 +78,6 @@ public class MetaserviceTestModule extends AbstractModule {
         bind(ValueFactory.class).toProvider(ValueFactoryProvider.class).in(Scopes.SINGLETON);
         bind(Repository.class).toProvider(SPARQLRepositoryProvider.class).in(Scopes.SINGLETON);
         bind(RepositoryConnection.class).toProvider(RepositoryConnectionProvider.class).in(Scopes.SINGLETON);
-        bind(ConnectionFactory.class).toProvider(ConnectionFactoryProvider.class).in(Scopes.SINGLETON);
+     //   bind(ConnectionFactory.class).toProvider(ConnectionFactoryProvider.class).in(Scopes.SINGLETON);
     }
 }

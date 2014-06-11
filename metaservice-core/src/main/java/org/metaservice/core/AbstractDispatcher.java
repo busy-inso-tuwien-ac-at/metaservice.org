@@ -10,9 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.config.Config;
-import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
-import org.metaservice.core.postprocessor.PostProcessingTask;
+import org.metaservice.api.messaging.Config;
+import org.metaservice.api.messaging.MessagingException;
+import org.metaservice.api.messaging.PostProcessingHistoryItem;
+import org.metaservice.api.messaging.PostProcessingTask;
+import org.metaservice.api.messaging.MessageHandler;
 import org.openrdf.model.*;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDFS;
@@ -30,7 +32,6 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -43,29 +44,27 @@ public abstract  class AbstractDispatcher<T> {
     private final RepositoryConnection repositoryConnection;
     private final Config config;
     protected final Resource[] NO_CONTEXT = new Resource[0];
-    private final MessageProducer producer;
-    private final Session session;
+    private final MessageHandler messageHandler;
     private final ValueFactory valueFactory;
     private final T target;
 
     protected AbstractDispatcher(
             RepositoryConnection repositoryConnection,
             Config config,
-            ConnectionFactory connectionFactory,
+            MessageHandler messageHandler,
             ValueFactory valueFactory,
             T target
-    ) throws JMSException {
+    )  {
         this.repositoryConnection = repositoryConnection;
         this.config = config;
         this.valueFactory = valueFactory;
         this.target = target;
-
-        Connection jmsConnection = connectionFactory.createConnection();
-
-        session = jmsConnection.createSession(true,Session.AUTO_ACKNOWLEDGE);
-
-        this.producer = session.createProducer(session.createTopic("VirtualTopic.PostProcess"));
-
+        this.messageHandler = messageHandler;
+        try {
+            this.messageHandler.init();
+        } catch (MessagingException e) {
+            LOGGER.error("",e);
+        }
     }
 
 
@@ -155,22 +154,17 @@ public abstract  class AbstractDispatcher<T> {
                 history.add(now);
             }
         }
-        int count = 0;
         try {
+            if(resourcesThatChanged.size() ==0){
+                LOGGER.info("nothing to notify");
+            }
             for(URI uri : resourcesThatChanged){
-                count++;
+                LOGGER.info("changed " + uri);
                 PostProcessingTask postProcessingTask = new PostProcessingTask(uri,time);
                 postProcessingTask.getHistory().addAll(history);
-                ObjectMessage objectMessage = session.createObjectMessage(postProcessingTask);
-                //objectMessage.setJMSExpiration(1000*60*15); // 15 min
-                producer.send(objectMessage);
-                if(count > 100){
-                    count=0;
-                    session.commit();
-                }
+                messageHandler.send(postProcessingTask);
             }
-            session.commit();
-        } catch (JMSException e) {
+        } catch (MessagingException e) {
             LOGGER.error("Couldn't notify PostProcessors",e);
         }
         LOGGER.debug("STOP NOTIFICATION OF POSTPROCESSORS");

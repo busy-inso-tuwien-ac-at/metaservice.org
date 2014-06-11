@@ -5,10 +5,10 @@ import org.jboss.aesh.cl.CommandDefinition;
 import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.config.ManagerConfig;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.manager.Manager;
 import org.metaservice.manager.ManagerException;
-import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.manager.shell.completer.AvailableModuleCompleter;
 import org.metaservice.manager.shell.validator.ModuleValidator;
 
@@ -40,12 +40,12 @@ public class RemoveModuleCommand extends AbstractManagerCommand{
 
         if(hard){
             for(String identifier : moduleIdentifier){
-                ManagerConfig.Module installedModule = DescriptorHelper.getModuleFromString(installedModules, identifier);
+                ManagerConfig.Module installedModule = descriptorHelper.getModuleFromString(installedModules, identifier);
                 if(installedModule != null){
                     LOGGER.warn("{} is installed, ignoring", identifier);
                     continue;
                 }
-                ManagerConfig.Module availableModule = DescriptorHelper.getModuleFromString(availableModules,identifier);
+                ManagerConfig.Module availableModule = descriptorHelper.getModuleFromString(availableModules, identifier);
                 if(availableModule == null){
                     LOGGER.warn("{} not found, ignoring", identifier);
                 }

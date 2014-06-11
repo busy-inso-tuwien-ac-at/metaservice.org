@@ -54,6 +54,7 @@ public class DebianVersionReasoner implements PostProcessor {
             @Override
             public String build() {
                 return select(true,
+                        var(release),
                         var(version),
                         var(title),
                         var(arch),

@@ -9,7 +9,7 @@ import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.api.provider.Provider;
-import org.metaservice.core.config.Config;
+import org.metaservice.api.messaging.Config;
 import org.metaservice.core.provider.ProviderDispatcher;
 import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class ProviderModule extends AbstractModule {
             bind(MetaserviceDescriptor.ProviderDescriptor.class).toInstance(providerDescriptor);
             bind(TypeLiteral.get(providerType)).to(providerClazz);
             bind(TypeLiteral.get(parserType)).to(parserClazz);
-            bind(new TypeLiteral<ProviderDispatcher>(){}).to((TypeLiteral<? extends ProviderDispatcher>) TypeLiteral.get(dispatcherType));
+            bind(new TypeLiteral<org.metaservice.api.messaging.dispatcher.ProviderDispatcher>(){}).to((TypeLiteral<? extends ProviderDispatcher>) TypeLiteral.get(dispatcherType));
 
             Multibinder<Archive> multibinder = Multibinder.newSetBinder(binder(), Archive.class);
 

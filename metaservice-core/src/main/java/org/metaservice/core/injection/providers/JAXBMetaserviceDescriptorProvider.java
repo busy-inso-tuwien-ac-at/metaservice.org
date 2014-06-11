@@ -1,7 +1,7 @@
 package org.metaservice.core.injection.providers;
 
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.descriptor.JAXBMetaserviceDescriptorImpl;
+import org.metaservice.api.messaging.config.JAXBMetaserviceDescriptorImpl;
 
 import com.google.inject.Provider;
 import javax.xml.bind.JAXB;

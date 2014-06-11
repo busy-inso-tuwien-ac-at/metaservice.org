@@ -4,9 +4,9 @@ import org.jboss.aesh.cl.CommandDefinition;
 import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.manager.Manager;
-import org.metaservice.core.config.ManagerConfig;
-import org.metaservice.core.descriptor.DescriptorHelper;
+import org.metaservice.api.messaging.config.ManagerConfig;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class ListCommand extends AbstractManagerCommand {
 
         List<String> resultString = new ArrayList<>();
         for(ManagerConfig.Module m : result){
-            resultString.add(DescriptorHelper.getModuleIdentifierStringFromModule(m.getMetaserviceDescriptor().getModuleInfo()));
+            resultString.add(descriptorHelper.getModuleIdentifierStringFromModule(m.getMetaserviceDescriptor().getModuleInfo()));
         }
         if(sort){
             Collections.sort(resultString);

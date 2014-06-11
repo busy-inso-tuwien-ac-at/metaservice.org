@@ -1,7 +1,8 @@
 package org.metaservice.manager.shell.completer;
 
-import org.metaservice.core.config.ManagerConfig;
-import org.metaservice.core.descriptor.DescriptorHelper;
+import org.metaservice.api.messaging.config.ManagerConfig;
+import org.metaservice.api.messaging.descriptors.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 
 /**
@@ -15,7 +16,7 @@ public class PostProcessorCompleter extends AbstractManagerCompleter {
             MetaserviceDescriptor descriptor = module.getMetaserviceDescriptor();
             MetaserviceDescriptor.ModuleInfo moduleInfo = descriptor.getModuleInfo();
             for(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor : descriptor.getPostProcessorList()){
-                String identifier = DescriptorHelper.getStringFromPostProcessor(moduleInfo, postProcessorDescriptor);
+                String identifier = descriptorHelper.getStringFromPostProcessor(moduleInfo, postProcessorDescriptor);
                 if(identifier.startsWith(completerInvocation.getGivenCompleteValue())){
                     completerInvocation.addCompleterValue(identifier);
                 }

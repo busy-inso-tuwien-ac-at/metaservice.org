@@ -1,21 +1,23 @@
 package org.metaservice.core.provider;
 
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import info.aduna.iteration.Iterations;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.api.provider.Provider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.core.AbstractDispatcher;
-import org.metaservice.core.config.Config;
-import org.metaservice.core.descriptor.DescriptorHelper;
-import org.metaservice.core.postprocessor.PostProcessingHistoryItem;
+import org.metaservice.api.messaging.Config;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
+import org.metaservice.api.messaging.PostProcessingHistoryItem;
+import org.metaservice.api.messaging.MessageHandler;
 import org.openrdf.model.*;
-import org.openrdf.model.impl.CalendarLiteralImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
@@ -26,14 +28,13 @@ import org.slf4j.LoggerFactory;
 
 
 import javax.inject.Inject;
-import javax.jms.*;
 import java.util.*;
 
 /**
  * Scope - Distributed
  * @param <T>
  */
-public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
+public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> implements org.metaservice.api.messaging.dispatcher.ProviderDispatcher{
     private final Logger LOGGER = LoggerFactory.getLogger(ProviderDispatcher.class);
 
     private final MetaserviceDescriptor metaserviceDescriptor;
@@ -47,6 +48,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
     private final Set<Archive> archives;
 
     private final Set<Statement> loadedStatements;
+    private final DescriptorHelper descriptorHelper;
 
     //TODO make repoMap dynamic - such that it may be cloned automatically, or use an existing copy
     // this could be achieved by using a hash to search in the local filesystem
@@ -58,11 +60,12 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
             Parser<T> parser,
             Set<Archive> archives,
             ValueFactory valueFactory,
-            ConnectionFactory connectionFactory,
+            MessageHandler messageHandler,
             RepositoryConnection repositoryConnection,
+            DescriptorHelper descriptorHelper,
             Config config,
-            MetaserviceDescriptor metaserviceDescriptor) throws RepositoryException, MalformedQueryException, JMSException {
-        super(repositoryConnection, config, connectionFactory, valueFactory, provider);
+            MetaserviceDescriptor metaserviceDescriptor) throws RepositoryException, MalformedQueryException{
+        super(repositoryConnection, config, messageHandler, valueFactory, provider);
         this.provider = provider;
         this.parser = parser;
         this.valueFactory = valueFactory;
@@ -70,7 +73,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         this.archives = archives;
         this.providerDescriptor = providerDescriptor;
         this.metaserviceDescriptor = metaserviceDescriptor;
-        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repositoryId ?repo ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?repo; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.REPOSITORY_ID+"> ?repositoryId.}");
+        this.descriptorHelper = descriptorHelper;
+        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repositoryId ?source ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?source; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.REPOSITORY_ID+"> ?repositoryId.}");
 
         loadedStatements = calculatePreloadedStatements();
     }
@@ -87,6 +91,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         return Collections.unmodifiableSet(result);
     }
 
+    @Override
     public void refresh(URI uri) {
         try {
             LOGGER.error("refreshing: " + uri);
@@ -98,23 +103,23 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 BindingSet set = queryResult.next();
 
                 Value timeValue = set.getBinding("time").getValue();
-                Value repoValue = set.getBinding("repo").getValue();
+                Value sourceValue = set.getBinding("source").getValue();
                 Value pathValue = set.getBinding("path").getValue();
                 Value idValue = set.getBinding("repositoryId").getValue();
                 URI oldMetadata = (URI) set.getBinding("metadata").getValue();
-                Date time = ((CalendarLiteralImpl)timeValue).calendarValue().toGregorianCalendar().getTime();
-                String repo = repoValue.stringValue();
+                Date time = XMLGregorianCalendarImpl.parse(timeValue.stringValue()).toGregorianCalendar().getTime();
+                String source = sourceValue.stringValue();
                 String path = pathValue.stringValue();
                 String repositoryId = idValue.stringValue();
                 LOGGER.debug("READING repositoryId {}", repositoryId);
                 LOGGER.debug("READING time {}", time);
-                LOGGER.debug("READING repo {}", repo);
+                LOGGER.debug("READING source {}", source);
                 LOGGER.debug("READING path {}", path);
 
 
                 MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor = null;
                 for(MetaserviceDescriptor.RepositoryDescriptor descriptor : metaserviceDescriptor.getRepositoryList()){
-                     if(DescriptorHelper.getStringFromRepository(metaserviceDescriptor.getModuleInfo(),descriptor).equals(repositoryId)){
+                     if(descriptor.getId().equals(repositoryId)){
                          repositoryDescriptor = descriptor;
                          break;
                      }
@@ -124,8 +129,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                     return;
                 }
                 ArchiveAddress address = new ArchiveAddress(
-                        DescriptorHelper.getStringFromRepository(metaserviceDescriptor.getModuleInfo(),repositoryDescriptor),
-                        repo,
+                        repositoryDescriptor.getId(),
+                        source,
                         time,
                         path);
                 address.setParameters(repositoryDescriptor.getProperties());
@@ -148,8 +153,19 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
                 LOGGER.warn("Cannot process content  of address {}, skipping.",archiveAddress );
                 return;
             }
-            List<Statement> nowGeneratedStatements = getStatements(contents.now, archiveAddress);
-            List<Statement> prevGeneratedStatements = getStatements(contents.prev, archiveAddress);
+            List<Statement> nowGeneratedStatements;
+            List<Statement> prevGeneratedStatements;
+            if (contents.now == null || contents.now.length() < 20){
+                nowGeneratedStatements = new ArrayList<>();
+            }  else {
+                nowGeneratedStatements  = getStatements(contents.now, archiveAddress);
+
+            }
+            if (contents.prev == null || contents.prev.length() < 20){
+                prevGeneratedStatements = new ArrayList<>();
+            }  else {
+                prevGeneratedStatements  = getStatements(contents.prev, archiveAddress);
+            }
             URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,"add"); //todo
             URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,"remove");//todo
 
@@ -197,6 +213,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         return generatedStatements;
     }
 
+    @Override
     public void create(ArchiveAddress archiveAddress){
         Archive archive = getArchive(archiveAddress.getArchiveUri());
         if(archive == null){
@@ -266,7 +283,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> {
         resultRepositoryConnection.add(metadata, METASERVICE.SOURCE, repoLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.REPOSITORY_ID, idLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()), metadata);
-        resultRepositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(), providerDescriptor)), metadata);
+        resultRepositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(), providerDescriptor)), metadata);
         resultRepositoryConnection.commit();
         return metadata;
     }

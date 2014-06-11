@@ -4,10 +4,11 @@ import com.google.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.core.config.Config;
-import org.metaservice.core.config.ManagerConfig;
-import org.metaservice.core.descriptor.DescriptorHelper;
-import org.metaservice.core.descriptor.JAXBMetaserviceDescriptorImpl;
+import org.metaservice.api.messaging.Config;
+import org.metaservice.api.messaging.config.ManagerConfig;
+import org.metaservice.api.messaging.descriptors.DescriptorHelper;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
+import org.metaservice.api.messaging.config.JAXBMetaserviceDescriptorImpl;
 import org.metaservice.core.utils.ProcessUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,18 +34,24 @@ public class RunManager {
 
     private final List<RunEntry> runEntries = Collections.synchronizedList(new ArrayList<RunEntry>());
     private final AtomicInteger processCounter = new AtomicInteger();
+    private final DescriptorHelper descriptorHelper;
+
     public List<RunEntry> getRunEntries() {
         return runEntries;
     }
     private final Config config;
     private final Path logdir;
     @Inject
-    public RunManager(Config config) throws ManagerException {
+    public RunManager(DescriptorHelper descriptorHelper, Config config) throws ManagerException {
+        this.descriptorHelper = descriptorHelper;
         this.config = config;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         logdir = Paths.get("/opt/metaservice/log/",format.format(new Date()));
         try {
+            Path latest =Paths.get("/opt/metaservice/log/latest");
             Files.createDirectory(logdir);
+            Files.deleteIfExists(latest);
+            Files.createSymbolicLink(latest,logdir);
         } catch (IOException e) {
             if(!logdir.toFile().isDirectory())
                 throw new ManagerException("could not create log directory for run");
@@ -93,10 +100,22 @@ public class RunManager {
 
         run(
                 module.getMetaserviceDescriptor().getModuleInfo(),
-                DescriptorHelper.getStringFromProvider(module.getMetaserviceDescriptor().getModuleInfo(),providerDescriptor),
-                "org.metaservice.core.jms.JMSProviderRunner",
+                descriptorHelper.getStringFromProvider(module.getMetaserviceDescriptor().getModuleInfo(), providerDescriptor),
+                "org.metaservice.core.runner.ProviderRunner",
                 new String[]{providerDescriptor.getId()},
                 config.getDefaultProviderOpts().split(" "),
+                false
+        );
+    }
+
+    public void runKryoServer() throws ManagerException {
+        MetaserviceDescriptor.ModuleInfo moduleInfo = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl("org.metaservice","metaservice-kryonet","1.0-SNAPSHOT");
+        run(
+                moduleInfo,
+                "MongoKryoMessaging",
+                "org.metaservice.kryo.run.KryoServer",
+                new String[]{},
+                config.getDefaultPostProcessorOpts().split(" "),//todo own defaults
                 false
         );
     }
@@ -112,8 +131,8 @@ public class RunManager {
         }
         run(
                 module.getMetaserviceDescriptor().getModuleInfo(),
-                DescriptorHelper.getStringFromPostProcessor(module.getMetaserviceDescriptor().getModuleInfo(),postProcessorDescriptor),
-                "org.metaservice.core.jms.JMSPostProcessorRunner",
+                descriptorHelper.getStringFromPostProcessor(module.getMetaserviceDescriptor().getModuleInfo(), postProcessorDescriptor),
+                "org.metaservice.core.runner.PostProcessorRunner",
                 new String[]{postProcessorDescriptor.getId()},
                 args.toArray(new String[args.size()]),
                 false
@@ -142,7 +161,7 @@ public class RunManager {
         MetaserviceDescriptor.ModuleInfo moduleInfo = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl(group_id,artifact_id,version);
         run(
                 moduleInfo,
-                DescriptorHelper.getStringFromRepository(moduleInfo, id),
+                descriptorHelper.getStringFromRepository(moduleInfo, id),
                 "org.metaservice.core.crawler.CrawlerRunner",
                 new String[]{id},
                 config.getDefaultPostProcessorOpts().split(" "),//todo own defaults
@@ -267,9 +286,14 @@ public class RunManager {
                     pb.inheritIO();
             LOGGER.debug(pb.command().toString());
             ProcessUtil.debug(pb.start());
-        } catch (InterruptedException | IOException |ProcessUtil.ProcessUtilException e) {
+        } catch (InterruptedException | IOException e) {
             throw new ManagerException(e);
+        }catch (ProcessUtil.ProcessUtilException e){
+            LOGGER.error("exception ", e );
+            LOGGER.error(e.getStderr());
+            LOGGER.error(e.getStdout());
         }
+
     }
 
     private File setLogFile(RunEntry runEntry){
@@ -285,7 +309,7 @@ public class RunManager {
 
     public void shutdown(ManagerConfig.Module module, List<ManagerConfig.Module> installedModules) {
         for(RunEntry runEntry : runEntries){
-            if(module.equals(DescriptorHelper.getModuleFromString(installedModules, runEntry.getName()))){
+            if(module.equals(descriptorHelper.getModuleFromString(installedModules, runEntry.getName()))){
                 shutdown(runEntry);
             }
         }

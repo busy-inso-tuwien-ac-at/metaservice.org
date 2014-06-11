@@ -14,6 +14,9 @@
         <module>../metaservice-release-impact-tester</module>
         <module>../metaservice-core-bower</module>
         <module>../metaservice-core-vcs</module>
+        <module>../metaservice-kryonet</module>
+        <module>../metaservice-messaging-jms</module>
+        <module>../metaservice-api-messaging</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -32,6 +35,7 @@
         <commons-io.version>2.4</commons-io.version>
         <commons-lang.version>3.1</commons-lang.version>
         <guice.version>3.0</guice.version>
+        <quartz.version>2.2.1</quartz.version>
 
         <!-- test dependency versions -->
         <junit.version>4.9</junit.version>

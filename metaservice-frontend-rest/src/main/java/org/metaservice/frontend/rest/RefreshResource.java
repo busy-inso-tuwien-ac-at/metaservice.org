@@ -1,14 +1,16 @@
 package org.metaservice.frontend.rest;
 
 import com.sun.jersey.spi.resource.Singleton;
-import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.ActiveMQConnectionFactory;
+
+import org.metaservice.api.messaging.MessageHandler;
+import org.metaservice.api.messaging.MessagingException;
+import org.metaservice.kryo.MongoKryoMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.*;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -19,32 +21,29 @@ public class RefreshResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshResource.class);
 
-    public RefreshResource() throws JMSException {
-        ConnectionFactory connectionFactory =
-                new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_BROKER_URL);
-
-        Connection connection = connectionFactory.createConnection();
-        connection.start();
-        session = connection.createSession(false,
-                Session.AUTO_ACKNOWLEDGE);
-
-        Destination destination = session.createTopic("VirtualTopic.Refresh");
-        producer = session.createProducer(destination);
+    public RefreshResource() {
+        messageHandler = new MongoKryoMessageHandler();
+        try {
+            messageHandler.init();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
-    private Session session;
 
-    private MessageProducer producer;
+
+    //todo init
+    private MessageHandler messageHandler;
+    @Produces("application/json")
     @POST
     public Response postRefresh(RefreshBean bean) {
         try {
-            TextMessage message  = session.createTextMessage(bean.getUrl());
-            producer.send(message);
+            messageHandler.send(bean.getUrl());
             LOGGER.info("Sent message '{}'",bean.getUrl());
-        } catch (JMSException e) {
-            LOGGER.error("JMS Exception ",e);
+        } catch (MessagingException e) {
+            LOGGER.error("Messaging Exception ",e);
             return Response.serverError().build();
         }
-        return Response.ok().build();
+        return Response.ok("{status:200}").build();
     }
 
     @XmlRootElement

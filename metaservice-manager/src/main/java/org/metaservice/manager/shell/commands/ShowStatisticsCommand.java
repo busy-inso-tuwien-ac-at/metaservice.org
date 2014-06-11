@@ -8,13 +8,13 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.jboss.aesh.terminal.Key;
 import org.jboss.aesh.terminal.Shell;
+import org.metaservice.api.messaging.statistics.QueueStatistics;
 import org.metaservice.manager.Manager;
 import org.metaservice.manager.ManagerException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @CommandDefinition(name = "stats", description = "show statistics")
@@ -23,7 +23,7 @@ public class ShowStatisticsCommand extends AbstractManagerCommand {
         super(manager);
     }
 
-    @Option(name = "activemq",hasValue = false)
+    @Option(name = "messaging",shortName = 'm',hasValue = false)
     boolean activemq;
 
     @Option(name = "rdf-statements",shortName = 's',hasValue = false)
@@ -83,12 +83,15 @@ public class ShowStatisticsCommand extends AbstractManagerCommand {
         if(activemq){
             String[]   header = new String[]{"Queue","Count"};
             ArrayList<String[]> data = new ArrayList<>();
-            Map<String,Map<String,Object>> stats = manager.getCurrentActiveMQStatistics();
-            for(Map<String,Object> entry: stats.values()){
-                data.add(new String[]{
-                        String.valueOf(entry.get("destinationName")),
-                        String.format("%,d", (Long) entry.get("size"))
-                });
+            try {
+                for(QueueStatistics statistics:  manager.getMessagingStatistics()){
+                    data.add(new String[]{
+                          statistics.getName(),
+                            String.format("%,d", statistics.getCount())
+                    });
+                }
+            } catch (ManagerException e) {
+                e.printStackTrace();
             }
             asciiprint(header,data.toArray(new String[data.size()][]),shell);
         }

@@ -1,5 +1,6 @@
 package org.metaservice.core.postprocessor;
 
+import org.metaservice.api.messaging.PostProcessingTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +19,12 @@ public class Debug {
         this.enabled = System.getProperty("msdebug") !=null;
         if(enabled){
             LOGGER.warn("ATTENTION: DBEUG WHITELIST IS ENABLED");
-            File f = new File("whitelist.txt");
+            File f = new File("/opt/metaservice/whitelist.txt");
             try(BufferedReader bufferedReader = new BufferedReader(new FileReader(f))){
                 String s;
                 while((s = bufferedReader.readLine())!= null){
                     whiteList.add(s);
+                    LOGGER.info("ON WHITELIST " + s);
                 }
             } catch (IOException e) {
                 LOGGER.error("error loading whitelist",e);

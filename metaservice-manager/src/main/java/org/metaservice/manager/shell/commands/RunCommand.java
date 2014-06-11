@@ -1,6 +1,7 @@
 package org.metaservice.manager.shell.commands;
 
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.config.ManagerConfig;
+import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.manager.ManagerException;
 import org.metaservice.manager.shell.completer.InstalledModuleCompleter;
 import org.metaservice.manager.shell.validator.GreaterThanZeroValidator;
@@ -10,7 +11,6 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.manager.Manager;
-import org.metaservice.core.descriptor.DescriptorHelper;
 import org.metaservice.manager.shell.completer.PostProcessorCompleter;
 import org.metaservice.manager.shell.completer.ProviderCompleter;
 
@@ -50,14 +50,17 @@ public class RunCommand extends AbstractManagerCommand {
     @Option(name= "vcs",shortName = 'v',hasValue = false)
     boolean vcs;
 
+    @Option(name ="kryoMongo",shortName = 'k',hasValue = false)
+    boolean kryo;
+
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
 
         for(int i = 0; i < n ;i++){
             if(provider != null){
-                ManagerConfig.Module module = DescriptorHelper.getModuleFromString(installedModules, provider);
-                MetaserviceDescriptor.ProviderDescriptor providerDescriptor = DescriptorHelper.getProviderFromString(installedModules, provider);
+                ManagerConfig.Module module = descriptorHelper.getModuleFromString(installedModules, provider);
+                MetaserviceDescriptor.ProviderDescriptor providerDescriptor = descriptorHelper.getProviderFromString(installedModules, provider);
                 try {
                     manager.getRunManager().runProvider(module,providerDescriptor);
                 } catch (ManagerException e) {
@@ -65,8 +68,8 @@ public class RunCommand extends AbstractManagerCommand {
                 }
             }
             if(postprocessor != null){
-                ManagerConfig.Module module = DescriptorHelper.getModuleFromString(installedModules, postprocessor);
-                MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor = DescriptorHelper.getPostProcessorFromString(installedModules, postprocessor);
+                ManagerConfig.Module module = descriptorHelper.getModuleFromString(installedModules, postprocessor);
+                MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor = descriptorHelper.getPostProcessorFromString(installedModules, postprocessor);
                 try {
                     if(module != null && postProcessorDescriptor != null){
                         manager.getRunManager().runPostProcessor(module,postProcessorDescriptor,debug);
@@ -82,7 +85,7 @@ public class RunCommand extends AbstractManagerCommand {
                 System.out.println("Starting crawler by shell is not yet implemented");
             }
             if(moduleId !=null){
-                ManagerConfig.Module module = DescriptorHelper.getModuleFromString(manager.getManagerConfig().getInstalledModules(),moduleId);
+                ManagerConfig.Module module = descriptorHelper.getModuleFromString(manager.getManagerConfig().getInstalledModules(), moduleId);
                 if(module!=null){
                     for(MetaserviceDescriptor.ProviderDescriptor providerDescriptor : module.getMetaserviceDescriptor().getProviderList()){
                         try {
@@ -114,6 +117,14 @@ public class RunCommand extends AbstractManagerCommand {
             System.out.println("Trying to start vcs");
             try {
                 manager.getRunManager().runVcs();
+            } catch (ManagerException e) {
+                e.printStackTrace();
+            }
+        }
+        if(kryo){
+            System.out.println("Trying to start frontend");
+            try {
+                manager.getRunManager().runKryoServer();
             } catch (ManagerException e) {
                 e.printStackTrace();
             }

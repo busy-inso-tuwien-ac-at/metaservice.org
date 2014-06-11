@@ -2,23 +2,25 @@ package org.metaservice.manager;
 
 import com.google.inject.Singleton;
 import org.jetbrains.annotations.Nullable;
+import org.metaservice.api.messaging.PostProcessingTask;
+import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.config.ManagerConfig;
 import org.metaservice.core.injection.ManagerConfigProvider;
-import org.metaservice.core.descriptor.DescriptorHelper;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.api.archive.ArchiveParameters;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
-import org.metaservice.core.config.Config;
+import org.metaservice.api.messaging.Config;
 import org.metaservice.core.archive.ArchiveParametersImpl;
 import org.metaservice.core.archive.GitArchive;
 import org.metaservice.api.archive.Archive;
 import org.metaservice.core.injection.providers.JAXBMetaserviceDescriptorProvider;
-import org.metaservice.core.jms.JMSMessageConverter;
-import org.metaservice.core.jms.JMSUtil;
+import org.metaservice.api.messaging.MessageHandler;
+import org.metaservice.api.messaging.MessagingException;
+import org.metaservice.api.messaging.statistics.QueueStatistics;
 import org.metaservice.manager.bigdata.FastRangeCountRequestBuilder;
 import org.metaservice.manager.bigdata.MutationResult;
 import org.openrdf.OpenRDFException;
@@ -33,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.jms.*;
 import javax.xml.bind.JAXB;
 import java.io.File;
 import java.io.IOException;
@@ -52,40 +53,39 @@ public class Manager {
     private final Config config;
     private final RepositoryConnection repositoryConnection;
     private final ValueFactory valueFactory;
-    private final JMSUtil jmsUtil;
     private final RunManager runManager;
     private final Scheduler scheduler;
-    private final Map<String, Map<String, Object>> currentActiveMQStatistics;
     private final MavenManager mavenManager;
 
-    private JMSUtil.ShutDownHandler activeMQStatisticsShutdownHandler;
+    private MessageHandler messageHandler;
+    private final DescriptorHelper descriptorHelper;
+
     @Inject
     public Manager(
             RepositoryConnection repositoryConnection,
             ValueFactory valueFactory,
-            JMSUtil jmsUtil,
             Config config,
             ManagerConfig managerConfig,
             RunManager runManager,
             Scheduler scheduler,
-            MavenManager mavenManager
+            MavenManager mavenManager,
+            MessageHandler messageHandler,
+            DescriptorHelper descriptorHelper
     ) throws ManagerException {
-        this.jmsUtil = jmsUtil;
         this.runManager = runManager;
         this.scheduler = scheduler;
         this.managerConfig = managerConfig;
         this.mavenManager = mavenManager;
+        this.messageHandler = messageHandler;
+        this.descriptorHelper = descriptorHelper;
         //todo dirty circular dependency hack
         this.mavenManager.setManager(this);
         this.config = managerConfig.getConfig();
 
         this.repositoryConnection = repositoryConnection;
         this.valueFactory = valueFactory;
-        this.currentActiveMQStatistics = Collections.synchronizedMap(new HashMap<String, Map<String, Object>>());
         init();
     }
-
-    private static final String STATISTICSQUEUE = "metaservice.manager.statistics";
 
     public void removeModule(ManagerConfig.Module availableModule) {
         boolean delete = availableModule.getLocation().delete();
@@ -98,6 +98,27 @@ public class Manager {
         }
         managerConfig.getAvailableModules().remove(availableModule);
         saveConfig();
+    }
+
+    public DescriptorHelper getDescriptorHelper() {
+        return descriptorHelper;
+    }
+
+    public void postProcessAllPackages() throws ManagerException {
+
+        try {
+            TupleQuery tupleQuery = null;
+            tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?x { ?x a <http://purl.org/adms/sw/SoftwarePackage>}");
+            TupleQueryResult result =tupleQuery.evaluate();
+            ArrayList<PostProcessingTask> postProcessingTasks = new ArrayList<>();
+            while (result.hasNext()){
+                PostProcessingTask  task= new PostProcessingTask(valueFactory.createURI(result.next().getBinding("x").getValue().stringValue()),new Date());
+                postProcessingTasks.add(task);
+            }
+            messageHandler.bulkSend(postProcessingTasks);
+        } catch (RepositoryException | QueryEvaluationException | MessagingException | MalformedQueryException e) {
+            throw new ManagerException(e);
+        }
     }
 
     public static class StatementStatisticsEntry{
@@ -187,7 +208,7 @@ public class Manager {
             MetaserviceDescriptor.ModuleInfo moduleInfo = metaserviceDescriptor.getModuleInfo();
             int sum =0;
             for(MetaserviceDescriptor.ProviderDescriptor providerDescriptor : metaserviceDescriptor.getProviderList()){
-                String id = DescriptorHelper.getStringFromProvider(moduleInfo,providerDescriptor);
+                String id = descriptorHelper.getStringFromProvider(moduleInfo, providerDescriptor);
                 mutationResult = new FastRangeCountRequestBuilder()
                         .path(config.getSparqlEndpoint())
                         .predicate(METASERVICE.GENERATOR)
@@ -197,7 +218,7 @@ public class Manager {
                 sum += mutationResult.getRangeCount();
             }
             for(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor : metaserviceDescriptor.getPostProcessorList()){
-                String id = DescriptorHelper.getStringFromPostProcessor(moduleInfo, postProcessorDescriptor);
+                String id = descriptorHelper.getStringFromPostProcessor(moduleInfo, postProcessorDescriptor);
                 mutationResult = new FastRangeCountRequestBuilder()
                         .path(config.getSparqlEndpoint())
                         .predicate(METASERVICE.GENERATOR)
@@ -206,90 +227,18 @@ public class Manager {
                 result.add(new StatementStatisticsEntry("PostProcessor " + id, mutationResult.getRangeCount()));
                 sum += mutationResult.getRangeCount();
             }
-            result.add(new StatementStatisticsEntry("Sum " + DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo), sum));
+            result.add(new StatementStatisticsEntry("Sum " + descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo), sum));
         }
         return result;
     }
 
-    public static class ActiveMqstatisticsRequestJob implements Job{
-        private final JMSUtil jmsUtil;
-
-        @Inject
-        public ActiveMqstatisticsRequestJob(JMSUtil jmsUtil) {
-            this.jmsUtil = jmsUtil;
-        }
-
-        @Override
-        public void execute(JobExecutionContext context) throws JobExecutionException {
-            try {
-                jmsUtil.executeProducerTask(JMSUtil.Type.QUEUE,"ActiveMQ.Statistics.Destination.>", new JMSUtil.ProducerTask<JMSException>() {
-                    @Override
-                    public void execute(Session session, MessageProducer producer) throws JMSException {
-                        TextMessage message = session.createTextMessage();
-                        message.setJMSReplyTo(session.createQueue(STATISTICSQUEUE));
-                        producer.send(message);
-                    }
-                });
-            } catch (JMSException e) {
-                throw new JobExecutionException(e);
-            }
-        }
-    }
-
     public void init() throws ManagerException {
-        LoggerFactory.getLogger("org.apache.activemq.transport.failover.FailoverTransport");
-        //start retrieval of activemq statistics
-        JobDetail job = JobBuilder
-                .newJob()
-                .ofType(ActiveMqstatisticsRequestJob.class)
-                .withIdentity("ACTIVEMQ_STATISTICS")
-                .build();
-        Trigger trigger = TriggerBuilder
-                .newTrigger()
-                .startNow()
-                .forJob(job)
-                .withSchedule(SimpleScheduleBuilder
-                        .simpleSchedule()
-                        .repeatForever()
-                        .withIntervalInSeconds(5)
-                )
-                .build();
+        getRunManager().runKryoServer();
         try {
-            scheduler.scheduleJob(job,trigger);
-            try {
-                activeMQStatisticsShutdownHandler = jmsUtil.runListener(new JMSUtil.ListenerBean() {
-                    @Override
-                    public String getName() {
-                        return STATISTICSQUEUE;
-                    }
-
-                    @Override
-                    public JMSUtil.Type getType() {
-                        return JMSUtil.Type.QUEUE;
-                    }
-
-                    @Override
-                    public void onMessage(Message message) {
-                        if(message instanceof MapMessage){
-                            try {
-                                String destinationName = ((MapMessage) message).getString("destinationName");
-                                currentActiveMQStatistics.put(destinationName, JMSMessageConverter.getMap((MapMessage) message));
-                            } catch (JMSException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
-            } catch (JMSException e) {
-                e.printStackTrace();
-            }
-
-
-        } catch (SchedulerException e) {
+            messageHandler.init();
+        } catch (MessagingException e) {
             throw new ManagerException(e);
         }
-
-
         //start crawling of installed modules
         for(ManagerConfig.Module module : managerConfig.getInstalledModules()){
             scheduleCrawlers(module.getMetaserviceDescriptor());
@@ -301,10 +250,10 @@ public class Manager {
 
     public void shutdown() throws ManagerException{
         try {
-            activeMQStatisticsShutdownHandler.shutdown();
+            messageHandler.close();
             runManager.shutdown();
             scheduler.shutdown();
-        } catch (SchedulerException e) {
+        } catch (SchedulerException | MessagingException e) {
             throw new ManagerException(e);
         }
     }
@@ -320,49 +269,45 @@ public class Manager {
     public void loadAllDataFromArchive(@NotNull final String name) throws ManagerException {
         try {
             MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor = null;
+            MetaserviceDescriptor.ModuleInfo moduleInfo =null;
             for(ManagerConfig.Module module :managerConfig.getInstalledModules()){
                 for(MetaserviceDescriptor.RepositoryDescriptor t : module.getMetaserviceDescriptor().getRepositoryList()){
                     if(t.getId().equals(name)){
+                        moduleInfo = module.getMetaserviceDescriptor().getModuleInfo();
                         repositoryDescriptor = t;
                         break;
                     }
                 }
             }
 
-            if(repositoryDescriptor == null){
+            if(repositoryDescriptor == null|| moduleInfo == null){
                 LOGGER.error("NO SUCH REPOSITORY {}", name);
                 return;
             }
 
             final MetaserviceDescriptor.RepositoryDescriptor selectedRepositoryDescriptor = repositoryDescriptor;
+            final MetaserviceDescriptor.ModuleInfo selectedModuleInfo = moduleInfo;
 
-            jmsUtil.executeProducerTask(JMSUtil.Type.TOPIC,"VirtualTopic.Create", new JMSUtil.ProducerTask<ArchiveException>() {
-                @Override
-                public void execute(Session session, MessageProducer producer) throws JMSException, ArchiveException {
-                    Archive gitArchive = getArchiveForRepository(selectedRepositoryDescriptor);
-                    for (Date commitTime : gitArchive.getTimes()) {
-                        for (String path : gitArchive.getChangedPaths(commitTime)) {
-                            LOGGER.info("Sending " + commitTime + " s " + path);
-                            ArchiveAddress archiveAddress = new ArchiveAddress(
-                                    selectedRepositoryDescriptor.getId(),
-                                    gitArchive.getSourceBaseUri(),
-                                    commitTime,
-                                    path);
-                            archiveAddress.setParameters(selectedRepositoryDescriptor.getProperties());
-                            ObjectMessage message = session.createObjectMessage();
-                            message.setObject(archiveAddress);
-                            producer.send(message);
-                        }
-                    }
+            Archive gitArchive = getArchiveForRepository(selectedRepositoryDescriptor);
+            for (Date commitTime : gitArchive.getTimes()) {
+                for (String path : gitArchive.getChangedPaths(commitTime)) {
+                    LOGGER.info("Sending " + commitTime + " s " + path);
+                    ArchiveAddress archiveAddress = new ArchiveAddress(
+                            selectedRepositoryDescriptor.getId(),
+                            gitArchive.getSourceBaseUri(),
+                            commitTime,
+                            path);
+                    archiveAddress.setParameters(selectedRepositoryDescriptor.getProperties());
+                    messageHandler.send(archiveAddress);
                 }
-            });
-        } catch (JMSException|ArchiveException e) {
+            }
+        } catch (MessagingException |ArchiveException e) {
             throw new ManagerException(e);
         }
     }
     private URI generateMetadata(MetaserviceDescriptor.ModuleInfo moduleInfo) throws RepositoryException {
         //todo uniqueness in uri necessary
-        URI metadata = valueFactory.createURI("http://metaservice.org/m/" + DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo) + "/" + System.currentTimeMillis());
+        URI metadata = valueFactory.createURI("http://metaservice.org/m/" + descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo) + "/" + System.currentTimeMillis());
 
         Value timeLiteral = valueFactory.createLiteral(new Date(0));
         repositoryConnection.begin();
@@ -370,7 +315,7 @@ public class Manager {
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.ACTION, valueFactory.createLiteral("add"),metadata);
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
-        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(DescriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);
+        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);
         repositoryConnection.commit();
         return metadata;
     }
@@ -402,12 +347,12 @@ public class Manager {
     }
 
     private void removePostProcessorData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) throws ManagerException {
-        removeDataFromGenerator(DescriptorHelper.getStringFromPostProcessor(descriptor.getModuleInfo(), postProcessorDescriptor));
+        removeDataFromGenerator(descriptorHelper.getStringFromPostProcessor(descriptor.getModuleInfo(), postProcessorDescriptor));
 
     }
 
     private void removeProviderData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor) throws ManagerException {
-        removeDataFromGenerator(DescriptorHelper.getStringFromProvider(descriptor.getModuleInfo(),providerDescriptor));
+        removeDataFromGenerator(descriptorHelper.getStringFromProvider(descriptor.getModuleInfo(), providerDescriptor));
     }
 
 
@@ -474,14 +419,8 @@ public class Manager {
 
     private void refreshResource(@NotNull final String s) throws ManagerException {
         try {
-            jmsUtil.executeProducerTask(JMSUtil.Type.TOPIC,"VirtualTopic.Refresh", new JMSUtil.ProducerTask<JMSException>() {
-                @Override
-                public void execute(Session session, MessageProducer producer) throws JMSException {
-                    TextMessage message = session.createTextMessage(s);
-                    producer.send(message);
-                }
-            });
-        } catch (JMSException e) {
+            messageHandler.send(s);
+        } catch (MessagingException e) {
             throw new ManagerException(e);
         }
     }
@@ -496,7 +435,7 @@ public class Manager {
         try {
             final ArrayList<String> toRefresh = new ArrayList<>();
             TupleQuery query = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?resource { GRAPH ?metadata {?resource ?y ?z}. ?metadata <"+METASERVICE.GENERATOR+"> ?id}");
-            query.setBinding("id", valueFactory.createLiteral(DescriptorHelper.getStringFromPostProcessor(descriptor.getModuleInfo(), postProcessorDescriptor)));
+            query.setBinding("id", valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(descriptor.getModuleInfo(), postProcessorDescriptor)));
             TupleQueryResult result = query.evaluate();
             while(result.hasNext()){
                 BindingSet bs = result.next();
@@ -504,16 +443,11 @@ public class Manager {
                 if(value instanceof Resource)
                     toRefresh.add(value.stringValue());
             }
-            jmsUtil.executeProducerTask(JMSUtil.Type.TOPIC,"VirtualTopic.Refresh", new JMSUtil.ProducerTask<OpenRDFException>() {
-                @Override
-                public void execute(Session session, MessageProducer producer) throws JMSException, OpenRDFException {
-                    for (String s : toRefresh) {
-                        TextMessage message = session.createTextMessage(s);
-                        producer.send(message);
-                    }
-                }
-            });
-        } catch (JMSException | OpenRDFException e) {
+
+            for (String s : toRefresh) {
+                messageHandler.send(s);
+            }
+        } catch ( MessagingException |OpenRDFException e) {
             throw new ManagerException("Could not refresh " + postProcessorDescriptor.getId(),e);
         }
     }
@@ -522,7 +456,7 @@ public class Manager {
         try {
             final ArrayList<String> toRefresh = new ArrayList<>();
             TupleQuery query = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?resource { GRAPH ?metadata {?resource ?y ?z}. ?metadata <"+METASERVICE.GENERATOR+"> ?id}");
-            query.setBinding("id", valueFactory.createLiteral(DescriptorHelper.getStringFromProvider(descriptor.getModuleInfo(), providerDescriptor)));
+            query.setBinding("id", valueFactory.createLiteral(descriptorHelper.getStringFromProvider(descriptor.getModuleInfo(), providerDescriptor)));
             TupleQueryResult result = query.evaluate();
             while(result.hasNext()){
                 BindingSet bs = result.next();
@@ -530,17 +464,10 @@ public class Manager {
                 if(value instanceof Resource)
                     toRefresh.add(value.stringValue());
             }
-
-            jmsUtil.executeProducerTask(JMSUtil.Type.TOPIC,"VirtualTopic.Refresh", new JMSUtil.ProducerTask<OpenRDFException>() {
-                @Override
-                public void execute(Session session, MessageProducer producer) throws JMSException, OpenRDFException {
-                    for (String s : toRefresh) {
-                        TextMessage message = session.createTextMessage(s);
-                        producer.send(message);
-                    }
-                }
-            });
-        } catch (JMSException | OpenRDFException e) {
+            for (String s : toRefresh) {
+                messageHandler.send(s);
+            }
+        } catch (MessagingException | OpenRDFException e) {
             throw new ManagerException("Could not refresh " + providerDescriptor.getId(),e);
         }
     }
@@ -566,8 +493,12 @@ public class Manager {
         return runManager;
     }
 
-    public Map<String, Map<String, Object>> getCurrentActiveMQStatistics() {
-        return currentActiveMQStatistics;
+    public List<QueueStatistics> getMessagingStatistics() throws ManagerException {
+        try {
+            return messageHandler.getStatistics();
+        } catch (MessagingException e) {
+            throw new ManagerException(e);
+        }
     }
 
     @DisallowConcurrentExecution

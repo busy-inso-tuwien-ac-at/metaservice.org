@@ -2,8 +2,8 @@ package org.metaservice.core.injection;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import org.metaservice.core.config.Config;
-import org.metaservice.core.config.ManagerConfig;
+import org.metaservice.api.messaging.Config;
+import org.metaservice.api.messaging.config.ManagerConfig;
 
 /**
  * Created by ilo on 18.02.14.
