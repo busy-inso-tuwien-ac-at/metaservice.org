@@ -3,13 +3,13 @@ package org.metaservice.core.deb;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.commons.logging.impl.SLF4JLogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.sparql.buildingcontexts.DefaultSparqlQuery;
+import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.core.injection.MetaserviceTestModule;
 import org.openrdf.model.vocabulary.RDF;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryTest {
     private RepositoryConnection repositoryConnection;
-    private final Variable resource = new Variable("resource");
+    private final BoundVariable resource = new BoundVariable("resource");
     private final Variable version = new Variable("version");
     private final Variable _package = new Variable("package");
     private final Variable packageName = new Variable("packageName");

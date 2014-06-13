@@ -11,6 +11,7 @@ public class METASERVICE {
 
     public static final URI REPOSITORY_ID;
     public static final URI SOURCE;
+    public static final URI XYZ;//todo find a reasonable name ;-)
     public static final URI TIME;
     public static final URI PATH;
     public static final URI VIEW;
@@ -34,6 +35,7 @@ public class METASERVICE {
         CREATION_TIME = factory.createURI(NAMESPACE,"creation_time");
         LAST_CHECKED_TIME = factory.createURI(NAMESPACE,"last_checked_time");
         SCOPE = factory.createURI(NAMESPACE,"scope");
+        XYZ = factory.createURI(NAMESPACE,"xyz");
         DUMMY = factory.createURI( NAMESPACE,"dummy" );
     }
 

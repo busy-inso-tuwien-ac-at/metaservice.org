@@ -134,8 +134,8 @@ public class QueueContainer implements StatisticsProvider{
             for(Queue queue : queues){
                 list.add(queue.getLast());
             }
-            ObjectId maxPostProcess = objectIdOrdering.max(list);
-            collection.remove(DBQuery.lessThan("_id",maxPostProcess));
+            ObjectId maxPostProcess = objectIdOrdering.min(list);
+            collection.remove(DBQuery.lessThanEquals("_id",maxPostProcess));
         }
     }
 

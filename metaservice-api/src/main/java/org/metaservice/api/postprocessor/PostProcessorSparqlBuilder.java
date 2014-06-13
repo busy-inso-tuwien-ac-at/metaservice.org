@@ -6,8 +6,6 @@ import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.buildingcontexts.BigdataSparqlQuery;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.*;
-import org.metaservice.api.sparql.builders.QueryBuilder;
-import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
@@ -23,8 +21,8 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
 
 
 
-    public static Variable getDateVariable(){
-        return new Variable("selectedDate");
+    public static BoundVariable getDateVariable(){
+        return new BoundVariable("selectedDate");
     }
 
     @Override
@@ -54,6 +52,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
 
                 HashMap<Value,String> nameMap = new HashMap<>();
                 HashMap<Value,Variable> timeMap = new HashMap<>();
+                HashMap<Value,Variable> subjectMap= new HashMap<>();
                 HashMap<Value,List<QuadPattern>>  contextMap = new HashMap<>();
                 int i = 0;
                 for(GraphPatternValue pattern : wherePatterns){
@@ -65,6 +64,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                             String name = "mmm"+i;
                             nameMap.put(quadPattern.getC(),name);
                             timeMap.put(quadPattern.getC(),new Variable("time" + name));
+                            subjectMap.put(quadPattern.getC(),new Variable("subject" + name));
                             i++;
                         }
                         contextMap.get(quadPattern.getC()).add(quadPattern);
@@ -73,9 +73,10 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                         String name = "mmm"+i;
                         Variable c = new Variable(name);
                         contextMap.put(c,new ArrayList<QuadPattern>());
-                        contextMap.get(c).add(quadPattern(triplePattern.getS(),triplePattern.getP(),triplePattern.getO(),c));
-                        nameMap.put(c,name);
+                        contextMap.get(c).add(quadPattern(triplePattern.getS(), triplePattern.getP(), triplePattern.getO(), c));
+                        nameMap.put(c, name);
                         timeMap.put(c,new Variable("time" + name));
+                        subjectMap.put(c,new Variable("subject" + name));
                         heuristic.where(triplePattern);
                         i++;
                     }else if (pattern instanceof Filter){
@@ -90,18 +91,46 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                 }
 
                 for(Value c: contextMap.keySet()){
-
+                    Variable context2 = new Variable("mmmmmcontext2");
+                    Variable processableSubject = subjectMap.get(c);
                     String name = nameMap.get(c);
                     Variable time = timeMap.get(c);
-                    SelectQueryBuilder maxQuery = select(false,
-                            aggregate("MAX", time, time)
+                    Variable generator = new Variable("mmmmgenerator");
+                    HashSet<Variable> groupByList = new HashSet<>();
+                    for(QuadPattern quadPattern : contextMap.get(c)) {
+                        if(quadPattern.getC() instanceof Variable && !(quadPattern.getC() instanceof BoundVariable)) {
+                            groupByList.add((Variable) quadPattern.getC());
+                        }
+                        if(quadPattern.getS() instanceof Variable && !(quadPattern.getS() instanceof BoundVariable)) {
+                            groupByList.add((Variable) quadPattern.getS());
+                        }
+                        if(quadPattern.getP() instanceof Variable && !(quadPattern.getP() instanceof BoundVariable)) {
+                            groupByList.add((Variable) quadPattern.getP());
+                        }
+                        if(quadPattern.getO() instanceof Variable && !(quadPattern.getO() instanceof BoundVariable)) {
+                            groupByList.add((Variable) quadPattern.getO());
+                        }
+                    }
+                    HashSet<SelectTerm> selectList = new HashSet<>();
+                    for(Variable variable : groupByList){
+                        selectList.add(var(variable));
+                    }
+                    selectList.add(aggregate("MAX", time, time));
+                    SelectQueryBuilder maxQuery = select(true,
+                            selectList.toArray(new SelectTerm[selectList.size()])
                     )
                             .where(
                                     include("heuristic"),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
-                                    triplePattern(c, METASERVICE.TIME, time)
-
-                            );
+                                    triplePattern(c,METASERVICE.XYZ,processableSubject),
+                                    triplePattern(c,METASERVICE.GENERATOR,generator),
+                                    triplePattern(context2,METASERVICE.XYZ,processableSubject),
+                                    triplePattern(context2,METASERVICE.GENERATOR,generator),
+                                    triplePattern(context2,METASERVICE.TIME, time)
+                            ).groupBy(processableSubject);
+                    for(Variable var : groupByList){
+                        maxQuery.groupBy(var);
+                    }
                     for(QuadPattern quadPattern : contextMap.get(c)){
                         maxQuery.where(quadPattern);
                         selectQueryBuilder.where(quadPattern);
@@ -111,6 +140,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     );
                     selectQueryBuilder.where(
                             include(name),
+             //               triplePattern(c, METASERVICE.XYZ,processableSubject),
                             triplePattern(c, METASERVICE.TIME, time),
                             triplePattern(c, METASERVICE.ACTION, ValueFactoryImpl.getInstance().createLiteral("add"))
                     );

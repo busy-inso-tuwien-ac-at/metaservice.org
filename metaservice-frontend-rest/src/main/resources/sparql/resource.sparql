@@ -31,27 +31,39 @@ WITH {
 } AS %level3
 
 WITH {
-    SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+    SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
         INCLUDE %level1.
-        ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
+        ?c2 <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
+        ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
-    } GROUP BY ?s ?p ?o
+    } GROUP BY ?subjects ?c ?s ?p ?o
 } AS %level1max
 
 WITH {
-    SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+    SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
         INCLUDE %level2.
-        ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
+        ?c2 <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
+        ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
-    } GROUP BY ?s ?p ?o
+    } GROUP BY ?subjects ?c ?s ?p ?o
 } AS %level2max
 
 WITH {
-    SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+    SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
         INCLUDE %level3.
-        ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
+        ?c2 <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
+        ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
-    }GROUP BY ?s ?p ?o
+    } GROUP BY ?subjects ?c ?s ?p ?o
 } AS %level3max
 
 WITH {

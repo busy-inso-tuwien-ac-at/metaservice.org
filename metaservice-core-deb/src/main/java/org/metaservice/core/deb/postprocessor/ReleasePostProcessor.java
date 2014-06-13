@@ -10,6 +10,7 @@ import org.metaservice.api.rdf.vocabulary.DC;
 import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.sparql.buildingcontexts.DefaultSparqlQuery;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
+import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -36,7 +37,7 @@ public class ReleasePostProcessor implements PostProcessor {
     private final TupleQuery packageQuery;
     private final TupleQuery releaseQuery;
 
-    private final Variable resource = new Variable("resource");
+    private final BoundVariable resource = new BoundVariable("resource");
     private final Variable version = new Variable("version");
     private final Variable _package = new Variable("package");
     private final Variable packageName = new Variable("packageName");

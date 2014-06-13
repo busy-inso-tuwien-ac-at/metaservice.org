@@ -2,6 +2,8 @@ package org.metaservice.frontend.rest;
 
 import com.sun.jersey.spi.resource.Singleton;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -205,10 +207,10 @@ public class SparqlEndpointResource {
         uriBuilder.setScheme("http")
                 .setHost("www.metaservice.org")
                 .setPort(8080)
-                .setPath("/sparql")
-                .setParameter("query", query);
+                .setPath("/sparql");
 
-        return Request.Get(uriBuilder.build())
+        return Request.Post(uriBuilder.build())
+                .bodyForm(Form.form().add("query", query).build())
                 .connectTimeout(1000)
                 .socketTimeout(10000)
                 .setHeader("Accept", mimeType)

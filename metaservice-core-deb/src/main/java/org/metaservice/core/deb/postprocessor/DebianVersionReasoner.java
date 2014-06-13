@@ -9,6 +9,7 @@ import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
+import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.core.deb.util.DebianVersionComparator;
 import org.openrdf.model.Resource;
@@ -35,14 +36,19 @@ public class DebianVersionReasoner implements PostProcessor {
 
     private final ValueFactory valueFactory;
 
-    private final Variable resource = new Variable("resource");
+    //todo replace with BindVariable
+    private final BoundVariable resource = new BoundVariable("resource");
     private final Variable version = new Variable("version");
+    private final BoundVariable boundProject = new BoundVariable("boundProject");
     private final Variable project = new Variable("project");
     private final Variable title = new Variable("title");
     private final Variable release = new Variable("release");
+    private final BoundVariable boundArch = new BoundVariable("boundArch");
     private final Variable arch = new Variable("arch");
     private final Variable _package = new Variable("package");
     private final Variable _package2 = new Variable("package2");
+    private final Variable context = new Variable("context");
+
 
     @Inject
     public DebianVersionReasoner(RepositoryConnection repositoryConnection, ValueFactory valueFactory) throws RepositoryException, MalformedQueryException {
@@ -57,14 +63,14 @@ public class DebianVersionReasoner implements PostProcessor {
                         var(release),
                         var(version),
                         var(title),
-                        var(arch),
+                        var(boundArch),
                         var(resource)
                 )
-                        .where(triplePattern(project,DOAP.RELEASE,release),
+                        .where(triplePattern(boundProject,DOAP.RELEASE,release),
                                 triplePattern(release,ADMSSW.PACKAGE,resource),
-                                triplePattern(resource,PACKAGE_DEB.TITLE,title),
-                                triplePattern(resource,PACKAGE_DEB.VERSION,version),
-                                triplePattern(resource,PACKAGE_DEB.ARCHITECTURE,arch)
+                                quadPattern(resource,PACKAGE_DEB.TITLE,title,context),
+                                quadPattern(resource,PACKAGE_DEB.VERSION,version,context),
+                                quadPattern(resource,PACKAGE_DEB.ARCHITECTURE, boundArch,context)
                         )
                         .build();
             }
@@ -82,7 +88,7 @@ public class DebianVersionReasoner implements PostProcessor {
                         var(resource)
                 )
                         .where(
-                                triplePattern(project, DOAP.RELEASE, resource),
+                                triplePattern(boundProject, DOAP.RELEASE, resource),
                                 triplePattern(resource, PACKAGE_DEB.TITLE, title),
                                 triplePattern(resource, PACKAGE_DEB.VERSION, version)
                         )
@@ -101,7 +107,7 @@ public class DebianVersionReasoner implements PostProcessor {
                         var(arch)
                 )
                         .where(
-                                triplePattern(project, DOAP.RELEASE, release),
+                                triplePattern(boundProject, DOAP.RELEASE, release),
                                 triplePattern(release, ADMSSW.PACKAGE, _package2),
                                 triplePattern(_package2, PACKAGE_DEB.ARCHITECTURE, arch)
                         )
@@ -141,7 +147,7 @@ public class DebianVersionReasoner implements PostProcessor {
         LOGGER.info("Processing versions");
         updateVersion(uri,resultConnection);
 
-        selectPackageQuery.setBinding(project.toString(), valueFactory.createURI(uri));
+        selectPackageQuery.setBinding(boundProject.toString(), valueFactory.createURI(uri));
         TupleQueryResult result = selectPackageQuery.evaluate();
         while (result.hasNext()){
             BindingSet set = result.next();
@@ -153,7 +159,7 @@ public class DebianVersionReasoner implements PostProcessor {
     }
 
     private void updateVersion(String uri,RepositoryConnection resultConnection) throws QueryEvaluationException, RepositoryException {
-        selectVersionsOrderQuery.setBinding(this.project.toString(), valueFactory.createURI(uri));
+        selectVersionsOrderQuery.setBinding(this.boundProject.toString(), valueFactory.createURI(uri));
 
         TupleQueryResult result = selectVersionsOrderQuery.evaluate();
         ArrayList<String> list = new ArrayList<>();
@@ -177,8 +183,8 @@ public class DebianVersionReasoner implements PostProcessor {
     }
 
     public void updatePackage(String project, String arch,RepositoryConnection resultConnection) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
-        selectPackageVersionsOrderQuery.setBinding(this.arch.toString(), valueFactory.createLiteral(arch));
-        selectPackageVersionsOrderQuery.setBinding(this.project.toString(), valueFactory.createURI(project));
+        selectPackageVersionsOrderQuery.setBinding(this.boundArch.toString(), valueFactory.createLiteral(arch));
+        selectPackageVersionsOrderQuery.setBinding(this.boundProject.toString(), valueFactory.createURI(project));
         TupleQueryResult result = selectPackageVersionsOrderQuery.evaluate();
         ArrayList<String> list = new ArrayList<>();
 

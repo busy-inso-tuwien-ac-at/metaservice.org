@@ -12,7 +12,6 @@ import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.api.messaging.Config;
-import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.api.messaging.MessageHandler;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
@@ -69,7 +68,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
         this.debug = debug;
         this.descriptorHelper = descriptorHelper;
 
-        graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
+        graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <"+METASERVICE.TIME+"> ?time; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
 
         LOGGER.info(graphSelect.toString());
         loadedStatements = calculatePreloadedStatements();
@@ -114,13 +113,13 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
                 LOGGER.info("NO STATEMENTS GENERATED! -> adding empty statement");
                 generatedStatements.add(valueFactory.createStatement(task.getChangedURI(),METASERVICE.DUMMY,METASERVICE.DUMMY));
             }
-            Set<URI> graphsToDelete = getGraphsToDelete(processableSubjects,repositoryConnection);
+            Set<URI> graphsToDelete = getGraphsToDelete(processableSubjects,repositoryConnection,task.getTime());
             if(graphsToDelete.size() == 1){
                 URI graph = graphsToDelete.iterator().next();
                 if(contentsUnchanged(graph, generatedStatements)){
                     LOGGER.info("There was no change, only updating last checked time");
-                    repositoryConnection.remove(graph,METASERVICE.TIME,null);
-                    repositoryConnection.add(graph,METASERVICE.TIME,valueFactory.createLiteral(new Date()));
+                    repositoryConnection.remove(graph,METASERVICE.LAST_CHECKED_TIME,null);
+                    repositoryConnection.add(graph,METASERVICE.LAST_CHECKED_TIME,valueFactory.createLiteral(new Date()));
                     return;
                 }
             }
@@ -137,7 +136,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
 
             }
 
-            URI metadata =  generateMetadata(task,"add");
+            URI metadata =  generateMetadata(task,"add",processableSubjects);
             sendData(resultConnection,metadata,generatedStatements);
             notifyPostProcessors(subjects,task.getHistory(),task.getTime(),postProcessorDescriptor,processableSubjects);
         } catch (RepositoryException | PostProcessorException e) {
@@ -174,7 +173,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
         return resultSet;
     }
 
-    private Set<URI> getGraphsToDelete(Set<URI> subjects, RepositoryConnection repositoryConnection) {
+    private Set<URI> getGraphsToDelete(Set<URI> subjects, RepositoryConnection repositoryConnection, Date time) {
         Set<URI> resultSet = new HashSet<>();
         if(subjects.size() == 0)
             return resultSet;
@@ -186,11 +185,10 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             ArrayList<String> uris = new ArrayList<>();
 
             for(URI uri : subjects){
-                uris.add("{ GRAPH ?metadata {<" + uri.toString() + "> ?p ?o}. ?metadata a <"
-                        + METASERVICE.METADATA +
-                        ">;  <" +
-                        METASERVICE.GENERATOR +
-                        "> ?postprocessor.}");
+                uris.add("{ ?metadata a <" + METASERVICE.METADATA + ">;"+
+                         "  <"+METASERVICE.XYZ+"><" + uri.toString() + ">;"+
+                         "  <"+METASERVICE.GENERATOR + "> ?postprocessor;"+
+                         "  <" + METASERVICE.TIME+"> ?time.}");
             }
             builder.append(StringUtils.join(uris," UNION" )).append("}");
 
@@ -198,6 +196,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             LOGGER.trace(query);
             TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,query);
             tupleQuery.setBinding("postprocessor", valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
+            tupleQuery.setBinding("time",valueFactory.createLiteral(time));
             TupleQueryResult result  = tupleQuery.evaluate();
 
 
@@ -213,7 +212,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
     }
 
     @NotNull
-    private URI generateMetadata(@NotNull PostProcessingTask task, String action) throws RepositoryException {
+    private URI generateMetadata(@NotNull PostProcessingTask task, String action, Set<URI> processableSubjects) throws RepositoryException {
         Date now = new Date();
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
@@ -224,6 +223,9 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)), metadata);
+        for(URI processableSubject : processableSubjects) {
+            repositoryConnection.add(metadata, METASERVICE.XYZ, processableSubject,metadata);
+        }
         repositoryConnection.commit();
         return metadata;
     }
@@ -241,9 +243,11 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             if(item.getPostprocessorId().equals(postProcessorDescriptor.getId())){
                 for(URI uri: item.getResources()){
                     if(uri.equals(task.getChangedURI())){
-                        LOGGER.debug("Not processing, because did already process");
+                        LOGGER.debug("Already processed the same uri");
+                        //this would be a more strict variant, but is not required such that everything can run faster :-)
                     }
                 }
+                LOGGER.debug("Not processing, because did already process");
                 return false;
             }
         }
@@ -260,6 +264,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             URI resource = task.getChangedURI();
             graphSelect.setBinding("postprocessor",valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
             graphSelect.setBinding("resource",resource);
+            graphSelect.setBinding("time",valueFactory.createLiteral(task.getTime()));
             TupleQueryResult queryResult = graphSelect.evaluate();
             XMLGregorianCalendar newestTime = null;
             while(queryResult.hasNext()){

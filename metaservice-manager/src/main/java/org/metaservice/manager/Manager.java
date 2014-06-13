@@ -107,12 +107,14 @@ public class Manager {
     public void postProcessAllPackages() throws ManagerException {
 
         try {
-            TupleQuery tupleQuery = null;
-            tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?x { ?x a <http://purl.org/adms/sw/SoftwarePackage>}");
+            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?x ?time { GRAPH ?c { ?x a <"+ADMSSW.SOFTWARE_PACKAGE+">} ?c <"+METASERVICE.TIME+"> ?time} ORDER BY  ?time");
             TupleQueryResult result =tupleQuery.evaluate();
             ArrayList<PostProcessingTask> postProcessingTasks = new ArrayList<>();
             while (result.hasNext()){
-                PostProcessingTask  task= new PostProcessingTask(valueFactory.createURI(result.next().getBinding("x").getValue().stringValue()),new Date());
+                BindingSet bindings = result.next();
+                URI uri = valueFactory.createURI(bindings.getBinding("x").getValue().stringValue());
+                Date date = ((Literal)bindings.getBinding("time").getValue()).calendarValue().toGregorianCalendar().getTime();
+                PostProcessingTask  task= new PostProcessingTask(uri,date);
                 postProcessingTasks.add(task);
             }
             messageHandler.bulkSend(postProcessingTasks);
@@ -315,6 +317,7 @@ public class Manager {
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.ACTION, valueFactory.createLiteral("add"),metadata);
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
+        repositoryConnection.add(metadata, METASERVICE.XYZ, metadata,metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);
         repositoryConnection.commit();
         return metadata;

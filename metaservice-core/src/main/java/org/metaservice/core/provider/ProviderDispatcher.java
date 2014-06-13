@@ -281,6 +281,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         resultRepositoryConnection.add(metadata, METASERVICE.PATH, pathLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.SOURCE, repoLiteral, metadata);
+        resultRepositoryConnection.add(metadata, METASERVICE.XYZ, valueFactory.createLiteral(address.getArchiveUri()+ address.getPath()), metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.REPOSITORY_ID, idLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()), metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(), providerDescriptor)), metadata);
