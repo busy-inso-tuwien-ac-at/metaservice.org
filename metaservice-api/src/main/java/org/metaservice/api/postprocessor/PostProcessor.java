@@ -24,6 +24,4 @@ public interface PostProcessor {
      */
     public boolean abortEarly(@NotNull final URI uri) throws PostProcessorException;
 
-
-    public List<SparqlQuery> getQueries();
 }

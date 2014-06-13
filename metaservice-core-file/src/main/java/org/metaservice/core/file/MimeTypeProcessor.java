@@ -42,8 +42,4 @@ public class MimeTypeProcessor implements PostProcessor{
         return FileUriUtils.isFileUri(uri);
     }
 
-    @Override
-    public List<SparqlQuery> getQueries() {
-        return null;
-    }
 }

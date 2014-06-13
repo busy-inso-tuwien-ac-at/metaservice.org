@@ -50,9 +50,4 @@ public class UbuntuProjectPostProcessor  extends AbstractProjectPostProcessor
     public void processRelease(@NotNull RepositoryConnection resultConnection, @NotNull URI projectURI, @NotNull URI releaseURI) {
 
     }
-
-    @Override
-    public List<SparqlQuery> getQueries() {
-        return null;
-    }
 }

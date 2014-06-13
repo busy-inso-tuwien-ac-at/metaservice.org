@@ -52,8 +52,4 @@ public class FileRetrievalProcessor implements PostProcessor {
         return (uri.toString().startsWith("http://")||uri.toString().startsWith("https://"));
     }
 
-    @Override
-    public List<SparqlQuery> getQueries() {
-        return null;
-    }
 }

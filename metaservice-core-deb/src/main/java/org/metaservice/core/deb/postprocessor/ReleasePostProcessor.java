@@ -142,9 +142,4 @@ public class ReleasePostProcessor implements PostProcessor {
     public boolean abortEarly(@NotNull URI uri) throws PostProcessorException {
         return !uri.stringValue().matches(URI_REGEX);
     }
-
-    @Override
-    public List<SparqlQuery> getQueries() {
-        return null;
-    }
 }

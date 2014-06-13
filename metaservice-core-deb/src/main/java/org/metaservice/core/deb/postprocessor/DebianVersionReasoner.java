@@ -253,9 +253,4 @@ public class DebianVersionReasoner implements PostProcessor {
     public boolean abortEarly(@NotNull final URI uri) throws PostProcessorException{
         return !uri.stringValue().matches(URI_REGEX);
     }
-
-    @Override
-    public List<SparqlQuery> getQueries() {
-        return null;
-    }
 }

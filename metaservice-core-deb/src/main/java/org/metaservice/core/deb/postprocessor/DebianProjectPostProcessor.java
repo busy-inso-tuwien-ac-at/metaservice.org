@@ -50,9 +50,4 @@ public class DebianProjectPostProcessor extends AbstractProjectPostProcessor {
             @NotNull URI releaseURI) {
 
     }
-
-    @Override
-    public List<SparqlQuery> getQueries() {
-        return null;
-    }
 }

@@ -99,8 +99,4 @@ public class ArchiveExtractionProcessor implements PostProcessor {
         return FileUriUtils.isFileUri(uri);
     }
 
-    @Override
-    public List<SparqlQuery> getQueries() {
-        return null;
-    }
 }
