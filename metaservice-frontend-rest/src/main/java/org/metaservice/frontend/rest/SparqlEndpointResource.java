@@ -212,7 +212,7 @@ public class SparqlEndpointResource {
         return Request.Post(uriBuilder.build())
                 .bodyForm(Form.form().add("query", query).build())
                 .connectTimeout(1000)
-                .socketTimeout(10000)
+                .socketTimeout(30000)
                 .setHeader("Accept", mimeType)
                 .execute()
                 .returnContent().asStream();

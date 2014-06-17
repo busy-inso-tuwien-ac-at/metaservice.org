@@ -1,5 +1,6 @@
 package org.metaservice.core.provider;
 
+import com.google.common.collect.Sets;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import info.aduna.iteration.Iterations;
 import org.metaservice.api.MetaserviceException;
@@ -14,7 +15,6 @@ import org.metaservice.api.provider.Provider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.api.messaging.Config;
-import org.metaservice.core.descriptor.DescriptorHelperImpl;
 import org.metaservice.api.messaging.PostProcessingHistoryItem;
 import org.metaservice.api.messaging.MessageHandler;
 import org.openrdf.model.*;
@@ -80,7 +80,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
     }
 
     private Set<Statement> calculatePreloadedStatements() throws RepositoryException {
-        Repository resultRepository = createTempRepository();
+        Repository resultRepository = createTempRepository(true);
         RepositoryConnection resultConnection = resultRepository.getConnection();
 
         loadNamespaces(resultConnection,providerDescriptor.getNamespaceList());
@@ -88,6 +88,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         resultConnection.commit();
         HashSet<Statement> result  =new HashSet<>();
         Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT), result);
+        resultConnection.close();
+        resultRepository.shutDown();
         return Collections.unmodifiableSet(result);
     }
 
@@ -141,86 +143,17 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         }
     }
 
+    /**
+     * this is a long running and heap intensive method. therefore, collections are explicitly nulled when not used any more
+     * @param archiveAddress
+     * @param oldMetadata
+     */
     private void refreshEntry(ArchiveAddress archiveAddress, URI oldMetadata) {
         Archive archive = getArchive(archiveAddress.getArchiveUri());
         if(archive == null){
             return;
         }
         try{
-            LOGGER.info("Starting to process " + archiveAddress);
-            Archive.Contents contents = archive.getContent(archiveAddress.getTime(),archiveAddress.getPath());
-            if(contents == null ||contents.now == null ||contents.prev == null){
-                LOGGER.warn("Cannot process content  of address {}, skipping.",archiveAddress );
-                return;
-            }
-            List<Statement> nowGeneratedStatements;
-            List<Statement> prevGeneratedStatements;
-            if (contents.now == null || contents.now.length() < 20){
-                nowGeneratedStatements = new ArrayList<>();
-            }  else {
-                nowGeneratedStatements  = getStatements(contents.now, archiveAddress);
-
-            }
-            if (contents.prev == null || contents.prev.length() < 20){
-                prevGeneratedStatements = new ArrayList<>();
-            }  else {
-                prevGeneratedStatements  = getStatements(contents.prev, archiveAddress);
-            }
-            URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,"add"); //todo
-            URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,"remove");//todo
-
-            HashSet<Statement> nowSet = new HashSet<>();
-            nowSet.addAll(nowGeneratedStatements);
-            HashSet<Statement> prevSet = new HashSet<>();
-            prevSet.addAll(prevGeneratedStatements);
-
-            HashSet<Statement> addedSet = new HashSet<>(nowSet);
-            nowSet.removeAll(prevSet);
-            HashSet<Statement> removedSet = new HashSet<>(prevSet);
-            nowSet.removeAll(nowSet);
-
-
-            sendDataByLoad(metadataAdd, addedSet);
-            sendDataByLoad(metadataRemove, removedSet);
-            repositoryConnection.clear(oldMetadata);//todo which?
-            Set<URI> resourcesToPostProcess = getSubjects(nowGeneratedStatements);
-            resourcesToPostProcess.addAll(getSubjects(prevGeneratedStatements));
-            notifyPostProcessors(resourcesToPostProcess,new ArrayList<PostProcessingHistoryItem>(),archiveAddress.getTime(),null,null);
-            LOGGER.info("done processing {} {}", archiveAddress.getTime(), archiveAddress.getPath());
-        } catch (RepositoryException | ArchiveException e) {
-            LOGGER.error("Could not Refresh {}" ,archiveAddress,e);
-        } catch (MetaserviceException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private List<Statement> getStatements(String now, ArchiveAddress archiveAddress) throws RepositoryException {
-        Repository tempRepository = createTempRepository();
-        RepositoryConnection tempRepositoryConnection = tempRepository.getConnection();
-        List<T> objects = parser.parse(now,archiveAddress);
-        HashMap<String,String> parameters = new HashMap<>(archiveAddress.getParameters());
-        copyMetadataToProperty(archiveAddress,parameters);
-        for(T object: objects){
-            try {
-                provider.provideModelFor(object,tempRepositoryConnection,parameters);
-            } catch (ProviderException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-        }
-        tempRepositoryConnection.add(loadedStatements);
-        tempRepositoryConnection.commit();
-        List<Statement> generatedStatements = getGeneratedStatements(tempRepositoryConnection,loadedStatements);
-        return generatedStatements;
-    }
-
-    @Override
-    public void create(ArchiveAddress archiveAddress){
-        Archive archive = getArchive(archiveAddress.getArchiveUri());
-        if(archive == null){
-            return;
-        }
-
-        try {
             LOGGER.info("Starting to process " + archiveAddress);
             Archive.Contents contents = archive.getContent(archiveAddress.getTime(),archiveAddress.getPath());
             if(contents == null){
@@ -233,42 +166,83 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
                 nowGeneratedStatements = new ArrayList<>();
             }  else {
                 nowGeneratedStatements  = getStatements(contents.now, archiveAddress);
-
             }
+            //let gc collect contents.now
+            contents.now = null;
             if (contents.prev == null || contents.prev.length() < 20){
                 prevGeneratedStatements = new ArrayList<>();
             }  else {
                 prevGeneratedStatements  = getStatements(contents.prev, archiveAddress);
-
             }
-            URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,"add"); //todo
-            URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,"remove");//todo
+            //let gc collect rest of contents
+            contents = null;
+            LOGGER.debug("finished parsing");
+            URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,METASERVICE.ACTION_ADD);
+            URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,METASERVICE.ACTION_REMOVE);
 
             HashSet<Statement> nowSet = new HashSet<>();
             nowSet.addAll(nowGeneratedStatements);
+            //noinspection UnusedAssignment
+            nowGeneratedStatements = null;
             HashSet<Statement> prevSet = new HashSet<>();
             prevSet.addAll(prevGeneratedStatements);
+            //noinspection UnusedAssignment
+            prevGeneratedStatements = null;
 
+            Sets.SetView<Statement> intersection = Sets.intersection(prevSet,nowSet);
             HashSet<Statement> addedSet = new HashSet<>(nowSet);
-            nowSet.removeAll(prevSet);
+            addedSet.removeAll(intersection);
             HashSet<Statement> removedSet = new HashSet<>(prevSet);
-            nowSet.removeAll(nowSet);
+            removedSet.removeAll(intersection);
+            //noinspection UnusedAssignment
+            nowSet = null;
+            //noinspection UnusedAssignment
+            prevSet = null;
 
-
-            sendDataByLoad(metadataAdd, addedSet);
-            sendDataByLoad(metadataRemove, removedSet);
-            Set<URI> resourcesToPostProcess = getSubjects(nowGeneratedStatements);
-            resourcesToPostProcess.addAll(getSubjects(prevGeneratedStatements));
+            sendDataByLoad(metadataAdd, addedSet,loadedStatements);
+            sendDataByLoad(metadataRemove, removedSet,loadedStatements);
+            if(oldMetadata != null) {
+                repositoryConnection.clear(oldMetadata);
+            }
+            Set<URI> resourcesToPostProcess = Sets.union(getSubjects(addedSet),getSubjects(removedSet));
             notifyPostProcessors(resourcesToPostProcess,new ArrayList<PostProcessingHistoryItem>(),archiveAddress.getTime(),null,null);
             LOGGER.info("done processing {} {}", archiveAddress.getTime(), archiveAddress.getPath());
         } catch (RepositoryException | ArchiveException e) {
-            LOGGER.error("Couldn't create {}",archiveAddress,e);
+            LOGGER.error("Could not process {}" ,archiveAddress,e);
         } catch (MetaserviceException e) {
             e.printStackTrace();
         }
     }
 
-    private URI generateMetadata(ArchiveAddress address, RepositoryConnection resultRepositoryConnection,String action) throws RepositoryException {
+    private List<Statement> getStatements(String now, ArchiveAddress archiveAddress) throws RepositoryException {
+        Repository tempRepository = createTempRepository(false);
+        RepositoryConnection tempRepositoryConnection = tempRepository.getConnection();
+        LOGGER.debug("started parsing");
+        List<T> objects = parser.parse(now,archiveAddress);
+        LOGGER.debug("end parsing {} objects" , objects.size());
+        HashMap<String,String> parameters = new HashMap<>(archiveAddress.getParameters());
+        copyMetadataToProperty(archiveAddress,parameters);
+        for(T object: objects){
+            try {
+                provider.provideModelFor(object,tempRepositoryConnection,parameters);
+            } catch (ProviderException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+        tempRepositoryConnection.add(loadedStatements);
+        tempRepositoryConnection.commit();
+        List<Statement> generatedStatements = getGeneratedStatements(tempRepositoryConnection,loadedStatements);
+        tempRepositoryConnection.close();
+        tempRepository.shutDown();
+        return generatedStatements;
+    }
+
+    @Override
+    public void create(ArchiveAddress archiveAddress){
+        refreshEntry(archiveAddress,null);
+    }
+
+    private URI generateMetadata(ArchiveAddress address, RepositoryConnection resultRepositoryConnection,Literal action) throws RepositoryException {
         // todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + provider.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         Value idLiteral = valueFactory.createLiteral(address.getRepository());
@@ -277,7 +251,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         Value repoLiteral = valueFactory.createLiteral(address.getArchiveUri());
         resultRepositoryConnection.begin();
         resultRepositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
-        resultRepositoryConnection.add(metadata, METASERVICE.ACTION, valueFactory.createLiteral(action), metadata);
+        resultRepositoryConnection.add(metadata, METASERVICE.ACTION, action, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.PATH, pathLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.SOURCE, repoLiteral, metadata);

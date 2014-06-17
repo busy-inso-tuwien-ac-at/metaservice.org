@@ -256,7 +256,10 @@ public class GitUtil {
                 path = path.replaceFirst("/","");
             }
             //todo fix it in the first place when sending...
-
+            if(!getPathsOfRevision(revision).contains(path)){
+                LOGGER.debug("doesn't exist in revision");
+                return null;
+            }
             Process process = execInWorkdir("git show "+revision+":"+path);
             LOGGER.info("git show "+revision+":"+path);
             StringWriter writer = new StringWriter();
@@ -270,6 +273,24 @@ public class GitUtil {
             throw new GitException(e);
         }
     }
+
+    private ArrayList<String> getPathsOfRevision(@NotNull String revision) throws GitException
+    {
+        Process process = execInWorkdir("git ls-tree -r "+revision+" --name-only");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        ArrayList<String> result =new ArrayList<>();
+        String line;
+        try {
+            while (((line =reader.readLine()))!= null ) {
+                result.add(line);
+            }
+            debug(process);
+        } catch (IOException e) {
+            throw new GitException(e);
+        }
+        return result;
+    }
+
 
     public void clone(String s) throws GitException {
         Process process = execInWorkdir("git clone " + s +" .");

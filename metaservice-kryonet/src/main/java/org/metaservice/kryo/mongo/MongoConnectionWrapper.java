@@ -67,6 +67,10 @@ public class MongoConnectionWrapper {
         this("metaservice.org","ms_messaging","nilo","alokin");
     }
 
+    public void close() {
+        client.close();
+    }
+
     public static class JacksonUriImpl implements URI{
         public JacksonUriImpl(){}
         private String namespace;
@@ -103,10 +107,12 @@ public class MongoConnectionWrapper {
     @JsonDeserialize(as = JacksonUriImpl.class)
     @JsonSerialize(as = URIImpl.class)
     abstract class UriMixin{}
+
+    private final MongoClient client;
     public MongoConnectionWrapper(String address, String database, String username, String password){
         try {
             MongoCredential credential = MongoCredential.createMongoCRCredential(username, database, password.toCharArray());
-            MongoClient client = new MongoClient(new ServerAddress(address), Arrays.asList(credential));
+            client = new MongoClient(new ServerAddress(address), Arrays.asList(credential));
             DB db = client.getDB(database);
 
             db.authenticate(username,password.toCharArray());

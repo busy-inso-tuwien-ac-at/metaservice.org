@@ -76,7 +76,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
     }
 
     private Set<Statement> calculatePreloadedStatements() throws RepositoryException {
-        Repository resultRepository = createTempRepository();
+        Repository resultRepository = createTempRepository(true);
         RepositoryConnection resultConnection = resultRepository.getConnection();
 
         loadNamespaces(resultConnection,postProcessorDescriptor.getNamespaceList());
@@ -84,6 +84,8 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
         resultConnection.commit();
         HashSet<Statement> result  =new HashSet<>();
         Iterations.addAll(resultConnection.getStatements(null, null, null, true, NO_CONTEXT),result);
+        resultConnection.close();
+        resultRepository.shutDown();
         return Collections.unmodifiableSet(result);
     }
 
@@ -96,7 +98,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
                 return;
             LOGGER.info("Starting to process " + resource);
 
-            Repository resultRepository = createTempRepository();
+            Repository resultRepository = createTempRepository(true);
             RepositoryConnection resultConnection = resultRepository.getConnection();
             try {
                 postProcessor.process(resource, resultConnection,task.getTime());
@@ -112,6 +114,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             if(generatedStatements.size() == 0){
                 LOGGER.info("NO STATEMENTS GENERATED! -> adding empty statement");
                 generatedStatements.add(valueFactory.createStatement(task.getChangedURI(),METASERVICE.DUMMY,METASERVICE.DUMMY));
+                processableSubjects.add(task.getChangedURI());
             }
             Set<URI> graphsToDelete = getGraphsToDelete(processableSubjects,repositoryConnection,task.getTime());
             if(graphsToDelete.size() == 1){
@@ -136,8 +139,10 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
 
             }
 
-            URI metadata =  generateMetadata(task,"add",processableSubjects);
+            URI metadata =  generateMetadata(task,"continuous",processableSubjects);
             sendData(resultConnection,metadata,generatedStatements);
+            resultConnection.close();
+            resultRepository.shutDown();
             notifyPostProcessors(subjects,task.getHistory(),task.getTime(),postProcessorDescriptor,processableSubjects);
         } catch (RepositoryException | PostProcessorException e) {
             LOGGER.error("Couldn't create {}",resource,e);

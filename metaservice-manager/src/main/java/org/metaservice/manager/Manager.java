@@ -315,7 +315,7 @@ public class Manager {
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
-        repositoryConnection.add(metadata, METASERVICE.ACTION, valueFactory.createLiteral("add"),metadata);
+        repositoryConnection.add(metadata, METASERVICE.ACTION,METASERVICE.ACTION_ADD,metadata);
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
         repositoryConnection.add(metadata, METASERVICE.XYZ, metadata,metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);

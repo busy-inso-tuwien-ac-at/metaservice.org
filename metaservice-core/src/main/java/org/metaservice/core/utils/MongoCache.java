@@ -64,6 +64,8 @@ public class MongoCache {
 
 
     public @Nullable byte[] getByte(String accessType, @NotNull String path) {
+
+        /*
         DBObject query = new BasicDBObject();
         query.put("uri", path);
         DBObject result = collection.findOne(query);
@@ -75,7 +77,9 @@ public class MongoCache {
                 LOGGER.info("CACHE HIT");
                 return (byte[]) result.get("content");
             }
-        }
+        }*/
+        //cache is broken :-(
+        // too big files
         return null;
     }
 
@@ -86,7 +90,7 @@ public class MongoCache {
      * @param data
      */
     public void putByte(String accessType, @NotNull String path, @NotNull byte[] data) {
-        DBObject object = new BasicDBObject();
+     /*   DBObject object = new BasicDBObject();
         object.put("uri",path);
         object.put("type","GET");
         object.put("format","byte");
@@ -116,7 +120,7 @@ public class MongoCache {
             ObjectId id =  (ObjectId)file.get( "_id" );
             object.put("contentId",id);
         }
-        collection.insert(object);
+        collection.insert(object);*/
     }
 
     public boolean isCached(String uri) {

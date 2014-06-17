@@ -15,6 +15,7 @@ import org.metaservice.api.messaging.MessagingException;
 import org.metaservice.api.messaging.PostProcessingHistoryItem;
 import org.metaservice.api.messaging.PostProcessingTask;
 import org.metaservice.api.messaging.MessageHandler;
+import org.metaservice.api.rdf.vocabulary.DC;
 import org.openrdf.model.*;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDFS;
@@ -27,6 +28,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.ntriples.NTriplesWriter;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
+import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
@@ -68,26 +70,33 @@ public abstract  class AbstractDispatcher<T> {
     }
 
 
-    protected void sendDataByLoad(URI metadata,Collection<Statement> generatedStatements) throws MetaserviceException {
+    protected void sendDataByLoad(URI metadata,Collection<Statement> generatedStatements,Set<Statement> loadedStatements ) throws MetaserviceException {
         StringWriter stringWriter = new StringWriter();
-        NTriplesWriter nTriplesWriter = new NTriplesWriter(stringWriter);
-
         try {
+            NTriplesWriter nTriplesWriter = new NTriplesWriter(stringWriter);
+            Repository inferenceRepository = createTempRepository(true);
+            RepositoryConnection inferenceRepositoryConnection = inferenceRepository.getConnection();
+            LOGGER.debug("Start inference...");
+            inferenceRepositoryConnection.add(loadedStatements);
+            inferenceRepositoryConnection.add(generatedStatements);
+            LOGGER.debug("Finished inference");
+            List<Statement> filteredStatements =  getGeneratedStatements(inferenceRepositoryConnection,loadedStatements);
             nTriplesWriter.startRDF();
-            for(Statement statement : generatedStatements){
+            for(Statement statement : filteredStatements){
                 nTriplesWriter.handleStatement(statement);
             }
             nTriplesWriter.endRDF();
+            inferenceRepositoryConnection.close();
+            inferenceRepository.shutDown();
 
             Executor executor = Executor.newInstance(HttpClientBuilder.create().setConnectionManager(new BasicHttpClientConnectionManager()).build());
 
             executor.execute( Request
                     .Post(config.getSparqlEndpoint() + "?context-uri=" + metadata.toString())
                     .bodyStream(new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8")), ContentType.create("text/plain", Charset.forName("UTF-8"))));
-        } catch (RDFHandlerException  | IOException e) {
+        } catch (RDFHandlerException  | IOException | RepositoryException e) {
             throw new MetaserviceException(e);
         }
-
     }
 
     protected void sendData(RepositoryConnection resultConnection,URI metadata,List<Statement> generatedStatements) throws RepositoryException {
@@ -131,7 +140,7 @@ public abstract  class AbstractDispatcher<T> {
         LOGGER.info("finished to send data");
     }
 
-    protected Set<URI> getSubjects(@NotNull List<Statement> statements){
+    protected Set<URI> getSubjects(@NotNull Iterable<Statement> statements){
         Set<URI> subjects = new HashSet<>();
         for(Statement statement : statements){
             Resource  subject = statement.getSubject();
@@ -158,11 +167,24 @@ public abstract  class AbstractDispatcher<T> {
             if(resourcesThatChanged.size() ==0){
                 LOGGER.info("nothing to notify");
             }
-            for(URI uri : resourcesThatChanged){
-                LOGGER.info("changed " + uri);
-                PostProcessingTask postProcessingTask = new PostProcessingTask(uri,time);
-                postProcessingTask.getHistory().addAll(history);
-                messageHandler.send(postProcessingTask);
+            if(resourcesThatChanged.size() < 10) {
+                for (URI uri : resourcesThatChanged) {
+                    LOGGER.info("changed {}", uri);
+                    PostProcessingTask postProcessingTask = new PostProcessingTask(uri, time);
+                    postProcessingTask.getHistory().addAll(history);
+                    messageHandler.send(postProcessingTask);
+                }
+            }else{
+                LOGGER.debug("bulk change of {} objects ", resourcesThatChanged.size());
+                ArrayList<PostProcessingTask> postProcessingTasks = new ArrayList<>();
+                for (URI uri : resourcesThatChanged) {
+                    LOGGER.trace("changed {}" , uri);
+                    PostProcessingTask postProcessingTask = new PostProcessingTask(uri, time);
+                    postProcessingTask.getHistory().addAll(history);
+                    postProcessingTasks.add(postProcessingTask);
+                }
+                messageHandler.bulkSend(postProcessingTasks);
+
             }
         } catch (MessagingException e) {
             LOGGER.error("Couldn't notify PostProcessors",e);
@@ -234,8 +256,12 @@ public abstract  class AbstractDispatcher<T> {
     }
 
 
-    protected Repository createTempRepository() throws RepositoryException {
-        Repository repo = new SailRepository(new ForwardChainingRDFSInferencer(new MemoryStore()));
+    public static Repository createTempRepository(boolean inference) throws RepositoryException {
+        NotifyingSail sail = new MemoryStore();
+        if(inference){
+            sail = new ForwardChainingRDFSInferencer(sail);
+        }
+        Repository repo = new SailRepository(sail);
         repo.initialize();
         return repo;
     }

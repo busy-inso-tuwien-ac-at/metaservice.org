@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.rmi.ObjectSpace;
+import com.esotericsoftware.kryonet.rmi.RemoteObject;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.messaging.MessageHandler;
 import org.metaservice.api.messaging.MessagingException;
@@ -56,10 +57,11 @@ public class MongoKryoMessageHandler implements MessageHandler {
         for(PostProcessingTask task : postProcessingTasks){
             PostProcessorMessage postProcessorMessage = new PostProcessorMessage();
             postProcessorMessage.setTimestamp(System.currentTimeMillis());
-            postProcessorMessage.setTask(task);
+            postProcessorMessage.setTask(convertIfNotUriImpl(task));
             postProcessorMessages.add(postProcessorMessage);
         }
         mongoConnectionWrapper.getPostProcessorMessageCollection().insert(postProcessorMessages);
+        mongoConnectionWrapper.close();
     }
 
     @Override
@@ -77,8 +79,7 @@ public class MongoKryoMessageHandler implements MessageHandler {
         }
     }
 
-    @Override
-    public void send(PostProcessingTask postProcessingTask) throws MessagingException {
+    private PostProcessingTask convertIfNotUriImpl(PostProcessingTask postProcessingTask) {
         PostProcessingTask cloned = new PostProcessingTask(new URIImpl(postProcessingTask.getChangedURI().stringValue()),postProcessingTask.getTime());
         for(PostProcessingHistoryItem item : postProcessingTask.getHistory()){
             URI[] clonedUris = new URI[item.getResources().length];
@@ -88,10 +89,15 @@ public class MongoKryoMessageHandler implements MessageHandler {
             PostProcessingHistoryItem clonedItem = new PostProcessingHistoryItem(item.getPostprocessorId(),clonedUris);
             cloned.getHistory().add(clonedItem);
         }
+        return cloned;
+    }
 
+    @Override
+    public void send(PostProcessingTask postProcessingTask) throws MessagingException {
+        postProcessingTask = convertIfNotUriImpl(postProcessingTask);
         PostProcessorMessage postProcessorMessage = new PostProcessorMessage();
         postProcessorMessage.setTimestamp(System.currentTimeMillis());
-        postProcessorMessage.setTask(cloned);
+        postProcessorMessage.setTask(postProcessingTask);
         client.sendTCP(postProcessorMessage);
         LOGGER.info("SENT");
         if(i++>100){
@@ -110,6 +116,8 @@ public class MongoKryoMessageHandler implements MessageHandler {
     @Override
     public List<QueueStatistics> getStatistics() throws MessagingException {
         StatisticsProvider queueContainer = ObjectSpace.getRemoteObject(client, KryoServer.QUEUE_CONTAINER_ID, StatisticsProvider.class);
+        RemoteObject remoteObject = (RemoteObject)queueContainer;
+        remoteObject.setResponseTimeout(10000);
         return queueContainer.getQueueStatistics();
     }
 

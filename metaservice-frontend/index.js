@@ -307,7 +307,16 @@ function deepCompare () {
     return true;
 }
 
-function jsonLdFollowIris(source,iri){
+function jsonLdFollowIris(source,iri,stack){
+    if(!stack){
+        stack = [];
+    }
+    if(stack.indexOf(iri) != -1){
+        return source[iri];
+    }
+
+    stack.push(iri);
+
     if(source[iri]){
         var obj = source[iri];
         if($.isArray(obj) || $.isPlainObject(obj)){
@@ -315,17 +324,17 @@ function jsonLdFollowIris(source,iri){
                 if(dindex == '@type'){
                     if($.isArray(d) || $.isPlainObject(d)){
                         $.each(d,function(xindex,x){
-                            d[xindex] = jsonLdFollowIris(source,x);
+                            d[xindex] = jsonLdFollowIris(source,x,stack);
                         });
                     }else{
-                        obj[dindex] = jsonLdFollowIris(source,d);
+                        obj[dindex] = jsonLdFollowIris(source,d,stack);
                     }
                 }else if($.isArray(d) || $.isPlainObject(d)){
                     if(d['@id']){
                         var id = d['@id'];
                         //break loops
                         obj[dindex] = null;
-                        obj[dindex] = jsonLdFollowIris(source,id);
+                        obj[dindex] = jsonLdFollowIris(source,id,stack);
                     }else{
                         $.each(d,function(xindex,x){
                             if(x && x['@id']){
@@ -333,15 +342,17 @@ function jsonLdFollowIris(source,iri){
                                 //break loops
                             //    delete d[xindex];
                                 d[xindex] = null;
-                                d[xindex] = jsonLdFollowIris(source,id);
+                                d[xindex] = jsonLdFollowIris(source,id,stack);
                             }
                         });
                     }
                 }
             });
         }
+        stack.pop();
         return obj;
     }
+    stack.pop();
     return iri;
 }
 
@@ -476,11 +487,20 @@ function mergeIdenticalBlankNodes(data){
     return result;
 }
 
-function deepReplaceId(object,from,to){
+function deepReplaceId(object,from,to,stack){
+    if(!stack){
+        stack = [];
+    }
+    if(stack.indexOf(object) != -1){
+        return;
+    }
+    stack.push(object);
     if($.isArray(object) || $.isPlainObject(object)){
         $.each(object,function(index,element){
-            if(!element)
+            if(!element){
+                stack.pop();
                 return;
+            }
             if(element == from){
                 object[index] = to;
             } else if(element['@id'] == from){
@@ -488,8 +508,10 @@ function deepReplaceId(object,from,to){
            //     console.log(object);
                 found = false;
                 $.each(object,function(index2,element2){
-                    if(!element2)
+                    if(!element2){
+                        stack.pop();
                         return;
+                    }
                     if(index2 != index && element2['@id'] == to){
                         found = true;
                     }
@@ -507,10 +529,11 @@ function deepReplaceId(object,from,to){
                     object[index] = to;
                 }
             }else{
-                deepReplaceId(element,from,to);
+                deepReplaceId(element,from,to,stack);
             }
         });
     }
+    stack.pop();
 }
 
 function renderTemplate(t, result) {
@@ -587,8 +610,8 @@ function handleResource(){
             console.log(data);
             var result =jsonLdUnion(data);
             console.log(result);
-            result = mergeIdenticalBlankNodes(result);
-            console.log(result);
+      //      result = mergeIdenticalBlankNodes(result);
+      //      console.log(result);
 
             jsonld.compact(result,MS.context,function(err,compacted){
                 result = compacted;
