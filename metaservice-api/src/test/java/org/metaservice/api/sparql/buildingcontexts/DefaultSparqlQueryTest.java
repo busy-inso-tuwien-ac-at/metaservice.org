@@ -180,7 +180,6 @@ public class DefaultSparqlQueryTest {
         final Variable t5 = new Variable("t5");
         final Variable tselected = new Variable("tselected");
 
-        final Literal add = valueFactory.createLiteral("add");
         SparqlQuery sparqlQuery = new BigdataSparqlQuery() {
 
             @Override
@@ -244,11 +243,11 @@ public class DefaultSparqlQueryTest {
                                 include("sub3"),
                                 include("sub4"),
                                 include("sub5"),
-                                triplePattern(g1, METASERVICE.ACTION, add),
-                                triplePattern(g2, METASERVICE.ACTION, add),
-                                triplePattern(g3, METASERVICE.ACTION, add),
-                                triplePattern(g4,METASERVICE.ACTION,add),
-                                triplePattern(g5,METASERVICE.ACTION,add)
+                                triplePattern(g1, METASERVICE.ACTION, METASERVICE.ACTION_ADD),
+                                triplePattern(g2, METASERVICE.ACTION, METASERVICE.ACTION_ADD),
+                                triplePattern(g3, METASERVICE.ACTION, METASERVICE.ACTION_ADD),
+                                triplePattern(g4,METASERVICE.ACTION, METASERVICE.ACTION_ADD),
+                                triplePattern(g5,METASERVICE.ACTION, METASERVICE.ACTION_ADD)
                         )
                         .build(true);
             }

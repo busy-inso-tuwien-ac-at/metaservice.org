@@ -34,7 +34,7 @@ public class CVE {
         ValueFactory valueFactory = ValueFactoryImpl.getInstance();
         CVE =valueFactory.createURI(NS,"CVE");
         CVE_ID = valueFactory.createURI(NS,"cveId");
-        CCE_ID = valueFactory.createURI(NS,"cceID");
+        CCE_ID = valueFactory.createURI(NS,"cceId");
         SUMMARY = valueFactory.createURI(NS,"summary");
         PUBLISHED_DATETIME = valueFactory.createURI(NS,"publishedDatetime");
         LAST_MODIFIED_DATETIME = valueFactory.createURI(NS,"lastModifiedDatetime");

@@ -12,6 +12,8 @@
             >
         <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/cpe.rdf"/>
+        <load url="http://metaservice.org/ns/dcelements.rdf"/>
+        <load url="http://metaservice.org/ns/dcterms.rdf"/>
         <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
     </provider>
 
@@ -42,6 +44,8 @@
             >
         <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/cve.rdf"/>
+        <load url="http://metaservice.org/ns/dcelements.rdf"/>
+        <load url="http://metaservice.org/ns/dcterms.rdf"/>
         <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
     </provider>
 

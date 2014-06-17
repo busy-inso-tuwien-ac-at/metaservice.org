@@ -1,6 +1,7 @@
 package org.metaservice.core.nist.cpe;
 
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.nist.cpe.jaxb.ReferencesType;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -31,6 +32,9 @@ public class CPE {
     public static final URI TARGET_SW;
     public static final URI TARGET_HW;
     public static final URI OTHER;
+    public static final URI REFERENCE;
+    public static final URI REFERENCE_HREF;
+    public static final URI REFERENCE_VALUE;
 
 
     /* CUSTOM METASERVICE */
@@ -59,7 +63,9 @@ public class CPE {
         TARGET_SW = valueFactory.createURI(NS,"targetSw");
         TARGET_HW = valueFactory.createURI(NS,"targetHw");
         OTHER = valueFactory.createURI(NS,"other");
-
+        REFERENCE = valueFactory.createURI(NS,"reference");
+        REFERENCE_HREF = valueFactory.createURI(NS,"referenceHref");
+        REFERENCE_VALUE = valueFactory.createURI(NS,"referenceValue");
     }
 
     private static final String LOCAL_NS ="http://metaservice.org/d/releases/cpe/";

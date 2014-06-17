@@ -73,6 +73,11 @@ public abstract class DefaultSparqlQuery implements SparqlQuery {
     }
     @NotNull
     @Override
+    public final BinaryOperator<Term<Value>,Term<Value>> unequal(Term<Value> t1,Term<Value> t2){
+        return new BinaryOperator<>("!=",t1,t2);
+    }
+    @NotNull
+    @Override
     public final BinaryOperator<Term<Value>,Term<Value>> less(Term<Value> t1,Term<Value> t2){
         return new BinaryOperator<>("<",t1,t2);
     }

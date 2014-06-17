@@ -30,7 +30,6 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
     public String build(final boolean pretty) {
         SparqlQuery sparqlQuery = new BigdataSparqlQuery(){
 
-            private final ValueFactoryImpl valueFactory = ValueFactoryImpl.getInstance();
             @Override
             public String build() {
 
@@ -94,8 +93,10 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     Variable context2 = new Variable("mmmmmcontext2");
                     Variable processableSubject = subjectMap.get(c);
                     String name = nameMap.get(c);
+                    String nameContinuous = name +"Continuous";
+                    Variable action = new Variable(name+"Action");
                     Variable time = timeMap.get(c);
-                    Variable generator = new Variable("mmmmgenerator");
+                    Variable generator = new Variable(name+"generator");
                     HashSet<Variable> groupByList = new HashSet<>();
                     for(QuadPattern quadPattern : contextMap.get(c)) {
                         if(quadPattern.getC() instanceof Variable && !(quadPattern.getC() instanceof BoundVariable)) {
@@ -121,28 +122,46 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     )
                             .where(
                                     include("heuristic"),
+                                    filter(unequal(val(action),val(METASERVICE.ACTION_CONTINUOUS))),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
+                                    triplePattern(c,METASERVICE.ACTION,action),
+                                    triplePattern(c,METASERVICE.TIME, time)
+                            );
+
+                    SelectQueryBuilder maxQueryContinuous = select(true,
+                            selectList.toArray(new SelectTerm[selectList.size()])
+                    )
+                            .where(
+                                    include("heuristic"),
+                                    filter(lessOrEqual(val(time), val(getDateVariable()))),
+                                    triplePattern(c,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
                                     triplePattern(c,METASERVICE.XYZ,processableSubject),
                                     triplePattern(c,METASERVICE.GENERATOR,generator),
+                                    triplePattern(context2,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
                                     triplePattern(context2,METASERVICE.XYZ,processableSubject),
                                     triplePattern(context2,METASERVICE.GENERATOR,generator),
                                     triplePattern(context2,METASERVICE.TIME, time)
                             ).groupBy(processableSubject);
                     for(Variable var : groupByList){
                         maxQuery.groupBy(var);
+                        maxQueryContinuous.groupBy(var);
                     }
                     for(QuadPattern quadPattern : contextMap.get(c)){
-                        maxQuery.where(quadPattern);
+                        maxQueryContinuous.where(quadPattern);
                         selectQueryBuilder.where(quadPattern);
                     }
                     selectQueryBuilder.with(
+                            namedSubQuery(nameContinuous,maxQueryContinuous),
                             namedSubQuery(name,maxQuery)
                     );
                     selectQueryBuilder.where(
-                            include(name),
-             //               triplePattern(c, METASERVICE.XYZ,processableSubject),
+                            union(
+                                    graphPattern(include(name)),
+                                    graphPattern(include(nameContinuous))
+                            ),
                             triplePattern(c, METASERVICE.TIME, time),
-                            triplePattern(c, METASERVICE.ACTION, ValueFactoryImpl.getInstance().createLiteral("add"))
+                            filter(unequal(val(action),val(METASERVICE.ACTION_REMOVE))),
+                            triplePattern(c, METASERVICE.ACTION,action)
                     );
                 }
                 selectQueryBuilder

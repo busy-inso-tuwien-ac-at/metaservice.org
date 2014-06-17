@@ -40,6 +40,10 @@ public interface SparqlQuery {
     public UnaryOperator<Term<Boolean>> not(Term<Boolean> t1);
     public BinaryOperator<Term<Boolean>,Term<Boolean>> or(Term<Boolean> t1,Term<Boolean>t2);
     public BinaryOperator<Term<Boolean>,Term<Boolean>> and(Term<Boolean> t1,Term<Boolean> t2);
+
+    @NotNull
+    BinaryOperator<Term<Value>,Term<Value>> unequal(Term<Value> t1, Term<Value> t2);
+
     public BinaryOperator<Term<Value>,Term<Value>> less(Term<Value> t1,Term<Value> t2);
     public BinaryOperator<Term<Value>,Term<Value>> lessOrEqual(Term<Value> t1,Term<Value> t2);
     public BinaryOperator<Term<Value>,Term<Value>> equal(Term<Value> t1,Term<Value> t2);

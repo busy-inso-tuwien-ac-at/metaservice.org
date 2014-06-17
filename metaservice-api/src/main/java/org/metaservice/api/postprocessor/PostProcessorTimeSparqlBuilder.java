@@ -115,7 +115,7 @@ public class PostProcessorTimeSparqlBuilder extends AbstractDeferredQueryBuilder
                     selectQueryBuilder.where(
                             include(name),
                             triplePattern(c, METASERVICE.TIME, time),
-                            triplePattern(c, METASERVICE.ACTION, ValueFactoryImpl.getInstance().createLiteral("add"))
+                            triplePattern(c, METASERVICE.ACTION,METASERVICE.ACTION_ADD)
                     );
                 }
                 selectQueryBuilder

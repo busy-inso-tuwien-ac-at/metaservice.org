@@ -6,10 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.provider.AbstractProvider;
 import org.metaservice.api.provider.ProviderException;
 import org.metaservice.api.rdf.vocabulary.DC;
-import org.metaservice.nist.cpe.jaxb.CheckType;
-import org.metaservice.nist.cpe.jaxb.ItemType;
-import org.metaservice.nist.cpe.jaxb.NotesType;
-import org.metaservice.nist.cpe.jaxb.TextType;
+import org.metaservice.nist.cpe.jaxb.*;
 import org.mitre.cpe.common.LogicalValue;
 import org.mitre.cpe.common.WellFormedName;
 import org.mitre.cpe.naming.util.CPEFactory;
@@ -99,6 +96,18 @@ public class CPEProvider extends AbstractProvider<ItemType> {
                         }else{
                             resultConnection.add(uri, DC.TITLE,valueFactory.createLiteral(textType.getValue()));
                         }
+                    }
+                }
+            }
+            if(o.getReferences() != null){
+                for(ReferencesType.Reference reference : o.getReferences().getReference()){
+                    BNode bNode = valueFactory.createBNode();
+                    resultConnection.add(uri,CPE.REFERENCE, bNode);
+                    if(reference.getHref() != null) {
+                        resultConnection.add(bNode, CPE.REFERENCE_HREF, valueFactory.createURI(reference.getHref()));
+                    }
+                    if(reference.getValue() != null) {
+                        resultConnection.add(bNode, CPE.REFERENCE_VALUE, valueFactory.createLiteral(reference.getValue()));
                     }
                 }
             }

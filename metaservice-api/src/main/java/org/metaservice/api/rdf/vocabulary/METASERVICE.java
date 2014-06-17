@@ -1,5 +1,6 @@
 package org.metaservice.api.rdf.vocabulary;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -32,6 +33,9 @@ public class METASERVICE {
         VIEW = factory.createURI(NAMESPACE,"view");
         GENERATOR = factory.createURI(NAMESPACE,"generator");
         ACTION = factory.createURI(NAMESPACE,"action");
+        ACTION_CONTINUOUS = factory.createLiteral("continuous");
+        ACTION_ADD = factory.createLiteral("add");
+        ACTION_REMOVE = factory.createLiteral("remove");
         CREATION_TIME = factory.createURI(NAMESPACE,"creation_time");
         LAST_CHECKED_TIME = factory.createURI(NAMESPACE,"last_checked_time");
         SCOPE = factory.createURI(NAMESPACE,"scope");
@@ -41,4 +45,11 @@ public class METASERVICE {
 
 
     public static final URI ACTION;
+
+
+    public static final Literal ACTION_CONTINUOUS;
+    public static final Literal ACTION_ADD;
+    public static final Literal ACTION_REMOVE;
+
+
 }

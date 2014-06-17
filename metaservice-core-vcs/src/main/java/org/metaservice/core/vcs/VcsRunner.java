@@ -46,13 +46,16 @@ public class VcsRunner extends AbstractDispatcher<String>{
                 BindingSet bindings = result.next();
                 URI uri = (URI)bindings.getBinding("s").getValue();
                 LOGGER.info("Processing {}",uri);
-                Repository repository = createTempRepository();
+                Repository repository = createTempRepository(true);
+                RepositoryConnection tempConnection  = repository.getConnection();
                 try {
-                    new GitProvider().process(uri,repository.getConnection());
+                    new GitProvider().process(uri,tempConnection);
                 }catch (VcsException e){
                     LOGGER.error("error processing vcs " + uri,e);
                 }
-                repositoryConnection.add(repository.getConnection().getStatements(null,null,null,true));
+                repositoryConnection.add(tempConnection.getStatements(null, null, null, true));
+                tempConnection.close();
+                repository.shutDown();
             }
 
             LOGGER.info("finished loop");
