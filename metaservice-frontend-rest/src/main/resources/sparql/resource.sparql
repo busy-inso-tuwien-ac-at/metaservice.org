@@ -62,6 +62,7 @@ WITH {
 
 WITH {
     SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
+        hint:Query hint:optimizer "None" .
         INCLUDE %level1.
         ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
         ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
@@ -76,6 +77,7 @@ WITH {
 
 WITH {
     SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
+        hint:Query hint:optimizer "None" .
         INCLUDE %level2.
         ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
         ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
@@ -90,6 +92,7 @@ WITH {
 
 WITH {
     SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
+        hint:Query hint:optimizer "None" .
         INCLUDE %level3.
         ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
         ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
