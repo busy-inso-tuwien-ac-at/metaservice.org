@@ -1,0 +1,41 @@
+<metaservice>
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
+    <provider
+            id="wordpressProvider"
+            type="wordpress"
+            model="org.metaservice.demo.wordpress.VersionEntry"
+            class="org.metaservice.demo.wordpress.WordpressProvider"
+            >
+        <load url="http://metaservice.org/ns/metaservice.rdf"/>
+   <!--     <load url="http://metaservice.org/ns/cpe.rdf"/>-->
+        <load url="http://metaservice.org/ns/dcelements.rdf"/>
+        <load url="http://metaservice.org/ns/dcterms.rdf"/>
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </provider>
+
+    <parser
+            id="wordpressParser"
+            type="wordpress"
+            class="org.metaservice.demo.wordpress.WordpressParser"/>
+
+
+    <repository
+            id="wordpressRepository"
+            type="wordpress"
+            baseUri="http://wordpress.org/download/"
+            startUri="http://wordpress.org/download/"
+            crawler="wordpressCrawler"
+            >
+    </repository>
+
+    <crawler id="wordpressCrawler">
+        <fetch exactly="/download/release-archive/"/>
+    </crawler>
+
+</metaservice>
