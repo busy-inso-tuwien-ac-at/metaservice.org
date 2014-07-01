@@ -73,6 +73,8 @@ public class DOAP {
 
 	public final static URI CREATED;
 
+    public final static URI REVISION;
+
     public final static URI SVN_REPOSITORY;
     public final static URI GIT_REPOSITORY;
 
@@ -98,6 +100,7 @@ public class DOAP {
 		DOCUMENTER = factory.createURI(DOAP.NAMESPACE, "documenter");
 		RELEASE = factory.createURI(DOAP.NAMESPACE, "release");
 		CREATED = factory.createURI(DOAP.NAMESPACE, "created");
+        REVISION = factory.createURI(DOAP.NAMESPACE,"revision");
 
         SVN_REPOSITORY = factory.createURI(DOAP.NAMESPACE,"SVNRepository");
         GIT_REPOSITORY = factory.createURI(DOAP.NAMESPACE,"GitRepository");

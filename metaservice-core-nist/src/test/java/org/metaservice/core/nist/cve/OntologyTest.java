@@ -1,6 +1,7 @@
 package org.metaservice.core.nist.cve;
 
 import org.junit.Test;
+import org.metaservice.api.rdf.vocabulary.CVE;
 import org.metaservice.api.rdf.vocabulary.DC;
 import org.metaservice.core.AbstractDispatcher;
 import org.openrdf.model.Resource;
@@ -12,7 +13,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFParseException;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -27,7 +27,7 @@ public class OntologyTest {
         ValueFactory valueFactory = connection.getValueFactory();
         URI cve = valueFactory.createURI("http://example.org/cve");
         connection.add(new URL("http://metaservice.org/ns/cve.rdf"),null,null,new Resource[0]);
-        connection.add(cve,CVE.CVE_ID,valueFactory.createLiteral("title"));
+        connection.add(cve, CVE.CVE_ID,valueFactory.createLiteral("title"));
         System.err.println(connection.getStatements(null, DC.TITLE,null,true).next().toString());
     }
 

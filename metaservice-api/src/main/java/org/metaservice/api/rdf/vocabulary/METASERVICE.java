@@ -20,6 +20,7 @@ public class METASERVICE {
     public static final URI CREATION_TIME;
     public static final URI LAST_CHECKED_TIME;
     public static final URI SCOPE;
+    public static final URI LATEST;
     public static final URI DUMMY;
 
 
@@ -40,6 +41,7 @@ public class METASERVICE {
         LAST_CHECKED_TIME = factory.createURI(NAMESPACE,"last_checked_time");
         SCOPE = factory.createURI(NAMESPACE,"scope");
         XYZ = factory.createURI(NAMESPACE,"xyz");
+        LATEST = factory.createURI(NAMESPACE,"latest");
         DUMMY = factory.createURI( NAMESPACE,"dummy" );
     }
 

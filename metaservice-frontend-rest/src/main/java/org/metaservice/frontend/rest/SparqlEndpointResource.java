@@ -34,7 +34,7 @@ public class SparqlEndpointResource {
     public SparqlEndpointResource() throws IOException {
         namespaces = generateNamespaceString();
         searchQuery = loadSparql("/sparql/search.sparql");
-        resourceQuery = loadSparql("/sparql/resource.sparql");
+        resourceQuery = loadSparql("/sparql/resourceWithLatest.sparql");
     }
 
     private String loadSparql(String s) throws IOException {
@@ -212,7 +212,7 @@ public class SparqlEndpointResource {
         return Request.Post(uriBuilder.build())
                 .bodyForm(Form.form().add("query", query).build())
                 .connectTimeout(1000)
-                .socketTimeout(30000)
+                .socketTimeout(60000)
                 .setHeader("Accept", mimeType)
                 .execute()
                 .returnContent().asStream();

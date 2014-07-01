@@ -14,11 +14,22 @@
 </div>
 <div class="row">
     <div class="col-md-8">
+        <h2>Description</h2>
+        {{dc:description}}
+        <h2>Releases</h2>
         <ul>
-            {{#eachNext doap:release}}<li data-provenance="[{{../ms:id}}][doap:release][{{ms:id}}]"> <a href="{{ms:id}}">{{ms-deb:version}}</a></li>{{/eachNext}}
+            {{#eachNext doap:release}}<li data-provenance="[{{../ms:id}}][doap:release][{{ms:id}}]"> <a href="{{ms:id}}">{{doap:revision}}</a></li>{{/eachNext}}
         </ul>
     </div>
     <div class="col-md-4">
-
+        <div class="panel panel-default">
+            <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
+            <table class="table">
+                <tr><th>Homepage</th><td><a href="{{doap:homepage/ms:id}}">{{hostname doap:homepage}}</a></td></tr>
+                <tr><th>Bugtracker</th><td><a href="{{doap:bug-database/ms:id}}">{{hostname doap:bug-database}}</a></td></tr>
+                <tr><th>Repository</th><td></td></tr>
+                <tr><th>License</th><td>{{doap:license}}</td></tr>
+            </table>
+        </div>
     </div>
 </div>

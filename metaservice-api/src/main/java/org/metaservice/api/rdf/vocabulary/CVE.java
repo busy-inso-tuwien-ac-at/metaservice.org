@@ -1,4 +1,4 @@
-package org.metaservice.core.nist.cve;
+package org.metaservice.api.rdf.vocabulary;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrdf.model.URI;

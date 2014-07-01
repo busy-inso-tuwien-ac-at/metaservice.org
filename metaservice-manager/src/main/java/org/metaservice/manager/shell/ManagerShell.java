@@ -60,7 +60,9 @@ public class ManagerShell {
                 .command(new PsCommand(manager))
                 .command(new TailCommand(manager))
                 .command(new KillCommand(manager))
-                .command(new Test(manager))
+                .command(new TestCommand(manager))
+                .command(new ClearCommand(manager))
+                .command(new RebuildCacheCommand(manager))
                 .create();
 
 

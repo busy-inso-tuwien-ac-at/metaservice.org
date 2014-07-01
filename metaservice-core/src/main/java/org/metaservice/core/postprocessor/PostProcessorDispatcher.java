@@ -291,7 +291,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
                 }
             }
         } catch (QueryEvaluationException e) {
-            LOGGER.error("Could not check if too old ",e);
+            LOGGER.error("Could not check if too old {}",task.getChangedURI(),e);
             return true;
         }
         return false;

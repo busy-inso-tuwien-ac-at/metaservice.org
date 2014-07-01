@@ -10,6 +10,7 @@
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY ms-deb "http://metaservice.org/ns/metaservice-deb#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY doap "http://usefulinc.com/ns/doap#" >
 ]>
 
 
@@ -22,6 +23,7 @@
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:swdep-debian="http://metaservice.org/ns/swdep-debian#"
+     xmlns:doap="http://usefulinc.com/ns/doap#"
      xmlns:admssw="http://purl.org/adms/sw/">
     <owl:Ontology rdf:about="http://metaservice.org/ns/swdep-debian">
         <dc:title>Debian subclasses for metaservice.org vocabulary for swdep metadata</dc:title>
@@ -85,6 +87,7 @@
     <owl:DataProperty rdf:ID="version">
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>
         <rdfs:domain rdf:resource="http://metaservice.org/ns/package-deb#Package"/>
+        <rdfs:subPropertyOf rdf:resource="&doap;revision"/>
     </owl:DataProperty>
     <owl:DataProperty rdf:ID="md5sum">
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/package-deb#"/>

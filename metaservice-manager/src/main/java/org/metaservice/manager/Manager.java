@@ -1,5 +1,6 @@
 package org.metaservice.manager;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.messaging.PostProcessingTask;
@@ -25,6 +26,7 @@ import org.metaservice.manager.bigdata.FastRangeCountRequestBuilder;
 import org.metaservice.manager.bigdata.MutationResult;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.*;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
@@ -35,12 +37,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXB;
 import java.io.File;
 import java.io.IOException;
 
 import java.nio.file.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Calendar;
 
 /**
  * Created by ilo on 05.01.14.
@@ -104,10 +111,10 @@ public class Manager {
         return descriptorHelper;
     }
 
-    public void postProcessAllPackages() throws ManagerException {
+    public void postProcessAllByClass(URI clazz) throws ManagerException {
 
         try {
-            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?x ?time { GRAPH ?c { ?x a <"+ADMSSW.SOFTWARE_PACKAGE+">} ?c <"+METASERVICE.TIME+"> ?time} ORDER BY  ?time");
+            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?x ?time { GRAPH ?c { ?x a <"+clazz+">} ?c <"+METASERVICE.TIME+"> ?time} ORDER BY  ?time");
             TupleQueryResult result =tupleQuery.evaluate();
             ArrayList<PostProcessingTask> postProcessingTasks = new ArrayList<>();
             while (result.hasNext()){
@@ -119,6 +126,79 @@ public class Manager {
             }
             messageHandler.bulkSend(postProcessingTasks);
         } catch (RepositoryException | QueryEvaluationException | MessagingException | MalformedQueryException e) {
+            throw new ManagerException(e);
+        }
+    }
+
+    public static void main(String[] args) {
+        System.err.println( " DELETE { GRAPH ?latestGraph { ?x ?y ?latesttime} }"+
+                " INSERT { GRAPH ?latestGraph { ?context <"+METASERVICE.LATEST+"> ?latesttime }}" +
+                "WHERE {{\n" +
+                "?context <"+METASERVICE.TIME+"> ?maxtime; <"+METASERVICE.GENERATOR+"> ?generator;\n" +
+                "<"+METASERVICE.XYZ+"> ?subject.\n" +
+                "{\n" +
+                "   SELECT (count(?c) as ?count) (max(?time) as ?maxtime) ?generator ?subject {" +
+                "       ?c <"+METASERVICE.ACTION+"> \"continuous\";" +
+                "       <" +METASERVICE.XYZ+ "> ?subject;" +
+                "       <"+METASERVICE.GENERATOR+"> ?generator;" +
+                "       <" + METASERVICE.TIME+ "> ?time." +
+                "       FILTER( ?time <= ?latesttime)"+
+                "  } group by ?subject ?generator\n" +
+                "}\n" +
+                "FILTER NOT EXISTS {\n" +
+                "    GRAPH ?context { ?foo <"+METASERVICE.DUMMY+"> <"+METASERVICE.DUMMY+">}\n" +
+                "    FILTER(?count = 1)\n" +
+                "}\n" +
+                "} UNION {"+
+                " GRAPH ?latestGraph { ?x ?y ?latesttime} " +
+                "}"+
+                "}");
+    }
+
+    public void rebuildLatestCache() throws  ManagerException{
+        try {
+            //todo replace
+            Update  update  =repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,
+                " DELETE { GRAPH ?latestGraph { ?x ?y ?latesttime} }"+
+                " INSERT { GRAPH ?latestGraph { ?context <"+METASERVICE.LATEST+"> ?latesttime }}" +
+                        "WHERE {{\n" +
+                    "?context <"+METASERVICE.TIME+"> ?maxtime; <"+METASERVICE.GENERATOR+"> ?generator;\n" +
+                    "<"+METASERVICE.XYZ+"> ?subject.\n" +
+                    "{\n" +
+                    "   SELECT (count(?c) as ?count) (max(?time) as ?maxtime) ?generator ?subject {" +
+                    "       ?c <"+METASERVICE.ACTION+"> \"continuous\";" +
+                    "       <" +METASERVICE.XYZ+ "> ?subject;" +
+                    "       <"+METASERVICE.GENERATOR+"> ?generator;" +
+                    "       <" + METASERVICE.TIME+ "> ?time." +
+                    "       FILTER( ?time <= ?latesttime)"+
+                    "  } group by ?subject ?generator\n" +
+                    "}\n" +
+                    "FILTER NOT EXISTS {\n" +
+                    "    GRAPH ?context { ?foo <"+METASERVICE.DUMMY+"> <"+METASERVICE.DUMMY+">}\n" +
+                    "    FILTER(?count = 1)\n" +
+                    "}\n" +
+                    "} UNION {"+
+                        " GRAPH ?latestGraph { ?x ?y ?latesttime} " +
+                     "}"+
+                "}");
+
+            update.setBinding("latestGraph",valueFactory.createURI("http://metaservice.org/t/latest"));
+            Calendar calendar = DatatypeConverter.parseDateTime( "2025-01-01T00:00:00Z");
+            //System.err.println(DatatypeConverter.printDateTime(calendar));
+            update.setBinding("latesttime",valueFactory.createLiteral(calendar.getTime()));
+            update.execute();
+        } catch (RepositoryException | MalformedQueryException | UpdateExecutionException e) {
+            throw new ManagerException(e);
+        }
+
+    }
+
+    public void postProcess(String postProcess) throws ManagerException{
+        URI uri = valueFactory.createURI(postProcess);
+        PostProcessingTask postProcessingTask =new PostProcessingTask(uri,new Date());
+        try {
+            messageHandler.send(postProcessingTask);
+        } catch (MessagingException e) {
             throw new ManagerException(e);
         }
     }
@@ -349,12 +429,12 @@ public class Manager {
         }
     }
 
-    private void removePostProcessorData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) throws ManagerException {
+    public void removePostProcessorData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) throws ManagerException {
         removeDataFromGenerator(descriptorHelper.getStringFromPostProcessor(descriptor.getModuleInfo(), postProcessorDescriptor));
 
     }
 
-    private void removeProviderData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor) throws ManagerException {
+    public void removeProviderData(MetaserviceDescriptor descriptor, @NotNull MetaserviceDescriptor.ProviderDescriptor providerDescriptor) throws ManagerException {
         removeDataFromGenerator(descriptorHelper.getStringFromProvider(descriptor.getModuleInfo(), providerDescriptor));
     }
 
@@ -373,8 +453,11 @@ public class Manager {
             }
             if(uris.size() > 0)    //safety check -> empty deletes whole repository
             {
-                LOGGER.info("Clearing {} contexts from generator {}",uris.size(),generator);
-                repositoryConnection.clear(uris.toArray(new URI[uris.size()]));
+                LOGGER.info("Clearing {} contexts from generator {}", uris.size(), generator);
+                List<List<URI>> partitions = Lists.partition(uris,200);
+                for(List<URI> partition : partitions) {
+                    repositoryConnection.clear(partition.toArray(new URI[partition.size()]));
+                }
             }
         } catch (RepositoryException | MalformedQueryException | QueryEvaluationException e) {
             throw new ManagerException(e);

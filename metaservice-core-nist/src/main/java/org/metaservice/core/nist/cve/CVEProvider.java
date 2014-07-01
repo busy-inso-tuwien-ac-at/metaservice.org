@@ -1,14 +1,13 @@
 package org.metaservice.core.nist.cve;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.provider.AbstractProvider;
 import org.metaservice.api.provider.ProviderException;
+import org.metaservice.api.rdf.vocabulary.CVE;
 import org.metaservice.api.rdf.vocabulary.DCTERMS;
-import org.metaservice.core.nist.cpe.CPE;
+import org.metaservice.api.rdf.vocabulary.CPE;
 import org.metaservice.nist.cve.jaxb.*;
 import org.openrdf.model.BNode;
-import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.DC;

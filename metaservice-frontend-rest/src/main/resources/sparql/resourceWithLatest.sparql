@@ -1,0 +1,135 @@
+CONSTRUCT {_QUADMODE_
+    GRAPH ?c {?s ?p ?o}.
+    GRAPH ?cc {?c ?cp ?co}.
+}
+WITH {
+    SELECT DISTINCT * {
+        BIND ($path AS ?s).
+        GRAPH ?c{ ?s ?p ?o}.
+        FILTER (?p != <http://metaservice.org/ns/metaservice#dummy>).
+    }
+} AS %level1
+
+WITH {
+    SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
+        SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
+            INCLUDE %level1filtered.
+            GRAPH ?c2{ ?o ?p2 ?o2}.
+            FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
+        }
+    }
+} AS %level2
+
+WITH {
+    SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
+        SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
+            INCLUDE %level2filtered.
+            GRAPH ?c2{ ?o ?p2 ?o2}.
+            FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
+        }
+    }
+} AS %level3
+
+WITH {
+    SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+        INCLUDE %level1.
+        ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        ?c <http://metaservice.org/ns/metaservice#action> ?action.
+        FILTER( ?time < $selectedTime)
+        FILTER( ?action != 'continuous' )
+    } GROUP BY ?s ?p ?o
+} AS %level1max
+
+WITH {
+    SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+        INCLUDE %level2.
+        ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        ?c <http://metaservice.org/ns/metaservice#action> ?action.
+        FILTER( ?time < $selectedTime)
+        FILTER( ?action != 'continuous' )
+    } GROUP BY ?s ?p ?o
+} AS %level2max
+
+WITH {
+    SELECT (max(?time) as ?maxTime) ?s ?p ?o{
+        INCLUDE %level3.
+        ?c <http://metaservice.org/ns/metaservice#time> ?time.
+        ?c <http://metaservice.org/ns/metaservice#action> ?action.
+        FILTER( ?time < $selectedTime)
+        FILTER( ?action != 'continuous' )
+    }GROUP BY ?s ?p ?o
+} AS %level3max
+
+WITH {
+    SELECT ?c ?s ?p ?o{
+        INCLUDE %level1.
+        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+        ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
+    }
+} AS %level1maxContinuous
+
+WITH {
+    SELECT ?c ?s ?p ?o{
+        INCLUDE %level2.
+        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+        ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
+    }
+} AS %level2maxContinuous
+
+WITH {
+    SELECT ?c ?s ?p ?o{
+        hint:Query hint:optimizer "None" .
+        INCLUDE %level3.
+        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+        ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
+    }
+} AS %level3maxContinuous
+
+WITH {
+    SELECT ?c ?s ?p ?o {{
+            INCLUDE %level1.
+            ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+            INCLUDE %level1max.
+            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+        }UNION{
+            INCLUDE %level1maxContinuous.
+        }
+    }
+} AS %level1filtered
+
+WITH {
+    SELECT ?c ?s ?p ?o {{
+            INCLUDE %level2.
+            ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+            INCLUDE %level2max.
+            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+        }UNION{
+            INCLUDE %level2maxContinuous.
+        }
+    }
+} AS %level2filtered
+
+WITH {
+    SELECT ?c ?s ?p ?o {{
+            INCLUDE %level3.
+            ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+            INCLUDE %level3max.
+            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+        }UNION{
+            INCLUDE %level3maxContinuous.
+        }
+    }
+} AS %level3filtered
+
+WHERE{
+    {
+        INCLUDE %level1filtered
+    } UNION {
+        INCLUDE %level2filtered
+    } UNION {
+        INCLUDE %level3filtered
+    }
+    OPTIONAL {
+        GRAPH ?cc {?c ?cp ?co}.
+    }
+}

@@ -1,17 +1,23 @@
-<ol class="breadcrumb">
-    <li><a href="#">Generic Version</a></li>
-    <li><a href="{{project.resourceURI}}">{{title}}</a></li>
-    <li><a href="{{resourceURI}}">{{version}}</a></li>
-    <li class="active">{{arch}}</li>
-</ol>
-{{> button_controls}}
-<h1>{{title}}</h1>
+<div class="row">
+    <div class="col-md-12">
+        {{> button_controls}}
+        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb">
+            <li><a href="#">Generic Release</a></li>
+            <li><a href="{{admssw:project/ms:id}}">{{admssw:project/dc:title}}</a></li>
+            <li class="active"><a href="{{ms:id}}">{{doap:revision}}</a></li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-8">
-        <pre>{{description}}</pre>
-        Homepage: <a href="{{homepage}}">{{homepage}}</a>{{^homepage}}-{{/homepage}}
+        <pre>{{dc:description}}</pre>
         <ul>
-            {{#eachNext package}}<li> <a href="{{resourceURI}}">{{title}}</a></li>{{/eachNext}}
+            {{#eachNext admssw:package}}<li> <a href="{{ms:id}}">{{dc:title}}</a></li>{{/eachNext}}
         </ul>
     </div>
 </div>

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,12 +29,17 @@ public class GitArchive implements Archive {
 
     public GitArchive(@NotNull ArchiveParameters archiveParameters) throws ArchiveException {
         this.workdir = archiveParameters.getDirectory();
-        this.sourceBaseUri = archiveParameters.getSourceBaseUri();
         try {
+        if(!this.workdir.exists()) {
+            LOGGER.info("directory {} doesn't exist -> creating it",this.workdir.toString());
+            Files.createDirectories(this.workdir.toPath());
+        }
+        this.sourceBaseUri = archiveParameters.getSourceBaseUri();
+
             gitUtil= new GitUtil(workdir);
             if(!gitUtil.isInitialized())
                 gitUtil.initRepository();
-        } catch (GitUtil.GitException e) {
+        } catch (GitUtil.GitException | IOException e) {
             throw new ArchiveException(e);
         }
     }
@@ -86,7 +92,8 @@ public class GitArchive implements Archive {
         ArrayList<Date> result = new ArrayList<>();
         for(String s: gitUtil.getCommitMessages()){
             try {
-                result.add(dateFormat.parse(s));
+                if(!"empty".equals(s))
+                    result.add(dateFormat.parse(s));
             } catch (ParseException e) {
                 LOGGER.error("Could not parse message '{}'",s,e);
             }

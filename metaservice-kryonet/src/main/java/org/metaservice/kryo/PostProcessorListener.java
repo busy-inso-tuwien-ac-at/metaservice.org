@@ -76,6 +76,13 @@ public class PostProcessorListener extends Listener {
                 responseMessage.setErrorMessage(e.toString());
                 responseMessage.setStatus(ResponseMessage.Status.FAILED);
                 e.printStackTrace();
+            } catch (Exception e){
+                LOGGER.error("fatal ", e);
+                responseMessage.setErrorMessage(e.toString());
+                responseMessage.setStatus(ResponseMessage.Status.FAILED);
+                connection.sendTCP(responseMessage);
+                connection.close();
+                return;
             }
             connection.sendTCP(responseMessage);
         }

@@ -55,6 +55,29 @@
             type="cve"
             class="org.metaservice.core.nist.cve.CVEParser"/>
 
+
+    <postprocessor
+            id="cpeLinkPostProcessor"
+            class="org.metaservice.core.nist.cpe.CPEReleaseLinkPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </postprocessor>
+
+
+    <postprocessor
+            id="cpeLinkPostProcessorBack"
+            class="org.metaservice.core.nist.cpe.ReleaseCPELinkPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </postprocessor>
+
+
     <repository
             id="cveRepository"
             type="cve"

@@ -21,4 +21,12 @@
             {{/eachArray}}
         </ul>
     </div>
+    <div class="col-md-8">
+        <h2>Linked Releases</h2>
+        <ul>
+            {{#eachArray cpe:isAbout}}
+                <li> <a href="{{uri this}}">{{text dc:title}}</a> </li>
+            {{/eachArray}}
+        </ul>
+    </div>
 </div>

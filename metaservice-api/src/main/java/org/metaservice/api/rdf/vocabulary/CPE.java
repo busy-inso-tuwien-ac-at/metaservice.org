@@ -1,7 +1,6 @@
-package org.metaservice.core.nist.cpe;
+package org.metaservice.api.rdf.vocabulary;
 
 import org.jetbrains.annotations.NotNull;
-import org.metaservice.nist.cpe.jaxb.ReferencesType;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -39,6 +38,9 @@ public class CPE {
 
     /* CUSTOM METASERVICE */
     public static final URI REFERENCED_BY;
+    public static final URI IS_ABOUT;
+    public static final URI IS_ABOUT_REVERSE;
+
 
     static {
         ValueFactory valueFactory = ValueFactoryImpl.getInstance();
@@ -66,6 +68,9 @@ public class CPE {
         REFERENCE = valueFactory.createURI(NS,"reference");
         REFERENCE_HREF = valueFactory.createURI(NS,"referenceHref");
         REFERENCE_VALUE = valueFactory.createURI(NS,"referenceValue");
+
+        IS_ABOUT = valueFactory.createURI(NS,"isAbout");
+        IS_ABOUT_REVERSE = valueFactory.createURI(NS,"isAboutReverse");
     }
 
     private static final String LOCAL_NS ="http://metaservice.org/d/releases/cpe/";

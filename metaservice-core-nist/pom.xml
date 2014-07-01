@@ -34,6 +34,12 @@
             <artifactId>guava</artifactId>
             <version>17.0</version>
         </dependency>
+        <!-- temp for testing-->
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-sparql</artifactId>
+            <version>${openrdf.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

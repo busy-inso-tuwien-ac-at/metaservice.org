@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.provider.AbstractProvider;
 import org.metaservice.api.provider.ProviderException;
+import org.metaservice.api.rdf.vocabulary.CPE;
 import org.metaservice.api.rdf.vocabulary.DC;
 import org.metaservice.nist.cpe.jaxb.*;
 import org.mitre.cpe.common.LogicalValue;
@@ -58,7 +59,8 @@ public class CPEProvider extends AbstractProvider<ItemType> {
                 WellFormedName wellFormedName = CPEFactory.newCPEName(name).getWellFormedName();
                 addIfNotAny(resultConnection, uri, CPE.PART, wellFormedName.get(WellFormedName.Attribute.PART));
                 addIfNotAny(resultConnection, uri, CPE.VENDOR, wellFormedName.get(WellFormedName.Attribute.VENDOR));
-                addIfNotAny(resultConnection, uri, CPE.VERSION, wellFormedName.get(WellFormedName.Attribute.VERSION));
+                addIfNotAny(resultConnection, uri, CPE.VERSION, wellFormedName.get(WellFormedName.Attribute.VERSION).toString().replaceAll("\\\\[.]", ".")); //todo check replace
+                addIfNotAny(resultConnection, uri, CPE.PRODUCT,wellFormedName.get(WellFormedName.Attribute.PRODUCT));
                 addIfNotAny(resultConnection, uri, CPE.UPDATE, wellFormedName.get(WellFormedName.Attribute.UPDATE));
                 addIfNotAny(resultConnection, uri, CPE.EDITION, wellFormedName.get(WellFormedName.Attribute.EDITION));
                 addIfNotAny(resultConnection, uri, CPE.LANGUAGE, wellFormedName.get(WellFormedName.Attribute.LANGUAGE));

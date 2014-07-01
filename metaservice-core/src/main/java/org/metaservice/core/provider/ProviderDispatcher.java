@@ -3,6 +3,7 @@ package org.metaservice.core.provider;
 import com.google.common.collect.Sets;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import info.aduna.iteration.Iterations;
+import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveAddress;
@@ -45,6 +46,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
     private final ValueFactory valueFactory;
     private final RepositoryConnection repositoryConnection;
     private final TupleQuery repoSelect;
+    private final TupleQuery oldGraphSelect;
     private final Set<Archive> archives;
 
     private final Set<Statement> loadedStatements;
@@ -75,7 +77,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         this.metaserviceDescriptor = metaserviceDescriptor;
         this.descriptorHelper = descriptorHelper;
         repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repositoryId ?source ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?source; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.REPOSITORY_ID+"> ?repositoryId.}");
-
+        oldGraphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?metadata { ?metadata a <"+METASERVICE.METADATA+">; <"+ METASERVICE.SOURCE + "> ?source; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.REPOSITORY_ID+"> ?repositoryId.}");
         loadedStatements = calculatePreloadedStatements();
     }
 
@@ -136,7 +138,9 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
                         time,
                         path);
                 address.setParameters(repositoryDescriptor.getProperties());
-                refreshEntry(address, oldMetadata);
+                Set<URI> metadataToDelete = new HashSet<>();
+                metadataToDelete.add(oldMetadata);
+                refreshEntry(address,metadataToDelete);
             }
         } catch (QueryEvaluationException e) {
             LOGGER.error("Could not Refresh" ,e);
@@ -148,7 +152,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
      * @param archiveAddress
      * @param oldMetadata
      */
-    private void refreshEntry(ArchiveAddress archiveAddress, URI oldMetadata) {
+    private void refreshEntry(ArchiveAddress archiveAddress,@NotNull Set<URI> oldMetadata) {
         Archive archive = getArchive(archiveAddress.getArchiveUri());
         if(archive == null){
             return;
@@ -201,8 +205,9 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
 
             sendDataByLoad(metadataAdd, addedSet,loadedStatements);
             sendDataByLoad(metadataRemove, removedSet,loadedStatements);
-            if(oldMetadata != null) {
-                repositoryConnection.clear(oldMetadata);
+            if( oldMetadata.size()>0) {
+                LOGGER.info("clearing {} {}",oldMetadata.size(), oldMetadata);
+                repositoryConnection.clear(oldMetadata.toArray(new URI[oldMetadata.size()]));
             }
             Set<URI> resourcesToPostProcess = Sets.union(getSubjects(addedSet),getSubjects(removedSet));
             notifyPostProcessors(resourcesToPostProcess,new ArrayList<PostProcessingHistoryItem>(),archiveAddress.getTime(),null,null);
@@ -239,7 +244,22 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
 
     @Override
     public void create(ArchiveAddress archiveAddress){
-        refreshEntry(archiveAddress,null);
+        oldGraphSelect.setBinding("time",valueFactory.createLiteral(archiveAddress.getTime()));
+        oldGraphSelect.setBinding("source",valueFactory.createLiteral(archiveAddress.getArchiveUri()));
+        oldGraphSelect.setBinding("repositoryId",valueFactory.createLiteral(archiveAddress.getRepository()));
+        oldGraphSelect.setBinding("path",valueFactory.createLiteral(archiveAddress.getPath()));
+        HashSet<URI> oldGraphs = new HashSet<>();
+        try {
+            TupleQueryResult result = oldGraphSelect.evaluate();
+
+
+            while (result.hasNext()){
+                oldGraphs.add((URI) result.next().getBinding("metadata").getValue());
+            }
+        } catch (QueryEvaluationException e) {
+            LOGGER.error("couldn't determine old graphs to delete");
+        }
+        refreshEntry(archiveAddress, oldGraphs);
     }
 
     private URI generateMetadata(ArchiveAddress address, RepositoryConnection resultRepositoryConnection,Literal action) throws RepositoryException {

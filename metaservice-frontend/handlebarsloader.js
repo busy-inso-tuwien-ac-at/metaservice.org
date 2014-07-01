@@ -76,8 +76,11 @@ function convertToJson(data,root){
 
 Handlebars.registerHelper('hostname',function(context,options){
    var result = document.createElement('a');
-   result.href=context;
-   return result.hostname;
+    if($.isPlainObject(context)){
+        result.href= context["ms:id"];
+    }else{
+        result.href = context;
+    }return result.hostname;
 });
 
 Handlebars.registerHelper('mboxToAddress',function(context,options){
