@@ -47,6 +47,7 @@ public class WordpressProvider  implements Provider<VersionEntry> {
                 resultConnection.add(zipURI, RDF.TYPE, METASERVICE_FILE.FILE);
                 resultConnection.add(zipURI, ADMSSW.RELEASE,releaseURI);
                 resultConnection.add(zipURI, DC.TITLE,valueFactory.createLiteral(zipURI.getLocalName()));
+                resultConnection.add(zipURI,DCTERMS.FILE_FORMAT,valueFactory.createURI("http://mediatypes.appspot.com/application/zip"));
                 resultConnection.add(zipURI, SCHEMA.DOWNLOAD_URL,valueFactory.createURI(o.getZip()));
             }
             if(o.getTar()!= null&& !o.getTar().isEmpty()) {
@@ -55,6 +56,7 @@ public class WordpressProvider  implements Provider<VersionEntry> {
                 resultConnection.add(tarURI, RDF.TYPE, METASERVICE_FILE.FILE);
                 resultConnection.add(tarURI, ADMSSW.RELEASE,releaseURI);
                 resultConnection.add(tarURI, DC.TITLE, valueFactory.createLiteral(tarURI.getLocalName()));
+                resultConnection.add(tarURI,DCTERMS.FILE_FORMAT,valueFactory.createURI("http://mediatypes.appspot.com/application/x-tar"));
                 resultConnection.add(tarURI, SCHEMA.DOWNLOAD_URL,valueFactory.createURI(o.getTar()));
             }
             if(o.getIis() != null && !o.getIis().isEmpty()) {
@@ -63,6 +65,7 @@ public class WordpressProvider  implements Provider<VersionEntry> {
                 resultConnection.add(iisURI, RDF.TYPE, METASERVICE_FILE.FILE);
                 resultConnection.add(iisURI, ADMSSW.RELEASE,releaseURI);
                 resultConnection.add(iisURI, DC.TITLE, valueFactory.createLiteral(iisURI.getLocalName()));
+                resultConnection.add(iisURI,DCTERMS.FILE_FORMAT,valueFactory.createURI("http://mediatypes.appspot.com/application/zip"));
                 resultConnection.add(iisURI, SCHEMA.DOWNLOAD_URL,valueFactory.createURI(o.getIis()));
             }
         } catch (RepositoryException e) {

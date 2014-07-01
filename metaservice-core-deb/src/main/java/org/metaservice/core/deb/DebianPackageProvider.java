@@ -117,7 +117,7 @@ public class DebianPackageProvider implements Provider<Package> {
 
             resultConnection.add(packageURI,PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_META_DISTRIBUTION)));
             resultConnection.add(packageURI,PACKAGE_DEB.DISTRIBUTION,valueFactory.createLiteral(properties.get(PROPERTY_DISTRIBUTION)));
-
+            resultConnection.add(packageURI,DCTERMS.FILE_FORMAT,valueFactory.createURI("http://mediatypes.appspot.com/application/vnd.debian.binary-package"));
             createStringEntry(packageQuery, packageURI, Entries.Source.class, PACKAGE_DEB.SOURCE, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.MD5sum.class, PACKAGE_DEB.MD5SUM, resultConnection);
             createStringEntry(packageQuery, packageURI, Entries.SHA1.class, PACKAGE_DEB.SHA1, resultConnection);
