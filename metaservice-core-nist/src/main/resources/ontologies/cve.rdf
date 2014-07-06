@@ -48,7 +48,7 @@
 
     <owl:DatatypeProperty rdf:about="&cve;cveId">
         <rdfs:domain rdf:resource="&cve;CVE"/>
-        <rdfs:subPropertyOf rdf:resource="&dc;elements/1.1/title"/>
+        <rdfs:subPropertyOf rdf:resource="&rdfs;label"/>
     </owl:DatatypeProperty>
     
 
@@ -57,7 +57,6 @@
 
     <owl:DatatypeProperty rdf:about="&cve;disclosureDatetime">
         <rdfs:domain rdf:resource="&cve;CVE"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topDataProperty"/>
     </owl:DatatypeProperty>
     
 
@@ -96,7 +95,7 @@
 
     <!-- http://purl.org/dc/elements/1.1/title -->
 
-    <owl:DatatypeProperty rdf:about="&dc;elements/1.1/title"/>
+    <owl:DatatypeProperty rdf:about="&rdfs;label"/>
     
 
 
