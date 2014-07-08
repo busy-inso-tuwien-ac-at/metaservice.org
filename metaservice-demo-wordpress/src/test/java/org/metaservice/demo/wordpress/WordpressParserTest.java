@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.mockito.Matchers;
 
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.List;
 
@@ -15,10 +16,8 @@ public class WordpressParserTest {
 
     @Test
     public void testParse() throws Exception {
-        StringWriter stringWriter = new StringWriter();
-        IOUtils.copy(WordpressParserTest.class.getResourceAsStream("/release-archive.html"),stringWriter);
         WordpressParser wordpressParser = new WordpressParser();
-        List<VersionEntry> result = wordpressParser.parse(stringWriter.toString(),new ArchiveAddress("","",null,""));
+        List<VersionEntry> result = wordpressParser.parse(new InputStreamReader(WordpressParserTest.class.getResourceAsStream("/release-archive.html")),new ArchiveAddress("","",null,""));
       //  assertThat(result,is(Matchers.anyListOf(VersionEntry.class)));
         assertThat(result.size(),is(262));
         System.err.println(result);

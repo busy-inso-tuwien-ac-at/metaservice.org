@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.archive.Archive;
 import org.metaservice.api.archive.ArchiveAddress;
-import org.metaservice.api.archive.ArchiveException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 
 import javax.inject.Inject;
+import java.io.Reader;
 import java.util.*;
 
 /**
@@ -66,7 +66,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
             RepositoryConnection repositoryConnection,
             DescriptorHelper descriptorHelper,
             Config config,
-            MetaserviceDescriptor metaserviceDescriptor) throws RepositoryException, MalformedQueryException{
+            MetaserviceDescriptor metaserviceDescriptor) throws RepositoryException, MalformedQueryException, MetaserviceException {
         super(repositoryConnection, config, messageHandler, valueFactory, provider);
         this.provider = provider;
         this.parser = parser;
@@ -81,7 +81,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         loadedStatements = calculatePreloadedStatements();
     }
 
-    private Set<Statement> calculatePreloadedStatements() throws RepositoryException {
+    private Set<Statement> calculatePreloadedStatements() throws RepositoryException, MetaserviceException {
         Repository resultRepository = createTempRepository(true);
         RepositoryConnection resultConnection = resultRepository.getConnection();
 
@@ -166,14 +166,14 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
             }
             List<Statement> nowGeneratedStatements;
             List<Statement> prevGeneratedStatements;
-            if (contents.now == null || contents.now.length() < 20){
+            if (contents.now == null){
                 nowGeneratedStatements = new ArrayList<>();
             }  else {
                 nowGeneratedStatements  = getStatements(contents.now, archiveAddress);
             }
             //let gc collect contents.now
             contents.now = null;
-            if (contents.prev == null || contents.prev.length() < 20){
+            if (contents.prev == null){
                 prevGeneratedStatements = new ArrayList<>();
             }  else {
                 prevGeneratedStatements  = getStatements(contents.prev, archiveAddress);
@@ -209,17 +209,15 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
                 LOGGER.info("clearing {} {}",oldMetadata.size(), oldMetadata);
                 repositoryConnection.clear(oldMetadata.toArray(new URI[oldMetadata.size()]));
             }
-            Set<URI> resourcesToPostProcess = Sets.union(getSubjects(addedSet),getSubjects(removedSet));
+            Set<URI> resourcesToPostProcess = Sets.union(Sets.union(getSubjects(addedSet),getSubjects(removedSet)),Sets.union(getURIObject(addedSet),getURIObject(removedSet)));
             notifyPostProcessors(resourcesToPostProcess,new ArrayList<PostProcessingHistoryItem>(),archiveAddress.getTime(),null,null);
             LOGGER.info("done processing {} {}", archiveAddress.getTime(), archiveAddress.getPath());
-        } catch (RepositoryException | ArchiveException e) {
+        } catch (MetaserviceException|RepositoryException  e) {
             LOGGER.error("Could not process {}" ,archiveAddress,e);
-        } catch (MetaserviceException e) {
-            e.printStackTrace();
         }
     }
 
-    private List<Statement> getStatements(String now, ArchiveAddress archiveAddress) throws RepositoryException {
+    private List<Statement> getStatements(Reader now, ArchiveAddress archiveAddress) throws RepositoryException, MetaserviceException {
         Repository tempRepository = createTempRepository(false);
         RepositoryConnection tempRepositoryConnection = tempRepository.getConnection();
         LOGGER.debug("started parsing");
@@ -262,7 +260,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         refreshEntry(archiveAddress, oldGraphs);
     }
 
-    private URI generateMetadata(ArchiveAddress address, RepositoryConnection resultRepositoryConnection,Literal action) throws RepositoryException {
+    private URI generateMetadata(ArchiveAddress address, RepositoryConnection resultRepositoryConnection,URI action) throws RepositoryException {
         // todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + provider.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         Value idLiteral = valueFactory.createLiteral(address.getRepository());
@@ -275,7 +273,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
         resultRepositoryConnection.add(metadata, METASERVICE.PATH, pathLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.SOURCE, repoLiteral, metadata);
-        resultRepositoryConnection.add(metadata, METASERVICE.XYZ, valueFactory.createLiteral(address.getArchiveUri()+ address.getPath()), metadata);
+        resultRepositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, valueFactory.createLiteral(address.getArchiveUri()+ address.getPath()), metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.REPOSITORY_ID, idLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()), metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(), providerDescriptor)), metadata);

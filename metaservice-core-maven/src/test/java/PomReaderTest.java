@@ -1,6 +1,7 @@
 import org.junit.Test;
 import org.metaservice.core.maven.MavenPomParser;
 
+import java.io.StringReader;
 import java.util.HashMap;
 
 /**
@@ -10,7 +11,7 @@ public class PomReaderTest {
 
     @Test
     public void testParse(){
-        new MavenPomParser().parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        new MavenPomParser().parse(new StringReader("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                 "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                 "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
@@ -18,12 +19,12 @@ public class PomReaderTest {
                 "        <groupId>org.metaservice</groupId>\n" +
                 "    <artifactId>metaservice-core-maven</artifactId>\n" +
                 "    <version>1.0</version>\n" +
-                "</project>",null);
+                "</project>"),null);
     }
 
     @Test
     public void testParseParent(){
-        new MavenPomParser().parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        new MavenPomParser().parse(new StringReader("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                 "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                 "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
@@ -37,6 +38,6 @@ public class PomReaderTest {
                 "        <groupId>org.metaservice</groupId>\n" +
                 "    <artifactId>metaservice-core-maven</artifactId>\n" +
                 "    <version>1.0</version>\n" +
-                "</project>", null);
+                "</project>"), null);
     }
 }

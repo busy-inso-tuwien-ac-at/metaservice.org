@@ -6,9 +6,8 @@ import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
 import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
-import org.metaservice.api.rdf.vocabulary.DC;
+import org.metaservice.api.rdf.vocabulary.DEB;
 import org.metaservice.api.rdf.vocabulary.DOAP;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
@@ -54,12 +53,12 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
                         true,
                         var(release),var(packageName),var(metaDistribution))
                         .where(
-                                quadPattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName,context1),
-                                quadPattern(resource, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution,context1),
-                                quadPattern(resource, RDF.TYPE, PACKAGE_DEB.RELEASE,context1),
-                                quadPattern(release, PACKAGE_DEB.PACKAGE_NAME, packageName,context2),
-                                quadPattern(release, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution,context2),
-                                quadPattern(release, RDF.TYPE, PACKAGE_DEB.RELEASE,context2)
+                                quadPattern(resource, DEB.PACKAGE_NAME, packageName,context1),
+                                quadPattern(resource, DEB.META_DISTRIBUTION, metaDistribution,context1),
+                                quadPattern(resource, RDF.TYPE, DEB.RELEASE,context1),
+                                quadPattern(release, DEB.PACKAGE_NAME, packageName,context2),
+                                quadPattern(release, DEB.META_DISTRIBUTION, metaDistribution,context2),
+                                quadPattern(release, RDF.TYPE, DEB.RELEASE,context2)
                         )
                         .build();
             }
@@ -72,9 +71,9 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
                         var(release),var(packageName),var(metaDistribution))
                         .where(
                                 triplePattern(resource, DOAP.RELEASE, release),
-                                quadPattern(release, PACKAGE_DEB.PACKAGE_NAME, packageName,context2),
-                                quadPattern(release, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution,context2),
-                                quadPattern(release, RDF.TYPE, PACKAGE_DEB.RELEASE,context2)
+                                quadPattern(release, DEB.PACKAGE_NAME, packageName,context2),
+                                quadPattern(release, DEB.META_DISTRIBUTION, metaDistribution,context2),
+                                quadPattern(release, RDF.TYPE, DEB.RELEASE,context2)
                         )
                         .build();
             }
@@ -98,8 +97,8 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             String projectName = uri.toString().replaceAll(getUriRegex(),"$2");
             URI projectURI = valueFactory.createURI("http://metaservice.org/d/projects/"+getDistributionName()+"/"+projectName);
             LOGGER.debug(projectURI.toString());
-            resultConnection.add(projectURI, RDF.TYPE, PACKAGE_DEB.PROJECT);
-            resultConnection.add(projectURI, DC.TITLE,valueFactory.createLiteral(projectName));
+            resultConnection.add(projectURI, RDF.TYPE, DEB.PROJECT);
+            resultConnection.add(projectURI, DOAP.NAME ,valueFactory.createLiteral(projectName));
             processProject(resultConnection,projectURI,projectName);
             TupleQueryResult tupleQueryResult;
             if(uri.toString().startsWith("http://metaservice.org/d/releases")){

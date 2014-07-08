@@ -12,6 +12,7 @@
             >
         <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/dcterms.rdf"/>
@@ -33,6 +34,7 @@
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
     </postprocessor>

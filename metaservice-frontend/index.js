@@ -26,7 +26,7 @@ function initMs() {
         "foaf":"http://xmlns.com/foaf/0.1/",
         "ms": "http://metaservice.org/ns/metaservice#",
         "ms-swdep": "http://metaservice.org/ns/metaservice-swdep#",
-        "ms-deb": "http://metaservice.org/ns/metaservice-deb#",
+        "deb": "http://metaservice.org/ns/deb#",
         "owl": "http://www.w3.org/2002/07/owl#",
         "rad": "http://www.w3.org/ns/radion#",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -173,7 +173,7 @@ function getProvenanceContent(element){
                 table = $('<table class="table"></table>');
                 table.append('<tr><th>Id</th><td>'+data['@id']+'</td></tr>');
                 table.append('<tr><th>Source</th><td>'+data['ms:source']+data['ms:path']+'</td></tr>');
-                table.append('<tr><th>Created</th><td>' +data['ms:creation_time']['@value']+'</td></tr>');
+                table.append('<tr><th>Created</th><td>' +data['ms:creationTime']['@value']+'</td></tr>');
                 panel.append(table);
                 resultcontainer.append(panel);
             });
@@ -460,33 +460,6 @@ function blankNodeEquals(o1,o2){
     return ok;
 }
 
-function mergeIdenticalBlankNodes(data){
-    var result = {};
-    $.each(data,function(index, element){
-        if(element['ms:id'] && element['ms:id'].charAt(0) == '_'){
-            found = null;
-            $.each(result,function(index2,element2){
-                if(element2['ms:id'] && element2['ms:id'].charAt(0) == '_'){
-           //         console.log('DOING EQUALS ');
-           //         console.log(element2);console.log(element);
-                    if(blankNodeEquals(element,element2)){
-            //            console.log('ARE EQUAL');
-                        found = element2;
-                    }
-                }
-            });
-            if(found){
-                deepReplaceId(data,element['ms:id'],found['ms:id']);
-            }else{
-                result[index] = element;
-            }
-        }else{
-            result[index] = element;
-        }
-    });
-    return result;
-}
-
 function deepReplaceId(object,from,to,stack){
     if(!stack){
         stack = [];
@@ -563,10 +536,12 @@ function renderTemplate(t, result) {
             $('#template-menu').append(item);
             console.log('appended' + element);
         });
-        /* $('*[data-provenance]').each(function(index,element){
-         annotated = $(element);
-         annotated.find('')
-         });*/
+        var newTitle =  'metaservice.org';
+        var heading = $('h1');
+        if(heading.size() > 0 && heading.text().length > 1){
+            newTitle = heading.text()  + " - "  + newTitle;
+        }
+        document.title = newTitle;
         var window = $('#provenancewindow');
         $('*[data-provenance]').hover(function(event){
             if(window.is(":visible")

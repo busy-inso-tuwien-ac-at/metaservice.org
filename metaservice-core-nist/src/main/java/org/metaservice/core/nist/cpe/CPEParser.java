@@ -7,6 +7,7 @@ import org.metaservice.nist.cpe.jaxb.ListType;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXB;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 
@@ -22,9 +23,8 @@ public class CPEParser implements Parser<ItemType> {
     }
 
     @Override
-    public List<ItemType> parse(String s, ArchiveAddress archiveParameters) {
-        StringReader stringReader = new StringReader(s);
-        ListType listType = JAXB.unmarshal(stringReader, ListType.class);
+    public List<ItemType> parse(Reader reader, ArchiveAddress archiveParameters) {
+        ListType listType = JAXB.unmarshal(reader, ListType.class);
         return listType.getCpeItem();
     }
 }

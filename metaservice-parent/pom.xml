@@ -18,6 +18,7 @@
         <module>../metaservice-messaging-jms</module>
         <module>../metaservice-api-messaging</module>
         <module>../metaservice-demo-wordpress</module>
+        <module>../metaservice-demo-license</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -16,12 +16,8 @@ public class ProcessUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessUtil.class);
 
     public static void debug(@NotNull Process exec) throws IOException, InterruptedException, ProcessUtilException {
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(exec.getInputStream(), writer, "utf-8");
-        String input = writer.getBuffer().toString();
-        writer = new StringWriter();
-        IOUtils.copy(exec.getErrorStream(), writer, "utf-8");
-        String error = writer.getBuffer().toString();
+        String input = IOUtils.toString(exec.getInputStream(), "utf-8");
+        String error = IOUtils.toString(exec.getErrorStream(), "utf-8");
         exec.getErrorStream().close();
         exec.getInputStream().close();
         int ret = exec.waitFor();

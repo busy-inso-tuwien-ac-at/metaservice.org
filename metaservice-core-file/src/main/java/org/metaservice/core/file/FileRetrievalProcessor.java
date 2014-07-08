@@ -9,7 +9,6 @@ import org.metaservice.api.rdf.vocabulary.DCTERMS;
 import org.metaservice.api.rdf.vocabulary.METASERVICE_FILE;
 import org.metaservice.api.rdf.vocabulary.SPDX;
 import org.metaservice.api.sparql.nodes.BoundVariable;
-import org.openrdf.model.BNode;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.OWL;
@@ -66,15 +65,15 @@ public class FileRetrievalProcessor implements PostProcessor {
     }
 
     public static void addFile(RepositoryConnection resultConnection, FileIdentifier fileIdentifier) throws RepositoryException {
-        org.openrdf.model.ValueFactory valueFactory = resultConnection.getValueFactory();
+        ValueFactory valueFactory = resultConnection.getValueFactory();
         URI fileURI = fileIdentifier.getUri();
-        resultConnection.add(fileURI,RDF.TYPE,SPDX.FILE_CLASS);
+        resultConnection.add(fileURI,RDF.TYPE,SPDX.FILE);
         resultConnection.add(fileURI, DCTERMS.EXTENT,valueFactory.createLiteral(fileIdentifier.getSize()));
-        BNode bNode = valueFactory.createBNode();
-        resultConnection.add(bNode, RDF.TYPE, SPDX.CHECKSUM_CLASS);
-        resultConnection.add(bNode, SPDX.CHECKSUM_CLASS,SPDX.CHECKSUMALGORITHM_SHA1);
-        resultConnection.add(bNode,SPDX.CHECKSUMVALUE,valueFactory.createLiteral(fileIdentifier.getSha1sum()));
-        resultConnection.add(fileURI,SPDX.CHECKSUM,bNode);
+        URI sha1sum = valueFactory.createURI(fileURI+"#sha1");
+        resultConnection.add(sha1sum, RDF.TYPE, SPDX.CHECKSUM);
+        resultConnection.add(sha1sum, SPDX.ALGORITHM,SPDX.CHECKSUM_ALGORITHM_SHA1);
+        resultConnection.add(sha1sum,SPDX.CHECKSUM_VALUE,valueFactory.createLiteral(fileIdentifier.getSha1sum()));
+        resultConnection.add(fileURI,SPDX.CHECKSUM,sha1sum);
     }
 
     @Override

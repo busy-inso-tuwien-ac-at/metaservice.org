@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.Date;
 import java.util.List;
 
@@ -13,8 +14,8 @@ public interface Archive {
     String getSourceBaseUri();
 
     public static class Contents{
-        public String now;
-        public String prev;
+        public Reader now;
+        public Reader prev;
     }
 
     @Nullable

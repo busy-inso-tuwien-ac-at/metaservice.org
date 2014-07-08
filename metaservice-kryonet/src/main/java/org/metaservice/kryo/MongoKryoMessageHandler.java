@@ -45,6 +45,7 @@ public class MongoKryoMessageHandler implements MessageHandler {
         if(i++>100){
             try {
                 Thread.sleep(1);
+                i=0;
             } catch (InterruptedException e) {
             }
         }
@@ -74,6 +75,7 @@ public class MongoKryoMessageHandler implements MessageHandler {
         if(i++>100){
             try {
                 Thread.sleep(1);
+                i=0;
             } catch (InterruptedException e) {
             }
         }
@@ -103,6 +105,7 @@ public class MongoKryoMessageHandler implements MessageHandler {
         if(i++>100){
             try {
                 Thread.sleep(1);
+                i=0;
             } catch (InterruptedException e) {
             }
         }
@@ -117,7 +120,8 @@ public class MongoKryoMessageHandler implements MessageHandler {
     public List<QueueStatistics> getStatistics() throws MessagingException {
         StatisticsProvider queueContainer = ObjectSpace.getRemoteObject(client, KryoServer.QUEUE_CONTAINER_ID, StatisticsProvider.class);
         RemoteObject remoteObject = (RemoteObject)queueContainer;
-        remoteObject.setResponseTimeout(10000);
+        remoteObject.setResponseTimeout(30000);
+        remoteObject.setTransmitExceptions(true);
         return queueContainer.getQueueStatistics();
     }
 

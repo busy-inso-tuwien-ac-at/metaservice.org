@@ -1,14 +1,14 @@
 <div class="row">
     <div class="col-md-12">
         {{> button_controls}}
-        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+        <h1 {{provenance . "rdfs:label"}}>{{rdfs:label}}</h1>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb">
             <li>Generic</li>
-            <li class="active">{{dc:title}}</li>
+            <li class="active">{{rdfs:label}}</li>
         </ol>
     </div>
 </div>
@@ -18,7 +18,7 @@
         {{dc:description}}
         <h2>Releases</h2>
         <ul>
-            {{#eachNext doap:release}}<li data-provenance="[{{../ms:id}}][doap:release][{{ms:id}}]"> <a href="{{ms:id}}">{{doap:revision}}</a></li>{{/eachNext}}
+            {{#eachNext doap:release}}<li {{provenance .. "doap:release"}}> <a href="{{ms:id}}">{{doap:revision}}</a></li>{{/eachNext}}
         </ul>
     </div>
     <div class="col-md-4">

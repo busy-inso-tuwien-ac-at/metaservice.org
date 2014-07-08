@@ -38,10 +38,7 @@ public class SparqlEndpointResource {
     }
 
     private String loadSparql(String s) throws IOException {
-        StringWriter stringWriter = new StringWriter();
-        InputStream inputStream =  SparqlEndpointResource.class.getResourceAsStream(s);
-        IOUtils.copy(inputStream,stringWriter);
-        return stringWriter.toString();
+        return IOUtils.toString(SparqlEndpointResource.class.getResourceAsStream(s));
     }
 
     private String generateNamespaceString() {
@@ -54,7 +51,7 @@ public class SparqlEndpointResource {
         namespaceMap.put("doap","http://usefulinc.com/ns/doap#");
         namespaceMap.put("foaf","http://xmlns.com/foaf/0.1/");
         namespaceMap.put("ms","http://metaservice.org/ns/metaservice#");
-        namespaceMap.put("ms-deb","http://metaservice.org/ns/metaservice-deb#");
+        namespaceMap.put("deb","http://metaservice.org/ns/metaservice-deb#");
         namespaceMap.put("owl","http://www.w3.org/2002/07/owl#");
         namespaceMap.put("rad","http://www.w3.org/ns/radion#");
         namespaceMap.put("rdf","http://www.w3.org/1999/02/22-rdf-syntax-ns#");

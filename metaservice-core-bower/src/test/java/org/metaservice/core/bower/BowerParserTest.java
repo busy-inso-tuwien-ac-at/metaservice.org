@@ -2,6 +2,7 @@ package org.metaservice.core.bower;
 
 import org.junit.Test;
 
+import java.io.StringReader;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -11,7 +12,7 @@ public class BowerParserTest {
     @Test
     public void testParse() throws Exception {
         BowerParser bowerParser = new BowerParser();
-        List l = bowerParser.parse("[{\"name\":\"ðŸ’©\"," +
+        List l = bowerParser.parse(new StringReader("[{\"name\":\"ðŸ’©\"," +
                 "\"description\":\"It's a bower package. It's named poo.\"," +
                 "\"owner\":\"smithclay\"," +
                 "\"website\":\"https://github.com/smithclay/poo\"," +
@@ -45,7 +46,7 @@ public class BowerParserTest {
                 "\"forks\":0," +
                 "\"stars\":0," +
                 "\"created\":\"2013-10-23T17:22:26Z\"," +
-                "\"updated\":\"2013-11-12T03:15:15Z\"}]",null);
+                "\"updated\":\"2013-11-12T03:15:15Z\"}]"),null);
         System.err.println(l);
     }
 }

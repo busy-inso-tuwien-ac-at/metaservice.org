@@ -5,7 +5,7 @@ SELECT DISTINCT
          bds:relevance  ?relevance .
   ?subject a <http://usefulinc.com/ns/doap#Project>;
            a ?type;
-           dc:title ?title
+           rdfs:label ?title
      FILTER (
          ?type != <http://www.w3.org/2000/01/rdf-schema#Resource>
      )

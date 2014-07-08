@@ -1,6 +1,7 @@
 package org.metaservice.core.nist.cve;
 
 import com.google.common.io.CharSource;
+import org.apache.commons.io.IOUtils;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.parser.Parser;
 import org.metaservice.nist.cve.jaxb.Nvd;
@@ -10,6 +11,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -25,11 +27,12 @@ public class CVEParser implements Parser<VulnerabilityType> {
 
     }
     @Override
-    public List<VulnerabilityType> parse(final String s, ArchiveAddress archiveParameters) {
+    public List<VulnerabilityType> parse(final Reader source, ArchiveAddress archiveParameters) {
         final List<VulnerabilityType> result = new ArrayList<>();
         List<Future<List<VulnerabilityType>>> futures = new ArrayList<>();
 
         try {
+            final String s =IOUtils.toString(source);
             final JAXBContext jaxbContext = JAXBContext.newInstance(Nvd.class);
 
             final CharSource header = CharSource.wrap(new CharSequenceSegment(s,0,s.indexOf("<entry")-1));
@@ -77,6 +80,8 @@ public class CVEParser implements Parser<VulnerabilityType> {
             }
 
         } catch (JAXBException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         for(Future<List<VulnerabilityType>> future : futures){

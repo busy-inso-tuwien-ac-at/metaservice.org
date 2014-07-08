@@ -7,7 +7,6 @@ import org.metaservice.api.rdf.vocabulary.CVE;
 import org.metaservice.api.rdf.vocabulary.DCTERMS;
 import org.metaservice.api.rdf.vocabulary.CPE;
 import org.metaservice.nist.cve.jaxb.*;
-import org.openrdf.model.BNode;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.DC;
@@ -63,32 +62,34 @@ public class CVEProvider extends AbstractProvider<VulnerabilityType> {
             }
 
             if(o.getVulnerableConfigurations() != null){
+                int i = 0;
                 for(PlatformType platformType : o.getVulnerableConfigurations()){
-                    BNode bNode = valueFactory.createBNode();
-                    addIfNotNull(resultConnection,bNode,DC.IDENTIFIER,platformType.getId());
+                    URI platformURI = valueFactory.createURI(uri.toString()+"#Platform"+i++);
+                    addIfNotNull(resultConnection,platformURI,DC.IDENTIFIER,platformType.getId());
                     if(platformType.getRemarks() != null){
                         for(TextType textType : platformType.getRemarks()){
-                            addIfNotNull(resultConnection, bNode, DC.DESCRIPTION, textType.getValue(), textType.getLang());
+                            addIfNotNull(resultConnection, platformURI, DC.DESCRIPTION, textType.getValue(), textType.getLang());
                         }
                     }
                     if(platformType.getTitles() != null){
                         for(TextType textType :platformType.getTitles()){
-                            addIfNotNull(resultConnection, bNode, DC.TITLE, textType.getValue(), textType.getLang());
+                            addIfNotNull(resultConnection, platformURI, DC.TITLE, textType.getValue(), textType.getLang());
                         }
                     }
                     if(platformType.getLogicalTest() != null){
-                        addIfNotNull(resultConnection,bNode,DC.SUBJECT,"LOGICALTEST");//todo
+                        addIfNotNull(resultConnection,platformURI,DC.SUBJECT,"LOGICALTEST");//todo
                     }
-                    addIfNotEmpty(resultConnection, uri, DC.RELATION, bNode);
+                    addIfNotEmpty(resultConnection, uri, DC.RELATION, platformURI);
                 }
             }
 
             if(o.getAttackScenarios() != null){
+                int i =0;
                 for(ReferenceType referenceType : o.getAttackScenarios()){
-                    BNode reference = valueFactory.createBNode();
-                    addIfNotNull(resultConnection,reference, RDFS.SEEALSO,referenceType.getHref());
-                    addIfNotNull(resultConnection,reference,DC.TITLE,referenceType.getValue(),referenceType.getLang());
-                    addIfNotEmpty(resultConnection, uri, CVE.ATTACK_SCENARIO, reference);
+                    URI scenarioUri = valueFactory.createURI(uri.toString()+"#Scenario"+i++);
+                    addIfNotNull(resultConnection,scenarioUri, RDFS.SEEALSO,referenceType.getHref());
+                    addIfNotNull(resultConnection,scenarioUri,DC.TITLE,referenceType.getValue(),referenceType.getLang());
+                    addIfNotEmpty(resultConnection, uri, CVE.ATTACK_SCENARIO, scenarioUri);
                 }
             }
 
@@ -99,12 +100,13 @@ public class CVEProvider extends AbstractProvider<VulnerabilityType> {
             }
 
             if(o.getAssessmentChecks() != null){
+                int i = 0;
                 for(CheckReferenceType checkReferenceType : o.getAssessmentChecks()){
-                    BNode reference = valueFactory.createBNode();
-                    addIfNotNull(resultConnection,reference, RDFS.SEEALSO,checkReferenceType.getHref());
-                    addIfNotNull(resultConnection,reference,DC.TITLE,checkReferenceType.getName());
-                    addIfNotNull(resultConnection,reference,DC.DESCRIPTION,checkReferenceType.getSystem());
-                    addIfNotEmpty(resultConnection, uri, CVE.ASSESSMENT_CHECK, reference);
+                    URI assessmentURI = valueFactory.createURI(uri.toString()+"#Assessment"+i++);
+                    addIfNotNull(resultConnection,assessmentURI, RDFS.SEEALSO,checkReferenceType.getHref());
+                    addIfNotNull(resultConnection,assessmentURI,DC.TITLE,checkReferenceType.getName());
+                    addIfNotNull(resultConnection,assessmentURI,DC.DESCRIPTION,checkReferenceType.getSystem());
+                    addIfNotEmpty(resultConnection, uri, CVE.ASSESSMENT_CHECK, assessmentURI);
                 }
             }
 

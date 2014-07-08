@@ -4,11 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
 import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.DEB;
 import org.metaservice.api.rdf.vocabulary.DOAP;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
-import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
+import org.metaservice.api.rdf.vocabulary.XHV;
 import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.core.deb.util.DebianVersionComparator;
@@ -16,6 +16,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -66,11 +67,11 @@ public class DebianVersionReasoner implements PostProcessor {
                         var(boundArch),
                         var(resource)
                 )
-                        .where(triplePattern(boundProject,DOAP.RELEASE,release),
-                                triplePattern(release,ADMSSW.PACKAGE,resource),
-                                quadPattern(resource,PACKAGE_DEB.TITLE,title,context),
-                                quadPattern(resource,PACKAGE_DEB.VERSION,version,context),
-                                quadPattern(resource,PACKAGE_DEB.ARCHITECTURE, boundArch,context)
+                        .where(triplePattern(boundProject, DOAP.RELEASE, release),
+                                triplePattern(release, ADMSSW.PACKAGE, resource),
+                                quadPattern(resource, RDFS.LABEL, title, context),
+                                quadPattern(resource, DEB.VERSION, version, context),
+                                quadPattern(resource, DEB.ARCHITECTURE, boundArch, context)
                         )
                         .build();
             }
@@ -89,8 +90,8 @@ public class DebianVersionReasoner implements PostProcessor {
                 )
                         .where(
                                 triplePattern(boundProject, DOAP.RELEASE, resource),
-                                triplePattern(resource, PACKAGE_DEB.TITLE, title),
-                                triplePattern(resource, PACKAGE_DEB.VERSION, version)
+                                triplePattern(resource, RDFS.LABEL, title),
+                                triplePattern(resource, DEB.VERSION, version)
                         )
                         .build();
             }
@@ -109,7 +110,7 @@ public class DebianVersionReasoner implements PostProcessor {
                         .where(
                                 triplePattern(boundProject, DOAP.RELEASE, release),
                                 triplePattern(release, ADMSSW.PACKAGE, _package2),
-                                triplePattern(_package2, PACKAGE_DEB.ARCHITECTURE, arch)
+                                triplePattern(_package2, DEB.ARCHITECTURE, arch)
                         )
                         .groupBy(arch)
                         .build();
@@ -211,8 +212,8 @@ public class DebianVersionReasoner implements PostProcessor {
     private void addStatements(String s1,String s2,RepositoryConnection resultConnection) throws RepositoryException {
         Resource uri1 = valueFactory.createURI(s1);
         Resource uri2 = valueFactory.createURI(s2);
-        resultConnection.add(uri1, ADMSSW.NEXT, uri2);
-        resultConnection.add(uri2, ADMSSW.PREV,uri1);
+        resultConnection.add(uri1, XHV.NEXT, uri2);
+        resultConnection.add(uri2, XHV.PREV,uri1);
         LOGGER.info(uri1 + " next " + uri2);
     }
 

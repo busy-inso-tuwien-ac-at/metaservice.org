@@ -10,7 +10,13 @@
             type="maven"
             model="org.apache.maven.model.Model"
             class="org.metaservice.core.maven.MavenProvider"
-            />
+            >
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
+    </provider>
 
     <parser
         id="pomParser"

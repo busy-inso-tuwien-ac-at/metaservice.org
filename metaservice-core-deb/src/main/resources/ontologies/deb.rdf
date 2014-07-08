@@ -1,0 +1,546 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY schema "http://schema.org/" >
+    <!ENTITY dc "http://purl.org/dc/" >
+    <!ENTITY admssw "http://purl.org/adms/sw/" >
+    <!ENTITY terms "http://purl.org/dc/terms/" >
+    <!ENTITY vann "http://purl.org/vocab/vann/" >
+    <!ENTITY foaf "http://xmlns.com/foaf/spec/" >
+    <!ENTITY doap "http://usefulinc.com/ns/doap#" >
+    <!ENTITY terms2 "http://www.spdx.org/rdf/terms#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY deb "http://metaservice.org/ns/deb#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY swdep "http://metaservice.org/ns/metaservice-swdep#" >
+]>
+
+
+<rdf:RDF xmlns="http://metaservice.org/ns/deb"
+     xml:base="http://metaservice.org/ns/deb"
+     xmlns:dc="http://purl.org/dc/"
+     xmlns:foaf="http://xmlns.com/foaf/spec/"
+     xmlns:deb="http://metaservice.org/ns/deb#"
+     xmlns:terms="&dc;terms/"
+     xmlns:vann="http://purl.org/vocab/vann/"
+     xmlns:schema="http://schema.org/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:terms2="http://www.spdx.org/rdf/terms#"
+     xmlns:doap="http://usefulinc.com/ns/doap#"
+     xmlns:admssw="http://purl.org/adms/sw/"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+     xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#">
+    <owl:Ontology rdf:about="http://metaservice.org/ns/deb#">
+        <dc:title>Debian subclasses for metaservice.org vocabulary for swdep metadata</dc:title>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:description>TODO</dc:description>
+        <vann:preferredNamespaceUri>http://metaservice.org/ns/deb#</vann:preferredNamespaceUri>
+        <dc:format>application/rdf+xml</dc:format>
+        <vann:preferredNamespacePrefix>deb</vann:preferredNamespacePrefix>
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <dc:description xml:lang="de">TODO</dc:description>
+        <owl:imports rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <owl:versionIRI rdf:resource="http://metaservice.org/ns/deb/0.1"/>
+        <owl:imports rdf:resource="http://purl.org/adms/sw/"/>
+        <owl:imports rdf:resource="http://www.w3.org/ns/adms"/>
+        <owl:imports rdf:resource="http://www.w3.org/ns/radion#"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/deb#breaks -->
+
+    <owl:ObjectProperty rdf:about="&deb;breaks">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#buildConflicts -->
+
+    <owl:ObjectProperty rdf:about="&deb;buildConflicts">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#buildConflictsIndep -->
+
+    <owl:ObjectProperty rdf:about="&deb;buildConflictsIndep">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#buildDepends -->
+
+    <owl:ObjectProperty rdf:about="&deb;buildDepends">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#buildDependsIndep -->
+
+    <owl:ObjectProperty rdf:about="&deb;buildDependsIndep">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#builtUsing -->
+
+    <owl:ObjectProperty rdf:about="&deb;builtUsing">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#conflicts -->
+
+    <owl:ObjectProperty rdf:about="&deb;conflicts">
+        <rdfs:label>is in Conflict with</rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#depends -->
+
+    <owl:ObjectProperty rdf:about="&deb;depends">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#filename -->
+
+    <owl:DatatypeProperty rdf:about="&deb;filename">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:domain rdf:resource="&deb;Package"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#homepage -->
+
+    <owl:ObjectProperty rdf:about="&deb;homepage">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#maintainer -->
+
+    <owl:ObjectProperty rdf:about="&deb;maintainer">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:range rdf:resource="&deb;Maintainer"/>
+        <rdfs:domain rdf:resource="&deb;Package"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#md5sum -->
+
+    <owl:ObjectProperty rdf:about="&deb;md5sum">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:domain rdf:resource="&deb;Package"/>
+        <rdfs:subPropertyOf rdf:resource="&terms2;checksum"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#preDepends -->
+
+    <owl:ObjectProperty rdf:about="&deb;preDepends">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#provides -->
+
+    <owl:ObjectProperty rdf:about="&deb;provides">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;implements"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#recommends -->
+
+    <owl:ObjectProperty rdf:about="&deb;recommends">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#replaces -->
+
+    <owl:ObjectProperty rdf:about="&deb;replaces">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#sha1sum -->
+
+    <owl:ObjectProperty rdf:about="&deb;sha1sum">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:domain rdf:resource="&deb;Package"/>
+        <rdfs:subPropertyOf rdf:resource="&terms2;checksum"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#sha256sum -->
+
+    <owl:ObjectProperty rdf:about="&deb;sha256sum">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:domain rdf:resource="&deb;Package"/>
+        <rdfs:subPropertyOf rdf:resource="&terms2;checksum"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#source -->
+
+    <owl:ObjectProperty rdf:about="&deb;source">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:domain rdf:resource="&deb;DebArchive"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;source"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#suggests -->
+
+    <owl:ObjectProperty rdf:about="&deb;suggests">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#uploader -->
+
+    <owl:ObjectProperty rdf:about="&deb;uploader">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:domain rdf:resource="&deb;Package"/>
+        <rdfs:range rdf:resource="&deb;Uploader"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.spdx.org/rdf/terms#checksum -->
+
+    <owl:ObjectProperty rdf:about="&terms2;checksum"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/deb#architecture -->
+
+    <owl:DatatypeProperty rdf:about="&deb;architecture">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:domain rdf:resource="&deb;Package"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#description -->
+
+    <owl:DatatypeProperty rdf:about="&deb;description">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:subPropertyOf rdf:resource="dc:description"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#distribution -->
+
+    <owl:DatatypeProperty rdf:about="&deb;distribution">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#distributionVersion -->
+
+    <owl:DatatypeProperty rdf:about="&deb;distributionVersion">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#meta-distribution -->
+
+    <owl:DatatypeProperty rdf:about="&deb;meta-distribution">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#packageName -->
+
+    <owl:DatatypeProperty rdf:about="&deb;packageName">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#version -->
+
+    <owl:DatatypeProperty rdf:about="&deb;version">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+        <rdfs:subPropertyOf rdf:resource="&doap;revision"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://usefulinc.com/ns/doap#revision -->
+
+    <owl:DatatypeProperty rdf:about="&doap;revision"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/deb#DebArchive -->
+
+    <owl:Class rdf:about="&deb;DebArchive">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&deb;Package"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#DebSourceArchive -->
+
+    <owl:Class rdf:about="&deb;DebSourceArchive">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&deb;Package"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#DebianRepository -->
+
+    <owl:Class rdf:about="&deb;DebianRepository">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareRepository"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#Maintainer -->
+
+    <owl:Class rdf:about="&deb;Maintainer">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&schema;contributor"/>
+        <rdfs:subClassOf rdf:resource="&foaf;Agent"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/deb#Package -->
+
+    <owl:Class rdf:about="&deb;Package">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwarePackage"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="&deb;Project">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareProject"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+
+
+
+    <owl:Class rdf:about="&deb;Release">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareRelease"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+
+
+
+
+    <!-- http://metaservice.org/ns/deb#Uploader -->
+
+    <owl:Class rdf:about="&deb;Uploader">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&schema;contributor"/>
+        <rdfs:subClassOf rdf:resource="&foaf;Agent"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwarePackage -->
+
+    <owl:Class rdf:about="&admssw;SoftwarePackage"/>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwareRepository -->
+
+    <owl:Class rdf:about="&admssw;SoftwareRepository"/>
+    
+
+
+    <!-- http://schema.org/contributor -->
+
+    <owl:Class rdf:about="&schema;contributor"/>
+    
+
+    <!-- http://xmlns.com/foaf/spec/Agent -->
+
+    <owl:Class rdf:about="&foaf;Agent"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
+

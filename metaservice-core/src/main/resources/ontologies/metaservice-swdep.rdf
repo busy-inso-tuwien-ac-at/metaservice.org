@@ -2,61 +2,53 @@
 
 
 <!DOCTYPE rdf:RDF [
-        <!ENTITY dc "http://purl.org/dc/" >
-        <!ENTITY foaf "http://xmlns.com/foaf/0.1/" >
-        <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
-        <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
-        <!ENTITY prv "http://purl.org/ontology/prv/core#" >
-        <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-        <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-        <!ENTITY swdep "http://metaservice.org/ns/metaservice-swdep#" >
-        <!ENTITY schema "http://schema.org/">
-        ]>
+    <!ENTITY dc "http://purl.org/dc/" >
+    <!ENTITY foaf "http://xmlns.com/foaf/0.1/" >
+    <!ENTITY vann "http://purl.org/vocab/vann/" >
+    <!ENTITY doap "http://usefulinc.com/ns/doap#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY prv "http://purl.org/ontology/prv/core#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY swdep "http://metaservice.org/ns/metaservice-swdep#" >
+    <!ENTITY vs "http://www.w3.org/2003/06/sw-vocab-status/ns#" >
+]>
 
 
 <rdf:RDF xmlns="http://metaservice.org/ns/metaservice-swdep#"
-         xml:base="http://metaservice.org/ns/metaservice-swdep#"
-         xmlns:prv="http://purl.org/ontology/prv/core#"
-         xmlns:dc="http://purl.org/dc/"
-         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-         xmlns:foaf="http://xmlns.com/foaf/0.1/"
-         xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#"
-         xmlns:owl="http://www.w3.org/2002/07/owl#"
-         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns:vann="http://purl.org/vocab/vann/"
-         xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#">
+     xml:base="http://metaservice.org/ns/metaservice-swdep"
+     xmlns:dc="http://purl.org/dc/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:foaf="http://xmlns.com/foaf/0.1/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:vann="http://purl.org/vocab/vann/"
+     xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#"
+     xmlns:doap="http://usefulinc.com/ns/doap#"
+     xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#">
     <owl:Ontology rdf:about="http://metaservice.org/ns/metaservice-swdep#">
         <dc:title>Software Dependencies (swdep) vocabulary</dc:title>
-        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
-        <dc:creator>Nikola Ilo</dc:creator>
-        <dc:format>application/rdf+xml</dc:format>
+        <vann:preferredNamespacePrefix>swdep</vann:preferredNamespacePrefix>
         <dc:description>
             The Description of a Software Dependencies (swdep) vocabulary, described using W3C RDF Schema and the Web Ontology Language.
             SWDEP is a very specific ontology, which is designed to provide a common ground for ontologies that describe software interrelationships.
-            It also provides Reification using prv.
         </dc:description>
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:format>application/rdf+xml</dc:format>
+        <vann:preferredNamespaceUri>http://metaservice.org/ns/metaservice-swdep#</vann:preferredNamespaceUri>
         <dc:description xml:lang="de">
             Das Vokabular &quot;Dependency of Software&quot;, beschrieben durch W3C RDF Schema und der Web Ontology Language.
         </dc:description>
-        <vann:preferredNamespacePrefix>swdep</vann:preferredNamespacePrefix>
-        <vann:preferredNamespaceUri>http://metaservice.org/ns/metaservice-swdep#</vann:preferredNamespaceUri>
         <owl:versionIRI rdf:resource="http://metaservice.org/ns/metaservice-swdep/0.1"/>
-        <owl:imports rdf:resource="http://purl.org/ontology/prv/core#"/>
         <owl:imports rdf:resource="http://xmlns.com/foaf/0.1/"/>
     </owl:Ontology>
-
+    
 
 
     <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Annotation properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    <!--
     ///////////////////////////////////////////////////////////////////////////////////////
     //
     // Object Properties
@@ -64,154 +56,402 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#abstractImportanceDependencyProperty -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#dependBuild -->
-
-    <owl:ObjectProperty rdf:about="&swdep;dependBuild">
-        <rdfs:label>depend on built-time on</rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+    <owl:ObjectProperty rdf:about="&swdep;abstractImportanceDependencyProperty">
+        <rdfs:comment>
+            An abstract property, which is only used to structure the ontology.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;depends"/>
     </owl:ObjectProperty>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#abstractStageDependencyProperty -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#dependOn -->
-
-    <owl:ObjectProperty rdf:about="&swdep;dependOn">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+    <owl:ObjectProperty rdf:about="&swdep;abstractStageDependencyProperty">
+        <rdfs:comment>
+            An abstract intermediate property, which is only used to structure the ontology.
+            Sub-properties of this state in which stage of a software lifetime the dependency is needed.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;depends"/>
     </owl:ObjectProperty>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#abstractTypeDependencyProperty -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#dependencyOf -->
-
-    <owl:ObjectProperty rdf:about="&swdep;dependencyOf">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+    <owl:ObjectProperty rdf:about="&swdep;abstractTypeDependencyProperty">
+        <rdfs:comment>
+            An abstract intermediate property, which is only used to structure the ontology.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;depends"/>
     </owl:ObjectProperty>
+    
 
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#abstractUsageDependencyProperty -->
+
+    <owl:ObjectProperty rdf:about="&swdep;abstractUsageDependencyProperty">
+        <rdfs:comment>
+            An abstract property, which is only used to structure the ontology.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;depends"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#antiDepends -->
+
+    <owl:ObjectProperty rdf:about="&swdep;antiDepends">
+        <rdfs:label>depends on absence of</rdfs:label>
+        <rdfs:comment>
+            This is the inverted dependency. To state this it is intentionally not a subproperty of &quot;depends&quot;.
+            Nonetheless this may be used as a superproperty in combination with the other dependency types to denote the negation. In conclusion it is intended that a property is included both as a dependency and antidependency.
+            The expressiveness of this ontology currently does not allow to detect contradictions which occur when both are intentionally added.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;related"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#binary -->
+
+    <owl:ObjectProperty rdf:about="&swdep;binary">
+        <rdfs:label>has binary</rdfs:label>
+        <rdfs:comment>
+            Software usually exists either in source or binary format. In case there exists a binary for a source, it may be linked through this.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
 
 
     <!-- http://metaservice.org/ns/metaservice-swdep#depends -->
 
     <owl:ObjectProperty rdf:about="&swdep;depends">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-    </owl:ObjectProperty>
+        <rdfs:label>depends on</rdfs:label>
+        <rdfs:comment>
 
-    <owl:ObjectProperty rdf:about="&swdep;predicate">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;related"/>
     </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsBuild -->
+
+    <owl:ObjectProperty rdf:about="&swdep;dependsBuild">
+        <rdfs:label>depend during built-time on</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractStageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsCompiler -->
+
+    <owl:ObjectProperty rdf:about="&swdep;dependsCompiler">
+        <rdfs:label>depend during built-time on</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractUsageDependencyProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsInstallation -->
+
+    <owl:ObjectProperty rdf:about="&swdep;dependsInstallation">
+        <rdfs:label>depend during installation-time on</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractStageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsInterpreter -->
+
+    <owl:ObjectProperty rdf:about="&swdep;dependsInterpreter">
+        <rdfs:label>depend on interpreter</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractUsageDependencyProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsMiddleware -->
+
+    <owl:ObjectProperty rdf:about="&swdep;dependsMiddleware">
+        <rdfs:label>runs using middleware</rdfs:label>
+        <rdfs:comment>
+            Software uses the linked middleware.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsRuntime -->
+
+    <owl:ObjectProperty rdf:about="&swdep;dependsRuntime">
+        <rdfs:label>depends during runtime on</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractStageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsService -->
+
+    <owl:ObjectProperty rdf:about="&swdep;dependsService">
+        <rdfs:label>uses the service</rdfs:label>
+        <rdfs:comment>
+            Software connects and uses a service.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
 
 
     <!-- http://metaservice.org/ns/metaservice-swdep#dependsSoftware -->
 
     <owl:ObjectProperty rdf:about="&swdep;dependsSoftware">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subPropertyOf rdf:resource="&schema;requirements"/>
+        <rdfs:label>depends on software</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:range rdf:resource="&swdep;Software"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;depends"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/requirements"/>
     </owl:ObjectProperty>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsStandalone -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#dependsSoftwareRuntime -->
-
-    <owl:ObjectProperty rdf:about="&swdep;dependsSoftwareRuntime">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+    <owl:ObjectProperty rdf:about="&swdep;dependsStandalone">
+        <rdfs:label>is independent of</rdfs:label>
+        <rdfs:comment>
+            Software runs on its own. If communication happens, than only through weakly typed communication channels, which may be sockets or pipes.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractUsageDependencyProperty"/>
     </owl:ObjectProperty>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#dependsTest -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#hasDependency -->
+    <owl:ObjectProperty rdf:about="&swdep;dependsTest">
+        <rdfs:label>depend during built-time on</rdfs:label>
+        <rdfs:comment>
 
-    <owl:ObjectProperty rdf:about="&swdep;hasDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:range rdf:resource="&swdep;Dependency"/>
-        <owl:inverseOf rdf:resource="&swdep;dependencyOf"/>
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractStageDependencyProperty"/>
     </owl:ObjectProperty>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#distributionConstraint -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#hasReverseDependency -->
-
-    <owl:ObjectProperty rdf:about="&swdep;hasReverseDependency">
+    <owl:ObjectProperty rdf:about="&swdep;distributionConstraint">
         <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:range rdf:resource="&swdep;Dependency"/>
-        <owl:inverseOf rdf:resource="&swdep;dependOn"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+        <rdfs:comment>
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
     </owl:ObjectProperty>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#forkOf -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#incompatible -->
-
-    <owl:ObjectProperty rdf:about="&swdep;incompatible">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+    <owl:ObjectProperty rdf:about="&swdep;forkOf">
+        <rdfs:label>fork of</rdfs:label>
+        <rdfs:comment>
+            connects Assets with a common development ancestor
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;related"/>
     </owl:ObjectProperty>
+    
 
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#implements -->
+
+    <owl:ObjectProperty rdf:about="&swdep;implements">
+        <rdfs:label>implementation of</rdfs:label>
+        <rdfs:comment>
+            connects a implementation with its specification or interface
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;related"/>
+        <rdfs:subPropertyOf rdf:resource="&doap;implements"/>
+    </owl:ObjectProperty>
+    
 
 
     <!-- http://metaservice.org/ns/metaservice-swdep#links -->
 
     <owl:ObjectProperty rdf:about="&swdep;links">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+        <rdfs:label>links to</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractUsageDependencyProperty"/>
     </owl:ObjectProperty>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#middleware -->
-
-    <owl:ObjectProperty rdf:about="&swdep;middleware">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-    </owl:ObjectProperty>
-
+    
 
 
     <!-- http://metaservice.org/ns/metaservice-swdep#optional -->
 
     <owl:ObjectProperty rdf:about="&swdep;optional">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-    </owl:ObjectProperty>
+        <rdfs:label>is optionally dependent on</rdfs:label>
+        <rdfs:comment>
 
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractImportanceDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#pluginOf -->
+
+    <owl:ObjectProperty rdf:about="&swdep;pluginOf">
+        <rdfs:label>is a plugin of</rdfs:label>
+        <rdfs:comment>
+            Software is incorporated in form of a Plugin.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#projectConstraint -->
+
+    <owl:ObjectProperty rdf:about="&swdep;projectConstraint">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment>is from Project</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:domain rdf:resource="&swdep;SoftwareRange"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#related -->
+
+    <owl:ObjectProperty rdf:about="&swdep;related">
+        <rdfs:label>related to</rdfs:label>
+        <rdfs:comment>
+            abstract concept of relation
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#relatedSoftware -->
+
+    <owl:ObjectProperty rdf:about="&swdep;relatedSoftware">
+        <rdfs:label>depends on</rdfs:label>
+        <rdfs:comment>
+            abstract concept of relation to software
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:range rdf:resource="&swdep;Software"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;related"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#releaseConstraint -->
+
+    <owl:ObjectProperty rdf:about="&swdep;releaseConstraint">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment>
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:domain rdf:resource="&swdep;SoftwareRange"/>
+    </owl:ObjectProperty>
+    
 
 
     <!-- http://metaservice.org/ns/metaservice-swdep#requires -->
 
     <owl:ObjectProperty rdf:about="&swdep;requires">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-    </owl:ObjectProperty>
+        <rdfs:label>is necessarily dependent on</rdfs:label>
+        <rdfs:comment>
 
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;abstractImportanceDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#source -->
+
+    <owl:ObjectProperty rdf:about="&swdep;source">
+        <rdfs:label>has source</rdfs:label>
+        <rdfs:comment>
+            Software usually exists either in source or binary format. In case there exists a source for a binary, it may be linked through this.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://schema.org/requirements -->
+
+    <owl:ObjectProperty rdf:about="http://schema.org/requirements"/>
+    
+
+
+    <!-- http://usefulinc.com/ns/doap#implements -->
+
+    <owl:ObjectProperty rdf:about="&doap;implements"/>
+    
 
 
     <!-- rdf:li -->
 
     <owl:ObjectProperty rdf:about="rdf:li"/>
-
+    
 
 
     <!-- 
@@ -222,75 +462,20 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#revisionConstraint -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#cpuArchitecture -->
-
-    <owl:DatatypeProperty rdf:about="&swdep;cpuArchitecture">
+    <owl:DatatypeProperty rdf:about="&swdep;revisionConstraint">
         <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:domain rdf:resource="&swdep;HardwareDependency"/>
+        <rdfs:comment>
+           This is used to describe a range of Software, with specific properties.
+       </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <rdfs:domain rdf:resource="&swdep;SoftwareRange"/>
     </owl:DatatypeProperty>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#diskSpace -->
-
-    <owl:DatatypeProperty rdf:about="&swdep;diskSpace">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:domain rdf:resource="&swdep;HardwareDependency"/>
-    </owl:DatatypeProperty>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#memory -->
-
-    <owl:DatatypeProperty rdf:about="&swdep;memory">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:domain rdf:resource="&swdep;HardwareDependency"/>
-    </owl:DatatypeProperty>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#network -->
-
-    <owl:DatatypeProperty rdf:about="&swdep;network">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:domain rdf:resource="&swdep;HardwareDependency"/>
-    </owl:DatatypeProperty>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#revision -->
-
-    <owl:DatatypeProperty rdf:about="&swdep;revision">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:domain rdf:resource="&swdep;SoftwareDependency"/>
-        <rdfs:seeAlso rdf:resource="&swdep;revisionRelation"/>
-    </owl:DatatypeProperty>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#revisionRelation -->
-
-    <owl:DatatypeProperty rdf:about="&swdep;revisionRelation">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:domain rdf:resource="&swdep;SoftwareDependency"/>
-        <rdfs:seeAlso rdf:resource="&swdep;revision"/>
-    </owl:DatatypeProperty>
-
+    
 
 
     <!-- 
@@ -301,539 +486,128 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#AllOfHardware -->
 
-    <!-- http://metaservice.org/ns/AntiDependency -->
-
-    <owl:Class rdf:about="http://metaservice.org/ns/metaservice-swdep#AntiDependency">
+    <owl:Class rdf:about="&swdep;AllOfHardware">
         <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;Dependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#AbstractDependency -->
-
-    <owl:Class rdf:about="&swdep;AbstractDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;TypeDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#AnyOneOfHW -->
-
-    <owl:Class rdf:about="&swdep;AnyOneOfHW">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+        <rdfs:subClassOf rdf:resource="&swdep;Hardware"/>
         <rdfs:subClassOf rdf:resource="rdf:Alt"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="rdf:li"/>
-                <owl:someValuesFrom rdf:resource="&swdep;HW"/>
+                <owl:someValuesFrom rdf:resource="&swdep;Hardware"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#AnyOneOfSW -->
-
-    <owl:Class rdf:about="&swdep;AnyOneOfSW">
-        <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#AllOfSoftware -->
+
+    <owl:Class rdf:about="&swdep;AllOfSoftware">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&swdep;Software"/>
         <rdfs:subClassOf rdf:resource="rdf:Alt"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="rdf:li"/>
-                <owl:someValuesFrom rdf:resource="&swdep;SW"/>
+                <owl:someValuesFrom rdf:resource="&swdep;Software"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#BuildDependency -->
-
-    <owl:Class rdf:about="&swdep;BuildDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;StageDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#CompilerDependency -->
-
-    <owl:Class rdf:about="&swdep;CompilerDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;BuildDependency"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#Dependency -->
-
-    <owl:Class rdf:about="&swdep;Dependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;Relationship"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&swdep;dependOn"/>
-                <owl:someValuesFrom rdf:resource="&owl;Thing"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-
-    <owl:Class rdf:about="&swdep;BuiltUsingRelationship">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;Relationship"/>
-    </owl:Class>
-
-    <owl:Class rdf:about="&swdep;ImplementsRelationship">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;Relationship"/>
-    </owl:Class>
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#ExplicitDependency -->
-
-    <owl:Class rdf:about="&swdep;ExplicitDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;TypeDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#ForkRelationship -->
-
-    <owl:Class rdf:about="&swdep;ForkRelationship">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;Relationship"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#HW -->
-
-    <owl:Class rdf:about="&swdep;HW"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#HardwareDependency -->
-
-    <owl:Class rdf:about="&swdep;HardwareDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;Dependency"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&swdep;dependOn"/>
-                <owl:someValuesFrom rdf:resource="&swdep;HW"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#ImportanceDependency -->
-
-    <owl:Class rdf:about="&swdep;ImportanceDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;SoftwareDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#IncludedDependency -->
-
-    <owl:Class rdf:about="&swdep;IncludedDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;TypeDependency"/>
         <rdfs:comment>
-            In IncludedDependency_Relation the &quot;dependOn&quot; artifact is included in the &quot;dependencyOf&quot; artifact.
-            This is often the case with web applications, where javascript libraries are usually copy pasted.
-            ????This is usually the case when the user does not need to care about dependencies.???
-
-            Attention: It is important to remember that the artifact may or may not be monolithic during execution time.
-            As long as the &quot;dependOn&quot; artifact is !delivered! as a part of the program.
+            This is probably only useful in combination with Software, because the default semantics is already conjunctive.
         </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
     </owl:Class>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#AnyOneOfHardware -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#InterpreterDependency -->
-
-    <owl:Class rdf:about="&swdep;InterpreterDependency">
+    <owl:Class rdf:about="&swdep;AnyOneOfHardware">
         <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;RuntimeDependency"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#LinkDependency -->
-
-    <owl:Class rdf:about="&swdep;LinkDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;UsageDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#MiddlewareDependency -->
-
-    <owl:Class rdf:about="&swdep;MiddlewareDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;UsageDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#OptionalDependency -->
-
-    <owl:Class rdf:about="&swdep;OptionalDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;ImportanceDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#PluginDependency -->
-
-    <owl:Class rdf:about="&swdep;PluginDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;UsageDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#Relationship -->
-
-    <owl:Class rdf:about="&swdep;Relationship">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#RequiredDependency -->
-
-    <owl:Class rdf:about="&swdep;RequiredDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;ImportanceDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#RuntimeDependency -->
-
-    <owl:Class rdf:about="&swdep;RuntimeDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment>The &quot;dependOn&quot; artifact must be available to the execution context, such that &quot;dependencyOf&quot; can be executed.
-            &quot;dependencyOf&quot; may not provide any value to the user, if this dependency is not met.</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;StageDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#SW -->
-
-    <owl:Class rdf:about="&swdep;SW"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#SoftwareDependency -->
-
-    <owl:Class rdf:about="&swdep;SoftwareDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment>A dependency to a piece of Software.  The most generic Software Dependency Relation.
-            Its basic properties are &quot;dependencyOf&quot; and &quot;dependOn&quot;. The &quot;dependencyOf&quot; instance has some kind of dependency to the &quot;dependOn&quot; object.
-            Since Dependency_Relation is very generic usually there is a better fitting subclass to declare dependencies.</rdfs:comment>
-        <rdfs:subClassOf rdf:resource="&swdep;Dependency"/>
+        <rdfs:subClassOf rdf:resource="&swdep;Hardware"/>
+        <rdfs:subClassOf rdf:resource="rdf:Alt"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&swdep;dependOn"/>
-                <owl:someValuesFrom rdf:resource="&swdep;AnyOneOfSW"/>
+                <owl:onProperty rdf:resource="rdf:li"/>
+                <owl:someValuesFrom rdf:resource="&swdep;Hardware"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/swdep#"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#StageDependency -->
-
-    <owl:Class rdf:about="&swdep;StageDependency">
-        <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;SoftwareDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
     </owl:Class>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#AnyOneOfSoftware -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#StandaloneDependency -->
-
-    <owl:Class rdf:about="&swdep;StandaloneDependency">
+    <owl:Class rdf:about="&swdep;AnyOneOfSoftware">
         <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;UsageDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
+        <rdfs:subClassOf rdf:resource="&swdep;Software"/>
+        <rdfs:subClassOf rdf:resource="rdf:Alt"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="rdf:li"/>
+                <owl:someValuesFrom rdf:resource="&swdep;Software"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
     </owl:Class>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice-swdep#Hardware -->
 
-    <!-- http://metaservice.org/ns/metaservice-swdep#TestingDependency -->
+    <owl:Class rdf:about="&swdep;Hardware">
+        <rdfs:label>Abstract Hardware</rdfs:label>
+        <rdfs:comment>
+            A very abstract term about Hardware.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+    </owl:Class>
+    
 
-    <owl:Class rdf:about="&swdep;TestingDependency">
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#Software -->
+
+    <owl:Class rdf:about="&swdep;Software">
+        <rdfs:label>Abstract Software</rdfs:label>
+        <rdfs:comment>
+            A very abstract term about Software.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swdep#SoftwareRange -->
+
+    <owl:Class rdf:about="&swdep;SoftwareRange">
         <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;StageDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
+        <rdfs:subClassOf rdf:resource="&swdep;Software"/>
+        <rdfs:comment>
+            This is used to describe a range of Software, with specific properties.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
     </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#TypeDependency -->
-
-    <owl:Class rdf:about="&swdep;TypeDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;SoftwareDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#UsageDependency -->
-
-    <owl:Class rdf:about="&swdep;UsageDependency">
-        <rdfs:label></rdfs:label>
-        <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&swdep;"/>
-        <rdfs:subClassOf rdf:resource="&swdep;SoftwareDependency"/>
-        <rdfs:seeAlso rdf:resource="doi:10.1109/WCRE.2007.5"/>
-    </owl:Class>
+    
 
 
     <!-- rdf:Alt -->
 
     <owl:Class rdf:about="rdf:Alt"/>
-
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Individuals
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-
-
-
-    <!-- http://metaservice.org/ns/AntiDependency -->
-
-    <owl:NamedIndividual rdf:about="http://metaservice.org/ns/AntiDependency"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#BuildDependency -->
-
-    <owl:NamedIndividual rdf:about="&swdep;BuildDependency"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#BuildDependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;BuildDependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;BuildDependency"/>
-        <prv:shortcut rdf:resource="&swdep;dependBuild"/>
-        <prv:shortcut_property rdf:resource="&swdep;predicate"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-    </owl:NamedIndividual>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#DependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;DependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;SoftwareDependency"/>
-        <prv:shortcut rdf:resource="&swdep;depends"/>
-        <prv:shortcut_property rdf:resource="&swdep;predicate"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-    </owl:NamedIndividual>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#IncompatibleDependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;IncompatibleDependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="http://metaservice.org/ns/AntiDependency"/>
-        <prv:shortcut rdf:resource="&swdep;incompatible"/>
-        <prv:shortcut_property rdf:resource="&swdep;predicate"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-    </owl:NamedIndividual>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#LinkDependency -->
-
-    <owl:NamedIndividual rdf:about="&swdep;LinkDependency"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#LinkDependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;LinkDependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;LinkDependency"/>
-        <prv:shortcut rdf:resource="&swdep;links"/>
-        <prv:shortcut_property rdf:resource="&swdep;predicate"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-    </owl:NamedIndividual>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#MiddlewareDependency -->
-
-    <owl:NamedIndividual rdf:about="&swdep;MiddlewareDependency"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#MiddlewareDependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;MiddlewareDependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;MiddlewareDependency"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-        <prv:shortcut rdf:resource="&swdep;middleware"/>
-    </owl:NamedIndividual>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#OptionalDependency -->
-
-    <owl:NamedIndividual rdf:about="&swdep;OptionalDependency"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#OptionalDependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;OptionalDependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;OptionalDependency"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-        <prv:shortcut rdf:resource="&swdep;middleware"/>
-    </owl:NamedIndividual>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#RequiredDependency -->
-
-    <owl:NamedIndividual rdf:about="&swdep;RequiredDependency"/>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#RequiredReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;RequiredReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;RequiredDependency"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-        <prv:shortcut rdf:resource="&swdep;requires"/>
-    </owl:NamedIndividual>
-
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#Run-TimeDependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;Run-TimeDependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;RuntimeDependency"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-        <prv:shortcut rdf:resource="&swdep;dependsSoftwareRuntime"/>
-    </owl:NamedIndividual>
-
-
-    <!-- http://metaservice.org/ns/metaservice-swdep#SoftwareDependencyReification -->
-
-    <owl:NamedIndividual rdf:about="&swdep;SoftwareDependencyReification">
-        <rdf:type rdf:resource="&prv;PropertyReification"/>
-        <prv:reification_class rdf:resource="&swdep;SoftwareDependency"/>
-        <prv:object_property rdf:resource="&swdep;dependOn"/>
-        <prv:subject_property rdf:resource="&swdep;dependencyOf"/>
-        <prv:shortcut rdf:resource="&swdep;dependsSoftware"/>
-    </owl:NamedIndividual>
-
 </rdf:RDF>
 
 
 
-        <!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
+<!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
 

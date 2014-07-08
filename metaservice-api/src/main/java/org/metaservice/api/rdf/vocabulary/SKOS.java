@@ -1,370 +1,311 @@
 package org.metaservice.api.rdf.vocabulary;
 
-import org.openrdf.model.Namespace;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.NamespaceImpl;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.*;
+import org.openrdf.model.impl.*;
+
+
 
 /**
- * Vocabulary constants for the <a href="http://www.w3.org/2004/02/skos/">Simple
- * Knowledge Organization System (SKOS)</a>.
- * 
- * @see <a href="http://www.w3.org/TR/skos-reference/">SKOS Simple Knowledge
- *      Organization System Reference</a>
- * @author Jeen Broekstra
+ * This is an automatically generated class
+ * Generator: org.metaservice.core.OntologyToJavaConverter
+ * @see <a href="http://www.w3.org/2004/02/skos/core">skos</a>
  */
-public class SKOS {
+public class SKOS{
 
-	/**
-	 * The SKOS namespace: http://www.w3.org/2004/02/skos/core#
-	 */
-	public static final String NAMESPACE = "http://www.w3.org/2004/02/skos/core#";
+    public static final String NAMESPACE = "http://www.w3.org/2004/02/skos/core";
 
-	/**
-	 * The recommended prefix for the SKOS namespace: "skos"
-	 */
-	public static final String PREFIX = "skos";
+    public static final String PREFIX = "skos";
 
-	/**
-	 * An immutable {@link org.openrdf.model.Namespace} constant that represents the SKOS
-	 * namespace.
-	 */
-	public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
+    public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
 
-	/* classes */
+////////////////////////
+// CLASSES
+////////////////////////
 
-	/**
-	 * The skos:Concept class
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#concepts">The
-	 *      skos:Concept Class</a>
-	 */
-	public static final URI CONCEPT;
 
-	/**
-	 * The skos:ConceptScheme class
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#schemes">Concept
-	 *      Schemes</a>
-	 */
-	public static final URI CONCEPT_SCHEME;
+    /**
+     * http://www.w3.org/2004/02/skos/core#Collection<br>
+     * "Collection"<br>
+     */
+    public static final URI COLLECTION;
 
-	/**
-	 * The skos:Collection class
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#collections">Concept
-	 *      Collections</a>
-	 */
-	public static final URI COLLECTION;
 
-	/**
-	 * The skos:OrderedCollection class
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#collections">Concept
-	 *      Collections</a>
-	 */
-	public static final URI ORDERED_COLLECTION;
+    /**
+     * http://www.w3.org/2004/02/skos/core#OrderedCollection<br>
+     * "Ordered Collection"<br>
+     */
+    public static final URI ORDERED_COLLECTION;
 
-	/* lexical labels */
 
-	/**
-	 * The skos:prefLabel lexical label property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#labels">Lexical
-	 *      Labels</a>
-	 */
-	public static final URI PREF_LABEL;
+    /**
+     * http://www.w3.org/2004/02/skos/core#ConceptScheme<br>
+     * "Concept Scheme"<br>
+     */
+    public static final URI CONCEPT_SCHEME;
 
-	/**
-	 * The skos:altLabel lexical label property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#labels">Lexical
-	 *      Labels</a>
-	 */
-	public static final URI ALT_LABEL;
 
-	/**
-	 * The skos:hiddenLabel lexical label property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#labels">Lexical
-	 *      Labels</a>
-	 */
-	public static final URI HIDDEN_LABEL;
+    /**
+     * http://www.w3.org/2004/02/skos/core#Concept<br>
+     * "Concept"<br>
+     */
+    public static final URI CONCEPT;
 
-	/* Concept Scheme properties */
 
-	/**
-	 * The skos:inScheme relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#schemes">Concept
-	 *      Schemes</a>
-	 */
-	public static final URI IN_SCHEME;
+////////////////////////
+// OBJECT PROPERTIES
+////////////////////////
 
-	/**
-	 * The skos:hasTopConcept relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#schemes">Concept
-	 *      Schemes</a>
-	 */
-	public static final URI HAS_TOP_CONCEPT;
 
-	/**
-	 * The skos:topConceptOf relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#schemes">Concept
-	 *      Schemes</a>
-	 */
-	public static final URI TOP_CONCEPT_OF;
+    /**
+     * http://www.w3.org/2004/02/skos/core#narrowMatch<br>
+     * "has narrower match"<br>
+     */
+    public static final URI NARROW_MATCH;
 
-	/* collection properties */
 
-	/**
-	 * The skos:member relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#collections">Concept
-	 *      Collections</a>
-	 */
-	public static final URI MEMBER;
+    /**
+     * http://www.w3.org/2004/02/skos/core#semanticRelation<br>
+     * "is in semantic relation with"<br>
+     */
+    public static final URI SEMANTIC_RELATION;
 
-	/**
-	 * The skos:memberList relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#collections">Concept
-	 *      Collections</a>
-	 */
-	public static final URI MEMBER_LIST;
 
-	/* notation properties */
+    /**
+     * http://www.w3.org/2004/02/skos/core#broaderTransitive<br>
+     * "has broader transitive"<br>
+     */
+    public static final URI BROADER_TRANSITIVE;
 
-	/**
-	 * The skos:notation property.
-	 * 
-	 * @see <a
-	 *      href="http://www.w3.org/TR/skos-reference/#notations">Notations</a>
-	 */
-	public static final URI NOTATION;
 
-	/* documentation properties */
+    /**
+     * http://www.w3.org/2004/02/skos/core#topConceptOf<br>
+     * "is top concept in scheme"<br>
+     */
+    public static final URI TOP_CONCEPT_OF;
 
-	/**
-	 * The skos:changeNote property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#notes">Documentation
-	 *      Properties (Note Properties)</a>
-	 */
-	public static final URI CHANGE_NOTE;
 
-	/**
-	 * The skos:definition property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#notes">Documentation
-	 *      Properties (Note Properties)</a>
-	 */
-	public static final URI DEFINITION;
+    /**
+     * http://www.w3.org/2004/02/skos/core#member<br>
+     * "has member"<br>
+     */
+    public static final URI MEMBER;
 
-	/**
-	 * The skos:editorialNote property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#notes">Documentation
-	 *      Properties (Note Properties)</a>
-	 */
-	public static final URI EDITORIAL_NOTE;
 
-	/**
-	 * The skos:example property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#notes">Documentation
-	 *      Properties (Note Properties)</a>
-	 */
+    /**
+     * http://www.w3.org/2004/02/skos/core#mappingRelation<br>
+     * "is in mapping relation with"<br>
+     * These concept mapping relations mirror semantic relations, and the data model defined below is similar (with the exception of skos:exactMatch) to the data model defined for semantic relations. A distinct vocabulary is provided for concept mapping relations, to provide a convenient way to differentiate links within a concept scheme from links between concept schemes. However, this pattern of usage is not a formal requirement of the SKOS data model, and relies on informal definitions of best practice.<br>
+     */
+    public static final URI MAPPING_RELATION;
 
-	public static final URI EXAMPLE;
 
-	/**
-	 * The skos:historyNote property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#notes">Documentation
-	 *      Properties (Note Properties)</a>
-	 */
-	public static final URI HISTORY_NOTE;
+    /**
+     * http://www.w3.org/2004/02/skos/core#inScheme<br>
+     * "is in scheme"<br>
+     */
+    public static final URI IN_SCHEME;
 
-	/**
-	 * The skos:note property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#notes">Documentation
-	 *      Properties (Note Properties)</a>
-	 */
-	public static final URI NOTE;
 
-	/**
-	 * The skos:scopeNote property.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#notes">Documentation
-	 *      Properties (Note Properties)</a>
-	 */
-	public static final URI SCOPE_NOTE;
+    /**
+     * http://www.w3.org/2004/02/skos/core#related<br>
+     * "has related"<br>
+     * skos:related is disjoint with skos:broaderTransitive<br>
+     */
+    public static final URI RELATED;
 
-	/* semantic relations */
 
-	/**
-	 * The skos:broader relation.
-	 * 
-	 * @see <a
-	 *      href="http://www.w3.org/TR/skos-reference/#semantic-relations">SKOS
-	 *      Simple Knowledge Organization System Reference - Semantic Relations
-	 *      Section</a>
-	 */
-	public static final URI BROADER;
+    /**
+     * http://www.w3.org/2004/02/skos/core#broadMatch<br>
+     * "has broader match"<br>
+     */
+    public static final URI BROAD_MATCH;
 
-	/**
-	 * The skos:broaderTransitive relation.
-	 * 
-	 * @see <a
-	 *      href="http://www.w3.org/TR/skos-reference/#semantic-relations">SKOS
-	 *      Simple Knowledge Organization System Reference - Semantic Relations
-	 *      Section</a>
-	 */
-	public static final URI BROADER_TRANSITIVE;
 
-	/**
-	 * The skos:narrower relation.
-	 * 
-	 * @see <a
-	 *      href="http://www.w3.org/TR/skos-reference/#semantic-relations">SKOS
-	 *      Simple Knowledge Organization System Reference - Semantic Relations
-	 *      Section</a>
-	 */
-	public static final URI NARROWER;
+    /**
+     * http://www.w3.org/2004/02/skos/core#narrowerTransitive<br>
+     * "has narrower transitive"<br>
+     */
+    public static final URI NARROWER_TRANSITIVE;
 
-	/**
-	 * The skos:narrowerTransitive relation.
-	 * 
-	 * @see <a
-	 *      href="http://www.w3.org/TR/skos-reference/#semantic-relations">SKOS
-	 *      Simple Knowledge Organization System Reference - Semantic Relations
-	 *      Section</a>
-	 */
-	public static final URI NARROWER_TRANSITIVE;
 
-	/**
-	 * The skos:related relation.
-	 * 
-	 * @see <a
-	 *      href="http://www.w3.org/TR/skos-reference/#semantic-relations">SKOS
-	 *      Simple Knowledge Organization System Reference - Semantic Relations
-	 *      Section</a>
-	 */
-	public static final URI RELATED;
+    /**
+     * http://www.w3.org/2004/02/skos/core#hasTopConcept<br>
+     * "has top concept"<br>
+     */
+    public static final URI HAS_TOP_CONCEPT;
 
-	/**
-	 * The skos:semanticRelation relation.
-	 * 
-	 * @see <a
-	 *      href="http://www.w3.org/TR/skos-reference/#semantic-relations">SKOS
-	 *      Simple Knowledge Organization System Reference - Semantic Relations
-	 *      Section</a>
-	 */
-	public static final URI SEMANTIC_RELATION;
 
-	/* mapping properties */
+    /**
+     * http://www.w3.org/2004/02/skos/core#memberList<br>
+     * "has member list"<br>
+     * For any resource, every item in the list given as the value of the<br>
+     *       skos:memberList property is also a value of the skos:member property.<br>
+     */
+    public static final URI MEMBER_LIST;
 
-	/**
-	 * The skos:broadMatch relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#mapping">SKOS Simple
-	 *      Knowledge Organization System Reference - Mapping Properties
-	 *      Section</a>
-	 */
-	public static final URI BROAD_MATCH;
 
-	/**
-	 * The skos:closeMatch relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#mapping">SKOS Simple
-	 *      Knowledge Organization System Reference - Mapping Properties
-	 *      Section</a>
-	 */
-	public static final URI CLOSE_MATCH;
+    /**
+     * http://www.w3.org/2004/02/skos/core#narrower<br>
+     * "has narrower"<br>
+     * Narrower concepts are typically rendered as children in a concept hierarchy (tree).<br>
+     */
+    public static final URI NARROWER;
 
-	/**
-	 * The skos:exactMatch relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#mapping">SKOS Simple
-	 *      Knowledge Organization System Reference - Mapping Properties
-	 *      Section</a>
-	 */
-	public static final URI EXACT_MATCH;
 
-	/**
-	 * The skos:mappingRelation relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#mapping">SKOS Simple
-	 *      Knowledge Organization System Reference - Mapping Properties
-	 *      Section</a>
-	 */
-	public static final URI MAPPING_RELATION;
+    /**
+     * http://www.w3.org/2004/02/skos/core#broader<br>
+     * "has broader"<br>
+     * Broader concepts are typically rendered as parents in a concept hierarchy (tree).<br>
+     */
+    public static final URI BROADER;
 
-	/**
-	 * The skos:narrowMatch relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#mapping">SKOS Simple
-	 *      Knowledge Organization System Reference - Mapping Properties
-	 *      Section</a>
-	 */
-	public static final URI NARROW_MATCH;
 
-	/**
-	 * The skos:relatedMatch relation.
-	 * 
-	 * @see <a href="http://www.w3.org/TR/skos-reference/#mapping">SKOS Simple
-	 *      Knowledge Organization System Reference - Mapping Properties
-	 *      Section</a>
-	 */
-	public static final URI RELATED_MATCH;
+    /**
+     * http://www.w3.org/2004/02/skos/core#closeMatch<br>
+     * "has close match"<br>
+     */
+    public static final URI CLOSE_MATCH;
 
-	static {
-		final ValueFactory f = ValueFactoryImpl.getInstance();
 
-		CONCEPT = f.createURI(NAMESPACE, "Concept");
-		CONCEPT_SCHEME = f.createURI(NAMESPACE, "ConceptScheme");
-		COLLECTION = f.createURI(NAMESPACE, "Collection");
-		ORDERED_COLLECTION = f.createURI(NAMESPACE, "OrderedCollection");
+    /**
+     * http://www.w3.org/2004/02/skos/core#relatedMatch<br>
+     * "has related match"<br>
+     */
+    public static final URI RELATED_MATCH;
 
-		PREF_LABEL = f.createURI(NAMESPACE, "prefLabel");
-		ALT_LABEL = f.createURI(NAMESPACE, "altLabel");
 
-		BROADER = f.createURI(NAMESPACE, "broader");
-		NARROWER = f.createURI(NAMESPACE, "narrower");
+    /**
+     * http://www.w3.org/2004/02/skos/core#exactMatch<br>
+     * "has exact match"<br>
+     * skos:exactMatch is disjoint with each of the properties skos:broadMatch and skos:relatedMatch.<br>
+     */
+    public static final URI EXACT_MATCH;
 
-		HAS_TOP_CONCEPT = f.createURI(NAMESPACE, "hasTopConcept");
-		MEMBER = f.createURI(NAMESPACE, "member");
 
-		HIDDEN_LABEL = f.createURI(NAMESPACE, "hiddenLabel");
+////////////////////////
+// DATA PROPERTIES
+////////////////////////
 
-		IN_SCHEME = f.createURI(NAMESPACE, "inScheme");
 
-		TOP_CONCEPT_OF = f.createURI(NAMESPACE, "topConceptOf");
+    /**
+     * http://www.w3.org/2004/02/skos/core#notation<br>
+     * "notation"<br>
+     */
+    public static final URI NOTATION;
 
-		MEMBER_LIST = f.createURI(NAMESPACE, "memberList");
-		NOTATION = f.createURI(NAMESPACE, "notation");
-		CHANGE_NOTE = f.createURI(NAMESPACE, "changeNote");
-		DEFINITION = f.createURI(NAMESPACE, "definition");
-		EDITORIAL_NOTE = f.createURI(NAMESPACE, "editorialNote");
-		EXAMPLE = f.createURI(NAMESPACE, "example");
-		HISTORY_NOTE = f.createURI(NAMESPACE, "historyNote");
-		NOTE = f.createURI(NAMESPACE, "note");
-		SCOPE_NOTE = f.createURI(NAMESPACE, "scopeNote");
-		BROADER_TRANSITIVE = f.createURI(NAMESPACE, "broaderTransitive");
-		NARROWER_TRANSITIVE = f.createURI(NAMESPACE, "narrowerTransitive");
-		RELATED = f.createURI(NAMESPACE, "related");
-		SEMANTIC_RELATION = f.createURI(NAMESPACE, "semanticRelation");
-		BROAD_MATCH = f.createURI(NAMESPACE, "broadMatch");
-		CLOSE_MATCH = f.createURI(NAMESPACE, "closeMatch");
-		EXACT_MATCH = f.createURI(NAMESPACE, "exactMatch");
-		MAPPING_RELATION = f.createURI(NAMESPACE, "mappingRelation");
-		NARROW_MATCH = f.createURI(NAMESPACE, "narrowMatch");
-		RELATED_MATCH = f.createURI(NAMESPACE, "relatedMatch");
 
-	}
+////////////////////////
+// ANNOTATION PROPERTIES
+////////////////////////
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#scopeNote<br>
+     * "scope note"<br>
+     */
+    public static final URI SCOPE_NOTE;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#note<br>
+     * "note"<br>
+     */
+    public static final URI NOTE;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#hiddenLabel<br>
+     * "hidden label"<br>
+     * The range of skos:hiddenLabel is the class of RDF plain literals.<br>
+     */
+    public static final URI HIDDEN_LABEL;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#editorialNote<br>
+     * "editorial note"<br>
+     */
+    public static final URI EDITORIAL_NOTE;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#altLabel<br>
+     * "alternative label"<br>
+     * The range of skos:altLabel is the class of RDF plain literals.<br>
+     */
+    public static final URI ALT_LABEL;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#historyNote<br>
+     * "history note"<br>
+     */
+    public static final URI HISTORY_NOTE;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#example<br>
+     * "example"<br>
+     */
+    public static final URI EXAMPLE;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#changeNote<br>
+     * "change note"<br>
+     */
+    public static final URI CHANGE_NOTE;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#prefLabel<br>
+     * "preferred label"<br>
+     * A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag.<br>
+     */
+    public static final URI PREF_LABEL;
+
+
+    /**
+     * http://www.w3.org/2004/02/skos/core#definition<br>
+     * "definition"<br>
+     */
+    public static final URI DEFINITION;
+
+
+    static{
+        ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+
+        COLLECTION = valueFactory.createURI(NAMESPACE,"Collection");
+        ORDERED_COLLECTION = valueFactory.createURI(NAMESPACE,"OrderedCollection");
+        CONCEPT_SCHEME = valueFactory.createURI(NAMESPACE,"ConceptScheme");
+        CONCEPT = valueFactory.createURI(NAMESPACE,"Concept");
+        NARROW_MATCH = valueFactory.createURI(NAMESPACE,"narrowMatch");
+        SEMANTIC_RELATION = valueFactory.createURI(NAMESPACE,"semanticRelation");
+        BROADER_TRANSITIVE = valueFactory.createURI(NAMESPACE,"broaderTransitive");
+        TOP_CONCEPT_OF = valueFactory.createURI(NAMESPACE,"topConceptOf");
+        MEMBER = valueFactory.createURI(NAMESPACE,"member");
+        MAPPING_RELATION = valueFactory.createURI(NAMESPACE,"mappingRelation");
+        IN_SCHEME = valueFactory.createURI(NAMESPACE,"inScheme");
+        RELATED = valueFactory.createURI(NAMESPACE,"related");
+        BROAD_MATCH = valueFactory.createURI(NAMESPACE,"broadMatch");
+        NARROWER_TRANSITIVE = valueFactory.createURI(NAMESPACE,"narrowerTransitive");
+        HAS_TOP_CONCEPT = valueFactory.createURI(NAMESPACE,"hasTopConcept");
+        MEMBER_LIST = valueFactory.createURI(NAMESPACE,"memberList");
+        NARROWER = valueFactory.createURI(NAMESPACE,"narrower");
+        BROADER = valueFactory.createURI(NAMESPACE,"broader");
+        CLOSE_MATCH = valueFactory.createURI(NAMESPACE,"closeMatch");
+        RELATED_MATCH = valueFactory.createURI(NAMESPACE,"relatedMatch");
+        EXACT_MATCH = valueFactory.createURI(NAMESPACE,"exactMatch");
+        NOTATION = valueFactory.createURI(NAMESPACE,"notation");
+        SCOPE_NOTE = valueFactory.createURI(NAMESPACE,"scopeNote");
+        NOTE = valueFactory.createURI(NAMESPACE,"note");
+        HIDDEN_LABEL = valueFactory.createURI(NAMESPACE,"hiddenLabel");
+        EDITORIAL_NOTE = valueFactory.createURI(NAMESPACE,"editorialNote");
+        ALT_LABEL = valueFactory.createURI(NAMESPACE,"altLabel");
+        HISTORY_NOTE = valueFactory.createURI(NAMESPACE,"historyNote");
+        EXAMPLE = valueFactory.createURI(NAMESPACE,"example");
+        CHANGE_NOTE = valueFactory.createURI(NAMESPACE,"changeNote");
+        PREF_LABEL = valueFactory.createURI(NAMESPACE,"prefLabel");
+        DEFINITION = valueFactory.createURI(NAMESPACE,"definition");
+    }
 }

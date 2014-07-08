@@ -26,7 +26,6 @@ import org.metaservice.manager.bigdata.FastRangeCountRequestBuilder;
 import org.metaservice.manager.bigdata.MutationResult;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
@@ -43,9 +42,6 @@ import java.io.File;
 import java.io.IOException;
 
 import java.nio.file.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Calendar;
 
@@ -114,7 +110,7 @@ public class Manager {
     public void postProcessAllByClass(URI clazz) throws ManagerException {
 
         try {
-            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?x ?time { GRAPH ?c { ?x a <"+clazz+">} ?c <"+METASERVICE.TIME+"> ?time} ORDER BY  ?time");
+            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT *  WITH {SELECT DISTINCT ?x ?time { {{ GRAPH ?c { ?a ?b ?x.?x a <"+clazz+">.} } UNION { GRAPH ?c { ?x ?b ?a.?x a <"+clazz+">. }}} ?c <"+METASERVICE.TIME+"> ?time} } AS %data WHERE {INCLUDE %data} ORDER BY  ?time");
             TupleQueryResult result =tupleQuery.evaluate();
             ArrayList<PostProcessingTask> postProcessingTasks = new ArrayList<>();
             while (result.hasNext()){
@@ -124,50 +120,29 @@ public class Manager {
                 PostProcessingTask  task= new PostProcessingTask(uri,date);
                 postProcessingTasks.add(task);
             }
-            messageHandler.bulkSend(postProcessingTasks);
+            for(List<PostProcessingTask> tasks : Lists.partition(postProcessingTasks,1000)) {
+                messageHandler.bulkSend(tasks);
+            }
         } catch (RepositoryException | QueryEvaluationException | MessagingException | MalformedQueryException e) {
             throw new ManagerException(e);
         }
     }
 
-    public static void main(String[] args) {
-        System.err.println( " DELETE { GRAPH ?latestGraph { ?x ?y ?latesttime} }"+
-                " INSERT { GRAPH ?latestGraph { ?context <"+METASERVICE.LATEST+"> ?latesttime }}" +
-                "WHERE {{\n" +
-                "?context <"+METASERVICE.TIME+"> ?maxtime; <"+METASERVICE.GENERATOR+"> ?generator;\n" +
-                "<"+METASERVICE.XYZ+"> ?subject.\n" +
-                "{\n" +
-                "   SELECT (count(?c) as ?count) (max(?time) as ?maxtime) ?generator ?subject {" +
-                "       ?c <"+METASERVICE.ACTION+"> \"continuous\";" +
-                "       <" +METASERVICE.XYZ+ "> ?subject;" +
-                "       <"+METASERVICE.GENERATOR+"> ?generator;" +
-                "       <" + METASERVICE.TIME+ "> ?time." +
-                "       FILTER( ?time <= ?latesttime)"+
-                "  } group by ?subject ?generator\n" +
-                "}\n" +
-                "FILTER NOT EXISTS {\n" +
-                "    GRAPH ?context { ?foo <"+METASERVICE.DUMMY+"> <"+METASERVICE.DUMMY+">}\n" +
-                "    FILTER(?count = 1)\n" +
-                "}\n" +
-                "} UNION {"+
-                " GRAPH ?latestGraph { ?x ?y ?latesttime} " +
-                "}"+
-                "}");
-    }
 
     public void rebuildLatestCache() throws  ManagerException{
         try {
+            URI latestGraphContext = valueFactory.createURI("http://metaservice.org/t/latest");
+            repositoryConnection.clear(latestGraphContext);
             //todo replace
             Update  update  =repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,
-                " DELETE { GRAPH ?latestGraph { ?x ?y ?latesttime} }"+
                 " INSERT { GRAPH ?latestGraph { ?context <"+METASERVICE.LATEST+"> ?latesttime }}" +
                         "WHERE {{\n" +
                     "?context <"+METASERVICE.TIME+"> ?maxtime; <"+METASERVICE.GENERATOR+"> ?generator;\n" +
-                    "<"+METASERVICE.XYZ+"> ?subject.\n" +
+                    "<"+METASERVICE.SOURCE_SUBJECT +"> ?subject.\n" +
                     "{\n" +
                     "   SELECT (count(?c) as ?count) (max(?time) as ?maxtime) ?generator ?subject {" +
-                    "       ?c <"+METASERVICE.ACTION+"> \"continuous\";" +
-                    "       <" +METASERVICE.XYZ+ "> ?subject;" +
+                    "       ?c <"+METASERVICE.ACTION+"> <"+METASERVICE.ACTION_CONTINUOUS+">;" +
+                    "       <" +METASERVICE.SOURCE_SUBJECT + "> ?subject;" +
                     "       <"+METASERVICE.GENERATOR+"> ?generator;" +
                     "       <" + METASERVICE.TIME+ "> ?time." +
                     "       FILTER( ?time <= ?latesttime)"+
@@ -177,12 +152,9 @@ public class Manager {
                     "    GRAPH ?context { ?foo <"+METASERVICE.DUMMY+"> <"+METASERVICE.DUMMY+">}\n" +
                     "    FILTER(?count = 1)\n" +
                     "}\n" +
-                    "} UNION {"+
-                        " GRAPH ?latestGraph { ?x ?y ?latesttime} " +
-                     "}"+
+                    "}"+
                 "}");
-
-            update.setBinding("latestGraph",valueFactory.createURI("http://metaservice.org/t/latest"));
+            update.setBinding("latestGraph",latestGraphContext);
             Calendar calendar = DatatypeConverter.parseDateTime( "2025-01-01T00:00:00Z");
             //System.err.println(DatatypeConverter.printDateTime(calendar));
             update.setBinding("latesttime",valueFactory.createLiteral(calendar.getTime()));
@@ -396,8 +368,9 @@ public class Manager {
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
         repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.ACTION,METASERVICE.ACTION_ADD,metadata);
+        repositoryConnection.add(metadata, METASERVICE.PATH,valueFactory.createLiteral(descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata); //required to be seen as normal add operation -> add is only valid per path see sparql
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
-        repositoryConnection.add(metadata, METASERVICE.XYZ, metadata,metadata);
+        repositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, metadata,metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);
         repositoryConnection.commit();
         return metadata;

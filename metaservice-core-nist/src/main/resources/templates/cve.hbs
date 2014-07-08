@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         {{> button_controls}}
-        <h1 data-provenance="[{{ms:id}}][cve:cveId][{{cve:cveId}}]">{{cve:cveId}}</h1>
+        <h1 {{provenance . "rdfs:label"}}>{{rdfs:label}}</h1>
     </div>
 </div>
 <div class="row">
@@ -14,11 +14,11 @@
 </div>
 <div class="row">
     <div class="col-md-8">
-        <pre data-provenance="[{{ms:id}}][{cve:summary][{{cve:summary}}]">{{cve:summary}}</pre>
+        <pre {{provenance . "cve:summary"}}>{{cve:summary}}</pre>
         <h2>Affected Products</h2>
         <ul>
             {{#eachArray cve:vulnerableSoftware}}
-                <li> <a href="{{uri this}}">{{#if dc:title}}{{text dc:title}}{{else}}{{uri this}}{{/if}}</a> </li>
+                <li> <a href="{{uri this}}">{{#if rdfs:label}}{{text rdfs:label}}{{else}}{{uri this}}{{/if}}</a> </li>
             {{/eachArray}}
         </ul>
     </div>
@@ -26,11 +26,11 @@
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Dates</h4></div>
             <table class="table">
-                <tr data-provenance="[{{ms:id}}][cve:publishedDatetime][{{cve:publishedDatetime}}]"><th>Published</th><td>{{date cve:publishedDatetime}}</td></tr>
-                <tr data-provenance="[{{ms:id}}][cve:exploitPublishedDatetime][{{cve:exploitPublishedDatetime}}]"><th>Exploit Published</th><td>{{date cve:exploitPublishedDatetime}}</td></tr>
-                <tr data-provenance="[{{ms:id}}][cve:discoveredDatetime][{{cve:discoveredDatetime}}]"><th>Dicovered</th><td>{{date cve:discoveredDatetime}}</td></tr>
-                <tr data-provenance="[{{ms:id}}][cve:disclosureDatetime][{{cve:disclosureDatetime}}]"><th>Disclosured</th><td>{{date cve:disclosureDatetime}}</td></tr>
-                <tr data-provenance="[{{ms:id}}][cve:lastModifiedDatetime][{{cve:lastModifiedDatetime}}]"><th>Last Modified</th><td>{{date cve:lastModifiedDatetime}}</td></tr>
+                <tr {{provenance . "cve:publishedDatetime"}}><th>Published</th><td>{{date cve:publishedDatetime}}</td></tr>
+                <tr {{provenance . "cve:exploitPublishedDatetime"}}><th>Exploit Published</th><td>{{date cve:exploitPublishedDatetime}}</td></tr>
+                <tr {{provenance . "cve:discoveredDatetime"}}><th>Dicovered</th><td>{{date cve:discoveredDatetime}}</td></tr>
+                <tr {{provenance . "cve:disclosureDatetime"}}><th>Disclosured</th><td>{{date cve:disclosureDatetime}}</td></tr>
+                <tr {{provenance . "cve:lastModifiedDatetime"}}><th>Last Modified</th><td>{{date cve:lastModifiedDatetime}}</td></tr>
             </table>
         </div>
     </div>

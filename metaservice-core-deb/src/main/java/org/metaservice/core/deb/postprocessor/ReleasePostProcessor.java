@@ -6,15 +6,14 @@ import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
 import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
-import org.metaservice.api.rdf.vocabulary.DC;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
+import org.metaservice.api.rdf.vocabulary.DEB;
 import org.metaservice.api.sparql.buildingcontexts.DefaultSparqlQuery;
-import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by ilo on 24.02.14.
@@ -62,14 +60,14 @@ public class ReleasePostProcessor implements PostProcessor {
                                 true,
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
-                                        quadPattern(resource, PACKAGE_DEB.VERSION, version, graph2),
-                                        quadPattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName, graph2),
-                                        quadPattern(resource, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph2),
-                                        quadPattern(resource, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph2),
-                                        quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                        quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                        quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                        quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                        quadPattern(resource, DEB.VERSION, version, graph2),
+                                        quadPattern(resource, DEB.PACKAGE_NAME, packageName, graph2),
+                                        quadPattern(resource, DEB.META_DISTRIBUTION, metaDistribution, graph2),
+                                        quadPattern(resource, RDF.TYPE, DEB.PACKAGE, graph2),
+                                        quadPattern(_package, DEB.VERSION, version, graph),
+                                        quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                        quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                        quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                                 )
                                 .build();
                     }
@@ -84,11 +82,11 @@ public class ReleasePostProcessor implements PostProcessor {
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
                                         triplePattern(resource, ADMSSW.PACKAGE, _package),
-                                        triplePattern(resource, RDF.TYPE, PACKAGE_DEB.RELEASE),
-                                        quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                        quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                        quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                        quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                        triplePattern(resource, RDF.TYPE, DEB.RELEASE),
+                                        quadPattern(_package, DEB.VERSION, version, graph),
+                                        quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                        quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                        quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                                 )
                                 .build();
                     }
@@ -128,11 +126,11 @@ public class ReleasePostProcessor implements PostProcessor {
                 LOGGER.info("adding {} -> {}",packageURI,releaseURI);
                 resultConnection.add(releaseURI, ADMSSW.PACKAGE, packageURI);
             }
-            resultConnection.add(releaseURI, RDF.TYPE, PACKAGE_DEB.RELEASE);
-            resultConnection.add(releaseURI,PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral(distribution));
-            resultConnection.add(releaseURI,PACKAGE_DEB.VERSION,valueFactory.createLiteral(version));
-            resultConnection.add(releaseURI, PACKAGE_DEB.PACKAGE_NAME, valueFactory.createLiteral(project));
-            resultConnection.add(releaseURI, DC.TITLE, valueFactory.createLiteral(project +" " + version));
+            resultConnection.add(releaseURI, RDF.TYPE, DEB.RELEASE);
+            resultConnection.add(releaseURI, DEB.META_DISTRIBUTION,valueFactory.createLiteral(distribution));
+            resultConnection.add(releaseURI, DEB.VERSION,valueFactory.createLiteral(version));
+            resultConnection.add(releaseURI, DEB.PACKAGE_NAME, valueFactory.createLiteral(project));
+            resultConnection.add(releaseURI, RDFS.LABEL, valueFactory.createLiteral(project +" " + version));
         } catch (RepositoryException | QueryEvaluationException e) {
             throw new PostProcessorException(e);
         }

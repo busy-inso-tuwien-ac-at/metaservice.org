@@ -36,7 +36,7 @@ WITH {
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
         ?c <http://metaservice.org/ns/metaservice#action> ?action.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != 'continuous' )
+        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
     } GROUP BY ?s ?p ?o
 } AS %level1max
 
@@ -46,7 +46,7 @@ WITH {
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
         ?c <http://metaservice.org/ns/metaservice#action> ?action.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != 'continuous' )
+        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
     } GROUP BY ?s ?p ?o
 } AS %level2max
 
@@ -56,7 +56,7 @@ WITH {
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
         ?c <http://metaservice.org/ns/metaservice#action> ?action.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != 'continuous' )
+        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
     }GROUP BY ?s ?p ?o
 } AS %level3max
 
@@ -64,11 +64,11 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level1.
-        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
-        ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
-        ?c2 <http://metaservice.org/ns/metaservice#action> 'continuous'.
-        ?c2 <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c2 <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
         ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
@@ -79,11 +79,11 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level2.
-        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
-        ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
-        ?c2 <http://metaservice.org/ns/metaservice#action> 'continuous'.
-        ?c2 <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c2 <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
         ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
@@ -94,11 +94,11 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?c ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level3.
-        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
-        ?c <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
-        ?c2 <http://metaservice.org/ns/metaservice#action> 'continuous'.
-        ?c2 <http://metaservice.org/ns/metaservice#xyz> ?subjects.
+        ?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c2 <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
         ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
@@ -110,10 +110,10 @@ WITH {
             INCLUDE %level1.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level1max.
-            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level1.
-            ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level1maxContinuous.
         }
@@ -125,10 +125,10 @@ WITH {
             INCLUDE %level2.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level2max.
-            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level2.
-            ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level2maxContinuous.
         }
@@ -140,10 +140,10 @@ WITH {
             INCLUDE %level3.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level3max.
-            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level3.
-            ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level3maxContinuous.
         }

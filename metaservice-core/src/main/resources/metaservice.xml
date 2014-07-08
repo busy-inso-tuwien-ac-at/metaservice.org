@@ -47,6 +47,9 @@
     <ontology
             name="owl.rdf" apply="true" distribute="false"/>
     <ontology
+        name="propertyreification.rdf" apply="true" distribute="false"/>
+
+    <ontology
             name="metaservice.rdf" apply="true" distribute="true"/>
     <ontology
             name="metaservice-swdep.rdf" apply="true" distribute="true"/>

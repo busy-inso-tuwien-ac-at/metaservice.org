@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
+import org.metaservice.api.rdf.vocabulary.DEB;
 import org.metaservice.api.sparql.buildingcontexts.DefaultSparqlQuery;
 import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
@@ -49,14 +49,14 @@ public class QueryTest {
                                 true,
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
-                                        quadPattern(resource, PACKAGE_DEB.VERSION, version, graph2),
-                                        quadPattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName, graph2),
-                                        quadPattern(resource, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph2),
-                                        quadPattern(resource, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph2),
-                                        quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                        quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                        quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                        quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                        quadPattern(resource, DEB.VERSION, version, graph2),
+                                        quadPattern(resource, DEB.PACKAGE_NAME, packageName, graph2),
+                                        quadPattern(resource, DEB.META_DISTRIBUTION, metaDistribution, graph2),
+                                        quadPattern(resource, RDF.TYPE, DEB.PACKAGE, graph2),
+                                        quadPattern(_package, DEB.VERSION, version, graph),
+                                        quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                        quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                        quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                                 )
                                 .build();
                     }
@@ -71,11 +71,11 @@ public class QueryTest {
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
                                         triplePattern(resource, ADMSSW.PACKAGE, _package),
-                                        triplePattern(resource, RDF.TYPE, PACKAGE_DEB.RELEASE),
-                                        quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                        quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                        quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                        quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                        triplePattern(resource, RDF.TYPE, ADMSSW.SOFTWARE_RELEASE),
+                                        quadPattern(_package, DEB.VERSION, version, graph),
+                                        quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                        quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                        quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                                 )
                                 .build();
                     }
@@ -112,28 +112,28 @@ public class QueryTest {
                                                         select(true,var(_package),var(packageName), var(metaDistribution), var(version)
                                                         ).where(
                                                                 triplePattern(resource, ADMSSW.PACKAGE, _package),
-                                                                triplePattern(resource, RDF.TYPE, PACKAGE_DEB.RELEASE),
-                                                                quadPattern(_package, PACKAGE_DEB.VERSION, version, graph2),
-                                                                quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph2),
-                                                                quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph2),
-                                                                quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph2),
-                                                                quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                                                quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                                                quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                                                quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                                                triplePattern(resource, RDF.TYPE, ADMSSW.SOFTWARE_RELEASE),
+                                                                quadPattern(_package, DEB.VERSION, version, graph2),
+                                                                quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph2),
+                                                                quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph2),
+                                                                quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph2),
+                                                                quadPattern(_package, DEB.VERSION, version, graph),
+                                                                quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                                                quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                                                quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                                                         )
                                                 ),
                                                 graphPattern(
                                                         select(true,var(_package), var(packageName), var(metaDistribution), var(version)
                                                         ).where(
-                                                                quadPattern(resource, PACKAGE_DEB.VERSION, version, graph2),
-                                                                quadPattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName, graph2),
-                                                                quadPattern(resource, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph2),
-                                                                quadPattern(resource, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph2),
-                                                                quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                                                quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                                                quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                                                quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                                                quadPattern(resource, DEB.VERSION, version, graph2),
+                                                                quadPattern(resource, DEB.PACKAGE_NAME, packageName, graph2),
+                                                                quadPattern(resource, DEB.META_DISTRIBUTION, metaDistribution, graph2),
+                                                                quadPattern(resource, RDF.TYPE, DEB.PACKAGE, graph2),
+                                                                quadPattern(_package, DEB.VERSION, version, graph),
+                                                                quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                                                quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                                                quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                                                         )
                                                 ))
 

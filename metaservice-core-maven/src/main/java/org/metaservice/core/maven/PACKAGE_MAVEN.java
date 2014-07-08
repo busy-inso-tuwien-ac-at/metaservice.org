@@ -22,6 +22,7 @@ public class PACKAGE_MAVEN {
     public static final URI ORGANIZATION;
     public static final URI ORGANIZATION_URL;
     public static final URI CONTRIBUTOR;
+    public static final URI PARENT;
 
     public static final URI CI_MANAGEMENT_URL;
     public static final URI CI_MANAGEMENT_SYSTEM;
@@ -61,7 +62,7 @@ public class PACKAGE_MAVEN {
         ORGANIZATION_URL = factory.createURI(NAMESPACE,"organizationUrl");
         CI_MANAGEMENT_SYSTEM = factory.createURI(NAMESPACE,"ciManagementSystem");
         CI_MANAGEMENT_URL = factory.createURI(NAMESPACE,"ciManagementUrl");
-
+        PARENT = factory.createURI(NAMESPACE,"parent");
         ISSUE_MANAGEMENT_SYSTEM = factory.createURI(NAMESPACE,"issueManagementSystem");
         ISSUE_MANAGEMENT_URL = factory.createURI(NAMESPACE,"issueManagementUrl");
 

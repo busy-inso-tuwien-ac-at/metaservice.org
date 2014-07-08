@@ -35,6 +35,10 @@ public class Debug {
     public boolean isEnabled(){return enabled;}
 
     public boolean process(PostProcessingTask task){
-        return whiteList.contains(task.getChangedURI().toString());
+        for(String s: whiteList){
+            if(task.getChangedURI().toString().contains(s))
+                return true;
+        }
+        return false;
     }
 }

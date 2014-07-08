@@ -19,6 +19,8 @@ import org.metaservice.api.rdf.vocabulary.DC;
 import org.openrdf.model.*;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -29,11 +31,14 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.ntriples.NTriplesWriter;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.sail.NotifyingSail;
+import org.openrdf.sail.SailException;
+import org.openrdf.sail.inferencer.fc.CustomGraphQueryInferencer;
 import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.plaf.nimbus.State;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -151,6 +156,18 @@ public abstract  class AbstractDispatcher<T> {
         return subjects;
     }
 
+    protected  Set<URI> getURIObject(@NotNull Iterable<Statement> statements){
+        Set<URI> objects = new HashSet<>();
+        for(Statement statement : statements){
+            Value object = statement.getObject();
+            if(object instanceof  URI){
+                objects.add((URI) object);
+            }
+        }
+        return objects;
+    }
+
+
     protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @NotNull List<PostProcessingHistoryItem> oldHistory,@NotNull Date time, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,@Nullable Set<URI> affectedProcessableSubjects){
         LOGGER.debug("START NOTIFICATION OF POSTPROCESSORS");
         //todo only let postprocessing happen for date = or >
@@ -202,9 +219,13 @@ public abstract  class AbstractDispatcher<T> {
                 if(s.getPredicate().equals(RDFS.SUBPROPERTYOF) || s.getPredicate().equals(RDFS.SUBCLASSOF)){
                     undefined.add(s.getSubject());
                 }else{
+                    if(s.getSubject() instanceof BNode ||s.getObject() instanceof BNode){
+                        LOGGER.error("ATTENTION - BNodes are not supported by Metaservice, skipping statement");
+                        continue;
+                    }
                     allList.add(s);
                 }
-           }
+            }
         }
         if(undefined.size() != 0){
             //grep for logfiles:
@@ -243,7 +264,7 @@ public abstract  class AbstractDispatcher<T> {
     }
 
     protected void loadOntologies(RepositoryConnection con, List<MetaserviceDescriptor.LoadDescriptor> loadList){
-       LOGGER.info("Loading " + loadList.size() + " Ontologies");
+        LOGGER.info("Loading " + loadList.size() + " Ontologies");
         for(MetaserviceDescriptor.LoadDescriptor loadDescriptor : loadList){
             try {
                 LOGGER.info("Loading Ontology {}",loadDescriptor.getUrl());
@@ -256,14 +277,19 @@ public abstract  class AbstractDispatcher<T> {
     }
 
 
-    public static Repository createTempRepository(boolean inference) throws RepositoryException {
-        NotifyingSail sail = new MemoryStore();
-        if(inference){
-            sail = new ForwardChainingRDFSInferencer(sail);
+    public static Repository createTempRepository(boolean inference) throws MetaserviceException {
+        try {
+            NotifyingSail sail = new MemoryStore();
+            if(inference) {
+                sail = new ForwardChainingRDFSInferencer(sail);
+              //  sail = new PropertyReificationInferencer(sail); todo buggy -> endless loop
+            }
+            Repository repo = new SailRepository(sail);
+            repo.initialize();
+            return repo;
+        } catch (RepositoryException /*| SailException | MalformedQueryException*/ e) {
+            throw new MetaserviceException(e);
         }
-        Repository repo = new SailRepository(sail);
-        repo.initialize();
-        return repo;
     }
 
 }

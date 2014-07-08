@@ -2,7 +2,6 @@ package org.metaservice.api.provider;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -48,8 +47,8 @@ public abstract class AbstractProvider<T> implements Provider<T> {
             resultConnection.add(subject, predicate, valueFactory.createLiteral(object));
     }
 
-    protected void addIfNotEmpty(@NotNull RepositoryConnection resultConnection,@NotNull Resource uri,@NotNull URI relation,@NotNull BNode bNode) throws RepositoryException {
-        if(resultConnection.getStatements(bNode,null,null,false).hasNext())
-            resultConnection.add(uri,relation,bNode);
+    protected void addIfNotEmpty(@NotNull RepositoryConnection resultConnection,@NotNull Resource uri,@NotNull URI relation,@NotNull URI object) throws RepositoryException {
+        if(resultConnection.getStatements(object,null,null,false).hasNext())
+            resultConnection.add(uri,relation,object);
     }
 }

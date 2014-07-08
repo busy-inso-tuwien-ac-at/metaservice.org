@@ -2,11 +2,10 @@ package org.metaservice.api.postprocessor;
 
 import org.junit.Test;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.DEB;
 import org.metaservice.api.rdf.vocabulary.DOAP;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.sparql.nodes.Variable;
-
-import java.util.Date;
+import org.openrdf.model.vocabulary.RDFS;
 
 /**
  * Created by ilo on 06.03.14.
@@ -32,11 +31,11 @@ public class PostProcessorSparqlBuilderTest {
                         var(arch),
                         var(resource)
                 )
-                        .where(triplePattern(project, DOAP.RELEASE,release),
-                                triplePattern(release, ADMSSW.PACKAGE,resource),
-                                triplePattern(resource, PACKAGE_DEB.TITLE,title),
-                                triplePattern(resource,PACKAGE_DEB.VERSION,version),
-                                triplePattern(resource,PACKAGE_DEB.ARCHITECTURE,arch)
+                        .where(triplePattern(project, DOAP.RELEASE, release),
+                                triplePattern(release, ADMSSW.PACKAGE, resource),
+                                triplePattern(resource, RDFS.LABEL, title),
+                                triplePattern(resource, DEB.VERSION, version),
+                                triplePattern(resource, DEB.ARCHITECTURE, arch)
                         ).build();
             }
         });
@@ -89,7 +88,7 @@ public class PostProcessorSparqlBuilderTest {
                         .where(
                                 triplePattern(project, DOAP.RELEASE, release),
                                 triplePattern(release, ADMSSW.PACKAGE, _package2),
-                                triplePattern(_package2, PACKAGE_DEB.ARCHITECTURE, arch)
+                                triplePattern(_package2, DEB.ARCHITECTURE, arch)
                         )
                         .groupBy(arch)
                         .build();

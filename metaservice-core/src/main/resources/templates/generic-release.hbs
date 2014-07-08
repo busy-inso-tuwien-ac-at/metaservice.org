@@ -1,15 +1,15 @@
 <div class="row">
     <div class="col-md-12">
         {{> button_controls}}
-        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+        <h1 {{provenance . "rdfs:label"}}>{{rdfs:label}}</h1>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb">
             <li><a href="#">Generic Release</a></li>
-            <li><a href="{{admssw:project/ms:id}}">{{admssw:project/dc:title}}</a></li>
-            <li class="active"><a href="{{ms:id}}">{{doap:revision}}</a></li>
+            <li><a href="{{admssw:project/ms:id}}">{{admssw:project/rdfs:label}}</a></li>
+            <li class="active"><a href="{{ms:id}}">{{rdfs:label}}</a></li>
         </ol>
     </div>
 </div>
@@ -17,7 +17,7 @@
     <div class="col-md-8">
         <pre>{{dc:description}}</pre>
         <ul>
-            {{#eachNext admssw:package}}<li> <a href="{{ms:id}}">{{dc:title}}</a></li>{{/eachNext}}
+            {{#eachArray admssw:package}}<li> <a href="{{ms:id}}">{{rdfs:label}}</a></li>{{/eachArray}}
         </ul>
     </div>
 </div>

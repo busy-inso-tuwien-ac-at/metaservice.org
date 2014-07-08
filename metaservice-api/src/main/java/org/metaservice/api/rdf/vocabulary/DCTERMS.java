@@ -1,677 +1,836 @@
-/* 
- * Licensed to Aduna under one or more contributor license agreements.  
- * See the NOTICE.txt file distributed with this work for additional 
- * information regarding copyright ownership. 
- *
- * Aduna licenses this file to you under the terms of the Aduna BSD 
- * License (the "License"); you may not use this file except in compliance 
- * with the License. See the LICENSE.txt file distributed with this work 
- * for the full License.
- *
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions
- * and limitations under the License.
- */
 package org.metaservice.api.rdf.vocabulary;
 
-import org.openrdf.model.Namespace;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.NamespaceImpl;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.*;
+import org.openrdf.model.impl.*;
+
+
 
 /**
- * Vocabulary constants for the Dublin Core Metadata Initiative Metadata Terms.
- * 
- * @see <a href="http://dublincore.org/documents/dcmi-terms/">DCMI Metadata
- *      Terms</a>
- * @author Peter Ansell
- * @since 2.7.0
+ * This is an automatically generated class
+ * Generator: org.metaservice.core.OntologyToJavaConverter
+ * @see <a href="http://purl.org/dc/terms/">dcterms</a>
  */
-public class DCTERMS {
-
-	/**
-	 * Dublin Core Terms namespace: http://purl.org/dc/terms/
-	 */
-	public static final String NAMESPACE = "http://purl.org/dc/terms/";
-
-	/**
-	 * Recommend prefix for the Dublin Core Terms namespace: "dcterms"
-	 */
-	public static final String PREFIX = "dcterms";
-
-	/**
-	 * An immutable {@link org.openrdf.model.Namespace} constant that represents the Dublin Core
-	 * Terms namespace.
-	 */
-	public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
-
-	// ----------------------------------------
-	// Properties common to Dublin Core Elements set
-	// ----------------------------------------
-
-	/**
-	 * http://purl.org/dc/terms/contributor
-	 */
-	public static final URI CONTRIBUTOR;
-
-	/**
-	 * http://purl.org/dc/terms/coverage
-	 */
-	public static final URI COVERAGE;
-
-	/**
-	 * http://purl.org/dc/terms/creator
-	 */
-	public static final URI CREATOR;
-
-	/**
-	 * http://purl.org/dc/terms/date
-	 */
-	public static final URI DATE;
-
-	/**
-	 * http://purl.org/dc/terms/description
-	 */
-	public static final URI DESCRIPTION;
-
-	/**
-	 * http://purl.org/dc/terms/format
-	 */
-	public static final URI FORMAT;
-
-	/**
-	 * http://purl.org/dc/terms/identifier
-	 */
-	public static final URI IDENTIFIER;
-
-	/**
-	 * http://purl.org/dc/terms/language
-	 */
-	public static final URI LANGUAGE;
-
-	/**
-	 * http://purl.org/dc/terms/publisher
-	 */
-	public static final URI PUBLISHER;
-
-	/**
-	 * http://purl.org/dc/terms/relation
-	 */
-	public static final URI RELATION;
-
-	/**
-	 * http://purl.org/dc/terms/rights
-	 */
-	public static final URI RIGHTS;
-
-	/**
-	 * http://purl.org/dc/terms/source
-	 */
-	public static final URI SOURCE;
-
-	/**
-	 * http://purl.org/dc/terms/subject
-	 */
-	public static final URI SUBJECT;
-
-	/**
-	 * http://purl.org/dc/terms/title
-	 */
-	public static final URI TITLE;
-
-	/**
-	 * http://purl.org/dc/terms/type
-	 */
-	public static final URI TYPE;
-
-	// ----------------------------------------
-	// Properties unique to Dublin Core Terms set
-	// ----------------------------------------
-
-	/**
-	 * http://purl.org/dc/terms/abstract
-	 */
-	public static final URI ABSTRACT;
-
-	/**
-	 * http://purl.org/dc/terms/accessRights
-	 */
-	public static final URI ACCESS_RIGHTS;
-
-	/**
-	 * http://purl.org/dc/terms/accrualMethod
-	 */
-	public static final URI ACCRUAL_METHOD;
-
-	/**
-	 * http://purl.org/dc/terms/accrualPeriodicity
-	 */
-	public static final URI ACCRUAL_PERIODICITY;
-
-	/**
-	 * http://purl.org/dc/terms/ accrualPolicy
-	 */
-	public static final URI ACCRUAL_POLICY;
-
-	/**
-	 * http://purl.org/dc/terms/alternative
-	 */
-	public static final URI ALTERNATIVE;
-
-	/**
-	 * http://purl.org/dc/terms/audience
-	 */
-	public static final URI AUDIENCE;
-
-	/**
-	 * http://purl.org/dc/terms/available
-	 */
-	public static final URI AVAILABLE;
-
-	/**
-	 * http://purl.org/dc/terms/bibliographicCitation
-	 */
-	public static final URI BIBLIOGRAPHIC_CITATION;
-
-	/**
-	 * http://purl.org/dc/terms/conformsTo
-	 */
-	public static final URI CONFORMS_TO;
-
-	/**
-	 * http://purl.org/dc/terms/created
-	 */
-	public static final URI CREATED;
-
-	/**
-	 * http://purl.org/dc/terms/dateAccepted
-	 */
-	public static final URI DATE_ACCEPTED;
-
-	/**
-	 * http://purl.org/dc/terms/dateCopyrighted
-	 */
-	public static final URI DATE_COPYRIGHTED;
-
-	/**
-	 * http://purl.org/dc/terms/dateSubmitted
-	 */
-	public static final URI DATE_SUBMITTED;
-
-	/**
-	 * http://purl.org/dc/terms/educationLevel
-	 */
-	public static final URI EDUCATION_LEVEL;
-
-	/**
-	 * http://purl.org/dc/terms/extent
-	 */
-	public static final URI EXTENT;
-
-	/**
-	 * http://purl.org/dc/terms/hasFormat
-	 */
-	public static final URI HAS_FORMAT;
-
-	/**
-	 * http://purl.org/dc/terms/hasPart
-	 */
-	public static final URI HAS_PART;
-
-	/**
-	 * http://purl.org/dc/terms/hasVersion
-	 */
-	public static final URI HAS_VERSION;
-
-	/**
-	 * http://purl.org/dc/terms/instructionalMethod
-	 */
-	public static final URI INSTRUCTIONAL_METHOD;
-
-	/**
-	 * http://purl.org/dc/terms/isFormatOf
-	 */
-	public static final URI IS_FORMAT_OF;
-
-	/**
-	 * http://purl.org/dc/terms/isPartOf
-	 */
-	public static final URI IS_PART_OF;
-
-	/**
-	 * http://purl.org/dc/terms/isReferencedBy
-	 */
-	public static final URI IS_REFERENCED_BY;
-
-	/**
-	 * http://purl.org/dc/terms/isReplacedBy
-	 */
-	public static final URI IS_REPLACED_BY;
-
-	/**
-	 * http://purl.org/dc/terms/isRequiredBy
-	 */
-	public static final URI IS_REQUIRED_BY;
-
-	/**
-	 * http://purl.org/dc/terms/issued
-	 */
-	public static final URI ISSUED;
-
-	/**
-	 * http://purl.org/dc/terms/isVersionOf
-	 */
-	public static final URI IS_VERSION_OF;
-
-	/**
-	 * http://purl.org/dc/terms/license
-	 */
-	public static final URI LICENSE;
-
-	/**
-	 * http://purl.org/dc/terms/mediator
-	 */
-	public static final URI MEDIATOR;
-
-	/**
-	 * http://purl.org/dc/terms/medium
-	 */
-	public static final URI MEDIUM;
-
-	/**
-	 * http://purl.org/dc/terms/modified
-	 */
-	public static final URI MODIFIED;
-
-	/**
-	 * http://purl.org/dc/terms/provenance
-	 */
-	public static final URI PROVENANCE;
-
-	/**
-	 * http://purl.org/dc/terms/references
-	 */
-	public static final URI REFERENCES;
-
-	/**
-	 * http://purl.org/dc/terms/replaces
-	 */
-	public static final URI REPLACES;
-
-	/**
-	 * http://purl.org/dc/terms/requires
-	 */
-	public static final URI REQUIRES;
-
-	/**
-	 * http://purl.org/dc/terms/rightsHolder
-	 */
-	public static final URI RIGHTS_HOLDER;
-
-	/**
-	 * http://purl.org/dc/terms/spatial
-	 */
-	public static final URI SPATIAL;
-
-	/**
-	 * http://purl.org/dc/terms/tableOfContents
-	 */
-	public static final URI TABLE_OF_CONTENTS;
-
-	/**
-	 * http://purl.org/dc/terms/temporal
-	 */
-	public static final URI TEMPORAL;
-
-	/**
-	 * http://purl.org/dc/terms/valid
-	 */
-	public static final URI VALID;
-
-	// ----------------------------------------
-	// Vocabulary encoding schemes in Dublin Core Terms
-	// ----------------------------------------
-
-	/**
-	 * http://purl.org/dc/terms/DCMIType
-	 */
-	public static final URI DCMI_TYPE;
-
-	/**
-	 * http://purl.org/dc/terms/DDC
-	 */
-	public static final URI DDC;
-
-	/**
-	 * http://purl.org/dc/terms/IMT
-	 */
-	public static final URI IMT;
-
-	/**
-	 * http://purl.org/dc/terms/LCC
-	 */
-	public static final URI LCC;
-
-	/**
-	 * http://purl.org/dc/terms/LCSH
-	 */
-	public static final URI LCSH;
-
-	/**
-	 * http://purl.org/dc/terms/MESH
-	 */
-	public static final URI MESH;
-
-	/**
-	 * http://purl.org/dc/terms/NLM
-	 */
-	public static final URI NLM;
-
-	/**
-	 * http://purl.org/dc/terms/TGN
-	 */
-	public static final URI TGN;
-
-	/**
-	 * http://purl.org/dc/terms/UDC
-	 */
-	public static final URI UDC;
-
-	// ----------------------------------------
-	// Syntax encoding schemes in Dublin Core Terms
-	// ----------------------------------------
-
-	/**
-	 * http://purl.org/dc/terms/Box
-	 */
-	public static final URI BOX;
-
-	/**
-	 * http://purl.org/dc/terms/ISO3166
-	 */
-	public static final URI ISO3166;
-
-	/**
-	 * http://purl.org/dc/terms/ISO639-2
-	 */
-	public static final URI ISO639_2;
-
-	/**
-	 * http://purl.org/dc/terms/ISO639-3
-	 */
-	public static final URI ISO639_3;
-
-	/**
-	 * http://purl.org/dc/terms/Period
-	 */
-	public static final URI PERIOD;
-
-	/**
-	 * http://purl.org/dc/terms/Point
-	 */
-	public static final URI POINT;
-
-	/**
-	 * http://purl.org/dc/terms/RFC1766
-	 */
-	public static final URI RFC1766;
-
-	/**
-	 * http://purl.org/dc/terms/RFC3066
-	 */
-	public static final URI RFC3066;
-
-	/**
-	 * http://purl.org/dc/terms/RFC4646
-	 */
-	public static final URI RFC4646;
-
-	/**
-	 * http://purl.org/dc/terms/RFC5646
-	 */
-	public static final URI RFC5646;
-
-	/**
-	 * http://purl.org/dc/terms/URI
-	 */
-	public static final URI URI;
-
-	/**
-	 * http://purl.org/dc/terms/W3CDTF
-	 */
-	public static final URI W3CDTF;
-
-	// ----------------------------------------
-	// Classes in Dublin Core Terms
-	// ----------------------------------------
-
-	/**
-	 * http://purl.org/dc/terms/Agent
-	 */
-	public static final URI AGENT;
-
-	/**
-	 * http://purl.org/dc/terms/AgentClass
-	 */
-	public static final URI AGENT_CLASS;
-
-	/**
-	 * http://purl.org/dc/terms/BibliographicResource
-	 */
-	public static final URI BIBLIOGRAPHIC_RESOURCE;
-
-	/**
-	 * http://purl.org/dc/terms/FileFormat
-	 */
-	public static final URI FILE_FORMAT;
-
-	/**
-	 * http://purl.org/dc/terms/Frequency
-	 */
-	public static final URI FREQUENCY;
-
-	/**
-	 * http://purl.org/dc/terms/Jurisdiction
-	 */
-	public static final URI JURISDICTION;
-
-	/**
-	 * http://purl.org/dc/terms/LicenseDocument
-	 */
-	public static final URI LICENSE_DOCUMENT;
-
-	/**
-	 * http://purl.org/dc/terms/LinguisticSystem
-	 */
-	public static final URI LINGUISTIC_SYSTEM;
-
-	/**
-	 * http://purl.org/dc/terms/Location
-	 */
-	public static final URI LOCATION;
-
-	/**
-	 * http://purl.org/dc/terms/LocationPeriodOrJurisdiction
-	 */
-	public static final URI LOCATION_PERIOD_OR_JURISDICTION;
-
-	/**
-	 * http://purl.org/dc/terms/MediaType
-	 */
-	public static final URI MEDIA_TYPE;
-
-	/**
-	 * http://purl.org/dc/terms/MediaTypeOrExtent
-	 */
-	public static final URI MEDIA_TYPE_OR_EXTENT;
-
-	/**
-	 * http://purl.org/dc/terms/MethodOfAccrual
-	 */
-	public static final URI METHOD_OF_ACCRUAL;
-
-	/**
-	 * http://purl.org/dc/terms/MethodOfInstruction
-	 */
-	public static final URI METHOD_OF_INSTRUCTION;
-
-	/**
-	 * http://purl.org/dc/terms/PeriodOfTime
-	 */
-	public static final URI PERIOD_OF_TIME;
-
-	/**
-	 * http://purl.org/dc/terms/PhysicalMedium
-	 */
-	public static final URI PHYSICAL_MEDIUM;
-
-	/**
-	 * http://purl.org/dc/terms/PhysicalResource
-	 */
-	public static final URI PHYSICAL_RESOURCE;
-
-	/**
-	 * http://purl.org/dc/terms/Policy
-	 */
-	public static final URI POLICY;
-
-	/**
-	 * http://purl.org/dc/terms/ProvenanceStatement
-	 */
-	public static final URI PROVENANCE_STATEMENT;
-
-	/**
-	 * http://purl.org/dc/terms/RightsStatement
-	 */
-	public static final URI RIGHTS_STATEMENT;
-
-	/**
-	 * http://purl.org/dc/terms/SizeOrDuration
-	 */
-	public static final URI SIZE_OR_DURATION;
-
-	/**
-	 * http://purl.org/dc/terms/Standard
-	 */
-	public static final URI STANDARD;
-
-	// Static initializer for fields
-
-	static {
-		final ValueFactory f = ValueFactoryImpl.getInstance();
-
-		// Properties common to Dublin Core Elements
-		CONTRIBUTOR = f.createURI(NAMESPACE, "contributor");
-		COVERAGE = f.createURI(NAMESPACE, "coverage");
-		CREATOR = f.createURI(NAMESPACE, "creator");
-		DATE = f.createURI(NAMESPACE, "date");
-		DESCRIPTION = f.createURI(NAMESPACE, "description");
-		FORMAT = f.createURI(NAMESPACE, "format");
-		IDENTIFIER = f.createURI(NAMESPACE, "identifier");
-		LANGUAGE = f.createURI(NAMESPACE, "language");
-		PUBLISHER = f.createURI(NAMESPACE, "publisher");
-		RELATION = f.createURI(NAMESPACE, "relation");
-		RIGHTS = f.createURI(NAMESPACE, "rights");
-		SOURCE = f.createURI(NAMESPACE, "source");
-		SUBJECT = f.createURI(NAMESPACE, "subject");
-		TITLE = f.createURI(NAMESPACE, "title");
-		TYPE = f.createURI(NAMESPACE, "type");
-
-		// Properties unique to Dublin Core Terms
-		ABSTRACT = f.createURI(NAMESPACE, "abstract");
-		ACCESS_RIGHTS = f.createURI(NAMESPACE, "accessRights");
-		ACCRUAL_METHOD = f.createURI(NAMESPACE, "accuralMethod");
-		ACCRUAL_PERIODICITY = f.createURI(NAMESPACE, "accrualPeriodicity");
-		ACCRUAL_POLICY = f.createURI(NAMESPACE, "accrualPolicy");
-		ALTERNATIVE = f.createURI(NAMESPACE, "alternative");
-		AUDIENCE = f.createURI(NAMESPACE, "audience");
-		AVAILABLE = f.createURI(NAMESPACE, "available");
-		BIBLIOGRAPHIC_CITATION = f.createURI(NAMESPACE, "bibliographicCitation");
-		CONFORMS_TO = f.createURI(NAMESPACE, "conformsTo");
-		CREATED = f.createURI(NAMESPACE, "created");
-		DATE_ACCEPTED = f.createURI(NAMESPACE, "dateAccepted");
-		DATE_COPYRIGHTED = f.createURI(NAMESPACE, "dateCopyrighted");
-		DATE_SUBMITTED = f.createURI(NAMESPACE, "dateSubmitted");
-		EDUCATION_LEVEL = f.createURI(NAMESPACE, "educationLevel");
-		EXTENT = f.createURI(NAMESPACE, "extent");
-		HAS_FORMAT = f.createURI(NAMESPACE, "hasFormat");
-		HAS_PART = f.createURI(NAMESPACE, "hasPart");
-		HAS_VERSION = f.createURI(NAMESPACE, "hasVersion");
-		INSTRUCTIONAL_METHOD = f.createURI(NAMESPACE, "instructionalMethod");
-		IS_FORMAT_OF = f.createURI(NAMESPACE, "isFormatOf");
-		IS_PART_OF = f.createURI(NAMESPACE, "isPartOf");
-		IS_REFERENCED_BY = f.createURI(NAMESPACE, "isReferencedBy");
-		IS_REPLACED_BY = f.createURI(NAMESPACE, "isReplacedBy");
-		IS_REQUIRED_BY = f.createURI(NAMESPACE, "isRequiredBy");
-		IS_VERSION_OF = f.createURI(NAMESPACE, "isVersionOf");
-		ISSUED = f.createURI(NAMESPACE, "issued");
-		LICENSE = f.createURI(NAMESPACE, "license");
-		MEDIATOR = f.createURI(NAMESPACE, "mediator");
-		MEDIUM = f.createURI(NAMESPACE, "medium");
-		MODIFIED = f.createURI(NAMESPACE, "modified");
-		PROVENANCE = f.createURI(NAMESPACE, "provenance");
-		REFERENCES = f.createURI(NAMESPACE, "references");
-		REPLACES = f.createURI(NAMESPACE, "replaces");
-		REQUIRES = f.createURI(NAMESPACE, "requires");
-		RIGHTS_HOLDER = f.createURI(NAMESPACE, "rightsHolder");
-		SPATIAL = f.createURI(NAMESPACE, "spatial");
-		TABLE_OF_CONTENTS = f.createURI(NAMESPACE, "tableOfContents");
-		TEMPORAL = f.createURI(NAMESPACE, "temporal");
-		VALID = f.createURI(NAMESPACE, "valid");
-
-		// Vocabulary encoding schemes in Dublin Core Terms
-
-		DCMI_TYPE = f.createURI(NAMESPACE, "DCMIType");
-		DDC = f.createURI(NAMESPACE, "DDC");
-		IMT = f.createURI(NAMESPACE, "IMT");
-		LCC = f.createURI(NAMESPACE, "LCC");
-		LCSH = f.createURI(NAMESPACE, "LCSH");
-		MESH = f.createURI(NAMESPACE, "MESH");
-		NLM = f.createURI(NAMESPACE, "NLM");
-		TGN = f.createURI(NAMESPACE, "TGN");
-		UDC = f.createURI(NAMESPACE, "UDC");
-
-		// Syntax encoding schemes in Dublin Core Terms
-
-		BOX = f.createURI(NAMESPACE, "Box");
-		ISO3166 = f.createURI(NAMESPACE, "ISO3166");
-		ISO639_2 = f.createURI(NAMESPACE, "ISO639-2");
-		ISO639_3 = f.createURI(NAMESPACE, "ISO639-3");
-		PERIOD = f.createURI(NAMESPACE, "Period");
-		POINT = f.createURI(NAMESPACE, "Point");
-		RFC1766 = f.createURI(NAMESPACE, "RFC1766");
-		RFC3066 = f.createURI(NAMESPACE, "RFC3066");
-		RFC4646 = f.createURI(NAMESPACE, "RFC4646");
-		RFC5646 = f.createURI(NAMESPACE, "RFC5646");
-		URI = f.createURI(NAMESPACE, "URI");
-		W3CDTF = f.createURI(NAMESPACE, "W3CDTF");
-
-		// Classes in Dublin Core Terms
-
-		AGENT = f.createURI(NAMESPACE, "Agent");
-		AGENT_CLASS = f.createURI(NAMESPACE, "AgentClass");
-		BIBLIOGRAPHIC_RESOURCE = f.createURI(NAMESPACE, "BibliographicResource");
-		FILE_FORMAT = f.createURI(NAMESPACE, "FileFormat");
-		FREQUENCY = f.createURI(NAMESPACE, "Frequency");
-		JURISDICTION = f.createURI(NAMESPACE, "Jurisdiction");
-		LICENSE_DOCUMENT = f.createURI(NAMESPACE, "LicenseDocument");
-		LINGUISTIC_SYSTEM = f.createURI(NAMESPACE, "LinguisticSystem");
-		LOCATION = f.createURI(NAMESPACE, "Location");
-		LOCATION_PERIOD_OR_JURISDICTION = f.createURI(NAMESPACE, "LocationPeriodOrJurisdiction");
-		MEDIA_TYPE = f.createURI(NAMESPACE, "MediaType");
-		MEDIA_TYPE_OR_EXTENT = f.createURI(NAMESPACE, "MediaTypeOrExtent");
-		METHOD_OF_ACCRUAL = f.createURI(NAMESPACE, "MethodOfAccrual");
-		METHOD_OF_INSTRUCTION = f.createURI(NAMESPACE, "MethodOfInstruction");
-		PERIOD_OF_TIME = f.createURI(NAMESPACE, "PeriodOfTime");
-		PHYSICAL_MEDIUM = f.createURI(NAMESPACE, "PhysicalMedium");
-		PHYSICAL_RESOURCE = f.createURI(NAMESPACE, "PhysicalResource");
-		POLICY = f.createURI(NAMESPACE, "Policy");
-		PROVENANCE_STATEMENT = f.createURI(NAMESPACE, "ProvenanceStatement");
-		RIGHTS_STATEMENT = f.createURI(NAMESPACE, "RightsStatement");
-		SIZE_OR_DURATION = f.createURI(NAMESPACE, "SizeOrDuration");
-		STANDARD = f.createURI(NAMESPACE, "Standard");
-	}
+public class DCTERMS{
+
+    public static final String NAMESPACE = "http://purl.org/dc/terms/";
+
+    public static final String PREFIX = "dcterms";
+
+    public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
+
+////////////////////////
+// CLASSES
+////////////////////////
+
+
+    /**
+     * http://purl.org/dc/terms/URI<br>
+     * "URI"<br>
+     * The set of identifiers constructed according to the generic syntax for Uniform Resource Identifiers as specified by the Internet Engineering Task Force.<br>
+     */
+    public static final URI URI;
+
+
+    /**
+     * http://purl.org/dc/terms/PeriodOfTime<br>
+     * "Period of Time"<br>
+     * An interval of time that is named or defined by its start and end dates.<br>
+     */
+    public static final URI PERIOD_OF_TIME;
+
+
+    /**
+     * http://purl.org/dc/terms/MediaTypeOrExtent<br>
+     * "Media Type or Extent"<br>
+     * A media type or extent.<br>
+     */
+    public static final URI MEDIA_TYPE_OR_EXTENT;
+
+
+    /**
+     * http://purl.org/dc/terms/ProvenanceStatement<br>
+     * "Provenance Statement"<br>
+     * A statement of any changes in ownership and custody of a resource since its creation that are significant for its authenticity, integrity, and interpretation.<br>
+     */
+    public static final URI PROVENANCE_STATEMENT;
+
+
+    /**
+     * http://purl.org/dc/terms/AgentClass<br>
+     * "Agent Class"<br>
+     * A group of agents.<br>
+     */
+    public static final URI AGENT_CLASS;
+
+
+    /**
+     * http://purl.org/dc/terms/Point<br>
+     * "DCMI Point"<br>
+     * The set of points in space defined by their geographic coordinates according to the DCMI Point Encoding Scheme.<br>
+     */
+    public static final URI POINT;
+
+
+    /**
+     * http://purl.org/dc/terms/Frequency<br>
+     * "Frequency"<br>
+     * A rate at which something recurs.<br>
+     */
+    public static final URI FREQUENCY;
+
+
+    /**
+     * http://purl.org/dc/terms/SizeOrDuration<br>
+     * "Size or Duration"<br>
+     * A dimension or extent, or a time taken to play or execute.<br>
+     */
+    public static final URI SIZE_OR_DURATION;
+
+
+    /**
+     * http://purl.org/dc/terms/W3CDTF<br>
+     * "W3C-DTF"<br>
+     * The set of dates and times constructed according to the W3C Date and Time Formats Specification.<br>
+     */
+    public static final URI W3_CDTF;
+
+
+    /**
+     * http://purl.org/dc/terms/PhysicalResource<br>
+     * "Physical Resource"<br>
+     * A material thing.<br>
+     */
+    public static final URI PHYSICAL_RESOURCE;
+
+
+    /**
+     * http://purl.org/dc/terms/ISO639-3<br>
+     * "ISO 639-3"<br>
+     * The set of three-letter codes listed in ISO 639-3 for the representation of names of languages.<br>
+     */
+    public static final URI ISO639_3;
+
+
+    /**
+     * http://purl.org/dc/terms/ISO639-2<br>
+     * "ISO 639-2"<br>
+     * The three-letter alphabetic codes listed in ISO639-2 for the representation of names of languages.<br>
+     */
+    public static final URI ISO639_2;
+
+
+    /**
+     * http://purl.org/dc/terms/Box<br>
+     * "DCMI Box"<br>
+     * The set of regions in space defined by their geographic coordinates according to the DCMI Box Encoding Scheme.<br>
+     */
+    public static final URI BOX;
+
+
+    /**
+     * http://purl.org/dc/terms/Standard<br>
+     * "Standard"<br>
+     * A basis for comparison; a reference point against which other things can be evaluated.<br>
+     */
+    public static final URI STANDARD;
+
+
+    /**
+     * http://purl.org/dc/terms/Period<br>
+     * "DCMI Period"<br>
+     * The set of time intervals defined by their limits according to the DCMI Period Encoding Scheme.<br>
+     */
+    public static final URI PERIOD;
+
+
+    /**
+     * http://purl.org/dc/terms/Policy<br>
+     * "Policy"<br>
+     * A plan or course of action by an authority, intended to influence and determine decisions, actions, and other matters.<br>
+     */
+    public static final URI POLICY;
+
+
+    /**
+     * http://purl.org/dc/terms/Location<br>
+     * "Location"<br>
+     * A spatial region or named place.<br>
+     */
+    public static final URI LOCATION;
+
+
+    /**
+     * http://purl.org/dc/terms/RFC3066<br>
+     * "RFC 3066"<br>
+     * The set of tags constructed according to RFC 3066 for the identification of languages.<br>
+     */
+    public static final URI RFC3066;
+
+
+    /**
+     * http://purl.org/dc/terms/Agent<br>
+     * "Agent"<br>
+     * A resource that acts or has the power to act.<br>
+     */
+    public static final URI AGENT;
+
+
+    /**
+     * http://purl.org/dc/terms/LinguisticSystem<br>
+     * "Linguistic System"<br>
+     * A system of signs, symbols, sounds, gestures, or rules used in communication.<br>
+     */
+    public static final URI LINGUISTIC_SYSTEM;
+
+
+    /**
+     * http://purl.org/dc/terms/RightsStatement<br>
+     * "Rights Statement"<br>
+     * A statement about the intellectual property rights (IPR) held in or over a Resource, a legal document giving official permission to do something with a resource, or a statement about access rights.<br>
+     */
+    public static final URI RIGHTS_STATEMENT;
+
+
+    /**
+     * http://purl.org/dc/terms/BibliographicResource<br>
+     * "Bibliographic Resource"<br>
+     * A book, article, or other documentary resource.<br>
+     */
+    public static final URI BIBLIOGRAPHIC_RESOURCE;
+
+
+    /**
+     * http://purl.org/dc/terms/FileFormat<br>
+     * "File Format"<br>
+     * A digital resource format.<br>
+     */
+    public static final URI FILE_FORMAT;
+
+
+    /**
+     * http://purl.org/dc/terms/LicenseDocument<br>
+     * "License Document"<br>
+     * A legal document giving official permission to do something with a Resource.<br>
+     */
+    public static final URI LICENSE_DOCUMENT;
+
+
+    /**
+     * http://purl.org/dc/terms/ISO3166<br>
+     * "ISO 3166"<br>
+     * The set of codes listed in ISO 3166-1 for the representation of names of countries.<br>
+     */
+    public static final URI ISO3166;
+
+
+    /**
+     * http://purl.org/dc/terms/PhysicalMedium<br>
+     * "Physical Medium"<br>
+     * A physical material or carrier.<br>
+     */
+    public static final URI PHYSICAL_MEDIUM;
+
+
+    /**
+     * http://purl.org/dc/terms/RFC1766<br>
+     * "RFC 1766"<br>
+     * The set of tags, constructed according to RFC 1766, for the identification of languages.<br>
+     */
+    public static final URI RFC1766;
+
+
+    /**
+     * http://purl.org/dc/terms/LocationPeriodOrJurisdiction<br>
+     * "Location, Period, or Jurisdiction"<br>
+     * A location, period of time, or jurisdiction.<br>
+     */
+    public static final URI LOCATION_PERIOD_OR_JURISDICTION;
+
+
+    /**
+     * http://purl.org/dc/terms/Jurisdiction<br>
+     * "Jurisdiction"<br>
+     * The extent or range of judicial, law enforcement, or other authority.<br>
+     */
+    public static final URI JURISDICTION;
+
+
+    /**
+     * http://purl.org/dc/terms/MethodOfInstruction<br>
+     * "Method of Instruction"<br>
+     * A process that is used to engender knowledge, attitudes, and skills.<br>
+     */
+    public static final URI METHOD_OF_INSTRUCTION;
+
+
+    /**
+     * http://purl.org/dc/terms/MethodOfAccrual<br>
+     * "Method of Accrual"<br>
+     * A method by which resources are added to a collection.<br>
+     */
+    public static final URI METHOD_OF_ACCRUAL;
+
+
+    /**
+     * http://purl.org/dc/terms/MediaType<br>
+     * "Media Type"<br>
+     * A file format or physical medium.<br>
+     */
+    public static final URI MEDIA_TYPE;
+
+
+    /**
+     * http://purl.org/dc/terms/RFC5646<br>
+     * "RFC 5646"<br>
+     * The set of tags constructed according to RFC 5646 for the identification of languages.<br>
+     */
+    public static final URI RFC5646;
+
+
+    /**
+     * http://purl.org/dc/terms/RFC4646<br>
+     * "RFC 4646"<br>
+     * The set of tags constructed according to RFC 4646 for the identification of languages.<br>
+     */
+    public static final URI RFC4646;
+
+
+////////////////////////
+// PROPERTIES
+////////////////////////
+
+
+    /**
+     * http://purl.org/dc/terms/language<br>
+     * "Language"<br>
+     * A language of the resource.<br>
+     */
+    public static final URI LANGUAGE;
+
+
+    /**
+     * http://purl.org/dc/terms/medium<br>
+     * "Medium"<br>
+     * The material or physical carrier of the resource.<br>
+     */
+    public static final URI MEDIUM;
+
+
+    /**
+     * http://purl.org/dc/terms/dateCopyrighted<br>
+     * "Date Copyrighted"<br>
+     * Date of copyright.<br>
+     */
+    public static final URI DATE_COPYRIGHTED;
+
+
+    /**
+     * http://purl.org/dc/terms/mediator<br>
+     * "Mediator"<br>
+     * An entity that mediates access to the resource and for whom the resource is intended or useful.<br>
+     */
+    public static final URI MEDIATOR;
+
+
+    /**
+     * http://purl.org/dc/terms/accessRights<br>
+     * "Access Rights"<br>
+     * Information about who can access the resource or an indication of its security status.<br>
+     */
+    public static final URI ACCESS_RIGHTS;
+
+
+    /**
+     * http://purl.org/dc/terms/hasVersion<br>
+     * "Has Version"<br>
+     * A related resource that is a version, edition, or adaptation of the described resource.<br>
+     */
+    public static final URI HAS_VERSION;
+
+
+    /**
+     * http://purl.org/dc/terms/date<br>
+     * "Date"<br>
+     * A point or period of time associated with an event in the lifecycle of the resource.<br>
+     */
+    public static final URI DATE;
+
+
+    /**
+     * http://purl.org/dc/terms/relation<br>
+     * "Relation"<br>
+     * A related resource.<br>
+     */
+    public static final URI RELATION;
+
+
+    /**
+     * http://purl.org/dc/terms/requires<br>
+     * "Requires"<br>
+     * A related resource that is required by the described resource to support its function, delivery, or coherence.<br>
+     */
+    public static final URI REQUIRES;
+
+
+    /**
+     * http://purl.org/dc/terms/instructionalMethod<br>
+     * "Instructional Method"<br>
+     * A process, used to engender knowledge, attitudes and skills, that the described resource is designed to support.<br>
+     */
+    public static final URI INSTRUCTIONAL_METHOD;
+
+
+    /**
+     * http://purl.org/dc/terms/available<br>
+     * "Date Available"<br>
+     * Date (often a range) that the resource became or will become available.<br>
+     */
+    public static final URI AVAILABLE;
+
+
+    /**
+     * http://purl.org/dc/terms/references<br>
+     * "References"<br>
+     * A related resource that is referenced, cited, or otherwise pointed to by the described resource.<br>
+     */
+    public static final URI REFERENCES;
+
+
+    /**
+     * http://purl.org/dc/terms/created<br>
+     * "Date Created"<br>
+     * Date of creation of the resource.<br>
+     */
+    public static final URI CREATED;
+
+
+    /**
+     * http://purl.org/dc/terms/isFormatOf<br>
+     * "Is Format Of"<br>
+     * A related resource that is substantially the same as the described resource, but in another format.<br>
+     */
+    public static final URI IS_FORMAT_OF;
+
+
+    /**
+     * http://purl.org/dc/terms/identifier<br>
+     * "Identifier"<br>
+     * An unambiguous reference to the resource within a given context.<br>
+     */
+    public static final URI IDENTIFIER;
+
+
+    /**
+     * http://purl.org/dc/terms/accrualMethod<br>
+     * "Accrual Method"<br>
+     * The method by which items are added to a collection.<br>
+     */
+    public static final URI ACCRUAL_METHOD;
+
+
+    /**
+     * http://purl.org/dc/terms/replaces<br>
+     * "Replaces"<br>
+     * A related resource that is supplanted, displaced, or superseded by the described resource.<br>
+     */
+    public static final URI REPLACES;
+
+
+    /**
+     * http://purl.org/dc/terms/rights<br>
+     * "Rights"<br>
+     * Information about rights held in and over the resource.<br>
+     */
+    public static final URI RIGHTS;
+
+
+    /**
+     * http://purl.org/dc/terms/modified<br>
+     * "Date Modified"<br>
+     * Date on which the resource was changed.<br>
+     */
+    public static final URI MODIFIED;
+
+
+    /**
+     * http://purl.org/dc/terms/issued<br>
+     * "Date Issued"<br>
+     * Date of formal issuance (e.g., publication) of the resource.<br>
+     */
+    public static final URI ISSUED;
+
+
+    /**
+     * http://purl.org/dc/terms/description<br>
+     * "Description"<br>
+     * An account of the resource.<br>
+     */
+    public static final URI DESCRIPTION;
+
+
+    /**
+     * http://purl.org/dc/terms/accrualPeriodicity<br>
+     * "Accrual Periodicity"<br>
+     * The frequency with which items are added to a collection.<br>
+     */
+    public static final URI ACCRUAL_PERIODICITY;
+
+
+    /**
+     * http://purl.org/dc/terms/type<br>
+     * "Type"<br>
+     * The nature or genre of the resource.<br>
+     */
+    public static final URI TYPE;
+
+
+    /**
+     * http://purl.org/dc/terms/isVersionOf<br>
+     * "Is Version Of"<br>
+     * A related resource of which the described resource is a version, edition, or adaptation.<br>
+     */
+    public static final URI IS_VERSION_OF;
+
+
+    /**
+     * http://purl.org/dc/terms/audience<br>
+     * "Audience"<br>
+     * A class of entity for whom the resource is intended or useful.<br>
+     */
+    public static final URI AUDIENCE;
+
+
+    /**
+     * http://purl.org/dc/terms/title<br>
+     * "Title"<br>
+     * A name given to the resource.<br>
+     */
+    public static final URI TITLE;
+
+
+    /**
+     * http://purl.org/dc/terms/bibliographicCitation<br>
+     * "Bibliographic Citation"<br>
+     * A bibliographic reference for the resource.<br>
+     */
+    public static final URI BIBLIOGRAPHIC_CITATION;
+
+
+    /**
+     * http://purl.org/dc/terms/dateAccepted<br>
+     * "Date Accepted"<br>
+     * Date of acceptance of the resource.<br>
+     */
+    public static final URI DATE_ACCEPTED;
+
+
+    /**
+     * http://purl.org/dc/terms/coverage<br>
+     * "Coverage"<br>
+     * The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant.<br>
+     */
+    public static final URI COVERAGE;
+
+
+    /**
+     * http://purl.org/dc/terms/educationLevel<br>
+     * "Audience Education Level"<br>
+     * A class of entity, defined in terms of progression through an educational or training context, for which the described resource is intended.<br>
+     */
+    public static final URI EDUCATION_LEVEL;
+
+
+    /**
+     * http://purl.org/dc/terms/format<br>
+     * "Format"<br>
+     * The file format, physical medium, or dimensions of the resource.<br>
+     */
+    public static final URI FORMAT;
+
+
+    /**
+     * http://purl.org/dc/terms/alternative<br>
+     * "Alternative Title"<br>
+     * An alternative name for the resource.<br>
+     */
+    public static final URI ALTERNATIVE;
+
+
+    /**
+     * http://purl.org/dc/terms/valid<br>
+     * "Date Valid"<br>
+     * Date (often a range) of validity of a resource.<br>
+     */
+    public static final URI VALID;
+
+
+    /**
+     * http://purl.org/dc/terms/creator<br>
+     * "Creator"<br>
+     * An entity primarily responsible for making the resource.<br>
+     */
+    public static final URI CREATOR;
+
+
+    /**
+     * http://purl.org/dc/terms/source<br>
+     * "Source"<br>
+     * A related resource from which the described resource is derived.<br>
+     */
+    public static final URI SOURCE;
+
+
+    /**
+     * http://purl.org/dc/terms/hasPart<br>
+     * "Has Part"<br>
+     * A related resource that is included either physically or logically in the described resource.<br>
+     */
+    public static final URI HAS_PART;
+
+
+    /**
+     * http://purl.org/dc/terms/provenance<br>
+     * "Provenance"<br>
+     * A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity, and interpretation.<br>
+     */
+    public static final URI PROVENANCE;
+
+
+    /**
+     * http://purl.org/dc/terms/dateSubmitted<br>
+     * "Date Submitted"<br>
+     * Date of submission of the resource.<br>
+     */
+    public static final URI DATE_SUBMITTED;
+
+
+    /**
+     * http://purl.org/dc/terms/abstract<br>
+     * "Abstract"<br>
+     * A summary of the resource.<br>
+     */
+    public static final URI ABSTRACT;
+
+
+    /**
+     * http://purl.org/dc/terms/isReferencedBy<br>
+     * "Is Referenced By"<br>
+     * A related resource that references, cites, or otherwise points to the described resource.<br>
+     */
+    public static final URI IS_REFERENCED_BY;
+
+
+    /**
+     * http://purl.org/dc/terms/license<br>
+     * "License"<br>
+     * A legal document giving official permission to do something with the resource.<br>
+     */
+    public static final URI LICENSE;
+
+
+    /**
+     * http://purl.org/dc/terms/accrualPolicy<br>
+     * "Accrual Policy"<br>
+     * The policy governing the addition of items to a collection.<br>
+     */
+    public static final URI ACCRUAL_POLICY;
+
+
+    /**
+     * http://purl.org/dc/terms/subject<br>
+     * "Subject"<br>
+     * The topic of the resource.<br>
+     */
+    public static final URI SUBJECT;
+
+
+    /**
+     * http://purl.org/dc/terms/conformsTo<br>
+     * "Conforms To"<br>
+     * An established standard to which the described resource conforms.<br>
+     */
+    public static final URI CONFORMS_TO;
+
+
+    /**
+     * http://purl.org/dc/terms/spatial<br>
+     * "Spatial Coverage"<br>
+     * Spatial characteristics of the resource.<br>
+     */
+    public static final URI SPATIAL;
+
+
+    /**
+     * http://purl.org/dc/terms/isReplacedBy<br>
+     * "Is Replaced By"<br>
+     * A related resource that supplants, displaces, or supersedes the described resource.<br>
+     */
+    public static final URI IS_REPLACED_BY;
+
+
+    /**
+     * http://purl.org/dc/terms/publisher<br>
+     * "Publisher"<br>
+     * An entity responsible for making the resource available.<br>
+     */
+    public static final URI PUBLISHER;
+
+
+    /**
+     * http://purl.org/dc/terms/tableOfContents<br>
+     * "Table Of Contents"<br>
+     * A list of subunits of the resource.<br>
+     */
+    public static final URI TABLE_OF_CONTENTS;
+
+
+    /**
+     * http://purl.org/dc/terms/hasFormat<br>
+     * "Has Format"<br>
+     * A related resource that is substantially the same as the pre-existing described resource, but in another format.<br>
+     */
+    public static final URI HAS_FORMAT;
+
+
+    /**
+     * http://purl.org/dc/terms/rightsHolder<br>
+     * "Rights Holder"<br>
+     * A person or organization owning or managing rights over the resource.<br>
+     */
+    public static final URI RIGHTS_HOLDER;
+
+
+    /**
+     * http://purl.org/dc/terms/contributor<br>
+     * "Contributor"<br>
+     * An entity responsible for making contributions to the resource.<br>
+     */
+    public static final URI CONTRIBUTOR;
+
+
+    /**
+     * http://purl.org/dc/terms/isRequiredBy<br>
+     * "Is Required By"<br>
+     * A related resource that requires the described resource to support its function, delivery, or coherence.<br>
+     */
+    public static final URI IS_REQUIRED_BY;
+
+
+    /**
+     * http://purl.org/dc/terms/isPartOf<br>
+     * "Is Part Of"<br>
+     * A related resource in which the described resource is physically or logically included.<br>
+     */
+    public static final URI IS_PART_OF;
+
+
+    /**
+     * http://purl.org/dc/terms/extent<br>
+     * "Extent"<br>
+     * The size or duration of the resource.<br>
+     */
+    public static final URI EXTENT;
+
+
+    /**
+     * http://purl.org/dc/terms/temporal<br>
+     * "Temporal Coverage"<br>
+     * Temporal characteristics of the resource.<br>
+     */
+    public static final URI TEMPORAL;
+
+
+    static{
+        ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+
+        URI = valueFactory.createURI(NAMESPACE,"URI");
+        PERIOD_OF_TIME = valueFactory.createURI(NAMESPACE,"PeriodOfTime");
+        MEDIA_TYPE_OR_EXTENT = valueFactory.createURI(NAMESPACE,"MediaTypeOrExtent");
+        PROVENANCE_STATEMENT = valueFactory.createURI(NAMESPACE,"ProvenanceStatement");
+        AGENT_CLASS = valueFactory.createURI(NAMESPACE,"AgentClass");
+        POINT = valueFactory.createURI(NAMESPACE,"Point");
+        FREQUENCY = valueFactory.createURI(NAMESPACE,"Frequency");
+        SIZE_OR_DURATION = valueFactory.createURI(NAMESPACE,"SizeOrDuration");
+        W3_CDTF = valueFactory.createURI(NAMESPACE,"W3CDTF");
+        PHYSICAL_RESOURCE = valueFactory.createURI(NAMESPACE,"PhysicalResource");
+        ISO639_3 = valueFactory.createURI(NAMESPACE,"ISO639-3");
+        ISO639_2 = valueFactory.createURI(NAMESPACE,"ISO639-2");
+        BOX = valueFactory.createURI(NAMESPACE,"Box");
+        STANDARD = valueFactory.createURI(NAMESPACE,"Standard");
+        PERIOD = valueFactory.createURI(NAMESPACE,"Period");
+        POLICY = valueFactory.createURI(NAMESPACE,"Policy");
+        LOCATION = valueFactory.createURI(NAMESPACE,"Location");
+        RFC3066 = valueFactory.createURI(NAMESPACE,"RFC3066");
+        AGENT = valueFactory.createURI(NAMESPACE,"Agent");
+        LINGUISTIC_SYSTEM = valueFactory.createURI(NAMESPACE,"LinguisticSystem");
+        RIGHTS_STATEMENT = valueFactory.createURI(NAMESPACE,"RightsStatement");
+        BIBLIOGRAPHIC_RESOURCE = valueFactory.createURI(NAMESPACE,"BibliographicResource");
+        FILE_FORMAT = valueFactory.createURI(NAMESPACE,"FileFormat");
+        LICENSE_DOCUMENT = valueFactory.createURI(NAMESPACE,"LicenseDocument");
+        ISO3166 = valueFactory.createURI(NAMESPACE,"ISO3166");
+        PHYSICAL_MEDIUM = valueFactory.createURI(NAMESPACE,"PhysicalMedium");
+        RFC1766 = valueFactory.createURI(NAMESPACE,"RFC1766");
+        LOCATION_PERIOD_OR_JURISDICTION = valueFactory.createURI(NAMESPACE,"LocationPeriodOrJurisdiction");
+        JURISDICTION = valueFactory.createURI(NAMESPACE,"Jurisdiction");
+        METHOD_OF_INSTRUCTION = valueFactory.createURI(NAMESPACE,"MethodOfInstruction");
+        METHOD_OF_ACCRUAL = valueFactory.createURI(NAMESPACE,"MethodOfAccrual");
+        MEDIA_TYPE = valueFactory.createURI(NAMESPACE,"MediaType");
+        RFC5646 = valueFactory.createURI(NAMESPACE,"RFC5646");
+        RFC4646 = valueFactory.createURI(NAMESPACE,"RFC4646");
+        LANGUAGE = valueFactory.createURI(NAMESPACE,"language");
+        MEDIUM = valueFactory.createURI(NAMESPACE,"medium");
+        DATE_COPYRIGHTED = valueFactory.createURI(NAMESPACE,"dateCopyrighted");
+        MEDIATOR = valueFactory.createURI(NAMESPACE,"mediator");
+        ACCESS_RIGHTS = valueFactory.createURI(NAMESPACE,"accessRights");
+        HAS_VERSION = valueFactory.createURI(NAMESPACE,"hasVersion");
+        DATE = valueFactory.createURI(NAMESPACE,"date");
+        RELATION = valueFactory.createURI(NAMESPACE,"relation");
+        REQUIRES = valueFactory.createURI(NAMESPACE,"requires");
+        INSTRUCTIONAL_METHOD = valueFactory.createURI(NAMESPACE,"instructionalMethod");
+        AVAILABLE = valueFactory.createURI(NAMESPACE,"available");
+        REFERENCES = valueFactory.createURI(NAMESPACE,"references");
+        CREATED = valueFactory.createURI(NAMESPACE,"created");
+        IS_FORMAT_OF = valueFactory.createURI(NAMESPACE,"isFormatOf");
+        IDENTIFIER = valueFactory.createURI(NAMESPACE,"identifier");
+        ACCRUAL_METHOD = valueFactory.createURI(NAMESPACE,"accrualMethod");
+        REPLACES = valueFactory.createURI(NAMESPACE,"replaces");
+        RIGHTS = valueFactory.createURI(NAMESPACE,"rights");
+        MODIFIED = valueFactory.createURI(NAMESPACE,"modified");
+        ISSUED = valueFactory.createURI(NAMESPACE,"issued");
+        DESCRIPTION = valueFactory.createURI(NAMESPACE,"description");
+        ACCRUAL_PERIODICITY = valueFactory.createURI(NAMESPACE,"accrualPeriodicity");
+        TYPE = valueFactory.createURI(NAMESPACE,"type");
+        IS_VERSION_OF = valueFactory.createURI(NAMESPACE,"isVersionOf");
+        AUDIENCE = valueFactory.createURI(NAMESPACE,"audience");
+        TITLE = valueFactory.createURI(NAMESPACE,"title");
+        BIBLIOGRAPHIC_CITATION = valueFactory.createURI(NAMESPACE,"bibliographicCitation");
+        DATE_ACCEPTED = valueFactory.createURI(NAMESPACE,"dateAccepted");
+        COVERAGE = valueFactory.createURI(NAMESPACE,"coverage");
+        EDUCATION_LEVEL = valueFactory.createURI(NAMESPACE,"educationLevel");
+        FORMAT = valueFactory.createURI(NAMESPACE,"format");
+        ALTERNATIVE = valueFactory.createURI(NAMESPACE,"alternative");
+        VALID = valueFactory.createURI(NAMESPACE,"valid");
+        CREATOR = valueFactory.createURI(NAMESPACE,"creator");
+        SOURCE = valueFactory.createURI(NAMESPACE,"source");
+        HAS_PART = valueFactory.createURI(NAMESPACE,"hasPart");
+        PROVENANCE = valueFactory.createURI(NAMESPACE,"provenance");
+        DATE_SUBMITTED = valueFactory.createURI(NAMESPACE,"dateSubmitted");
+        ABSTRACT = valueFactory.createURI(NAMESPACE,"abstract");
+        IS_REFERENCED_BY = valueFactory.createURI(NAMESPACE,"isReferencedBy");
+        LICENSE = valueFactory.createURI(NAMESPACE,"license");
+        ACCRUAL_POLICY = valueFactory.createURI(NAMESPACE,"accrualPolicy");
+        SUBJECT = valueFactory.createURI(NAMESPACE,"subject");
+        CONFORMS_TO = valueFactory.createURI(NAMESPACE,"conformsTo");
+        SPATIAL = valueFactory.createURI(NAMESPACE,"spatial");
+        IS_REPLACED_BY = valueFactory.createURI(NAMESPACE,"isReplacedBy");
+        PUBLISHER = valueFactory.createURI(NAMESPACE,"publisher");
+        TABLE_OF_CONTENTS = valueFactory.createURI(NAMESPACE,"tableOfContents");
+        HAS_FORMAT = valueFactory.createURI(NAMESPACE,"hasFormat");
+        RIGHTS_HOLDER = valueFactory.createURI(NAMESPACE,"rightsHolder");
+        CONTRIBUTOR = valueFactory.createURI(NAMESPACE,"contributor");
+        IS_REQUIRED_BY = valueFactory.createURI(NAMESPACE,"isRequiredBy");
+        IS_PART_OF = valueFactory.createURI(NAMESPACE,"isPartOf");
+        EXTENT = valueFactory.createURI(NAMESPACE,"extent");
+        TEMPORAL = valueFactory.createURI(NAMESPACE,"temporal");
+    }
 }

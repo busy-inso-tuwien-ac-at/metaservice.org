@@ -74,6 +74,71 @@ function convertToJson(data,root){
     return result[root];
 }
 
+Handlebars.registerHelper('provenance',function(context,predicate){
+    var id = Handlebars.Utils.escapeExpression(context["ms:id"]);
+    var object = Handlebars.Utils.escapeExpression(context[predicate]);
+    return new Handlebars.SafeString("data-provenance=\"["+id+"]["+predicate+"]["+object+"]\"");
+});
+
+
+Handlebars.registerHelper('dependencyTag',function(context,predicate){
+    var result ="";
+    var depRelations = {
+        "ms-swdep:antiDepends": "AntiDependency",
+        "ms-swdep:dependsBuild": "Build",
+        "ms-swdep:dependsTest": "Test",
+        "ms-swdep:dependsInstallation": "Installation",
+        "ms-swdep:dependsRuntime": "Runtime",
+        "ms-swdep:dependsSoftware": "Software",
+        "ms-swdep:optional": "Optional",
+        "ms-swdep:pluginOf": "Plugin",
+        "ms-swdep:requires": "Required",
+        "ms-swdep:dependsCompiler": "Compiler",
+        "ms-swdep:dependsInterpreter": "Interpreter",
+        "ms-swdep:links": "Link",
+        "ms-swdep:dependsStandalone": "Standalone",
+        "ms-swdep:dependsMiddleware": "Middleware",
+        "ms-swdep:dependsService": "Service"
+    };
+    if(context["ms-swdep:dependsSoftware"])
+    $.each(context["ms-swdep:dependsSoftware"],function(a,x){
+       result += "<li>";
+        if(x["rdf:li"]){
+            for(var i = 0 ; i < x["rdf:li"].size ;i++){
+                if( i != 0){
+                    result += "<b>or</b>";
+                    if( x["ms-swdep:projectConstraint"]){
+                        result += "<a href=\""+handlebarsURI(x["ms-swdep:projectConstraint"])+"\">" + x["dc:description"] + "</a>";
+                    }else{
+                        result += "<a href=\""+handlebarsURI(x)+"\">" + x["dc:description"] + "</a>";
+                    }
+                }
+            }
+        }else {
+            if( x["ms-swdep:projectConstraint"]){
+                result += "<a href=\""+handlebarsURI(x["ms-swdep:projectConstraint"])+"\">" + x["dc:description"] + "</a>";
+            }else{
+                result += "<a href=\""+handlebarsURI(x)+"\">" + x["dc:description"] + "</a>";
+            }
+        }
+        $.each(depRelations,function(v,w){
+            if(context[v]){
+                if($.isArray(context[v])){
+                    if(context[v].indexOf(x) != -1){
+                        result += "<span class=\"badge\">" +w + "</span>";
+                    }
+                }else{
+                    if(context[v] == x){
+                        result += "<span class=\"badge\">" +w + "</span>";
+                    }
+                }
+            }
+        });
+       result += "</li>";
+    });
+    return new Handlebars.SafeString(result);
+});
+
 Handlebars.registerHelper('hostname',function(context,options){
    var result = document.createElement('a');
     if($.isPlainObject(context)){
@@ -92,12 +157,13 @@ Handlebars.registerHelper('mboxToAddress',function(context,options){
     return context.replace(/^mailto:/,'');
 });
 
-Handlebars.registerHelper('uri',function(context,options){
+function handlebarsURI (context,options){
     if($.isPlainObject(context)){
         return context['ms:id'];
     }
     return context;
-});
+}
+Handlebars.registerHelper('uri',handlebarsURI);
 
 Handlebars.registerHelper('text',function(context,options){
     if($.isPlainObject(context)){

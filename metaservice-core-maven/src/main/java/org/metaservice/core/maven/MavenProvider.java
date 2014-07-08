@@ -40,11 +40,8 @@ public class MavenProvider implements Provider<org.apache.maven.model.Model> {
         Literal version = valueFactory.createLiteral(pom.getVersion());
         Literal packaging = valueFactory.createLiteral(pom.getPackaging());
 
-        //TODO bnode or ui link parent?
-        BNode parent = valueFactory.createBNode();
-        resultConnection.add(parent, GROUP_ID, valueFactory.createLiteral(pom.getParent().getGroupId()));
-        resultConnection.add(parent, ARTIFACT_ID, valueFactory.createLiteral(pom.getParent().getArtifactId()));
-        resultConnection.add(parent, VERSION, valueFactory.createLiteral(pom.getParent().getVersion()));
+        URI parentURI =  valueFactory.createURI(rooturl + pom.getParent().getGroupId() + "/" + pom.getParent().getArtifactId() + "/" + pom.getParent().getVersion() + "/pom" );
+        resultConnection.add(packageURI, PACKAGE_MAVEN.PARENT,parentURI);
 
         //project
         resultConnection.add(projectURI, RDF.TYPE, ADMSSW.SOFTWARE_PROJECT);
@@ -101,8 +98,9 @@ public class MavenProvider implements Provider<org.apache.maven.model.Model> {
         }
 
         if(pom.getDevelopers() != null){
+            int i = 0;
             for(Developer d : pom.getDevelopers()){
-                BNode developer = valueFactory.createBNode();
+                URI developer = valueFactory.createURI(packageURI.toString()+"#Developer"+i++);
                 resultConnection.add(packageURI,PACKAGE_MAVEN.DEVELOPER,developer);
                 if(d.getEmail() != null){
                     resultConnection.add(developer, FOAF.MBOX, valueFactory.createLiteral(d.getEmail()));
@@ -123,8 +121,9 @@ public class MavenProvider implements Provider<org.apache.maven.model.Model> {
         }
 
         if(pom.getContributors() != null){
+            int i =0;
             for(Contributor c : pom.getContributors()){
-                BNode contributor = valueFactory.createBNode();
+                URI contributor = valueFactory.createURI(packageURI.toString()+"#Contributor"+i++);
                 resultConnection.add(packageURI,PACKAGE_MAVEN.CONTRIBUTOR,contributor);
                 if(c.getEmail() != null){
                     resultConnection.add(contributor, FOAF.MBOX, valueFactory.createLiteral(c.getEmail()));
@@ -165,14 +164,15 @@ public class MavenProvider implements Provider<org.apache.maven.model.Model> {
         }
 
         if(pom.getLicenses() != null){
+            int i = 0;
             for(License license : pom.getLicenses()){
-                BNode node = valueFactory.createBNode();
-                resultConnection.add(releaseURI,PACKAGE_MAVEN.LICENSE,node);
+                URI licenseUri = valueFactory.createURI(packageURI.toString()+"#License"+i++);
+                resultConnection.add(releaseURI,PACKAGE_MAVEN.LICENSE,licenseUri);
                 if(license.getName() != null){
-                   resultConnection.add(node,PACKAGE_MAVEN.LICENSE_NAME,valueFactory.createLiteral(license.getName()));
+                   resultConnection.add(licenseUri,PACKAGE_MAVEN.LICENSE_NAME,valueFactory.createLiteral(license.getName()));
                 }
                 if(license.getUrl() != null){
-                    resultConnection.add(node,PACKAGE_MAVEN.LICENSE_URL,valueFactory.createLiteral(license.getUrl()));
+                    resultConnection.add(licenseUri,PACKAGE_MAVEN.LICENSE_URL,valueFactory.createLiteral(license.getUrl()));
                 }
             }
         }

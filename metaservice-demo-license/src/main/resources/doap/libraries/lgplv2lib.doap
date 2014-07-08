@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+          xmlns:foaf="http://xmlns.com/foaf/0.1/"
+          xmlns="http://usefulinc.com/ns/doap#">
+    <name>demo-GPLv2-lib</name>
+    <homepage rdf:resource="http://github.com/thargor/demo-lgpl-lib" />
+    <created>2013-12-11</created>
+    <shortdesc xml:lang="en">
+        This is a demonstration library which is licensed under the LGPLv2
+    </shortdesc>
+
+    <description xml:lang="en">
+        demo-GPLv2-lib was created to verify applicability of SPARQL for license term violation detection in the
+        metaservice.org project. It's solely purpose is to be licensed under the LGPLv2.
+    </description>
+
+    <license rdf:resource="http://spdx.org/licenses/LGPL-2.0" />
+
+    <release>
+        <Version>
+            <created>2013-12-11</created>
+            <revision>10.9.8</revision>
+        </Version>
+    </release>
+
+
+    <download-page rdf:resource="http://github.com/thargor/demo-lgpl-lib" />
+
+    <maintainer>
+        <foaf:Person>
+            <foaf:name>Nikola Ilo</foaf:name>
+            <foaf:mbox_sha1sum>d1f525ab87f0faa244405c2fbce377662afc28fb</foaf:mbox_sha1sum>
+            <rdfs:seeAlso rdf:resource="http://ilo.cc/foaf.rdf#nikolailo" />
+        </foaf:Person>
+    </maintainer>
+
+</Project>

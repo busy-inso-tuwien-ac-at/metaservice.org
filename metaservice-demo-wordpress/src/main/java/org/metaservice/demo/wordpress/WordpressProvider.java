@@ -7,6 +7,7 @@ import org.metaservice.api.rdf.vocabulary.*;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
@@ -30,14 +31,14 @@ public class WordpressProvider  implements Provider<VersionEntry> {
             resultConnection.add(projectURI, RDF.TYPE, ADMSSW.SOFTWARE_PROJECT);
             resultConnection.add(projectURI, DOAP.BUG_DATABASE,  valueFactory.createURI("https://core.trac.wordpress.org/"));
             resultConnection.add(projectURI, DOAP.NAME, valueFactory.createLiteral("wordpress"));
-            resultConnection.add(projectURI, DC.TITLE,valueFactory.createLiteral("Wordpress"));
+            resultConnection.add(projectURI, RDFS.LABEL,valueFactory.createLiteral("Wordpress"));
             resultConnection.add(projectURI, DC.DESCRIPTION, valueFactory.createLiteral("WordPress is web software you can use to create a beautiful website or blog. We like to say that WordPress is both free and priceless at the same time."));
             resultConnection.add(projectURI, DOAP.HOMEPAGE, valueFactory.createURI("http://wordpress.org/"));
             resultConnection.add(projectURI, DOAP.DOWNLOAD_PAGE, valueFactory.createURI("http://wordpress.org/download/"));
             resultConnection.add(projectURI, DOAP.RELEASE, releaseURI);
             resultConnection.add(projectURI, DOAP.LICENSE,valueFactory.createLiteral("GPLv2"));
             resultConnection.add(releaseURI, RDF.TYPE, ADMSSW.SOFTWARE_RELEASE);
-            resultConnection.add(releaseURI, DC.TITLE,valueFactory.createLiteral( "Wordpress " + o.getName()));
+            resultConnection.add(releaseURI, RDFS.LABEL,valueFactory.createLiteral( "Wordpress " + o.getName()));
             resultConnection.add(releaseURI, ADMSSW.PROJECT, projectURI);
             resultConnection.add(releaseURI, DOAP.REVISION, valueFactory.createLiteral(o.getName()));
 
@@ -46,7 +47,7 @@ public class WordpressProvider  implements Provider<VersionEntry> {
                 resultConnection.add(zipURI, RDF.TYPE,ADMSSW.SOFTWARE_PACKAGE);
                 resultConnection.add(zipURI, RDF.TYPE, METASERVICE_FILE.FILE);
                 resultConnection.add(zipURI, ADMSSW.RELEASE,releaseURI);
-                resultConnection.add(zipURI, DC.TITLE,valueFactory.createLiteral(zipURI.getLocalName()));
+                resultConnection.add(zipURI, RDFS.LABEL,valueFactory.createLiteral(zipURI.getLocalName()));
                 resultConnection.add(zipURI,DCTERMS.FILE_FORMAT,valueFactory.createURI("http://mediatypes.appspot.com/application/zip"));
                 resultConnection.add(zipURI, SCHEMA.DOWNLOAD_URL,valueFactory.createURI(o.getZip()));
             }
@@ -55,7 +56,7 @@ public class WordpressProvider  implements Provider<VersionEntry> {
                 resultConnection.add(tarURI, RDF.TYPE, ADMSSW.SOFTWARE_PACKAGE);
                 resultConnection.add(tarURI, RDF.TYPE, METASERVICE_FILE.FILE);
                 resultConnection.add(tarURI, ADMSSW.RELEASE,releaseURI);
-                resultConnection.add(tarURI, DC.TITLE, valueFactory.createLiteral(tarURI.getLocalName()));
+                resultConnection.add(tarURI, RDFS.LABEL, valueFactory.createLiteral(tarURI.getLocalName()));
                 resultConnection.add(tarURI,DCTERMS.FILE_FORMAT,valueFactory.createURI("http://mediatypes.appspot.com/application/x-tar"));
                 resultConnection.add(tarURI, SCHEMA.DOWNLOAD_URL,valueFactory.createURI(o.getTar()));
             }
@@ -64,7 +65,7 @@ public class WordpressProvider  implements Provider<VersionEntry> {
                 resultConnection.add(iisURI, RDF.TYPE, ADMSSW.SOFTWARE_PACKAGE);
                 resultConnection.add(iisURI, RDF.TYPE, METASERVICE_FILE.FILE);
                 resultConnection.add(iisURI, ADMSSW.RELEASE,releaseURI);
-                resultConnection.add(iisURI, DC.TITLE, valueFactory.createLiteral(iisURI.getLocalName()));
+                resultConnection.add(iisURI, RDFS.LABEL, valueFactory.createLiteral(iisURI.getLocalName()));
                 resultConnection.add(iisURI,DCTERMS.FILE_FORMAT,valueFactory.createURI("http://mediatypes.appspot.com/application/zip"));
                 resultConnection.add(iisURI, SCHEMA.DOWNLOAD_URL,valueFactory.createURI(o.getIis()));
             }

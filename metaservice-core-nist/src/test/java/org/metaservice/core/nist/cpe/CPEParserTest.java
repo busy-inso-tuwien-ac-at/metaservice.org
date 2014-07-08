@@ -22,9 +22,7 @@ public class CPEParserTest {
         InputStream fileInputStream = CPEParserTest.class.getResourceAsStream("/official-cpe-dictionary_v2.3.xml.gz");
         GZIPInputStream gzipInputStream = new GZIPInputStream(fileInputStream);
         InputStreamReader inputStreamReader = new InputStreamReader(gzipInputStream);
-        StringWriter stringWriter = new StringWriter();
-        IOUtils.copy(inputStreamReader,stringWriter);
-        List<ItemType> list = new CPEParser().parse(stringWriter.toString(), null);
+        List<ItemType> list = new CPEParser().parse(inputStreamReader, null);
         Assert.assertNotNull(list);
         System.err.println("SIZE: " + list.size());
         Assert.assertThat(list.size(), Matchers.greaterThan(1));

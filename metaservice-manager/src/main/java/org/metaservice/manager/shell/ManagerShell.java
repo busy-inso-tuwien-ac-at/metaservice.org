@@ -63,6 +63,7 @@ public class ManagerShell {
                 .command(new TestCommand(manager))
                 .command(new ClearCommand(manager))
                 .command(new RebuildCacheCommand(manager))
+                .command(new ReinstallCommand(manager))
                 .create();
 
 

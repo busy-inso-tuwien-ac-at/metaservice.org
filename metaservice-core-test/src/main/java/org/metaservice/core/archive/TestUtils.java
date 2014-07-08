@@ -13,9 +13,7 @@ import java.io.StringWriter;
 public class TestUtils {
     public static String readFile(String file) throws IOException {
         FileReader fileInputStream = new FileReader(file);
-        StringWriter stringWriter = new StringWriter();
-        IOUtils.copy(fileInputStream, stringWriter);
-        return stringWriter.getBuffer().toString();
+        return IOUtils.toString(fileInputStream);
     }
 
     public static String readFile(File f) throws IOException {

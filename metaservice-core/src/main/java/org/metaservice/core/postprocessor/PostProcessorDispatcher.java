@@ -1,8 +1,10 @@
 package org.metaservice.core.postprocessor;
 
+import com.google.common.collect.Sets;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.PostProcessingHistoryItem;
 import org.metaservice.api.messaging.PostProcessingTask;
@@ -58,7 +60,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,
             Debug debug,
             DescriptorHelper descriptorHelper
-    ) throws MalformedQueryException, RepositoryException {
+    ) throws MalformedQueryException, RepositoryException, MetaserviceException {
         super(repositoryConnection, config, messageHandler, valueFactory, postProcessor);
         this.metaserviceDescriptor = metaserviceDescriptor;
         this.postProcessor = postProcessor;
@@ -75,7 +77,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
 
     }
 
-    private Set<Statement> calculatePreloadedStatements() throws RepositoryException {
+    private Set<Statement> calculatePreloadedStatements() throws RepositoryException, MetaserviceException {
         Repository resultRepository = createTempRepository(true);
         RepositoryConnection resultConnection = resultRepository.getConnection();
 
@@ -110,7 +112,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             List<Statement> generatedStatements  = getGeneratedStatements(resultConnection,loadedStatements);
             Set<URI> subjects = getSubjects(generatedStatements);
             Set<URI> processableSubjects = getProcessableSubjects(subjects);
-
+            Set<URI> objects = getURIObject(generatedStatements);
             if(generatedStatements.size() == 0){
                 LOGGER.info("NO STATEMENTS GENERATED! -> adding empty statement");
                 generatedStatements.add(valueFactory.createStatement(task.getChangedURI(),METASERVICE.DUMMY,METASERVICE.DUMMY));
@@ -139,12 +141,12 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
 
             }
 
-            URI metadata =  generateMetadata(task,"continuous",processableSubjects);
-            sendData(resultConnection,metadata,generatedStatements);
+            URI metadata =  generateMetadata(task,METASERVICE.ACTION_CONTINUOUS,processableSubjects);
+            sendData(resultConnection, metadata, generatedStatements);
             resultConnection.close();
             resultRepository.shutDown();
-            notifyPostProcessors(subjects,task.getHistory(),task.getTime(),postProcessorDescriptor,processableSubjects);
-        } catch (RepositoryException | PostProcessorException e) {
+            notifyPostProcessors(Sets.union(subjects,objects),task.getHistory(),task.getTime(),postProcessorDescriptor,processableSubjects);
+        } catch (RepositoryException | MetaserviceException e) {
             LOGGER.error("Couldn't create {}",resource,e);
         } catch (UpdateExecutionException e) {
             LOGGER.error("Couldn't drop graph {}", e);
@@ -191,7 +193,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
 
             for(URI uri : subjects){
                 uris.add("{ ?metadata a <" + METASERVICE.METADATA + ">;"+
-                         "  <"+METASERVICE.XYZ+"><" + uri.toString() + ">;"+
+                         "  <"+METASERVICE.SOURCE_SUBJECT +"><" + uri.toString() + ">;"+
                          "  <"+METASERVICE.GENERATOR + "> ?postprocessor;"+
                          "  <" + METASERVICE.TIME+"> ?time.}");
             }
@@ -217,19 +219,19 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
     }
 
     @NotNull
-    private URI generateMetadata(@NotNull PostProcessingTask task, String action, Set<URI> processableSubjects) throws RepositoryException {
+    private URI generateMetadata(@NotNull PostProcessingTask task, URI action, Set<URI> processableSubjects) throws RepositoryException {
         Date now = new Date();
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         repositoryConnection.begin();
         repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
-        repositoryConnection.add(metadata, METASERVICE.ACTION, valueFactory.createLiteral(action), metadata);
+        repositoryConnection.add(metadata, METASERVICE.ACTION, action, metadata);
         repositoryConnection.add(metadata, METASERVICE.TIME, valueFactory.createLiteral(task.getTime()),metadata); //todo fix it to be based on the used data
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)), metadata);
         for(URI processableSubject : processableSubjects) {
-            repositoryConnection.add(metadata, METASERVICE.XYZ, processableSubject,metadata);
+            repositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, processableSubject,metadata);
         }
         repositoryConnection.commit();
         return metadata;

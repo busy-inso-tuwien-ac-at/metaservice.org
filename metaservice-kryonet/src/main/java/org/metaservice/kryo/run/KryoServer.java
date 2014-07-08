@@ -13,6 +13,8 @@ import org.metaservice.kryo.MongoWriterListener;
 import org.mongojack.DBQuery;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -21,6 +23,7 @@ import java.util.concurrent.Executors;
 public class KryoServer {
     public static final int QUEUE_CONTAINER_ID = 1;
 
+    ExecutorService executor = Executors.newFixedThreadPool(3);
     public static void main(String[] args) throws IOException {
         final KryoServer kryoServer = new KryoServer();
         kryoServer.run();
@@ -37,6 +40,7 @@ public class KryoServer {
         queueContainer.saveQueues();
         queueContainer.cleanQueues();
         server.close();
+        executor.shutdown();
     }
 
     private Server server;
@@ -55,6 +59,7 @@ public class KryoServer {
         server.bind(54555, 54777);
         final ObjectSpace objectSpace = new ObjectSpace();
         objectSpace.register(QUEUE_CONTAINER_ID, queueContainer);
+        objectSpace.setExecutor(executor);
         server.addListener(new Listener() {
             @Override
             public void connected(Connection connection) {

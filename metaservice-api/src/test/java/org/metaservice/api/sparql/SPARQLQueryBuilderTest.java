@@ -1,13 +1,5 @@
 package org.metaservice.api.sparql;
-import org.junit.Test;
-import org.metaservice.api.rdf.vocabulary.ADMSSW;
-import org.metaservice.api.rdf.vocabulary.DOAP;
-import org.metaservice.api.rdf.vocabulary.METASERVICE;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
-import org.metaservice.api.sparql.builders.QueryBuilder;
-import org.metaservice.api.sparql.impl.SparqlQueryBuilderImpl;
 import org.metaservice.api.sparql.nodes.Variable;
-import org.openrdf.model.Literal;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 

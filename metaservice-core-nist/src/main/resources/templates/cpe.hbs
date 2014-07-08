@@ -1,14 +1,14 @@
 <div class="row">
     <div class="col-md-12">
         {{> button_controls}}
-        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{text dc:title}}</h1>
+        <h1 {{provenance . "rdfs:label"}}>{{text rdfs:label}}</h1>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb">
             <li>Common Platform Enumeration</li>
-            <li class="active">{{text dc:title}}</li>
+            <li class="active">{{text rdfs:label}}</li>
         </ol>
     </div>
 </div>
@@ -17,7 +17,7 @@
         <h2>Referenced By</h2>
         <ul>
             {{#eachArray dcterms:isReferencedBy}}
-                <li> <a href="{{uri this}}">{{text dc:title}}</a> </li>
+                <li> <a href="{{uri this}}">{{text rdfs:label}}</a> </li>
             {{/eachArray}}
         </ul>
     </div>
@@ -25,7 +25,7 @@
         <h2>Linked Releases</h2>
         <ul>
             {{#eachArray cpe:isAbout}}
-                <li> <a href="{{uri this}}">{{text dc:title}}</a> </li>
+                <li> <a href="{{uri this}}">{{text rdfs:label}}</a> </li>
             {{/eachArray}}
         </ul>
     </div>

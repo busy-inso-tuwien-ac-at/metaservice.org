@@ -1,6 +1,7 @@
 package org.metaservice.core.vcs;
 
 import com.google.inject.Injector;
+import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.api.messaging.Config;
@@ -59,7 +60,7 @@ public class VcsRunner extends AbstractDispatcher<String>{
             }
 
             LOGGER.info("finished loop");
-        } catch (RepositoryException | MalformedQueryException | QueryEvaluationException e) {
+        } catch (MetaserviceException | RepositoryException | MalformedQueryException | QueryEvaluationException e) {
             LOGGER.error("error querying db",e);
         }
     }

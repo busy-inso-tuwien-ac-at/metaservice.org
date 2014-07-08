@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.multibindings.Multibinder;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
@@ -33,6 +34,7 @@ import org.metaservice.api.parser.Parser;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.List;
@@ -96,12 +98,12 @@ public class MavenPomParser implements Parser<Model> {
     }
 
     @Override
-    public List<Model> parse(String s, ArchiveAddress archiveParameters) {
+    public List<Model> parse(Reader s, ArchiveAddress archiveParameters) {
         File file = null;
         try {
             file = File.createTempFile("temp",".pom");
             FileWriter writer = new FileWriter(file);
-            writer.write(s);
+            IOUtils.copy(s,writer);
             writer.close();
 
             ModelBuildingRequest req = new DefaultModelBuildingRequest();

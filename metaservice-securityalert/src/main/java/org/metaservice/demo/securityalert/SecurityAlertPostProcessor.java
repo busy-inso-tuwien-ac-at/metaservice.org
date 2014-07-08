@@ -10,6 +10,7 @@ import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -52,12 +53,12 @@ public class SecurityAlertPostProcessor implements PostProcessor {
                 new PostProcessorSparqlQuery(){
                     @Override
                     public String build() {
-                        return select(true, var(project),var(projectName))
+                        return select(true, var(project), var(projectName))
                                 .where(
                                         triplePattern(cve, CVE.VULNERABLE_SOFTWARE, cpe),
                                         triplePattern(cpe, CPE.IS_ABOUT, release),
                                         triplePattern(release, ADMSSW.PROJECT, project),
-                                        triplePattern(project, DC.TITLE,projectName)
+                                        triplePattern(project, RDFS.LABEL, projectName)
                                 ).build();
                     }
                 }.build());

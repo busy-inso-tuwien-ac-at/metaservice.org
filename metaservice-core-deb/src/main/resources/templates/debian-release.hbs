@@ -1,31 +1,31 @@
 <div class="row">
     <div class="col-md-12">
         {{> button_controls}}
-        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+        <h1 {{provenance . "rdfs:label"}}>{{rdfs:label}}</h1>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb">
-            <li><img src="/{{ms-deb:meta-distribution}}.png"  alt="{{ms-deb:meta-distribution}}" style="height: 1em; vertical-align: baseline;"></li>
-            <li><a href="{{admssw:project/ms:id}}">{{dc:title}}</a></li>
-            <li class="active">{{ms-deb:version}}</li>
+            <li><img src="/{{deb:meta-distribution}}.png"  alt="{{deb:meta-distribution}}" style="height: 1em; vertical-align: baseline;"></li>
+            <li><a href="{{admssw:project/ms:id}}">{{rdfs:label}}</a></li>
+            <li class="active">{{deb:version}}</li>
         </ol>
     </div>
 </div>
 <div class="row">
     <div class="col-md-8">
         <ul>
-            {{#eachArray admssw:package}}<li> <a href="{{ms:id}}">{{ms-deb:architecture}}</a></li>{{/eachArray}}
+            {{#eachArray admssw:package}}<li> <a href="{{ms:id}}">{{deb:architecture}}</a></li>{{/eachArray}}
         </ul>
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
-                <tr><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/ms-deb:version}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{admssw:project/ms:id}}">{{dc:title}}</a></td></tr>
+                <tr><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/deb:version}}</a></td></tr>
+                <tr><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/deb:version}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{admssw:project/ms:id}}">{{admssw:project/rdfs:label}}</a></td></tr>
                 <tr><th>Repository</th><td></td></tr>
             </table>
         </div>

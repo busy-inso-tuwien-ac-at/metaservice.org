@@ -1,31 +1,35 @@
 <div class="row">
     <div class="col-md-12">
         {{> button_controls}}
-        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+        <h1 {{provenance . "rdfs:label"}} >{{rdfs:label}}</h1>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb">
             <li>Generic</li>
-            <li><a href="{{uri admssw:release/admssw:project}}">{{admssw:release/admssw:project/dc:title}}</a></li>
-            <li><a href="{{uri admssw:release}}">{{admssw:release/dc:title}}</a></li>
-            <li class="active">architecture</li>
+            <li><a href="{{uri admssw:release/admssw:project}}">{{admssw:release/admssw:project/rdfs:label}}</a></li>
+            <li><a href="{{uri admssw:release}}">{{admssw:release/rdfs:label}}</a></li>
+            <li class="active">{{rdfs:label}}</li>
         </ol>
     </div>
 </div>
 <div class="row">
     <div class="col-md-8">
-        <pre data-provenance="[{{ms:id}}][{dc:description][{{dc:description}}]">{{dc:description}}</pre>
+        <pre {{provenance . "dc:description"}}>{{dc:description}}</pre>
+        <h4>Dependencies:</h4>
+        <ul>
+            {{dependencyTag .}}
+        </ul>
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr data-provenance="[{{ms:id}}][xhv:prev][{{uri xhv:prev}}]"><th>Previous</th><td><a href="{{uri xhv:prev}}">{{xhv:prev/dc:title}}</a></td></tr>
-                <tr data-provenance="[{{ms:id}}][xhv:next][{{uri xhv:next}}]"><th>Next</th><td><a href="{{uri xhv:next}}">{{ xhv:next/dc:title}}</a></td></tr>
-                <tr><th>Version</th><td><a href="{{uri admssw:release}}">{{admssw:release/dc:title}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{uri admssw:release/admssw:project}}">{{admssw:release/admssw:project/dc:title}}</a></td></tr>
+                <tr {{provenance . "xhv:prev"}}><th>Previous</th><td><a href="{{uri xhv:prev}}">{{xhv:prev/rdfs:label}}</a></td></tr>
+                <tr {{provenance . "xhv:next"}}><th>Next</th><td><a href="{{uri xhv:next}}">{{ xhv:next/rdfs:label}}</a></td></tr>
+                <tr><th>Version</th><td><a href="{{uri admssw:release}}">{{admssw:release/rdfs:label}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{uri admssw:release/admssw:project}}">{{admssw:release/admssw:project/rdfs:label}}</a></td></tr>
             </table>
         </div>
     </div>

@@ -1,77 +1,78 @@
 <div class="row">
     <div class="col-md-12">
         {{> button_controls}}
-        <h1 data-provenance="[{{ms:id}}][dc:title][{{dc:title}}]">{{dc:title}}</h1>
+        <h1 {{provenance . "rdfs:label"}}>{{rdfs:label}}</h1>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb">
-            <li><img src="/{{ms-deb:meta-distribution}}.png" alt="{{ms-deb:meta-distribution}}" style="height: 1em; vertical-align: baseline;"></li>
-            <li><a href="{{uri admssw:release/admssw:project}}">{{ms-deb:packageName}}</a></li>
-            <li><a href="{{uri admssw:release}}">{{ms-deb:version}}</a></li>
-            <li class="active">{{ms-deb:architecture}}</li>
+            <li><img src="/{{deb:meta-distribution}}.png" alt="{{deb:meta-distribution}}" style="height: 1em; vertical-align: baseline;"></li>
+            <li><a href="{{uri admssw:release/admssw:project}}">{{deb:packageName}}</a></li>
+            <li><a href="{{uri admssw:release}}">{{deb:version}}</a></li>
+            <li class="active">{{deb:architecture}}</li>
         </ol>
     </div>
 </div>
 <div class="row">
     <div class="col-md-8">
-        <pre data-provenance="[{{ms:id}}][{ms-deb:description][{{ms-deb:description}}]">{{ms-deb:description}}</pre>
-        Homegpage: {{#ms-deb:homepage}} <a class="external" href="{{this}}">{{this}}</a>{{/ms-deb:homepage}}{{^ms-deb:homepage}}-{{/ms-deb:homepage}}
+        <pre  {{provenance . "deb:description"}}>{{deb:description}}</pre>
+        Homepage: {{#deb:homepage}} <a class="external" href="{{this}}">{{this}}</a>{{/deb:homepage}}{{^deb:homepage}}-{{/deb:homepage}}
         <br>
         Maintainer:
         <ul>
-            {{#eachArray ms-deb:maintainer}}<li><a href="{{uri foaf:mbox}}">{{foaf:name}} &lt;{{mboxToAddress foaf:mbox}}&gt;</a></li>{{/eachArray}}
+            {{#eachArray deb:maintainer}}<li><a href
+                                                        ="{{uri foaf:mbox}}">{{foaf:name}} &lt;{{mboxToAddress foaf:mbox}}&gt;</a></li>{{/eachArray}}
         </ul>
         <br>
         Uploader:
         <ul>
-            {{#eachArray ms-deb:uploader}}<li><a href="{{foaf:mbox}}">{{foaf:name}}</a></li>{{/eachArray}}
+            {{#eachArray deb:uploader}}<li><a href="{{foaf:mbox}}">{{foaf:name}}</a></li>{{/eachArray}}
         </ul>
         Depends:
         <ul>
-            {{>dependency  ms-deb:depends}}
+            {{>dependency  deb:depends}}
         </ul>
         Suggests:
         <ul>
-            {{>dependency  ms-deb:suggests}}
+            {{>dependency  deb:suggests}}
         </ul>
         Recommends:
         <ul>
-            {{>dependency  ms-deb:recommends}}
+            {{>dependency  deb:recommends}}
         </ul>
         Breaks:
         <ul>
-            {{>dependency  ms-deb:breaks}}
+            {{>dependency  deb:breaks}}
         </ul>
         Conflicts:
         <ul>
-            {{>dependency  ms-deb:conflicts}}
+            {{>dependency  deb:conflicts}}
         </ul>
         Replaces:
         <ul>
-            {{>dependency  ms-deb:replaces}}
+            {{>dependency  deb:replaces}}
         </ul>
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr data-provenance="[{{ms:id}}][xhv:prev][{{uri xhv:prev}}]"><th>Previous</th><td><a href="{{uri xhv:prev}}">{{xhv:prev/ms-deb:version}}</a></td></tr>
-                <tr data-provenance="[{{ms:id}}][xhv:next][{{uri xhv:next}}]"><th>Next</th><td><a href="{{uri xhv:next}}">{{xhv:next/ms-deb:version}}</a></td></tr>
-                <tr><th>Version</th><td><a href="{{uri admssw:release}}">{{ms-deb:version}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{uri admssw:release/admssw:project}}">{{ms-deb:packageName}}</a></td></tr>
-                <tr><th>Distribution</th><td>{{ms-deb:distribution}}</td></tr>
+                <tr {{provenance . "xhv:prev"}}><th>Previous</th><td><a href="{{uri xhv:prev}}">{{xhv:prev/deb:version}}</a></td></tr>
+                <tr {{provenance . "xhv:next"}} ><th>Next</th><td><a href="{{uri xhv:next}}">{{xhv:next/deb:version}}</a></td></tr>
+                <tr><th>Version</th><td><a href="{{uri admssw:release}}">{{deb:version}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{uri admssw:release/admssw:project}}">{{admssw:release/admssw:project/rdfs:label}}</a></td></tr>
+                <tr><th>Distribution</th><td>{{deb:distribution}}</td></tr>
             </table>
         </div>
 
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">File Information</h4></div>
             <table class="table">
-                <tr><th>Filename</th><td>{{> copyInputField  ms-deb:filename}}</td></tr>
-                <tr><th>MD5sum</th><td>{{> copyInputField ms-deb:md5sum}}</td></tr>
-                <tr><th>SHA-1sum</th><td>{{> copyInputField  ms-deb:sha1sum}}</td></tr>
-                <tr><th>SHA-256sum</th><td>{{> copyInputField  ms-deb:sha256sum}}</td></tr>
+                <tr><th>Filename</th><td>{{> copyInputField  deb:filename}}</td></tr>
+                <tr><th>MD5sum</th><td>{{> copyInputField deb:md5sum}}</td></tr>
+                <tr><th>SHA-1sum</th><td>{{> copyInputField  deb:sha1sum}}</td></tr>
+                <tr><th>SHA-256sum</th><td>{{> copyInputField  deb:sha256sum}}</td></tr>
             </table>
         </div>
     </div>

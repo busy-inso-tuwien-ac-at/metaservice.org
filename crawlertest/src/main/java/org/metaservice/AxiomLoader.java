@@ -1,6 +1,7 @@
 package org.metaservice;
 
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.XHV;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -28,8 +29,8 @@ public class AxiomLoader {
 
     private void run() throws RepositoryException {
         //TODO add NS/grammars usw.
-        if(!bufferedSparql.hasStatement(ADMSSW.NEXT,OWL.INVERSEOF,ADMSSW.PREV,true)){
-            bufferedSparql.add(ADMSSW.NEXT, OWL.INVERSEOF, ADMSSW.PREV);
+        if(!bufferedSparql.hasStatement(XHV.NEXT,OWL.INVERSEOF,XHV.PREV,true)){
+            bufferedSparql.add(XHV.NEXT, OWL.INVERSEOF, XHV.PREV);
         }
     }
 

@@ -1,21 +1,20 @@
 package org.metaservice.api.sparql.buildingcontexts;
 
 import org.junit.Test;
-import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
 import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.DEB;
 import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
 import org.metaservice.api.sparql.builders.QueryBuilder;
 import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.impl.SparqlQueryBuilderImpl;
 import org.metaservice.api.sparql.nodes.Variable;
-import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 
 import java.util.Date;
 
@@ -98,17 +97,17 @@ public class DefaultSparqlQueryTest {
             @Override
             public String build() {
              return select(false,
-                        var(version),
-                        var(title),
-                        var(arch),
-                        var(resource)
-                )
+                     var(version),
+                     var(title),
+                     var(arch),
+                     var(resource)
+             )
                         .where(
                                 triplePattern(project, DOAP.RELEASE, release),
                                 triplePattern(release, ADMSSW.PACKAGE, resource),
-                                triplePattern(resource, PACKAGE_DEB.TITLE, title),
-                                triplePattern(resource, PACKAGE_DEB.VERSION, version),
-                                triplePattern(resource, PACKAGE_DEB.ARCHITECTURE, arch)
+                                triplePattern(resource, RDFS.LABEL, title),
+                                triplePattern(resource, DEB.VERSION, version),
+                                triplePattern(resource, DEB.ARCHITECTURE, arch)
                         )
                         .build(true);
             }
@@ -130,14 +129,14 @@ public class DefaultSparqlQueryTest {
                         true,
                         var(_package),var(version),var(packageName),var(metaDistribution))
                         .where(
-                                quadPattern(resource, PACKAGE_DEB.VERSION, version, graph2),
-                                quadPattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName, graph2),
-                                quadPattern(resource, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph2),
-                                quadPattern(resource, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph2),
-                                quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                quadPattern(resource, DEB.VERSION, version, graph2),
+                                quadPattern(resource, DEB.PACKAGE_NAME, packageName, graph2),
+                                quadPattern(resource, DEB.META_DISTRIBUTION, metaDistribution, graph2),
+                                quadPattern(resource, RDF.TYPE, DEB.PACKAGE, graph2),
+                                quadPattern(_package, DEB.VERSION, version, graph),
+                                quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                         )
                         .build(true);
             }
@@ -150,14 +149,14 @@ public class DefaultSparqlQueryTest {
                         true,
                         var(_package),var(version),var(packageName),var(metaDistribution))
                         .where(
-                                quadPattern(resource, PACKAGE_DEB.VERSION, version, graph2),
-                                quadPattern(resource, PACKAGE_DEB.PACKAGE_NAME, packageName, graph2),
-                                quadPattern(resource, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph2),
-                                quadPattern(resource, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph2),
-                                quadPattern(_package, PACKAGE_DEB.VERSION, version, graph),
-                                quadPattern(_package, PACKAGE_DEB.PACKAGE_NAME, packageName, graph),
-                                quadPattern(_package, PACKAGE_DEB.META_DISTRIBUTION, metaDistribution, graph),
-                                quadPattern(_package, RDF.TYPE, PACKAGE_DEB.PACKAGE, graph)
+                                quadPattern(resource, DEB.VERSION, version, graph2),
+                                quadPattern(resource, DEB.PACKAGE_NAME, packageName, graph2),
+                                quadPattern(resource, DEB.META_DISTRIBUTION, metaDistribution, graph2),
+                                quadPattern(resource, RDF.TYPE, DEB.PACKAGE, graph2),
+                                quadPattern(_package, DEB.VERSION, version, graph),
+                                quadPattern(_package, DEB.PACKAGE_NAME, packageName, graph),
+                                quadPattern(_package, DEB.META_DISTRIBUTION, metaDistribution, graph),
+                                quadPattern(_package, RDF.TYPE, DEB.PACKAGE, graph)
                         )
                         .build(true);
             }
@@ -189,9 +188,9 @@ public class DefaultSparqlQueryTest {
                         .where(
                                 quadPattern(project, DOAP.RELEASE, release,g1),
                                 quadPattern(release, ADMSSW.PACKAGE, resource,g2),
-                                quadPattern(resource, PACKAGE_DEB.TITLE, title,g3),
-                                quadPattern(resource, PACKAGE_DEB.VERSION, version,g4),
-                                quadPattern(resource, PACKAGE_DEB.ARCHITECTURE, arch,g5),
+                                quadPattern(resource, RDFS.LABEL, title,g3),
+                                quadPattern(resource, DEB.VERSION, version,g4),
+                                quadPattern(resource, DEB.ARCHITECTURE, arch,g5),
                                 triplePattern(g1,METASERVICE.TIME,t1),
                                 triplePattern(g2,METASERVICE.TIME,t2),
                                 triplePattern(g3,METASERVICE.TIME,t3),

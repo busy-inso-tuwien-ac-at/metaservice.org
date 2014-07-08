@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.parser.Parser;
 
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public class BowerParser implements Parser<BowerPackage> {
     @Override
-    public List<BowerPackage> parse(String s, ArchiveAddress archiveParameters) {
+    public List<BowerPackage> parse(Reader s, ArchiveAddress archiveParameters) {
         Gson gson = new Gson();
         Type collectionType = new TypeToken<List<BowerPackage>>(){}.getType();
         return gson.fromJson(s,collectionType);

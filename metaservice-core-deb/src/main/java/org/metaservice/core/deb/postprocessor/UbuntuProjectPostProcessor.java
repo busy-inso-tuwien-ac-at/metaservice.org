@@ -1,10 +1,8 @@
 package org.metaservice.core.deb.postprocessor;
 
 import org.jetbrains.annotations.NotNull;
-import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.api.rdf.vocabulary.DEB;
 import org.metaservice.api.rdf.vocabulary.DOAP;
-import org.metaservice.api.rdf.vocabulary.PACKAGE_DEB;
-import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.OWL;
@@ -15,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.List;
 
 /**
  * Created by ilo on 17.02.14.
@@ -43,7 +40,7 @@ public class UbuntuProjectPostProcessor  extends AbstractProjectPostProcessor
         //resultConnection.add(uri, DOAP.BUG_DATABASE,valueFactory.createLiteral("http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=" + name));
         resultConnection.add(projectURI, DOAP.BUG_DATABASE,valueFactory.createLiteral("https://bugs.launchpad.net/ubuntu/+source/" +projectName));
         resultConnection.add(projectURI, OWL.SAMEAS,valueFactory.createURI("https://launchpad.net/"+projectName+"/+rdf"));
-        resultConnection.add(projectURI, PACKAGE_DEB.META_DISTRIBUTION,valueFactory.createLiteral("ubuntu"));
+        resultConnection.add(projectURI, DEB.META_DISTRIBUTION,valueFactory.createLiteral("ubuntu"));
     }
 
     @Override

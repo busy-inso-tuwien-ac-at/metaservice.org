@@ -7,7 +7,6 @@ import org.metaservice.api.sparql.buildingcontexts.BigdataSparqlQuery;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.*;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +96,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     Variable action = new Variable(name+"Action");
                     Variable time = timeMap.get(c);
                     Variable generator = new Variable(name+"generator");
+                    Variable path = new Variable(name+"path");
                     HashSet<Variable> groupByList = new HashSet<>();
                     for(QuadPattern quadPattern : contextMap.get(c)) {
                         if(quadPattern.getC() instanceof Variable && !(quadPattern.getC() instanceof BoundVariable)) {
@@ -125,8 +125,10 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                                     filter(unequal(val(action),val(METASERVICE.ACTION_CONTINUOUS))),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
                                     triplePattern(c,METASERVICE.ACTION,action),
+                                    triplePattern(c,METASERVICE.PATH,path),
                                     triplePattern(c,METASERVICE.TIME, time)
                             );
+                    maxQuery.groupBy(path);
 
                     SelectQueryBuilder maxQueryContinuous = select(true,
                             selectList.toArray(new SelectTerm[selectList.size()])
@@ -135,10 +137,10 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                                     include("heuristic"),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
                                     triplePattern(c,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
-                                    triplePattern(c,METASERVICE.XYZ,processableSubject),
+                                    triplePattern(c,METASERVICE.SOURCE_SUBJECT,processableSubject),
                                     triplePattern(c,METASERVICE.GENERATOR,generator),
                                     triplePattern(context2,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
-                                    triplePattern(context2,METASERVICE.XYZ,processableSubject),
+                                    triplePattern(context2,METASERVICE.SOURCE_SUBJECT,processableSubject),
                                     triplePattern(context2,METASERVICE.GENERATOR,generator),
                                     triplePattern(context2,METASERVICE.TIME, time)
                             ).groupBy(processableSubject);

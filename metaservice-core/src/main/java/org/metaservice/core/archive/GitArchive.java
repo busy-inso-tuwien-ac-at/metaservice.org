@@ -59,14 +59,19 @@ public class GitArchive implements Archive {
      * Path must be of form /asdf/asd
      */
     public Contents getContent(@NotNull Date time,@NotNull String path) throws ArchiveException {
-        String revision = null;
         try {
-            revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(time));
+            String revision = gitUtil.findFirsRevisionWithMessage(dateFormat.format(time));
             LOGGER.info("FOUND REVISION: " + revision);
             if(revision!= null){
                 Contents contents = new Contents();
-                contents.now =  processPath(revision,new File( path));
-                contents.prev = processPath(revision+"^",new File(path));
+                String s = processPath(revision,new File( path));
+                String s2 = processPath(revision+"^",new File(path));
+                if(s != null && s.length()> 20) {
+                    contents.now = new StringReader(s);
+                }
+                if(s2 != null && s2.length()> 20) {
+                    contents.prev = new StringReader(s2);
+                }
                 return contents;
             }
             return null;  //To change body of implemented methods use File | Settings | File Templates.

@@ -35,9 +35,10 @@ WITH {
         INCLUDE %level1.
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
         ?c <http://metaservice.org/ns/metaservice#action> ?action.
+        ?c <http://metaservice.org/ns/metaservice#path> ?path.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != 'continuous' )
-    } GROUP BY ?s ?p ?o
+        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
+    } GROUP BY ?s ?p ?o ?path
 } AS %level1max
 
 WITH {
@@ -45,9 +46,10 @@ WITH {
         INCLUDE %level2.
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
         ?c <http://metaservice.org/ns/metaservice#action> ?action.
+        ?c <http://metaservice.org/ns/metaservice#path> ?path.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != 'continuous' )
-    } GROUP BY ?s ?p ?o
+        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
+    } GROUP BY ?s ?p ?o ?path
 } AS %level2max
 
 WITH {
@@ -55,15 +57,16 @@ WITH {
         INCLUDE %level3.
         ?c <http://metaservice.org/ns/metaservice#time> ?time.
         ?c <http://metaservice.org/ns/metaservice#action> ?action.
+        ?c <http://metaservice.org/ns/metaservice#path> ?path.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != 'continuous' )
-    }GROUP BY ?s ?p ?o
+        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
+    }GROUP BY ?s ?p ?o ?path
 } AS %level3max
 
 WITH {
     SELECT ?c ?s ?p ?o{
         INCLUDE %level1.
-        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+        ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionContinuous>.
         ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
     }
 } AS %level1maxContinuous
@@ -71,7 +74,7 @@ WITH {
 WITH {
     SELECT ?c ?s ?p ?o{
         INCLUDE %level2.
-        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+        ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionContinuous>.
         ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
     }
 } AS %level2maxContinuous
@@ -80,7 +83,7 @@ WITH {
     SELECT ?c ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level3.
-        ?c <http://metaservice.org/ns/metaservice#action> 'continuous'.
+        ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionContinuous>.
         ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
     }
 } AS %level3maxContinuous
@@ -90,7 +93,7 @@ WITH {
             INCLUDE %level1.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level1max.
-            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+            ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level1maxContinuous.
         }
@@ -102,7 +105,7 @@ WITH {
             INCLUDE %level2.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level2max.
-            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+            ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level2maxContinuous.
         }
@@ -114,7 +117,7 @@ WITH {
             INCLUDE %level3.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level3max.
-            ?c <http://metaservice.org/ns/metaservice#action> 'add'.
+            ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level3maxContinuous.
         }

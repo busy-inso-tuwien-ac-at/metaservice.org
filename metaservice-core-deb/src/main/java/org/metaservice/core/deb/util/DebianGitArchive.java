@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -42,16 +43,21 @@ public class DebianGitArchive extends GitArchive {
         try {
             if("Packages".equals(f.getName())){
                 Contents contents =new Contents();
-                GitUtil.Line[] changes;
-                //String relpath =  f.getAbsolutePath().replace(workdir.getAbsolutePath()+"/","");
-                changes = gitUtil.getChangeList(f.getPath(),revision,revision+"^");
-                String[] packageAreas = extractFullPackages(changes);
-                changes= null;
-                contents.now  = StringUtils.join(packageAreas, "\n");
-                changes = gitUtil.getChangeList(f.getPath(),revision+"^",revision);
-                packageAreas = extractFullPackages(changes);
-                changes= null;
-                contents.prev  = StringUtils.join(packageAreas, "\n");
+                GitUtil.Line[] changes = gitUtil.getChangeList(f.getPath(),revision,revision+"^");
+                String packageAreas = extractFullPackages(changes, GitUtil.Line.ChangeType.NEW, GitUtil.Line.ChangeType.OLD, GitUtil.Line.ChangeType.UNCHANGED);
+                LOGGER.info("now: " + packageAreas.length());
+                if(packageAreas.length() > 10) {
+                    contents.now = new StringReader(packageAreas);
+                }else{
+                    LOGGER.info("setting null because size to small");
+                }
+                packageAreas = extractFullPackages(changes, GitUtil.Line.ChangeType.OLD, GitUtil.Line.ChangeType.NEW, GitUtil.Line.ChangeType.UNCHANGED);
+                if(packageAreas.length() > 10) {
+                    contents.prev = new StringReader(packageAreas);
+                }else{
+                    LOGGER.info("setting null because size to small");
+                }
+                LOGGER.info("prev: " + packageAreas.length());
                 return contents;
             }
             return null;//todo NOTNULL?
@@ -62,7 +68,7 @@ public class DebianGitArchive extends GitArchive {
 
 
 
-    public static String[] extractFullPackages(@NotNull GitUtil.Line[] changes) {
+    public static String extractFullPackages(@NotNull GitUtil.Line[] changes,GitUtil.Line.ChangeType wanted, GitUtil.Line.ChangeType notWanted, GitUtil.Line.ChangeType neutral) {
         ArrayList<String> result = new ArrayList<>();
         ArrayList<GitUtil.Line> cleaned = new ArrayList<>();
         for (GitUtil.Line change : changes) {
@@ -71,44 +77,34 @@ public class DebianGitArchive extends GitArchive {
             }
         }
         changes = cleaned.toArray(new GitUtil.Line[cleaned.size()]);
-
-
+        ArrayList<GitUtil.Line> resultList = new ArrayList<>();
         int packageStart = 0;
         for(int i = 0; i < changes.length;i++){
             if(changes[i].line.startsWith("Package: ") &&
-                    (changes[i].changeType == GitUtil.Line.ChangeType.UNCHANGED ||changes[i].changeType == GitUtil.Line.ChangeType.NEW))
+                    (changes[i].changeType == neutral ||changes[i].changeType == wanted))
                 packageStart = i;
-            switch (changes[i].changeType){
-                case UNCHANGED:
-                    break;
-                case NEW:
-                    //from Packagestart to here set unchange to new
-                    for(int j = packageStart; j < i;j++){
-                        if(changes[j].changeType == GitUtil.Line.ChangeType.UNCHANGED)
-                            changes[j].changeType = GitUtil.Line.ChangeType.NEW;
-                    }
+            if(changes[i].changeType == neutral){
+                break;
+            }else if (changes[i].changeType == wanted){
+                //from Packagestart to here set unchange to wanted
+                for(int j = packageStart; j < i;j++){
+                    resultList.add(changes[j]);
+                }
 
-                    while (i < changes.length){
-                        if(changes[i].changeType == GitUtil.Line.ChangeType.UNCHANGED)
-                            changes[i].changeType = GitUtil.Line.ChangeType.NEW;
-                        if( i+ 1 == changes.length || changes[i+1].line.startsWith("Package: ")){
-                            break;
-                        }
-                        i++;
+                while (i < changes.length){
+                    resultList.add(changes[i]);
+                    if( i+ 1 == changes.length || changes[i+1].line.startsWith("Package: ")){
+                        break;
                     }
-            }
-        }
-        StringBuilder b = new StringBuilder();
-        for(int i = 0; i < changes.length;i++){
-            if(changes[i].changeType == GitUtil.Line.ChangeType.NEW){
-                b.append(changes[i].line);
-                b.append('\n');
-                if(i+1 >= changes.length || changes[i+1].changeType != GitUtil.Line.ChangeType.NEW){
-                    result.add(b.toString());
-                    b = new StringBuilder();
+                    i++;
                 }
             }
         }
-        return result.toArray(new String[result.size()]);
+        StringBuilder b = new StringBuilder();
+        for(GitUtil.Line line : resultList){
+            b.append(line.line);
+            b.append('\n');
+        }
+        return b.toString();
     }
 }

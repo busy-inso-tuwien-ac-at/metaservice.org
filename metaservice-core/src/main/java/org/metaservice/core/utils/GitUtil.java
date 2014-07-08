@@ -144,7 +144,7 @@ public class GitUtil {
         return getChangedFiles("HEAD");
     }
     public File[] getChangedFiles(String revisison) throws GitException {
-        Process p = execInWorkdir("git diff --name-only "+revisison+" "+revisison+"~1");
+        Process p = execInWorkdir("git diff --name-only "+revisison+" "+revisison+"^");
         File[] changedFiles;
 
         ArrayList<File> list = new ArrayList<>();
@@ -220,10 +220,8 @@ public class GitUtil {
 
     public String[] getParentHashes(@NotNull String revision) throws GitException {
         Process process = execInWorkdir("git rev-list --parents -n 1 " + revision );
-        StringWriter writer = new StringWriter();
         try {
-            IOUtils.copy(process.getInputStream(), writer);
-            String s = writer.getBuffer().toString();
+            String s = IOUtils.toString(process.getInputStream());
             debug(process);
             //ignore current
             LOGGER.info(s);
@@ -262,10 +260,9 @@ public class GitUtil {
             }
             Process process = execInWorkdir("git show "+revision+":"+path);
             LOGGER.info("git show "+revision+":"+path);
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(process.getInputStream(), writer);
+            String result = IOUtils.toString(process.getInputStream());
             debug(process);
-            return writer.getBuffer().toString();
+            return result;
         } catch (GitException e) {
            LOGGER.debug("Process did not terminate correctly",e);
            return null;

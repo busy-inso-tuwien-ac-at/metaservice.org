@@ -127,7 +127,10 @@ public class QueueContainer implements StatisticsProvider{
             Ordering<ObjectId> objectIdOrdering = new Ordering<ObjectId>() {
                 @Override
                 public int compare(ObjectId left, ObjectId right) {
-                    return left.compareTo(right);
+                    if(left != null)
+                        return left.compareTo(right);
+                    else
+                        return -1;
                 }
             };
             ArrayList<ObjectId> list = new ArrayList<>();

@@ -26,11 +26,19 @@
         {{#eachArray this}}
         <li>
             {{#if dc:description}}
-            <a href="{{uri ms-swdep:dependOn}}">{{dc:description}}</a>
+                {{#if ms-swdep:projectConstraint}}
+                    <a href="{{uri ms-swdep:projectConstraint}}">{{dc:description}}</a>
+                {{else}}
+                    <a href="{{uri this}}">{{dc:description}}</a>
+                {{/if}}
             {{/if}}
             {{#eachArray rdf:li}}
                 {{#if @index}}<b>or</b>{{/if}}
-                <a href="{{uri ms-swdep:dependOn}}">{{dc:description}}</a>
+                {{#if ms-swdep:projectConstraint}}
+                    <a href="{{uri ms-swdep:projectConstraint}}">{{dc:description}}</a>
+                {{else}}
+                    <a href="{{uri this}}">{{dc:description}}</a>
+                {{/if}}
             {{/eachArray}}
         </li>
         {{/eachArray}}
@@ -93,6 +101,7 @@
         main();
     </script>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/d/ms.ico">
     <link rel="meta" type="application/rdf+xml" id="rdflink"/>
 </head>
 <body>

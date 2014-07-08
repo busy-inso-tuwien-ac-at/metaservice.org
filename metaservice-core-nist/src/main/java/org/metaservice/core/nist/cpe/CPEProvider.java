@@ -11,7 +11,6 @@ import org.metaservice.nist.cpe.jaxb.*;
 import org.mitre.cpe.common.LogicalValue;
 import org.mitre.cpe.common.WellFormedName;
 import org.mitre.cpe.naming.util.CPEFactory;
-import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -102,30 +101,32 @@ public class CPEProvider extends AbstractProvider<ItemType> {
                 }
             }
             if(o.getReferences() != null){
+                int i = 0;
                 for(ReferencesType.Reference reference : o.getReferences().getReference()){
-                    BNode bNode = valueFactory.createBNode();
-                    resultConnection.add(uri,CPE.REFERENCE, bNode);
+                    URI referenceUri = valueFactory.createURI(uri.toString()+"#Reference" + i++);
+                    resultConnection.add(uri,CPE.REFERENCE, referenceUri);
                     if(reference.getHref() != null) {
-                        resultConnection.add(bNode, CPE.REFERENCE_HREF, valueFactory.createURI(reference.getHref()));
+                        resultConnection.add(referenceUri, CPE.REFERENCE_HREF, valueFactory.createURI(reference.getHref()));
                     }
                     if(reference.getValue() != null) {
-                        resultConnection.add(bNode, CPE.REFERENCE_VALUE, valueFactory.createLiteral(reference.getValue()));
+                        resultConnection.add(referenceUri, CPE.REFERENCE_VALUE, valueFactory.createLiteral(reference.getValue()));
                     }
                 }
             }
             if(o.getCheck() != null){
+                int i = 0;
                 for(CheckType checkType : o.getCheck()){
                     if(checkType.getHref() != null ||checkType.getValue() != null ||checkType.getSystem() != null){
-                        BNode bNode = valueFactory.createBNode();
-                        resultConnection.add(uri,CPE.CHECK,bNode);
+                        URI checkUri = valueFactory.createURI(uri.toString()+"#Check" + i++);
+                        resultConnection.add(uri,CPE.CHECK,checkUri);
                         if(checkType.getValue() != null){
-                            resultConnection.add(bNode,CPE.CHECK_VALUE,valueFactory.createLiteral(checkType.getValue()));
+                            resultConnection.add(checkUri,CPE.CHECK_VALUE,valueFactory.createLiteral(checkType.getValue()));
                         }
                         if(checkType.getSystem() != null){
-                            resultConnection.add(bNode,CPE.CHECK_SYSTEM,valueFactory.createLiteral(checkType.getSystem()));
+                            resultConnection.add(checkUri,CPE.CHECK_SYSTEM,valueFactory.createLiteral(checkType.getSystem()));
                         }
                         if(checkType.getHref() != null){
-                            resultConnection.add(bNode,CPE.CHECK_HREF,valueFactory.createLiteral(checkType.getHref()));
+                            resultConnection.add(checkUri,CPE.CHECK_HREF,valueFactory.createLiteral(checkType.getHref()));
                         }
                     }
                 }

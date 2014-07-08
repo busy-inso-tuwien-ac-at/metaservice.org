@@ -3,6 +3,7 @@ package org.metaservice.api.parser;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.archive.ArchiveParameters;
 
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,5 +15,5 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public interface Parser<T> {
-    public List<T> parse(String s, ArchiveAddress archiveParameters);
+    public List<T> parse(Reader s, ArchiveAddress archiveParameters) throws ParserException;
 }
