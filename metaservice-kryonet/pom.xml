@@ -5,7 +5,7 @@
     <parent>
         <artifactId>metaservice-parent</artifactId>
         <groupId>org.metaservice</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.1</version>
         <relativePath>../metaservice-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -25,12 +25,12 @@
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api-messaging</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.mongojack</groupId>
