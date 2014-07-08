@@ -3,7 +3,6 @@ package org.metaservice.core.deb;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import org.metaservice.core.archive.TestUtils;
 import org.metaservice.core.deb.parser.PackagesParser;
 import org.metaservice.core.utils.MetaserviceHttpClient;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -32,7 +31,7 @@ public class PackagesParserTest {
     PackagesParser parser = Parboiled.createParser(PackagesParser.class);
     @Test
     public void checkLocalFileSplit() throws IOException {
-        String input = TestUtils.readFile("crawlertest/error12933");
+        String input = IOUtils.toString(new FileReader("crawlertest/error12933"));
         String[] splitInput = input.split("\nPackage:");
         boolean first = true;
         for(String s : splitInput){
@@ -47,22 +46,22 @@ public class PackagesParserTest {
 
     @Test
     public void checkLocalFile() throws IOException {
-        String input = TestUtils.readFile("crawlertest/error12933");
-      checkString(input);
+        String input = IOUtils.toString(new FileReader("crawlertest/error12933"));
+        checkString(input);
     }
 
     void checkString(String s){
         try{
             BasicParseRunner runner = new BasicParseRunner(parser.List());
-        ParsingResult<?> result =  runner.run(s);
-     //   String parseTreePrintOut = ParseTreeUtils.printNodeTree(result);
-        Object o =  result.valueStack.pop();
-       // System.err.println(o);
+            ParsingResult<?> result =  runner.run(s);
+            //   String parseTreePrintOut = ParseTreeUtils.printNodeTree(result);
+            Object o =  result.valueStack.pop();
+            // System.err.println(o);
 
-        // System.out.println(parseTreePrintOut);
-        for(ParseError e : result.parseErrors){
-            ErrorUtils.printParseError(e);
-        }
+            // System.out.println(parseTreePrintOut);
+            for(ParseError e : result.parseErrors){
+                ErrorUtils.printParseError(e);
+            }
         }catch (RuntimeException e){
             System.err.println(s);
             throw e;
@@ -96,7 +95,7 @@ public class PackagesParserTest {
             String parseTreePrintOut = ParseTreeUtils.printNodeTree(result);
             System.out.println((result.valueStack.pop()));
 
-           // System.out.println(parseTreePrintOut);
+            // System.out.println(parseTreePrintOut);
             for(ParseError e : result.parseErrors){
                 ErrorUtils.printParseError(e);
             }
@@ -155,7 +154,7 @@ public class PackagesParserTest {
         ParsingResult<?> result =  runner.run(x);
         String parseTreePrintOut = ParseTreeUtils.printNodeTree(result);
         System.out.println(parseTreePrintOut);
-                   System.out.println((result.valueStack.pop()));
+        System.out.println((result.valueStack.pop()));
 
     }
 }
