@@ -6,14 +6,12 @@
     </moduleInfo>
     <provider
             id="debianPackageProvider"
-            type="deb"
             model="org.metaservice.core.deb.parser.ast.Package"
             class="org.metaservice.core.deb.DebianPackageProvider"
             >
         <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/deb.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
-        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/dcterms.rdf"/>
         <load url="http://metaservice.org/ns/dcelements.rdf"/>
@@ -25,6 +23,7 @@
     <parser
             id="parboiledParser"
             type="deb"
+            model="org.metaservice.core.deb.parser.ast.Package"
             class="org.metaservice.core.deb.ParboiledDebParser"/>
 
     <postprocessor
@@ -33,7 +32,6 @@
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/deb.rdf"/>
-        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
     </postprocessor>
@@ -44,7 +42,6 @@
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
-        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/deb.rdf"/>
     </postprocessor>
@@ -57,7 +54,6 @@
         <load url="http://metaservice.org/ns/doap.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
-        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
         <load url="http://metaservice.org/ns/deb.rdf"/>
     </postprocessor>
 
@@ -68,7 +64,6 @@
         <load url="http://metaservice.org/ns/doap.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
-        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
         <load url="http://metaservice.org/ns/deb.rdf"/>
     </postprocessor>
 

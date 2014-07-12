@@ -1,0 +1,74 @@
+<metaservice>
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
+    <provider
+            id="ldProvider"
+            type="rdfxml"
+            model="org.openrdf.model.Model"
+            class="org.metaservice.core.ld.LDProvider"
+            >
+        <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/dcterms.rdf"/>
+        <load url="http://metaservice.org/ns/dcelements.rdf"/>
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/doap.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </provider>
+
+    <parser
+            id="rdfxmlParser"
+            type="rdfxml"
+            model="org.openrdf.model.Model"
+            class="org.metaservice.core.ld.parser.RDFXMLParser"/>
+
+    <parser
+            id="jsonldParser"
+            type="jsonld"
+            model="org.openrdf.model.Model"
+            class="org.metaservice.core.ld.parser.JSONLDParser"/>
+
+    <parser
+            id="rdfaParser"
+            type="rdfa"
+            model="org.openrdf.model.Model"
+            class="org.metaservice.core.ld.parser.RDFAParser"/>
+
+    <parser
+            id="turtleParser"
+            type="turtle"
+            model="org.openrdf.model.Model"
+            class="org.metaservice.core.ld.parser.TurtleParser"/>
+
+    <postprocessor
+            id="debVersionOrder"
+            class="org.metaservice.core.deb.postprocessor.DebianVersionReasoner">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </postprocessor>
+
+    <repository
+            id="apache"
+            type="rdfxml"
+            baseUri="http://projects.apache.org/projects/"
+            startUri="http://projects.apache.org/projects/"
+            crawler="apacheCrawler"
+            >
+    </repository>
+
+    <crawler id="apacheCrawler">
+        <follow matches="http://projects.apache.org/projects/.*html"> <!-- Distributions -->
+            <fetch link="DOAP"/>
+        </follow>
+    </crawler>
+
+    <ontology
+            name="licensing.rdf" apply="true" distribute="true"/>
+
+</metaservice>

@@ -215,7 +215,6 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
 
     public static class ProviderDescriptorImpl implements ProviderDescriptor {
         private String id;
-        private String type;
         private String className;
         private String archiveClassName;
         private String model;
@@ -226,7 +225,6 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "ProviderDescriptorImpl{" +
                     "id='" + id + '\'' +
-                    ", type='" + type + '\'' +
                     ", className='" + className + '\'' +
                     ", archiveClassName='" + archiveClassName + '\'' +
                     ", model='" + model + '\'' +
@@ -250,15 +248,6 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
 
         public void setId(String id) {
             this.id = id;
-        }
-
-        @XmlAttribute
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
         }
 
         @XmlAttribute(name="class")
@@ -431,6 +420,7 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
 
     public static class ParserDescriptorImpl implements ParserDescriptor{
         private String id;
+        private String model;
         private String className;
         private String type;
 
@@ -438,9 +428,19 @@ public class JAXBMetaserviceDescriptorImpl implements MetaserviceDescriptor {
         public String toString() {
             return "ParserDescriptorImpl{" +
                     "id='" + id + '\'' +
-                    ", \nclassName='" + className + '\'' +
-                    ", \ntype='" + type + '\'' +
+                    ", model='" + model + '\'' +
+                    ", className='" + className + '\'' +
+                    ", type='" + type + '\'' +
                     '}';
+        }
+
+        @XmlAttribute
+        public String getModel() {
+            return model;
+        }
+
+        public void setModel(String model) {
+            this.model = model;
         }
 
         @XmlAttribute

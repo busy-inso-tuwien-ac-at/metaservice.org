@@ -2,30 +2,35 @@
 <Project  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
           xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
           xmlns:foaf="http://xmlns.com/foaf/0.1/"
+          xmlns:admssw="http://purl.org/adms/sw/"
+          xmlns:swdep="http://metaservice.org/ns/metaservice-swdep"
           xmlns="http://usefulinc.com/ns/doap#">
-    <name>demo-GPLv2-lib</name>
-    <homepage rdf:resource="http://github.com/thargor/demo-lgpl2-lib" />
+    <name>demo-bsd-lib</name>
+    <homepage rdf:resource="" />
     <created>2013-12-11</created>
     <shortdesc xml:lang="en">
-        This is a demonstration library which is licensed under the LGPLv2
+        This is a demonstration project which is licensed under the GPLv2, and does not violate any licenses by its
+        dependencies.
     </shortdesc>
 
     <description xml:lang="en">
-        demo-GPLv2-lib was created to verify applicability of SPARQL for license term violation detection in the
-        metaservice.org project. It's solely purpose is to be licensed under the LGPLv2.
+        demo-project-a was created to verify applicability of SPARQL for license term violation detection in the
+        metaservice.org project.
     </description>
 
     <license rdf:resource="http://spdx.org/licenses/LGPL-2.0" />
 
     <release>
-        <Version>
+        <Version rdf:about="10.9.8">
             <created>2013-12-11</created>
             <revision>10.9.8</revision>
+            <license rdf:resource="http://spdx.org/licenses/GPL-2.0" />
+            <swdep:links rdf:resource="http://github.com/thargor/demo-gplv2-lib#10.9.8"/>
+            <swdep:requires rdf:resource="http://github.com/thargor/demo-gplv2-lib#10.9.8"/>
         </Version>
     </release>
 
-
-    <download-page rdf:resource="http://github.com/thargor/demo-lgpl-lib" />
+    <download-page rdf:resource="http://github.com/thargor/demo-bsd-lib" />
 
     <maintainer>
         <foaf:Person>

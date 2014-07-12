@@ -129,6 +129,77 @@ public class Manager {
     }
 
 
+    public void buildIterativeCache() throws ManagerException{
+        try {
+            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
+                    "SELECT DISTINCT ?time ?action ?path WHERE { ?c <"+RDF.TYPE+"> <" + METASERVICE.METADATA+ "> ;<"+METASERVICE.TIME+"> ?time; <"+ METASERVICE.ACTION+"> ?action; <"+ METASERVICE.PATH+"> ?path } ORDER BY ?time");
+            TupleQueryResult timeResult =tupleQuery.evaluate();
+
+
+            class ResultTuple{
+                Value time;
+                Value action;
+                Value path;
+                URI selectedURI;
+            }
+
+            HashSet<URI> intermediateResults = new HashSet<>();
+            ArrayList<ResultTuple> list = new ArrayList<>();
+
+            while(timeResult.hasNext()) {
+                BindingSet bs = timeResult.next();
+                ResultTuple resultTuple = new ResultTuple();
+                resultTuple.time = bs.getValue("time");
+                resultTuple.action = bs.getValue("action");
+                resultTuple.path = bs.getValue("path");
+                resultTuple.selectedURI = valueFactory.createURI("http://metaservice.org/t/"+resultTuple.path.stringValue());
+                intermediateResults.add(resultTuple.selectedURI);
+                list.add(resultTuple);
+            }
+
+            for(URI uri :intermediateResults){
+                LOGGER.info("Clearing old {}", uri);
+                repositoryConnection.clear(uri);
+            }
+            for(ResultTuple tuple : list){
+                if(!tuple.action.equals(METASERVICE.ACTION_CONTINUOUS)) {
+                    LOGGER.info("doing {} {} {} {}",tuple.selectedURI, tuple.time.stringValue(), tuple.path.stringValue(), tuple.action.stringValue());
+                    if(tuple.action.equals(METASERVICE.ACTION_ADD)){
+                         Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,
+                                 "INSERT {GRAPH ?c {?s ?p ?o}. ?c <rdf:type> <http://quargl>} WHERE {GRAPH ?x {?s ?p ?o}. ?x <"+METASERVICE.TIME+"> ?time; <"+METASERVICE.ACTION+"> ?action; <"+METASERVICE.PATH+"> ?path}");
+                        update.setBinding("c",tuple.selectedURI);
+                        update.setBinding("time",tuple.time);
+                        update.setBinding("path",tuple.path);
+                        update.setBinding("action",tuple.action);
+                        update.execute();
+                    }else{
+                        Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,
+                                "DELETE {GRAPH ?c {?s ?p ?o}} WHERE {GRAPH ?x {?s ?p ?o}. ?x <"+METASERVICE.TIME+"> ?time; <"+METASERVICE.ACTION+"> ?action; <"+METASERVICE.PATH+"> ?path}");
+                        update.setBinding("c",tuple.selectedURI);
+                        update.setBinding("time",tuple.time);
+                        update.setBinding("path",tuple.path);
+                        update.setBinding("action",tuple.action);
+                        update.execute();
+                    }
+                }
+            }
+
+            for(URI intermediateResult:  intermediateResults){
+                LOGGER.info("Merging {}",intermediateResult);
+                Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,"INSERT {GRAPH <http://metaservice.org/totalresult>{?s ?p ?o}} WHERE {GRAPH ?c { ?s ?p ?o}}");
+                update.setBinding("c",intermediateResult);
+                update.execute();
+            }
+
+            LOGGER.info("Merging continuous");
+            Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,"INSERT {GRAPH <http://metaservice.org/totalresult>{?s ?p ?o}} WHERE {GRAPH ?c {?s ?p ?o}. ?c <"+METASERVICE.LATEST+"> ?time}");
+//todo bind latest time
+            update.execute();
+        } catch (RepositoryException | MalformedQueryException | QueryEvaluationException | UpdateExecutionException e) {
+            throw new ManagerException(e);
+        }
+    }
+
     public void rebuildLatestCache() throws  ManagerException{
         try {
             URI latestGraphContext = valueFactory.createURI("http://metaservice.org/t/latest");
@@ -350,7 +421,8 @@ public class Manager {
                             selectedRepositoryDescriptor.getId(),
                             gitArchive.getSourceBaseUri(),
                             commitTime,
-                            path);
+                            path,
+                            selectedRepositoryDescriptor.getType());
                     archiveAddress.setParameters(selectedRepositoryDescriptor.getProperties());
                     messageHandler.send(archiveAddress);
                 }

@@ -34,7 +34,6 @@ public interface MetaserviceDescriptor {
 
     public static interface ProviderDescriptor {
         String getId();
-        String getType();
         String getModel();
         String getClassName();
         @NotNull
@@ -45,6 +44,7 @@ public interface MetaserviceDescriptor {
 
     public static interface ParserDescriptor{
         String getId();
+        String getModel();
         String getType();
         String getClassName();
     }

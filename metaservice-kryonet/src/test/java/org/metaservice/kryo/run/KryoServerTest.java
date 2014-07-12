@@ -61,7 +61,7 @@ public class KryoServerTest {
         kryoServer.run();
         MessageHandler messageHandler = new MongoKryoMessageHandler();
 
-        ArchiveAddress archiveAddress =new ArchiveAddress("asdf","asdf",new Date(),"ASDASDF");
+        ArchiveAddress archiveAddress =new ArchiveAddress("asdf","asdf",new Date(),"ASDASDF","type");
 
         messageHandler.init();
         Thread.sleep(1000);

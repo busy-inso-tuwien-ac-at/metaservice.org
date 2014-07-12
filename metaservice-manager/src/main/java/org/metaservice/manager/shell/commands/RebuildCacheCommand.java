@@ -1,6 +1,7 @@
 package org.metaservice.manager.shell.commands;
 
 import org.jboss.aesh.cl.CommandDefinition;
+import org.jboss.aesh.cl.Option;
 import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.manager.Manager;
@@ -17,9 +18,15 @@ public class RebuildCacheCommand extends AbstractManagerCommand {
         super(manager);
     }
 
+    @Option(name="iterative",hasValue =false)
+    private boolean iterative;
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException, ManagerException {
-        manager.rebuildLatestCache();
+        if(iterative){
+            manager.buildIterativeCache();
+        }else {
+            manager.rebuildLatestCache();
+        }
         return CommandResult.SUCCESS;
     }
 }

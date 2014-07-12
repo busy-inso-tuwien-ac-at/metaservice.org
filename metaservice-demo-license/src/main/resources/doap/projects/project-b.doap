@@ -24,11 +24,11 @@
         <Version rdf:about="10.9.8">
             <created>2013-12-11</created>
             <revision>10.9.8</revision>
-            <license rdf:resource="http://spdx.org/licenses/GPL-2.0" />
+            <license rdf:resource="http://spdx.org/licenses/BSD-2-Clause" />
             <swdep:links rdf:resource="http://github.com/thargor/demo-bsd-lib#10.9.8"/>
             <swdep:requires rdf:resource="http://github.com/thargor/demo-bsd-lib#10.9.8"/>
-            <swdep:links rdf:resource="http://github.com/thargor/demo-gplv2-lib#10.9.8"/>
-            <swdep:requires rdf:resource="http://github.com/thargor/demo-gplv2-lib#10.9.8"/>
+            <swdep:links rdf:resource="http://github.com/thargor/demo-lgplv2-lib#10.9.8"/>
+            <swdep:requires rdf:resource="http://github.com/thargor/demo-lgplv2-lib#10.9.8"/>
         </Version>
     </release>
 

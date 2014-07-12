@@ -4,7 +4,7 @@
           xmlns:foaf="http://xmlns.com/foaf/0.1/"
           xmlns="http://usefulinc.com/ns/doap#">
     <name>demo-GPLv2-lib</name>
-    <homepage rdf:resource="http://github.com/thargor/demo-gpl-lib" />
+    <homepage rdf:resource="http://github.com/thargor/demo-gpl2-lib" />
     <created>2013-12-11</created>
     <shortdesc xml:lang="en">
         This is a demonstration library which is licensed under the GPLv2

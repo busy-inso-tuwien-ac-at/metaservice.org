@@ -11,14 +11,14 @@
     </parent>
 
     <artifactId>metaservice-core</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
@@ -72,12 +72,12 @@
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api-messaging</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-kryonet</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
       <!--  <dependency>
             <groupId>org.metaservice</groupId>

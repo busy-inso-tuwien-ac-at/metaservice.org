@@ -41,7 +41,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
     private final MetaserviceDescriptor metaserviceDescriptor;
     private final MetaserviceDescriptor.ProviderDescriptor providerDescriptor;
     private final Provider<T> provider;
-    private final Parser<T> parser;
+    private final ParserFactory<T> parserFactory;
 
     private final ValueFactory valueFactory;
     private final RepositoryConnection repositoryConnection;
@@ -59,7 +59,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
     public ProviderDispatcher(
             MetaserviceDescriptor.ProviderDescriptor providerDescriptor,
             Provider<T> provider,
-            Parser<T> parser,
+            ParserFactory<T> parserFactory,
             Set<Archive> archives,
             ValueFactory valueFactory,
             MessageHandler messageHandler,
@@ -69,7 +69,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
             MetaserviceDescriptor metaserviceDescriptor) throws RepositoryException, MalformedQueryException, MetaserviceException {
         super(repositoryConnection, config, messageHandler, valueFactory, provider);
         this.provider = provider;
-        this.parser = parser;
+        this.parserFactory = parserFactory;
         this.valueFactory = valueFactory;
         this.repositoryConnection = repositoryConnection;
         this.archives = archives;
@@ -136,7 +136,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
                         repositoryDescriptor.getId(),
                         source,
                         time,
-                        path);
+                        path,
+                        repositoryDescriptor.getType());
                 address.setParameters(repositoryDescriptor.getProperties());
                 Set<URI> metadataToDelete = new HashSet<>();
                 metadataToDelete.add(oldMetadata);
@@ -220,8 +221,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
     private List<Statement> getStatements(Reader now, ArchiveAddress archiveAddress) throws RepositoryException, MetaserviceException {
         Repository tempRepository = createTempRepository(false);
         RepositoryConnection tempRepositoryConnection = tempRepository.getConnection();
-        LOGGER.debug("started parsing");
-        List<T> objects = parser.parse(now,archiveAddress);
+        LOGGER.debug("started parsing type {}",archiveAddress.getType());
+        List<T> objects = parserFactory.getParser(archiveAddress.getType()).parse(now,archiveAddress);
         LOGGER.debug("end parsing {} objects" , objects.size());
         HashMap<String,String> parameters = new HashMap<>(archiveAddress.getParameters());
         copyMetadataToProperty(archiveAddress,parameters);

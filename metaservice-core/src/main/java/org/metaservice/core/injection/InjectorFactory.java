@@ -19,7 +19,8 @@ public class InjectorFactory {
 
     public static Injector getInjectorForProvider(String providerId){
         MetaserviceDescriptor.ProviderDescriptor selectedProvider = null;
-        MetaserviceDescriptor.ParserDescriptor selectedParser = null;
+        List<MetaserviceDescriptor.ParserDescriptor> selectedParsers = new ArrayList<>();
+        List<MetaserviceDescriptor.RepositoryDescriptor> selectedRepositories = new ArrayList<>();
 
 
         Injector injector = Guice.createInjector(new MetaserviceModule());
@@ -38,36 +39,37 @@ public class InjectorFactory {
         }
 
 
-        List<MetaserviceDescriptor.RepositoryDescriptor> selectedRepositories = new ArrayList<>();
-        for(MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor : descriptor.getRepositoryList()){
-            if(repositoryDescriptor.getType().equals(selectedProvider.getType())){
-                if(repositoryDescriptor.getActive() && selectedProvider.getType().equals(repositoryDescriptor.getType())){
-                    selectedRepositories.add(repositoryDescriptor);
+        for(MetaserviceDescriptor.ParserDescriptor parserDescriptor : descriptor.getParserList()){
+            if(selectedProvider.getModel().equals(parserDescriptor.getModel())){
+                selectedParsers.add(parserDescriptor);
+            }
+        }
+
+        if(selectedParsers.isEmpty()){
+            LOGGER.error("FATAL Error: No compatible parser of model '{}' found, choose one of {}", selectedProvider.getModel(),descriptor.getParserList());
+            System.exit(-1);
+        }
+        LOGGER.info("Found {} parsers ", selectedParsers.size());
+
+        for(MetaserviceDescriptor.ParserDescriptor selectedParser : selectedParsers) {
+            for (MetaserviceDescriptor.RepositoryDescriptor repositoryDescriptor : descriptor.getRepositoryList()) {
+                if (repositoryDescriptor.getType().equals(selectedParser.getType())) {
+                    if (repositoryDescriptor.getActive()) {
+                        selectedRepositories.add(repositoryDescriptor);
+                    }
                 }
             }
         }
 
         if(selectedRepositories.isEmpty()){
-            LOGGER.error("FATAL Error: No compatible repository of type '{}' found, choose one of {}", selectedProvider.getType(),descriptor.getRepositoryList());
+            LOGGER.error("FATAL Error: No compatible repository of type '{}' found, choose one of {}", selectedParsers, descriptor.getRepositoryList());
             System.exit(-1);
         }
-
-        for(MetaserviceDescriptor.ParserDescriptor parserDescriptor : descriptor.getParserList()){
-            if(selectedProvider.getType().equals(parserDescriptor.getType())){
-                selectedParser = parserDescriptor;
-                break;
-            }
-        }
-
-        if(selectedParser == null){
-            LOGGER.error("FATAL Error: No compatible parser of type '{}' found, choose one of {}", selectedProvider.getType(),descriptor.getParserList());
-            System.exit(-1);
-        }
-
+        LOGGER.info("Found {} repositories ", selectedRepositories.size());
 
         injector = Guice.createInjector(
                 new MetaserviceModule(),
-                new ProviderModule(selectedProvider,selectedParser,selectedRepositories, injector.getInstance(Config.class)));
+                new ProviderModule(selectedProvider,selectedParsers,selectedRepositories, injector.getInstance(Config.class)));
         return injector;
     }
 

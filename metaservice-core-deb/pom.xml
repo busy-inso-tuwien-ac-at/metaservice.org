@@ -11,19 +11,19 @@
     </parent>
 
     <artifactId>metaservice-core-deb</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-core</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
           <!--  <scope>runtime</scope> not possible because dependency on gitarchive -->
         </dependency>
 

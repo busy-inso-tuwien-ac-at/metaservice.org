@@ -97,6 +97,8 @@ public class CrawlerProvider implements Provider<Crawler> {
             return "a[href="+ element.getAttribute("exactly") +"]";
         } else if(element.hasAttribute("selector")){
             return element.getAttribute("selector");
+        }else if (element.hasAttribute("link")){
+            return "link[title=" + element.getAttribute("link")+"]";
         }
         throw  new RuntimeException("Unknown Selector " +  element.toString() );
     }

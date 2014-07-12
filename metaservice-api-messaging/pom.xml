@@ -11,12 +11,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>metaservice-api-messaging</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>

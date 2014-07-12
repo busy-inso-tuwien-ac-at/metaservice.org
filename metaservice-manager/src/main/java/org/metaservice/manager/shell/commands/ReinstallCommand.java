@@ -9,6 +9,7 @@ import org.metaservice.api.messaging.config.ManagerConfig;
 import org.metaservice.manager.Manager;
 import org.metaservice.manager.ManagerException;
 import org.metaservice.manager.shell.completer.AvailableModuleCompleter;
+import org.metaservice.manager.shell.completer.InstalledModuleCompleter;
 import org.metaservice.manager.shell.validator.ModuleValidator;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class ReinstallCommand extends AbstractManagerCommand{
     public ReinstallCommand(Manager manager) {
         super(manager);
     }
-    @Arguments(completer = AvailableModuleCompleter.class, validator = ModuleValidator.class)
+    @Arguments(completer = InstalledModuleCompleter.class, validator = ModuleValidator.class)
     private List<String> moduleIdentifier;
 
     @Option(name="replace",hasValue =false)

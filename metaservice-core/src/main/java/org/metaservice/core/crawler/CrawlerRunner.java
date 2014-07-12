@@ -79,7 +79,8 @@ public class CrawlerRunner {
                                 repositoryDescriptor.getId(),
                                 sourceBaseUri,
                                 commitTime,
-                                s);
+                                s,
+                                repositoryDescriptor.getType());
                         archiveAddress.setParameters(repositoryDescriptor.getProperties());
                         producer.send(archiveAddress);
                     }  catch (MessagingException e) {

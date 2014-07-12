@@ -17,7 +17,7 @@ public class WordpressParserTest {
     @Test
     public void testParse() throws Exception {
         WordpressParser wordpressParser = new WordpressParser();
-        List<VersionEntry> result = wordpressParser.parse(new InputStreamReader(WordpressParserTest.class.getResourceAsStream("/release-archive.html")),new ArchiveAddress("","",null,""));
+        List<VersionEntry> result = wordpressParser.parse(new InputStreamReader(WordpressParserTest.class.getResourceAsStream("/release-archive.html")),new ArchiveAddress("","",null,"",""));
       //  assertThat(result,is(Matchers.anyListOf(VersionEntry.class)));
         assertThat(result.size(),is(262));
         System.err.println(result);

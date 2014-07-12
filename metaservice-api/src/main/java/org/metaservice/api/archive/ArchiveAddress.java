@@ -10,6 +10,7 @@ public class ArchiveAddress implements Serializable{
     private String archiveUri;
     private Date time;
     private String path;
+    private String type;
     private HashMap<String,String> parameters = new HashMap<>();
 
     public HashMap<String, String> getParameters() {
@@ -21,11 +22,12 @@ public class ArchiveAddress implements Serializable{
     }
 
     private ArchiveAddress(){}
-    public ArchiveAddress(String repository,String archiveUri, Date time, String path) {
+    public ArchiveAddress(String repository,String archiveUri, Date time, String path,String type) {
         this.repository = repository;
         this.archiveUri = archiveUri;
         this.time = time;
         this.path = path;
+        this.type = type;
     }
 
     public String getArchiveUri() {
@@ -60,13 +62,22 @@ public class ArchiveAddress implements Serializable{
         this.repository = repository;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "ArchiveAddress{" +
                 "repository='" + repository + '\'' +
                 ", archiveUri='" + archiveUri + '\'' +
-                ", time='" + time + '\'' +
+                ", time=" + time +
                 ", path='" + path + '\'' +
+                ", type='" + type + '\'' +
                 ", parameters=" + parameters +
                 '}';
     }
