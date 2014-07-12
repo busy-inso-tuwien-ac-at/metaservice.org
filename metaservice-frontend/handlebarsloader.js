@@ -74,6 +74,22 @@ function convertToJson(data,root){
     return result[root];
 }
 
+Handlebars.registerHelper('literal',function(context,predicate){
+    if($.isArray(context)){
+        //todo make language selection
+        context = context[0];
+    }
+    if ($.isPlainObject(context)){
+        if(context["@value"]){
+            return context["@value"];
+        }else{
+            console.log('???');
+        }
+    }else{
+        return context;
+    }
+});
+
 Handlebars.registerHelper('provenance',function(context,predicate){
     var id = Handlebars.Utils.escapeExpression(context["ms:id"]);
     var object = Handlebars.Utils.escapeExpression(context[predicate]);
