@@ -2,19 +2,20 @@ package org.metaservice.frontend.rest;
 
 import com.sun.jersey.spi.resource.Singleton;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -204,7 +205,7 @@ public class SparqlEndpointResource {
         uriBuilder.setScheme("http")
                 .setHost("www.metaservice.org")
                 .setPort(8080)
-                .setPath("/sparql");
+                .setPath("/bigdata/sparql");
 
         return Request.Post(uriBuilder.build())
                 .bodyForm(Form.form().add("query", query).build())
