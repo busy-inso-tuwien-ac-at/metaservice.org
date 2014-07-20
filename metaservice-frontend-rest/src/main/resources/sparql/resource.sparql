@@ -1,9 +1,8 @@
 CONSTRUCT {_QUADMODE_
     GRAPH ?c {?s ?p ?o}.
-    GRAPH ?cc {?c ?cp ?co}.
 }
 WITH {
-    SELECT DISTINCT * {
+    SELECT DISTINCT ?c ?s ?p ?o {
         BIND ($path AS ?s).
         GRAPH ?c{ ?s ?p ?o}.
         FILTER (?p != <http://metaservice.org/ns/metaservice#dummy>).
@@ -65,11 +64,11 @@ WITH {
         hint:Query hint:optimizer "None" .
         INCLUDE %level1.
         ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
-        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
-        ?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
+        #?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
         ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
     } GROUP BY ?subjects ?c ?s ?p ?o
@@ -80,11 +79,11 @@ WITH {
         hint:Query hint:optimizer "None" .
         INCLUDE %level2.
         ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
-        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
-        ?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
+        #?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
         ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
     } GROUP BY ?subjects ?c ?s ?p ?o
@@ -95,25 +94,26 @@ WITH {
         hint:Query hint:optimizer "None" .
         INCLUDE %level3.
         ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
-        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c <http://metaservice.org/ns/metaservice#generator> ?generator.
-        ?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        ?c <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#sourceSubject> ?subjects.
         ?c2 <http://metaservice.org/ns/metaservice#generator> ?generator.
+        #?c2 <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
         ?c2 <http://metaservice.org/ns/metaservice#time> ?time.
         FILTER( ?time < $selectedTime)
     } GROUP BY ?subjects ?c ?s ?p ?o
 } AS %level3maxContinuous
 
 WITH {
-    SELECT ?c ?s ?p ?o {{
+    SELECT DISTINCT ?c ?s ?p ?o {{
+            hint:Query hint:optimizer "None" .
             INCLUDE %level1.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level1max.
-            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level1.
-            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+       #     ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level1maxContinuous.
         }
@@ -121,14 +121,15 @@ WITH {
 } AS %level1filtered
 
 WITH {
-    SELECT ?c ?s ?p ?o {{
+    SELECT DISTINCT ?c ?s ?p ?o {{
+            hint:Query hint:optimizer "None" .
             INCLUDE %level2.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
-            INCLUDE %level2max.
             ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
+            INCLUDE %level2max.
         }UNION{
             INCLUDE %level2.
-            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+       #     ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level2maxContinuous.
         }
@@ -136,29 +137,54 @@ WITH {
 } AS %level2filtered
 
 WITH {
-    SELECT ?c ?s ?p ?o {{
+    SELECT DISTINCT ?c ?s ?p ?o {{
+            hint:Query hint:optimizer "None" .
             INCLUDE %level3.
+            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level3max.
-            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionAdd>.
         }UNION{
             INCLUDE %level3.
-            ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
+        #    ?c <http://metaservice.org/ns/metaservice#action> <http://metaservice.org/ns/metaservice#ActionContinuous>.
             ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
             INCLUDE %level3maxContinuous.
         }
     }
 } AS %level3filtered
 
+WITH {
+    SELECT DISTINCT ?c ?s ?p ?o{
+        {
+           INCLUDE %level1filtered
+        } UNION {
+           INCLUDE %level2filtered
+        } UNION {
+           INCLUDE %level3filtered
+        }
+    }
+} AS %statements
+
+
+WITH{
+    SELECT DISTINCT ?c{
+       INCLUDE %statements
+    }
+} AS %contexts
+
+WITH {
+    SELECT ?c (?c as ?s) ?p ?o{
+        hint:Query hint:optimizer "None" .
+        INCLUDE %contexts
+        GRAPH ?c {?c ?p ?o}.
+    }
+} AS %contextstatements
+
+
 WHERE{
     {
-        INCLUDE %level1filtered
+        INCLUDE %statements
     } UNION {
-        INCLUDE %level2filtered
-    } UNION {
-        INCLUDE %level3filtered
-    }
-    OPTIONAL {
-        GRAPH ?cc {?c ?cp ?co}.
+        INCLUDE %contextstatements
     }
 }
+

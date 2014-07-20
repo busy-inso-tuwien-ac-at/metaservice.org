@@ -1,6 +1,7 @@
 package org.metaservice.api.postprocessor;
 
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.api.rdf.vocabulary.BIGDATA;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.buildingcontexts.BigdataSparqlQuery;
@@ -19,70 +20,64 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PostProcessorSparqlBuilder.class);
 
 
-
     public static BoundVariable getDateVariable(){
         return new BoundVariable("selectedDate");
     }
 
+    //todo support greater sparql subset (subselects, ...)
+    //todo detect and substitute redundant namedqueries
     @Override
     @NotNull
     public String build(final boolean pretty) {
         SparqlQuery sparqlQuery = new BigdataSparqlQuery(){
+            private int statementContextCounter = 0;
 
-            @Override
-            public String build() {
-
-
-                SelectQueryBuilder selectQueryBuilder = select(distinct,selectTerms);
-                for(Variable v : groupByList){
-                    selectQueryBuilder.groupBy(v);
-                }
-                for(Variable v :orderByAscList){
-                    selectQueryBuilder.orderByAsc(v);
-                }
-                for(Variable v :orderByDescList){
-                    selectQueryBuilder.orderByDesc(v);
-                }
-                if(limit != null)
-                    selectQueryBuilder.limit(limit);
-                SelectQueryBuilder heuristic = select(false,all());
-                selectQueryBuilder.with(namedSubQuery("heuristic",heuristic));
-
+            private void handleSubQuery(List<GraphPatternValue> patterns, ArrayList<GraphPatternValue> heuristics, ArrayList<GraphPatternValue> results, SelectQueryBuilder globalQuery){
                 HashMap<Value,String> nameMap = new HashMap<>();
                 HashMap<Value,Variable> timeMap = new HashMap<>();
                 HashMap<Value,Variable> subjectMap= new HashMap<>();
                 HashMap<Value,List<QuadPattern>>  contextMap = new HashMap<>();
-                int i = 0;
-                for(GraphPatternValue pattern : wherePatterns){
+                HashSet<Variable> artificialContextSet = new HashSet<>();
+                for(GraphPatternValue pattern : patterns){
                     if(pattern instanceof QuadPattern){
                         QuadPattern quadPattern = (QuadPattern) pattern;
-                        heuristic.where(quadPattern);
+                        heuristics.add(quadPattern);
                         if(!contextMap.containsKey(quadPattern.getC())){
                             contextMap.put(quadPattern.getC(),new ArrayList<QuadPattern>());
-                            String name = "mmm"+i;
+                            String name = "mmm"+ statementContextCounter;
                             nameMap.put(quadPattern.getC(),name);
                             timeMap.put(quadPattern.getC(),new Variable("time" + name));
                             subjectMap.put(quadPattern.getC(),new Variable("subject" + name));
-                            i++;
+                            statementContextCounter++;
                         }
                         contextMap.get(quadPattern.getC()).add(quadPattern);
                     }else if (pattern instanceof TriplePattern){
                         TriplePattern triplePattern = (TriplePattern) pattern;
-                        String name = "mmm"+i;
+                        heuristics.add(triplePattern);
+                        String name = "mmm"+ statementContextCounter;
                         Variable c = new Variable(name);
-                        contextMap.put(c,new ArrayList<QuadPattern>());
+                        artificialContextSet.add(c);
+                        contextMap.put(c, new ArrayList<QuadPattern>());
                         contextMap.get(c).add(quadPattern(triplePattern.getS(), triplePattern.getP(), triplePattern.getO(), c));
                         nameMap.put(c, name);
                         timeMap.put(c,new Variable("time" + name));
-                        subjectMap.put(c,new Variable("subject" + name));
-                        heuristic.where(triplePattern);
-                        i++;
+                        subjectMap.put(c, new Variable("subject" + name));
+                        statementContextCounter++;
                     }else if (pattern instanceof Filter){
-                        heuristic.where(pattern);
+                        heuristics.add(pattern);
                     }else if (pattern instanceof Union){
-                        //todo fix it such that each unionpart is correctly treated.
-                        heuristic.where(pattern);
-                        LOGGER.warn("UNION found - will default to global time unrelated view");
+                        Union union = (Union) pattern;
+                        ArrayList<GraphPattern> graphPatterns = new ArrayList<>();
+                        ArrayList<GraphPattern> graphPatternsResults = new ArrayList<>();
+                        for(GraphPattern graphPattern : union.getGraphPatterns()){
+                            ArrayList<GraphPatternValue> arrayList = new ArrayList<>();
+                            ArrayList<GraphPatternValue> resultsArrayList = new ArrayList<>();
+                            handleSubQuery(Arrays.asList(graphPattern.getGraphPatternValues()), arrayList, resultsArrayList, globalQuery);
+                            graphPatterns.add(graphPattern(arrayList.toArray(new GraphPatternValue[arrayList.size()])));
+                            graphPatternsResults.add(graphPattern(resultsArrayList.toArray(new GraphPatternValue[resultsArrayList.size()])));
+                        }
+                        heuristics.add(union(graphPatterns.toArray(new GraphPattern[graphPatterns.size()])));
+                        results.add(union(graphPatternsResults.toArray(new GraphPattern[graphPatternsResults.size()])));
                     }else {
                         throw new UnsupportedOperationException();
                     }
@@ -92,6 +87,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     Variable context2 = new Variable("mmmmmcontext2");
                     Variable processableSubject = subjectMap.get(c);
                     String name = nameMap.get(c);
+                    String nameCommon = name +"Common"; //used to check boundness of variables in  heuristic
                     String nameContinuous = name +"Continuous";
                     Variable action = new Variable(name+"Action");
                     Variable time = timeMap.get(c);
@@ -117,62 +113,106 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                         selectList.add(var(variable));
                     }
                     selectList.add(aggregate("MAX", time, time));
+                    SelectQueryBuilder filteredQuery = select(false,all()
+                            ).where(
+                            triplePattern(BIGDATA.QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
+                            include("heuristic")//,
+                    );
+
                     SelectQueryBuilder maxQuery = select(true,
                             selectList.toArray(new SelectTerm[selectList.size()])
                     )
                             .where(
-                                    include("heuristic"),
-                                    filter(unequal(val(action),val(METASERVICE.ACTION_CONTINUOUS))),
-                                    filter(lessOrEqual(val(time), val(getDateVariable()))),
-                                    triplePattern(c,METASERVICE.ACTION,action),
-                                    triplePattern(c,METASERVICE.PATH,path),
-                                    triplePattern(c,METASERVICE.TIME, time)
+                                    include(nameCommon)
                             );
-                    maxQuery.groupBy(path);
-
                     SelectQueryBuilder maxQueryContinuous = select(true,
                             selectList.toArray(new SelectTerm[selectList.size()])
                     )
                             .where(
-                                    include("heuristic"),
-                                    filter(lessOrEqual(val(time), val(getDateVariable()))),
-                                    triplePattern(c,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
-                                    triplePattern(c,METASERVICE.SOURCE_SUBJECT,processableSubject),
-                                    triplePattern(c,METASERVICE.GENERATOR,generator),
-                                    triplePattern(context2,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
-                                    triplePattern(context2,METASERVICE.SOURCE_SUBJECT,processableSubject),
-                                    triplePattern(context2,METASERVICE.GENERATOR,generator),
-                                    triplePattern(context2,METASERVICE.TIME, time)
-                            ).groupBy(processableSubject);
+                                    include(nameCommon)
+                            );
+
+                    for(QuadPattern quadPattern : contextMap.get(c)){
+                        maxQuery.where(quadPattern);
+                        maxQueryContinuous.where(quadPattern);
+                    }
                     for(Variable var : groupByList){
+                        if(!artificialContextSet.contains(var)) {
+                            filteredQuery.where(filter(bound(val(var))));
+                        }
                         maxQuery.groupBy(var);
                         maxQueryContinuous.groupBy(var);
                     }
-                    for(QuadPattern quadPattern : contextMap.get(c)){
-                        maxQueryContinuous.where(quadPattern);
-                        selectQueryBuilder.where(quadPattern);
-                    }
-                    selectQueryBuilder.with(
-                            namedSubQuery(nameContinuous,maxQueryContinuous),
-                            namedSubQuery(name,maxQuery)
+                    maxQuery.where(
+                                    triplePattern(BIGDATA.QUERY, BIGDATA.OPTIMIZE, BIGDATA.NONE),
+                                    filter(unequal(val(action),val(METASERVICE.ACTION_CONTINUOUS))),
+                                    filter(lessOrEqual(val(time), val(getDateVariable()))),
+                                    triplePattern(c,METASERVICE.TIME, time),
+                                    triplePattern(c,METASERVICE.ACTION,action),
+                                    triplePattern(c,METASERVICE.PATH,path)
+                            );
+                    maxQuery.groupBy(path);
+                    maxQueryContinuous.where(
+                                    triplePattern(BIGDATA.QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
+                                    filter(lessOrEqual(val(time), val(getDateVariable()))),
+                                    triplePattern(c,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
+                                    triplePattern(c,METASERVICE.GENERATOR,generator),
+                                    triplePattern(c,METASERVICE.SOURCE_SUBJECT,processableSubject),
+                                    triplePattern(context2,METASERVICE.SOURCE_SUBJECT,processableSubject),
+                                    triplePattern(context2,METASERVICE.GENERATOR,generator),
+                 //                   triplePattern(context2,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
+                                    triplePattern(context2,METASERVICE.TIME, time)
+                            ).groupBy(processableSubject);
+                    globalQuery.with(
+                            namedSubQuery(nameCommon,filteredQuery),
+                            namedSubQuery(name, maxQuery),
+                            namedSubQuery(nameContinuous, maxQueryContinuous)
                     );
-                    selectQueryBuilder.where(
+                    results.add(
                             union(
                                     graphPattern(include(name)),
                                     graphPattern(include(nameContinuous))
-                            ),
-                            triplePattern(c, METASERVICE.TIME, time),
-                            filter(unequal(val(action),val(METASERVICE.ACTION_REMOVE))),
-                            triplePattern(c, METASERVICE.ACTION,action)
-                    );
+                            ));
+                    results.add(triplePattern(c, METASERVICE.TIME, time));
+                    results.add(filter(unequal(val(action),val(METASERVICE.ACTION_REMOVE))));
+                    results.add(triplePattern(c, METASERVICE.ACTION,action));
+
                 }
+            }
+
+            @Override
+            public String build() {
+                SelectQueryBuilder selectQueryBuilder = select(distinct,selectTerms);
                 selectQueryBuilder
                         .where(
+                                triplePattern(BIGDATA.QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                                 include("heuristic")
                         );
+                for(Variable v : groupByList){
+                    selectQueryBuilder.groupBy(v);
+                }
+                for(Variable v :orderByAscList){
+                    selectQueryBuilder.orderByAsc(v);
+                }
+                for(Variable v :orderByDescList){
+                    selectQueryBuilder.orderByDesc(v);
+                }
+                if(limit != null)
+                    selectQueryBuilder.limit(limit);
+                SelectQueryBuilder heuristic = select(false,all());
+                selectQueryBuilder.with(namedSubQuery("heuristic",heuristic));
+                ArrayList<GraphPatternValue> heuristics = new ArrayList<>();
+                ArrayList<GraphPatternValue> results = new ArrayList<>();
+                handleSubQuery(wherePatterns, heuristics, results, selectQueryBuilder);
+                for(GraphPatternValue h: heuristics){
+                    heuristic.where(h);
+                }
+                for(GraphPatternValue r: results){
+                    selectQueryBuilder.where(r);
+                }
 
                 return selectQueryBuilder
-                                .build(pretty);
+                        .build(pretty);
             }
         };
         return sparqlQuery.toString();
