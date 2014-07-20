@@ -32,22 +32,34 @@ public class LDProvider implements Provider<Model>{
 
             //todo fix bnode naming
             int bnodeId =0 ;
-            URI projUri = (URI) o.filter(null, RDF.TYPE, DOAP.PROJECT).subjects().iterator().next();
-            Literal label = o.filter(projUri,DOAP.NAME,null).objectLiteral();
-            URI newProjUri = valueFactory.createURI("http://metaservice.org/d/projects/" + label.stringValue().replaceAll(" ","")); //todo cleanup name
-            LOGGER.info("<{}>",newProjUri.stringValue());
-            resultConnection.add(newProjUri,RDFS.SEEALSO, projUri);
-            resultConnection.add(newProjUri,RDF.TYPE,ADMSSW.SOFTWARE_PROJECT);
-            for(Value value : Iterators.asList(o.filter(null,DOAP.RELEASE,null).objects().iterator())){
-                Literal revision = o.filter((Resource)value,DOAP.REVISION,null).objectLiteral();
-                URI releaseURI = valueFactory.createURI("http://metaservice.org/d/releases/" + label.stringValue().replaceAll(" ","") + "/" + revision.stringValue().replaceAll(" ",""));
-                if(value instanceof  URI){
-                    resultConnection.add(releaseURI,RDFS.SEEALSO,value);
+            URI projUri =null;
+            URI newProjUri=null;
+            Set<Resource> resourceSet = o.filter(null, RDF.TYPE, DOAP.PROJECT).subjects();
+            if(resourceSet.size()> 0) {
+                Resource resource =resourceSet.iterator().next();
+                if (resource instanceof URI) {
+                    projUri = (URI) resource;
+                    Literal label = o.filter(projUri, DOAP.NAME, null).objectLiteral();
+                    newProjUri = valueFactory.createURI("http://metaservice.org/d/projects/" + label.stringValue().replaceAll(" ", "")); //todo cleanup name
+                    LOGGER.info("<{}>", newProjUri.stringValue());
+                    resultConnection.add(projUri, OWL.SAMEAS, newProjUri);
+                    resultConnection.add(newProjUri, OWL.SAMEAS, projUri);
+                    resultConnection.add(newProjUri, RDF.TYPE, ADMSSW.SOFTWARE_PROJECT);
+                    for (Value value : Iterators.asList(o.filter(projUri, DOAP.RELEASE, null).objects().iterator())) {
+                        Literal revision = o.filter((Resource) value, DOAP.REVISION, null).objectLiteral();
+                        URI releaseURI = valueFactory.createURI("http://metaservice.org/d/releases/" + label.stringValue().replaceAll(" ", "") + "/" + revision.stringValue().replaceAll(" ", ""));
+                        if (value instanceof URI) {
+                            resultConnection.add((URI)value, OWL.SAMEAS, releaseURI);
+                            resultConnection.add(releaseURI, OWL.SAMEAS, value);
+                        }
+                        resultConnection.add(releaseURI, ADMSSW.PROJECT, newProjUri);
+                        resultConnection.add(releaseURI, RDF.TYPE, ADMSSW.SOFTWARE_RELEASE);
+                        releases.put(value, releaseURI);
+                        LOGGER.info("<{}>", releaseURI.stringValue());
+                    }
                 }
-                resultConnection.add(releaseURI,RDF.TYPE, ADMSSW.SOFTWARE_RELEASE);
-                releases.put(value,releaseURI);
-                LOGGER.info("<{}>",releaseURI.stringValue());
             }
+
 
             for (Statement statement : o) {
                 Resource subject = statement.getSubject();
@@ -58,10 +70,12 @@ public class LDProvider implements Provider<Model>{
                 }else if(releases.containsKey(subject)){
                     subject = releases.get(subject);
                 }else if (subject instanceof BNode) {
-                    if (!bnodeMapping.containsKey(subject)) {
-                        bnodeMapping.put((BNode) statement.getSubject(),valueFactory.createURI(projUri+"#" + bnodeId++));
+                    if(newProjUri != null) {
+                        if (!bnodeMapping.containsKey(subject)) {
+                            bnodeMapping.put((BNode) statement.getSubject(), valueFactory.createURI(newProjUri.toString() + "#" + bnodeId++));
+                        }
+                        subject = bnodeMapping.get(subject);
                     }
-                    subject = bnodeMapping.get(subject);
                 }
                 predicate = statement.getPredicate();
                 if(object.equals(projUri)&&!predicate.equals(DOAP.HOMEPAGE)){
@@ -69,10 +83,15 @@ public class LDProvider implements Provider<Model>{
                 }else if(releases.containsKey(object)){
                     object = releases.get(object);
                 }else if(object instanceof BNode){
-                    if (!bnodeMapping.containsKey(object)) {
-                        bnodeMapping.put((BNode) object, valueFactory.createURI(projUri+"#" + bnodeId++));
+                    if(newProjUri != null) {
+                        if (!bnodeMapping.containsKey(object)) {
+                            bnodeMapping.put((BNode) object, valueFactory.createURI(newProjUri + "#" + bnodeId++));
+                        }
+                        object = bnodeMapping.get(object);
                     }
-                    object =  bnodeMapping.get(object);
+                }
+                if(subject instanceof BNode ||object instanceof BNode){
+                    LOGGER.info("Bnode statement {} {} {}",subject,predicate,object);
                 }
                 resultConnection.add(valueFactory.createStatement(subject,predicate,object));
             }
