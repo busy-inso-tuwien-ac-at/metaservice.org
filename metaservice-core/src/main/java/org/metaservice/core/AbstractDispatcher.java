@@ -18,6 +18,7 @@ import org.metaservice.api.messaging.MessageHandler;
 import org.metaservice.api.rdf.vocabulary.DC;
 import org.openrdf.model.*;
 import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryLanguage;
@@ -161,6 +162,11 @@ public abstract  class AbstractDispatcher<T> {
         for(Statement statement : statements){
             Value object = statement.getObject();
             if(object instanceof  URI){
+                //ignore classes
+                if(statement.getPredicate().equals(RDF.TYPE) ||
+                        statement.getPredicate().equals(RDFS.SUBCLASSOF) ||
+                        statement.getPredicate().equals(RDFS.SUBPROPERTYOF))
+                    continue;
                 objects.add((URI) object);
             }
         }
@@ -171,6 +177,7 @@ public abstract  class AbstractDispatcher<T> {
     protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @NotNull List<PostProcessingHistoryItem> oldHistory,@NotNull Date time, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,@Nullable Set<URI> affectedProcessableSubjects){
         LOGGER.debug("START NOTIFICATION OF POSTPROCESSORS");
         //todo only let postprocessing happen for date = or >
+        // i think it would be enough to query for ech subject the next existing date and let them recalculate
         ArrayList<PostProcessingHistoryItem> history = new ArrayList<>();
         history.addAll(oldHistory);
 
@@ -216,7 +223,10 @@ public abstract  class AbstractDispatcher<T> {
         while(all.hasNext()){
             Statement s = all.next();
             if(!loadedStatements.contains(s)){
-                if(s.getPredicate().equals(RDFS.SUBPROPERTYOF) || s.getPredicate().equals(RDFS.SUBCLASSOF)){
+                if(s.getPredicate().equals(RDFS.SUBPROPERTYOF) ||
+                        s.getPredicate().equals(RDFS.SUBCLASSOF) ||
+                        s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDFS.RESOURCE)||
+                        s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDF.PROPERTY)){
                     undefined.add(s.getSubject());
                 }else{
                     if(s.getSubject() instanceof BNode ||s.getObject() instanceof BNode){
