@@ -27,16 +27,13 @@ public class ReinstallCommand extends AbstractManagerCommand{
     @Arguments(completer = InstalledModuleCompleter.class, validator = ModuleValidator.class)
     private List<String> moduleIdentifier;
 
-    @Option(name="replace",hasValue =false)
-    private boolean replace;
-
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> availableModules = manager.getManagerConfig().getAvailableModules();
         try {
             ManagerConfig.Module installedModule = descriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0));
             manager.uninstall(installedModule,false);
-            manager.getMavenManager().updateModule(installedModule,replace);
+            manager.getMavenManager().updateModule(installedModule,true);
             manager.install(installedModule);
         } catch (ManagerException e) {
             e.printStackTrace();
