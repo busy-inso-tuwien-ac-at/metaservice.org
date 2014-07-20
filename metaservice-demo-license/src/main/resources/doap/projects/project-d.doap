@@ -3,9 +3,10 @@
           xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
           xmlns:foaf="http://xmlns.com/foaf/0.1/"
           xmlns:admssw="http://purl.org/adms/sw/"
-          xmlns:swdep="http://metaservice.org/ns/metaservice-swdep"
-          xmlns="http://usefulinc.com/ns/doap#">
-    <name>demo-bsd-lib</name>
+          xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#"
+          xmlns="http://usefulinc.com/ns/doap#"
+          rdf:about="http://metaservice.org/demo/project-d">
+    <name>project-d</name>
     <homepage rdf:resource="" />
     <created>2013-12-11</created>
     <shortdesc xml:lang="en">
@@ -21,16 +22,17 @@
     <license rdf:resource="http://spdx.org/licenses/LGPL-2.0" />
 
     <release>
-        <Version rdf:about="10.9.8">
+        <Version rdf:about="http://metaservice.org/demo/project-d#10.9.8">
+            <name>project-d 10.9.8</name>
             <created>2013-12-11</created>
             <revision>10.9.8</revision>
             <license rdf:resource="http://spdx.org/licenses/GPL-2.0" />
-            <swdep:links rdf:resource="http://github.com/thargor/demo-gplv2-lib#10.9.8"/>
-            <swdep:requires rdf:resource="http://github.com/thargor/demo-gplv2-lib#10.9.8"/>
+            <swdep:links rdf:resource="http://metaservice.org/demo/demo-gplv2-lib#10.9.8"/>
+            <swdep:requires rdf:resource="http://metaservice.org/demo/demo-gplv2-lib#10.9.8"/>
         </Version>
     </release>
 
-    <download-page rdf:resource="http://github.com/thargor/demo-bsd-lib" />
+    <download-page rdf:resource="http://metaservice.org/demo/demo-bsd-lib" />
 
     <maintainer>
         <foaf:Person>

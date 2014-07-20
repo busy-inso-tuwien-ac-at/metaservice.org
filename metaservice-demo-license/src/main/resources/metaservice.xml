@@ -1,0 +1,21 @@
+<metaservice>
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
+
+    <postprocessor
+            id="copyLeft"
+            class="org.metaservice.demo.license.CopyLeftPostprocessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <load url="http://metaservice.org/ns/licensing.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </postprocessor>
+
+    <ontology
+            name="licensing.rdf" apply="true" distribute="true"/>
+
+</metaservice>

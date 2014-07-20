@@ -20,4 +20,15 @@
             {{#eachArray admssw:package}}<li> <a href="{{ms:id}}">{{literal rdfs:label}}</a></li>{{/eachArray}}
         </ul>
     </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
+            <table class="table">
+                <tr><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/doap:revision}}</a></td></tr>
+                <tr><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/doap:revision}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{admssw:project/ms:id}}">{{admssw:project/rdfs:label}}</a></td></tr>
+                <tr><th>Repository</th><td></td></tr>
+            </table>
+        </div>
+    </div>
 </div>

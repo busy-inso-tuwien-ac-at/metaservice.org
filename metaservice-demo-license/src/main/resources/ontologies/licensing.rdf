@@ -21,7 +21,6 @@
 
 
 <rdf:RDF xmlns="http://metaservice.org/ns/licensing"
-     xml:base="http://metaservice.org/ns/licensing"
      xmlns:dc="http://purl.org/dc/"
      xmlns:foaf="http://xmlns.com/foaf/spec/"
      xmlns:terms="&dc;terms/"
@@ -52,8 +51,32 @@
         <owl:imports rdf:resource="http://www.w3.org/ns/radion#"/>
     </owl:Ontology>
     
+    <owl:Class rdf:about="http://metaservice.org/ns/licensing#SuspectedViolation">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/licensing#"/>
+    </owl:Class>
+
+    <owl:DatatypeProperty rdf:about="http://metaservice.org/ns/licensing#description">
+        <rdfs:label>explanation</rdfs:label>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/licensing#SuspectedViolation"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/licensing#"/>
+    </owl:DatatypeProperty>
 
 
+    <owl:ObjectProperty rdf:about="http://metaservice.org/ns/licensing#conflicting">
+        <rdfs:label>conflicting Dependency</rdfs:label>
+        <rdfs:domain rdf:resource="http://metaservice.org/ns/licensing#SuspectedViolation"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/licensing#"/>
+    </owl:ObjectProperty>
+
+
+    <owl:ObjectProperty rdf:about="http://metaservice.org/ns/licensing#licensingViolation">
+        <rdfs:label>has violation</rdfs:label>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/licensing#"/>
+    </owl:ObjectProperty>
+
+    <owl:DatatypeProperty rdf:about="http://spdx.org/rdf/terms#License">
+        <rdfs:subPropertyOf rdf:resource="&rdfs;label"/>
+    </owl:DatatypeProperty>
 </rdf:RDF>
 
 

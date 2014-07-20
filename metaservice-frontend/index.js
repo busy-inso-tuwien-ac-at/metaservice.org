@@ -37,7 +37,8 @@ function initMs() {
         "xhv":"http://www.w3.org/1999/xhtml/vocab#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
         "cve": "http://metaservice.org/ns/cve#",
-        "cpe": "http://metaservice.org/ns/cpe#"
+        "cpe": "http://metaservice.org/ns/cpe#",
+        "spdx": "http://spdx.org/rdf/terms#"
     };
     MS.raw = {};
     MS.provenanceCache = {};

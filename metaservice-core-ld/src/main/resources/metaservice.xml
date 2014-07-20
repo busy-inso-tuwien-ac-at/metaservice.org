@@ -58,4 +58,21 @@
         </follow>
     </crawler>
 
+    <repository
+            id="demo"
+            type="rdfxml"
+            baseUri="http://metaservice.org/demo/"
+            startUri="http://metaservice.org/demo/"
+            crawler="demoCrawler"
+            />
+    <crawler id="demoCrawler">
+        <fetch exactly="bsdlib.doap"/>
+        <fetch exactly="gplv2lib.doap"/>
+        <fetch exactly="lgplv2lib.doap"/>
+        <fetch exactly="project-a.doap"/>
+        <fetch exactly="project-b.doap"/>
+        <fetch exactly="project-c.doap"/>
+        <fetch exactly="project-d.doap"/>
+        <fetch exactly="spdx-licenses.rdf"/>
+    </crawler>
 </metaservice>

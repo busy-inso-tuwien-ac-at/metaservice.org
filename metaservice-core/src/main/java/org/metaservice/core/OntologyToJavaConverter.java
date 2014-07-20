@@ -145,7 +145,13 @@ public class OntologyToJavaConverter {
             IOUtils.write(content, writer);
         }
 
-
+        //licensing
+        ontologyToJavaConverter = new OntologyToJavaConverter(CaseFormat.UPPER_CAMEL);
+        ontologyToJavaConverter.load(new FileInputStream(Paths.get("metaservice-demo-license/src/main/resources/ontologies/licensing.rdf").toFile()));
+        content = ontologyToJavaConverter.generate();
+        try(FileWriter writer = new FileWriter(Paths.get("metaservice-demo-license/src/main/java/org/metaservice/demo/license/LIC.java").toFile())) {
+            IOUtils.write(content, writer);
+        }
     }
 
     private String generate() throws RepositoryException, SailException, RDFParseException, IOException {

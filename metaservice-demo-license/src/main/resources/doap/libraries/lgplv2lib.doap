@@ -2,9 +2,10 @@
 <Project  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
           xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
           xmlns:foaf="http://xmlns.com/foaf/0.1/"
-          xmlns="http://usefulinc.com/ns/doap#">
-    <name>demo-GPLv2-lib</name>
-    <homepage rdf:resource="http://github.com/thargor/demo-lgpl2-lib" />
+          xmlns="http://usefulinc.com/ns/doap#"
+          rdf:about="http://metaservice.org/demo/demo-lgplv2-lib">
+    <name>demo-LGPLv2-lib</name>
+    <homepage rdf:resource="http://metaservice.org/demo/demo-lgplv2-lib" />
     <created>2013-12-11</created>
     <shortdesc xml:lang="en">
         This is a demonstration library which is licensed under the LGPLv2
@@ -18,14 +19,16 @@
     <license rdf:resource="http://spdx.org/licenses/LGPL-2.0" />
 
     <release>
-        <Version>
+        <Version  rdf:about="http://metaservice.org/demo/demo-lgplv2-lib#10.9.8">
+            <name>demo-LGPLv2-lib</name>
             <created>2013-12-11</created>
             <revision>10.9.8</revision>
+            <license rdf:resource="http://spdx.org/licenses/LGPL-2.0" />
         </Version>
     </release>
 
 
-    <download-page rdf:resource="http://github.com/thargor/demo-lgpl-lib" />
+    <download-page rdf:resource="http://metaservice.org/demo/demo-lgplv2-lib" />
 
     <maintainer>
         <foaf:Person>
