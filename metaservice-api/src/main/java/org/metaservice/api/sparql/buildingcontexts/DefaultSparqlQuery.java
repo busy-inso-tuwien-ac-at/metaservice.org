@@ -120,6 +120,13 @@ public abstract class DefaultSparqlQuery implements SparqlQuery {
     public final BinaryFunction<Boolean,Term<Value>,Term<Value>> sameTerm(Term<Value> t1,Term<Value>t2){
         return new BinaryFunction<>("sameTerm",t1,t2);
     }
+
+    @NotNull
+    @Override
+    public final UnaryFunction<Boolean,Term<Value>> bound(Term<Value> t1){
+        return new UnaryFunction<>("bound",t1);
+    }
+
     @NotNull
     @Override
     public final Union union(GraphPattern... graphPatterns){

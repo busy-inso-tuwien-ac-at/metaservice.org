@@ -26,6 +26,10 @@ public interface SparqlQuery {
     public DirectSelectTerm var(Variable value);
     public DirectSelectTerm var(Variable value,Variable as);
     public AggregateSelectTerm aggregate(String aggregate,Variable variable,Variable as);
+
+    @NotNull
+    UnaryFunction<Boolean,Term<Value>> bound(Term<Value> t1);
+
     public Union union(GraphPattern... graphPatterns);
     public GraphPattern graphPattern(GraphPatternValue... graphPatternValues);
 

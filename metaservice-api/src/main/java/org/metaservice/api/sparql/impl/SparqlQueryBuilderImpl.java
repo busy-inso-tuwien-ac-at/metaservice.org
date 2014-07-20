@@ -227,8 +227,17 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
         stringBuilder.append("} as %" +namedSubQuery.getName());
         if(pretty){
             stringBuilder.append("\n\n");
+        } else {
+            stringBuilder.append(" ");
         }
         return stringBuilder.toString();
+    }
+
+    public String unaryFunction(boolean pretty,UnaryFunction unaryFunction){
+        return unaryFunction.getName()
+                + "("
+                + term(pretty, unaryFunction.getT1())
+                + ")";
     }
 
     public String binaryFunction(boolean pretty,BinaryFunction binaryFunction) {
@@ -244,6 +253,8 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
     public String term(boolean pretty,Term t){
         if(t instanceof BinaryFunction){
             return binaryFunction(pretty, (BinaryFunction) t);
+        } else if(t instanceof UnaryFunction){
+            return unaryFunction(pretty, (UnaryFunction) t);
         } else if (t instanceof BinaryOperator){
             return binaryOperator(pretty, (BinaryOperator) t);
         } else if (t instanceof UnaryOperator){
@@ -334,36 +345,45 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
     }
 
     private void filter(boolean pretty, StringBuilder builder, FilterImpl filter) {
-        if (pretty)
+        if (pretty) {
             builder.append(PRETTY_INTENDATION);
+        }
         builder.append("FILTER (");
         builder.append(term(pretty, filter.getTerm()));
         builder.append(")");
-        if (pretty)
+        if (pretty) {
             builder.append("\n");
+        } else {
+            builder.append(" ");
+        }
     }
 
     private void filterExists(boolean pretty, StringBuilder builder, FilterExists filterExists) {
-        if (pretty)
+        if (pretty) {
             builder.append(PRETTY_INTENDATION);
+        }
         builder.append("FILTER  EXISTS ");
         builder.append(graphPattern(pretty,filterExists.getGraphPattern()));
-        if (pretty)
+        if (pretty) {
             builder.append("\n");
+        }
     }
 
     private void filterNotExists(boolean pretty, StringBuilder builder, FilterNotExists filterNotExists) {
-        if (pretty)
+        if (pretty) {
             builder.append(PRETTY_INTENDATION);
+        }
         builder.append("FILTER NOT EXISTS");
         builder.append(graphPattern(pretty,filterNotExists.getGraphPattern()));
-        if (pretty)
+        if (pretty) {
             builder.append("\n");
+        }
     }
 
     private void pattern(boolean pretty, StringBuilder builder, Value s, Value p, Value o) {
-        if (pretty)
+        if (pretty) {
             builder.append(PRETTY_INTENDATION);
+        }
         builder.append(format(s))
                 .append(" ")
                 .append(format(p))
@@ -378,8 +398,9 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
     }
 
     private void pattern(boolean pretty, StringBuilder builder, Value s, Value p, Value o, Value c) {
-        if (pretty)
+        if (pretty) {
             builder.append(PRETTY_INTENDATION);
+        }
         builder.append("GRAPH ")
                 .append(format(c))
                 .append("{")
@@ -399,11 +420,15 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
 
 
     private void include(boolean pretty, StringBuilder builder, Include include) {
-        if (pretty)
+        if (pretty) {
             builder.append(PRETTY_INTENDATION);
+        }
         builder.append("INCLUDE %").append(include.getName());
-        if (pretty)
+        if (pretty) {
             builder.append("\n");
+        } else {
+            builder.append(" ");
+        }
     }
 
     private void union(boolean pretty, StringBuilder builder, Union union) {
@@ -420,8 +445,9 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
     public String graphPattern(boolean pretty, GraphPattern graphPattern) {
         StringBuilder builder = new StringBuilder();
         builder.append("{");
-        if (pretty)
+        if (pretty) {
             builder.append("\n");
+        }
         for (GraphPatternValue graphPatternValue : graphPattern.getGraphPatternValues()) {
             if (graphPatternValue instanceof TriplePattern) {
                 TriplePattern triplePattern = (TriplePattern) graphPatternValue;
@@ -455,12 +481,33 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
     }
 
     private void subselect(boolean pretty, StringBuilder builder, SelectQueryBuilder graphPatternValue) {
-        builder.append(graphPatternValue.build());
+        if(pretty){
+            builder.append(PRETTY_INTENDATION);
+        }
+        builder.append("{");
+        if(pretty) {
+            builder.append("\n");
+        }
+        String sub = graphPatternValue.build(pretty);
+        if(pretty) {
+            sub = sub.replaceAll("^", PRETTY_INTENDATION + PRETTY_INTENDATION)
+                    .replaceAll("\n$","")
+                    .replaceAll("\n", "\n" + PRETTY_INTENDATION + PRETTY_INTENDATION)
+                    .replaceAll("$","\n");
+        }
+        builder.append(sub);
+        if(pretty){
+            builder.append(PRETTY_INTENDATION);
+        }
+        builder.append("}");
+        if(pretty) {
+            builder.append("\n");
+        }
+
     }
 
     public String whereClause(boolean pretty) {
         return "WHERE " + graphPattern(pretty, new GraphPattern(where.toArray(new GraphPatternValue[where.size()]))) + (pretty ? "\n" : " ");
-
     }
     public String askHeader(boolean pretty,AskHeader askHeader){
         return "ASK";
