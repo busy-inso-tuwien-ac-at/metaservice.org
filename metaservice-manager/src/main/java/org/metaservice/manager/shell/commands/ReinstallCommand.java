@@ -33,7 +33,7 @@ public class ReinstallCommand extends AbstractManagerCommand{
         try {
             ManagerConfig.Module installedModule = descriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0));
             manager.uninstall(installedModule,false);
-            manager.getMavenManager().updateModule(installedModule,true);
+            manager.getMavenManager().updateModule(installedModule,true,false);
             manager.install(installedModule);
         } catch (ManagerException e) {
             e.printStackTrace();

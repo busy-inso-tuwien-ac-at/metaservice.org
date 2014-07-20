@@ -78,17 +78,23 @@ public class MavenManager {
         return versions.get(versions.size()-1);
     }
 
-    public void updateModule(@NotNull ManagerConfig.Module module,boolean replace) throws ManagerException {
-        Version latestVersion = null;
+    public void updateModule(@NotNull ManagerConfig.Module module,boolean replace,boolean latest) throws ManagerException {
         try {
-            latestVersion = getLatestVersion(module.getMetaserviceDescriptor().getModuleInfo());
+            String currentVersion = module.getMetaserviceDescriptor().getModuleInfo().getVersion();
+            Version latestVersion = getLatestVersion(module.getMetaserviceDescriptor().getModuleInfo());
             //if inplace update replace
-            if(latestVersion.toString().equals(module.getMetaserviceDescriptor().getModuleInfo().getVersion())){
+            if(latest && latestVersion.toString().equals(currentVersion)){
                 if(!replace){
                     throw new ManagerException("Version already exists, use --replace to replace current version");
                 }
             }
-            File file = retrieveArtifact(module.getMetaserviceDescriptor().getModuleInfo(),latestVersion.toString());
+            String version;
+            if(latest){
+                version = latestVersion.toString();
+            }else{
+                version = currentVersion;
+            }
+            File file = retrieveArtifact(module.getMetaserviceDescriptor().getModuleInfo(),version);
             manager.add(file,true);
 
             //todo check installed/notinstalled?

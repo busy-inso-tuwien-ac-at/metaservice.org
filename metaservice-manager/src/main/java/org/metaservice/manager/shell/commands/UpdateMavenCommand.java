@@ -34,7 +34,7 @@ public class UpdateMavenCommand extends AbstractManagerCommand{
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> availableModules = manager.getManagerConfig().getAvailableModules();
         try {
-            manager.getMavenManager().updateModule(descriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)),replace);
+            manager.getMavenManager().updateModule(descriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)),replace,true);
         } catch (ManagerException e) {
             e.printStackTrace();
         }
