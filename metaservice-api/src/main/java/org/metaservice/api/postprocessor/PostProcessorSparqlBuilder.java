@@ -42,6 +42,8 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     if(pattern instanceof QuadPattern){
                         QuadPattern quadPattern = (QuadPattern) pattern;
                         heuristics.add(quadPattern);
+                        if(quadPattern.getS() instanceof BIGDATA.QueryHint)
+                            continue;
                         if(!contextMap.containsKey(quadPattern.getC())){
                             contextMap.put(quadPattern.getC(),new ArrayList<QuadPattern>());
                             String name = "mmm"+ statementContextCounter;
@@ -54,6 +56,8 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     }else if (pattern instanceof TriplePattern){
                         TriplePattern triplePattern = (TriplePattern) pattern;
                         heuristics.add(triplePattern);
+                        if(triplePattern.getS() instanceof BIGDATA.QueryHint)
+                            continue;
                         String name = "mmm"+ statementContextCounter;
                         Variable c = new Variable(name);
                         artificialContextSet.add(c);

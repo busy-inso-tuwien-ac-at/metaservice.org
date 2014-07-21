@@ -1,8 +1,5 @@
 package org.metaservice.api.rdf.vocabulary;
 
-import org.jetbrains.annotations.NotNull;
-import org.metaservice.api.sparql.builders.QueryBuilder;
-import org.omg.CORBA.TRANSACTION_UNAVAILABLE;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -41,7 +38,7 @@ public class BIGDATA {
         FALSE = valueFactory.createLiteral(false);
     }
 
-    static class QueryHint implements Literal{
+    public static class QueryHint implements Literal{
         private final String s;
 
         QueryHint(String s) {
