@@ -13,7 +13,10 @@ import java.io.IOException;
 public class KryoClientUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(KryoClientUtil.class);
     public Client startClient(Listener listener) throws IOException {
-        Client client =  new Client(31457280, 9000);
+        int size1 = 31457280;
+        int size2 = 180000;
+        LOGGER.info("Starting Client with sizes {}/{}",size1,size2);
+        Client client =  new Client(size1,size2 );
         new KryoInitializer().initialize(client.getKryo());
         client.addListener(new Listener.ThreadedListener(listener));
         client.start();
