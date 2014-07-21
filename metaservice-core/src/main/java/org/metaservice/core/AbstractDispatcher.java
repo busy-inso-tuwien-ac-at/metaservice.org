@@ -10,18 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.api.messaging.Config;
-import org.metaservice.api.messaging.MessagingException;
-import org.metaservice.api.messaging.PostProcessingHistoryItem;
-import org.metaservice.api.messaging.PostProcessingTask;
-import org.metaservice.api.messaging.MessageHandler;
-import org.metaservice.api.rdf.vocabulary.DC;
+import org.metaservice.api.messaging.*;
 import org.openrdf.model.*;
-import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -32,15 +24,15 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.ntriples.NTriplesWriter;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.inferencer.fc.CustomGraphQueryInferencer;
 import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.plaf.nimbus.State;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -227,7 +219,8 @@ public abstract  class AbstractDispatcher<T> {
                         s.getPredicate().equals(RDFS.SUBCLASSOF) ||
                         s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDFS.RESOURCE)||
                         s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDF.PROPERTY)){
-                    undefined.add(s.getSubject());
+                    if(!s.getSubject().stringValue().startsWith("http://metaservice.org/d/"))
+                        undefined.add(s.getSubject());
                 }else{
                     if(s.getSubject() instanceof BNode ||s.getObject() instanceof BNode){
                         LOGGER.error("ATTENTION - BNodes are not supported by Metaservice, skipping statement");
