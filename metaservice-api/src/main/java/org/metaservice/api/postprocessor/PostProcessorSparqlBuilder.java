@@ -115,7 +115,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     selectList.add(aggregate("MAX", time, time));
                     SelectQueryBuilder filteredQuery = select(false,all()
                             ).where(
-                            triplePattern(BIGDATA.QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
+                            triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                             include("heuristic")//,
                     );
 
@@ -144,7 +144,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                         maxQueryContinuous.groupBy(var);
                     }
                     maxQuery.where(
-                                    triplePattern(BIGDATA.QUERY, BIGDATA.OPTIMIZE, BIGDATA.NONE),
+                                    triplePattern(BIGDATA.SUB_QUERY, BIGDATA.OPTIMIZE, BIGDATA.NONE),
                                     filter(unequal(val(action),val(METASERVICE.ACTION_CONTINUOUS))),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
                                     triplePattern(c,METASERVICE.TIME, time),
@@ -153,7 +153,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                             );
                     maxQuery.groupBy(path);
                     maxQueryContinuous.where(
-                                    triplePattern(BIGDATA.QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
+                                    triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
                                     triplePattern(c,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
                                     triplePattern(c,METASERVICE.GENERATOR,generator),
@@ -185,7 +185,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                 SelectQueryBuilder selectQueryBuilder = select(distinct,selectTerms);
                 selectQueryBuilder
                         .where(
-                                triplePattern(BIGDATA.QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
+                                triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                                 include("heuristic")
                         );
                 for(Variable v : groupByList){
