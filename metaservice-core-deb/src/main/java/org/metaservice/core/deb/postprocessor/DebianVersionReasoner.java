@@ -1,22 +1,17 @@
 package org.metaservice.core.deb.postprocessor;
 
+import com.google.common.collect.ArrayListMultimap;
 import org.jetbrains.annotations.NotNull;
-import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
-import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
-import org.metaservice.api.rdf.vocabulary.ADMSSW;
-import org.metaservice.api.rdf.vocabulary.DEB;
-import org.metaservice.api.rdf.vocabulary.DOAP;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
-import org.metaservice.api.rdf.vocabulary.XHV;
+import org.metaservice.api.postprocessor.PostProcessorSparqlBuilder;
+import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
+import org.metaservice.api.rdf.vocabulary.*;
 import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.core.deb.util.DebianVersionComparator;
-import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -30,217 +25,109 @@ public class DebianVersionReasoner implements PostProcessor {
     public static final Logger LOGGER = LoggerFactory.getLogger(DebianVersionReasoner.class);
     public final static String URI_REGEX = "^http://metaservice.org/d/(packages|releases|projects)/(debian|ubuntu)/[^/#]+/[^/#]+(/[^/#]+)?$";
 
-    private final TupleQuery selectPackageVersionsOrderQuery;
-    private final TupleQuery selectVersionsOrderQuery;
-    private final TupleQuery selectPackageQuery;
-    private final TupleQuery selectProjectQuery;
+    private final TupleQuery query;
 
     private final ValueFactory valueFactory;
 
     //todo replace with BindVariable
     private final BoundVariable resource = new BoundVariable("resource");
     private final Variable revision = new Variable("revision");
-    private final BoundVariable boundProject = new BoundVariable("boundProject");
-    private final Variable project = new Variable("project");
-    private final Variable title = new Variable("title");
     private final Variable release = new Variable("release");
-    private final BoundVariable boundArch = new BoundVariable("boundArch");
     private final Variable arch = new Variable("arch");
     private final Variable _package = new Variable("package");
-    private final Variable _package2 = new Variable("package2");
-    private final Variable context = new Variable("context");
 
 
     @Inject
     public DebianVersionReasoner(RepositoryConnection repositoryConnection, ValueFactory valueFactory) throws RepositoryException, MalformedQueryException {
         this.valueFactory = valueFactory;
+        final Variable release_temp = new Variable("release_temp");
+        final Variable project = new Variable("project");
 
 
         String queryString;
         queryString = new PostProcessorSparqlQuery(){
             @Override
             public String build() {
-                return select(true,
-                        var(release),
-                        var(revision),
-                        var(title),
-                        var(boundArch),
-                        var(resource)
-                )
-                        .where(triplePattern(boundProject, DOAP.RELEASE, release),
-                                triplePattern(release, ADMSSW.PACKAGE, resource),
-                                quadPattern(resource, RDFS.LABEL, title, context),
-                                quadPattern(resource, DEB.VERSION, revision, context),
-                                quadPattern(resource, DEB.ARCHITECTURE, boundArch, context)
-                        )
-                        .build();
-            }
-        }.toString();
-        LOGGER.info(queryString);
-        selectPackageVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-
-
-        queryString = new PostProcessorSparqlQuery(){
-            @Override
-            public String build() {
-                return select(true,
-                        var(revision),
-                        var(title),
-                        var(resource)
-                )
+                return select(true,var(release),var(_package),var(revision),var(arch))
                         .where(
-                                triplePattern(boundProject, DOAP.RELEASE, resource),
-                                triplePattern(resource, RDFS.LABEL, title),
-                                triplePattern(resource, DEB.VERSION, revision)
-                        )
-                        .build();
-            }
-        }.toString();
-        LOGGER.info(queryString);
-        selectVersionsOrderQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-
-
-        queryString =new PostProcessorSparqlQuery(){
-            @Override
-            public String build() {
-                return select(true,
-                        aggregate("SAMPLE", _package2, _package),
-                        var(arch)
-                )
-                        .where(
-                                triplePattern(boundProject, DOAP.RELEASE, release),
-                                triplePattern(release, ADMSSW.PACKAGE, _package2),
-                                triplePattern(_package2, DEB.ARCHITECTURE, arch)
-                        )
-                        .groupBy(arch)
-                        .build();
-            }
-        }.toString();
-        LOGGER.info(queryString);
-        selectPackageQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
-
-
-        queryString = new PostProcessorSparqlQuery(){
-            @Override
-            public String build() {
-                return select(true,var(project))
-                        .where(
+                                triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                                 union(
                                         graphPattern(
-                                                triplePattern(project,DOAP.RELEASE,resource)
+                                                triplePattern(project, DOAP.RELEASE, resource)
                                         ),
                                         graphPattern(
-                                                triplePattern(project,DOAP.RELEASE,release),
-                                                triplePattern(release,ADMSSW.PACKAGE,resource)
+                                                triplePattern(release_temp, ADMSSW.PACKAGE, resource),
+                                                triplePattern(project, DOAP.RELEASE, release_temp)
                                         )
-                                )
+                                ),
+                                triplePattern(project, DOAP.RELEASE, release),
+                                triplePattern(release, DEB.VERSION, revision),
+                                triplePattern(release, ADMSSW.PACKAGE, _package),
+                                triplePattern(_package, DEB.ARCHITECTURE, arch)
                         )
-                        .limit(1)
                         .build();
             }
         }.toString();
         LOGGER.info(queryString);
-        selectProjectQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
-    }
-
-
-    public void update(@NotNull final String uri, RepositoryConnection resultConnection) throws QueryEvaluationException, RepositoryException, MalformedQueryException, UpdateExecutionException {
-        LOGGER.info("Processing versions");
-        updateRelease(uri, resultConnection);
-
-        selectPackageQuery.setBinding(boundProject.toString(), valueFactory.createURI(uri));
-        TupleQueryResult result = selectPackageQuery.evaluate();
-        while (result.hasNext()){
-            BindingSet set = result.next();
-            LOGGER.info("Processing {}", set.getValue(arch.toString()).stringValue());
-            updatePackage(uri, set.getValue(arch.toString()).stringValue(), resultConnection);
-        }
-
-
-    }
-
-    private void updateRelease(String uri, RepositoryConnection resultConnection) throws QueryEvaluationException, RepositoryException {
-        selectVersionsOrderQuery.setBinding(this.boundProject.toString(), valueFactory.createURI(uri));
-
-        TupleQueryResult result = selectVersionsOrderQuery.evaluate();
-        ArrayList<String> list = new ArrayList<>();
-        HashMap<String,String> versionUriMap = new HashMap<>();
-        while (result.hasNext()){
-            BindingSet set = result.next();
-            String revision = set.getValue(this.revision.toString()).stringValue();
-            versionUriMap.put(revision, set.getValue(this.resource.toString()).stringValue());
-            LOGGER.info(revision);
-            list.add(revision);
-        }
-        Collections.sort(list, DebianVersionComparator.getInstance());
-        LOGGER.info("SORTED:");
-        for(String s : list){
-            LOGGER.info(s);
-        }
-
-        for(int i = 0; i < list.size()-1;i++){
-            addStatements(versionUriMap.get(list.get(i)),versionUriMap.get(list.get(i+1)),resultConnection);
-        }
-    }
-
-    public void updatePackage(String project, String arch,RepositoryConnection resultConnection) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
-        selectPackageVersionsOrderQuery.setBinding(this.boundArch.toString(), valueFactory.createLiteral(arch));
-        selectPackageVersionsOrderQuery.setBinding(this.boundProject.toString(), valueFactory.createURI(project));
-        TupleQueryResult result = selectPackageVersionsOrderQuery.evaluate();
-        ArrayList<String> list = new ArrayList<>();
-
-
-        HashMap<String,String> releaseUriMap = new HashMap<>();
-        while (result.hasNext()){
-            BindingSet set = result.next();
-            String revision = set.getValue(this.revision.toString()).stringValue();
-            releaseUriMap.put(revision, set.getValue(this.resource.toString()).stringValue());
-            LOGGER.info(revision);
-            list.add(revision);
-        }
-        Collections.sort(list, DebianVersionComparator.getInstance());
-        LOGGER.info("SORTED:");
-        for(String s : list){
-            LOGGER.info(s);
-        }
-
-        for(int i = 0; i < list.size()-1;i++){
-            addStatements(releaseUriMap.get(list.get(i)), releaseUriMap.get(list.get(i + 1)), resultConnection);
-        }
-    }
-
-    private void addStatements(String s1,String s2,RepositoryConnection resultConnection) throws RepositoryException {
-        Resource uri1 = valueFactory.createURI(s1);
-        Resource uri2 = valueFactory.createURI(s2);
-        resultConnection.add(uri1, XHV.NEXT, uri2);
-        resultConnection.add(uri2, XHV.PREV,uri1);
-        LOGGER.info(uri1 + " next " + uri2);
+        query = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
     }
 
     @Override
     public void process(@NotNull final URI uri, @NotNull final RepositoryConnection resultConnection, Date time) throws PostProcessorException{
         try{
-            selectProjectQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
-            selectPackageQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
-            selectPackageVersionsOrderQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
-            selectVersionsOrderQuery.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
-            selectProjectQuery.setBinding(resource.toString(),uri);
-            TupleQueryResult result = selectProjectQuery.evaluate();
+            query.setBinding(PostProcessorSparqlBuilder.getDateVariable().toString(),valueFactory.createLiteral(time));
+            query.setBinding(resource.toString(),uri);
+            ArrayListMultimap<String, URI> archMap = ArrayListMultimap.create();
+            HashMap<URI,String> revisionMap = new HashMap<>();
+            TupleQueryResult result = query.evaluate();
             if(result == null)
             {
                 LOGGER.error("result is somehow null - why can this happen? {}" ,uri.toString());
                 return;
             }
             try{
-                if(result.hasNext()){
-                    BindingSet bindings = result.next();
-                    Binding binding = bindings.getBinding(project.toString());
-                    Value value = binding.getValue();
-                    update(value.stringValue(),resultConnection);
-                }else {
-                    LOGGER.info("could not find project for " + uri.stringValue());
+                if(!result.hasNext()){
+                        LOGGER.info("could not find anything for " + uri.stringValue());
                 }
-            }catch ( QueryEvaluationException| RepositoryException| UpdateExecutionException| MalformedQueryException e){
+                while (result.hasNext()){
+                    BindingSet bindings = result.next();
+                    URI releaseURI = (URI) bindings.getValue(release.toString());
+                    URI packageURI = (URI) bindings.getValue(_package.toString());
+                    String revisionString = bindings.getValue(revision.toString()).stringValue();
+                    String archString = bindings.getValue(arch.toString()).stringValue();
+                    archMap.put("RELEASE",releaseURI);
+                    archMap.put(archString,packageURI);
+                    revisionMap.put(releaseURI,revisionString);
+                    revisionMap.put(packageURI,revisionString);
+                }
+
+                for(Map.Entry<String,Collection<URI>> entry : archMap.asMap().entrySet()) {
+                    LOGGER.info("processing arch {}",entry.getKey());
+                    ArrayList<String> list = new ArrayList<>();
+
+                    HashMap<String, URI> versionUriMap = new HashMap<>();
+                    for(URI x : entry.getValue()){
+                        String revision = revisionMap.get(x);
+                        versionUriMap.put(revision, x );
+                        list.add(revision);
+                        LOGGER.debug(revision);
+                    }
+                    Collections.sort(list, DebianVersionComparator.getInstance());
+                    LOGGER.info("SORTED:");
+                    for (String s : list) {
+                        LOGGER.info(s);
+                    }
+
+                    for (int i = 0; i < list.size() - 1; i++) {
+                        URI uri1 =versionUriMap.get(list.get(i));
+                        URI uri2 = versionUriMap.get(list.get(i + 1));
+                        resultConnection.add(uri1, XHV.NEXT, uri2);
+                        resultConnection.add(uri2, XHV.PREV,uri1);
+                        LOGGER.info(uri1 + " next " + uri2);
+                    }
+                }
+
+            }catch ( QueryEvaluationException| RepositoryException e){
                 throw new PostProcessorException("unable to process " + uri.stringValue(),e);
             }finally{
                 result.close();
