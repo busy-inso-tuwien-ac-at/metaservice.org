@@ -11,12 +11,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>metaservice-core-nist</artifactId>
+    <version>0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mitre.cpe</groupId>
@@ -26,7 +27,7 @@
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-core</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

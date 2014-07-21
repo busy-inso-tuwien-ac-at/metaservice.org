@@ -6,7 +6,6 @@
     </moduleInfo>
     <provider
             id="cpeProvider"
-            type="cpe"
             model="org.metaservice.nist.cpe.jaxb.ItemType"
             class="org.metaservice.core.nist.cpe.CPEProvider"
             >
@@ -20,6 +19,7 @@
     <parser
             id="cpeParser"
             type="cpe"
+            model="org.metaservice.nist.cpe.jaxb.ItemType"
             class="org.metaservice.core.nist.cpe.CPEParser"/>
 
 
@@ -53,6 +53,7 @@
     <parser
             id="cveParser"
             type="cve"
+            model="org.metaservice.nist.cve.jaxb.VulnerabilityType"
             class="org.metaservice.core.nist.cve.CVEParser"/>
 
 
