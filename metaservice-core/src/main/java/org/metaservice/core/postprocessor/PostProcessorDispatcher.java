@@ -182,7 +182,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
 
     private Set<URI> getGraphsToDelete(Set<URI> subjects, RepositoryConnection repositoryConnection, Date time) {
         Set<URI> resultSet = new HashSet<>();
-        if(subjects.size() == 0)
+        if(processableSubjects.size() == 0)
             return resultSet;
 
         try {
@@ -191,7 +191,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
                     .append("SELECT DISTINCT ?metadata {");
             ArrayList<String> uris = new ArrayList<>();
 
-            for(URI uri : subjects){
+            for(URI uri : processableSubjects){
                 uris.add("{ ?metadata a <" + METASERVICE.METADATA + ">;"+
                          "  <"+METASERVICE.SOURCE_SUBJECT +"><" + uri.toString() + ">;"+
                          "  <"+METASERVICE.GENERATOR + "> ?postprocessor;"+

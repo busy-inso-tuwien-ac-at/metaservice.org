@@ -103,6 +103,27 @@ public class MongoConnectionWrapper {
         public String toString(){
             return stringValue();
         }
+
+
+        // Implements URI.equals(Object)
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o instanceof URI) {
+                return toString().equals(o.toString());
+            }
+
+            return false;
+        }
+
+        // Implements URI.hashCode()
+        @Override
+        public int hashCode() {
+            return toString().hashCode();
+        }
     }
     @JsonDeserialize(as = JacksonUriImpl.class)
     @JsonSerialize(as = URIImpl.class)
