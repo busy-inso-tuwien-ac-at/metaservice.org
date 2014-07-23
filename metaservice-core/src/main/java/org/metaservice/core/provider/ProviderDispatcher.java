@@ -35,7 +35,7 @@ import java.util.*;
  * Scope - Distributed
  * @param <T>
  */
-public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> implements org.metaservice.api.messaging.dispatcher.ProviderDispatcher{
+public class ProviderDispatcher<T>  extends AbstractDispatcher implements org.metaservice.api.messaging.dispatcher.ProviderDispatcher{
     private final Logger LOGGER = LoggerFactory.getLogger(ProviderDispatcher.class);
 
     private final MetaserviceDescriptor metaserviceDescriptor;
@@ -67,7 +67,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher<Provider<T>> impl
             DescriptorHelper descriptorHelper,
             Config config,
             MetaserviceDescriptor metaserviceDescriptor) throws RepositoryException, MalformedQueryException, MetaserviceException {
-        super(repositoryConnection, config, messageHandler, valueFactory, provider);
+        super(config, messageHandler);
         this.provider = provider;
         this.parserFactory = parserFactory;
         this.valueFactory = valueFactory;

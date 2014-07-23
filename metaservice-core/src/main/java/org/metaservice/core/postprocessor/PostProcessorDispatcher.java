@@ -1,54 +1,46 @@
 package org.metaservice.core.postprocessor;
 
-import com.google.common.collect.Sets;
+import cc.ilo.cc.ilo.pipeline.builder.CompositePipeBuilder;
+import cc.ilo.cc.ilo.pipeline.pipes.AbstractPipe;
 import info.aduna.iteration.Iterations;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
-import org.metaservice.api.messaging.PostProcessingHistoryItem;
-import org.metaservice.api.messaging.PostProcessingTask;
+import org.metaservice.api.messaging.*;
 import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.postprocessor.PostProcessorException;
-import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.core.AbstractDispatcher;
-import org.metaservice.api.messaging.Config;
-import org.metaservice.api.messaging.MessageHandler;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.RDF;
+import org.metaservice.core.dispatcher.NotifyPipe;
+import org.metaservice.core.dispatcher.SendDataPipe;
+import org.metaservice.core.dispatcher.postprocessor.*;
+import org.openrdf.model.*;
 import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
  * Created by ilo on 17.01.14.
  */
-public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> implements org.metaservice.api.messaging.dispatcher.PostProcessorDispatcher {
+public class PostProcessorDispatcher extends AbstractDispatcher implements org.metaservice.api.messaging.dispatcher.PostProcessorDispatcher {
     private final Logger LOGGER = LoggerFactory.getLogger(PostProcessorDispatcher.class);
 
     private final PostProcessor postProcessor;
     private final MetaserviceDescriptor metaserviceDescriptor;
     private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
     private final RepositoryConnection repositoryConnection;
-    private final TupleQuery graphSelect;
     private final ValueFactory valueFactory;
     private final Set<Statement> loadedStatements;
     private final Debug debug;
     private final DescriptorHelper descriptorHelper;
+    private final MessageHandler messageHandler;
+    private final Config config;
+    private final AbstractPipe<Context,Context> pipeline;
 
     @Inject
     private PostProcessorDispatcher(
@@ -61,7 +53,7 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
             Debug debug,
             DescriptorHelper descriptorHelper
     ) throws MalformedQueryException, RepositoryException, MetaserviceException {
-        super(repositoryConnection, config, messageHandler, valueFactory, postProcessor);
+        super(config,messageHandler);
         this.metaserviceDescriptor = metaserviceDescriptor;
         this.postProcessor = postProcessor;
         this.postProcessorDescriptor = postProcessorDescriptor;
@@ -69,14 +61,12 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
         this.valueFactory = valueFactory;
         this.debug = debug;
         this.descriptorHelper = descriptorHelper;
-
-        graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <"+METASERVICE.TIME+"> ?time; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
-
-        LOGGER.info(graphSelect.toString());
+        this.messageHandler = messageHandler;
+        this.config = config;
         loadedStatements = calculatePreloadedStatements();
+        pipeline = getPipeline();
 
     }
-
     private Set<Statement> calculatePreloadedStatements() throws RepositoryException, MetaserviceException {
         Repository resultRepository = createTempRepository(true);
         RepositoryConnection resultConnection = resultRepository.getConnection();
@@ -92,210 +82,100 @@ public class PostProcessorDispatcher extends AbstractDispatcher<PostProcessor> i
     }
 
 
+    public static class Context{
+        public PostProcessingTask task;
+        public long messagingTimestamp;
+        public Set<URI> objects;
+        public Set<URI> subjects;
+        public Set<URI> processableSubjects;
+        public URI metadata;
+        public Repository resultRepository;
+        public RepositoryConnection resultConnection;
+        public List<Statement> generatedStatements;
+        public Set<URI> existingGraphs;
+    }
+
+
+    public  AbstractPipe<Context,Context> getPipeline() throws PostProcessorException {
+
+        try {
+            return CompositePipeBuilder
+                    //Filter
+                    .create(new DebugFilter(LOGGER, debug))
+                    .pipe(new AlreadyProcessedFilter(LOGGER, postProcessorDescriptor))
+                    .pipe(new AbortEarlyFilter(postProcessor, LOGGER))
+                    .pipe(new RequestToOldFilter(LOGGER, repositoryConnection, valueFactory, descriptorHelper, metaserviceDescriptor, postProcessorDescriptor))
+
+                            //setup
+                    .pipe(new CreateTempRepositoryPipe())
+
+                            // run the processor
+                    .pipe(new RunPostprocessorPipe(postProcessor, loadedStatements, LOGGER))
+
+                            //check the statements
+                    .pipe(new DetermineGeneratedStatementsPipe(postProcessor, valueFactory, LOGGER, loadedStatements))
+
+                            //check existing graphs
+                    .pipe(new CalculateExistingGraphsForSubjectsPipe(repositoryConnection, valueFactory, LOGGER, descriptorHelper, postProcessorDescriptor, metaserviceDescriptor))
+
+                            //only update last checked date, if no changes
+                    .pipe(new NoChangeFilter(repositoryConnection, valueFactory, LOGGER))
+
+                            //drop existing
+                    .pipe(new DropExistingGraphsPipe(repositoryConnection, LOGGER))
+
+                            //create metadata in repository
+                    .pipe(new MetadataPipe(repositoryConnection, postProcessor, valueFactory, descriptorHelper, metaserviceDescriptor, postProcessorDescriptor, LOGGER))
+
+                            //send to repository
+                    .pipe(new SendDataPipe<PostProcessor>(LOGGER, repositoryConnection, valueFactory, config, postProcessor))
+
+                            //clear resources
+                    .pipe(new CloseTempRepositoryPipe())
+
+                            // Notfiy postprocessors
+                    .pipe(new NotifyPipe(postProcessorDescriptor, LOGGER, messageHandler))
+                    .build()
+                    ;
+        } catch (MalformedQueryException | RepositoryException e) {
+            e.printStackTrace();
+            throw new PostProcessorException("Could not create Pipeline",e);
+        }
+    }
+
     @Override
-    public void process(PostProcessingTask task, long jmsTimestamp){
-        URI resource = task.getChangedURI();
+    public void process(PostProcessingTask task, long messagingTimestamp) throws PostProcessorException{
+        Context context = new Context();
+        context.task =task;
+        context.messagingTimestamp =messagingTimestamp;
         try{
-            if(!isOkCheapCheck(task, jmsTimestamp) || isRequestTooOld(task,jmsTimestamp))
-                return;
-            LOGGER.info("Starting to process " + resource);
-
-            Repository resultRepository = createTempRepository(true);
-            RepositoryConnection resultConnection = resultRepository.getConnection();
-            try {
-                postProcessor.process(resource, resultConnection,task.getTime());
-            } catch (PostProcessorException e) {
-                e.printStackTrace();
-            }
-            resultConnection.add(loadedStatements);
-            resultConnection.commit();
-            List<Statement> generatedStatements  = getGeneratedStatements(resultConnection,loadedStatements);
-            Set<URI> subjects = getSubjects(generatedStatements);
-            Set<URI> processableSubjects = getProcessableSubjects(subjects);
-            Set<URI> objects = getURIObject(generatedStatements);
-            if(generatedStatements.size() == 0){
-                LOGGER.info("NO STATEMENTS GENERATED! -> adding empty statement");
-                generatedStatements.add(valueFactory.createStatement(task.getChangedURI(),METASERVICE.DUMMY,METASERVICE.DUMMY));
-                processableSubjects.add(task.getChangedURI());
-            }
-            Set<URI> graphsToDelete = getGraphsToDelete(processableSubjects,repositoryConnection,task.getTime());
-            if(graphsToDelete.size() == 1){
-                URI graph = graphsToDelete.iterator().next();
-                if(contentsUnchanged(graph, generatedStatements)){
-                    LOGGER.info("There was no change, only updating last checked time");
-                    repositoryConnection.remove(graph,METASERVICE.LAST_CHECKED_TIME,null);
-                    repositoryConnection.add(graph,METASERVICE.LAST_CHECKED_TIME,valueFactory.createLiteral(new Date()));
-                    return;
-                }
-            }
-
-            for(URI context : graphsToDelete){
+            /*
+                    //try to process into defined state in case anything broke
+            //todo put this in pipes
+            if(repositoryConnection.isActive()){
                 try {
-                    LOGGER.warn("Dropping Graph {}", context);
-                    Update dropGraphUpdate = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,"DROP GRAPH <"+context.toString()+">");
-                    //  dropGraphUpdate.setBinding("graph", context);
-                    dropGraphUpdate.execute();
-                } catch (MalformedQueryException e) {
-                    LOGGER.error("Could not parse drop query", e);
+                    repositoryConnection.rollback();
+                }catch (Exception e){
+                    throw new PostProcessorException("failed to recover",e);
                 }
-
             }
 
-            URI metadata =  generateMetadata(task,METASERVICE.ACTION_CONTINUOUS,processableSubjects);
-            sendData(resultConnection, metadata, generatedStatements);
-            resultConnection.close();
-            resultRepository.shutDown();
-            notifyPostProcessors(Sets.union(subjects,objects),task.getHistory(),task.getTime(),postProcessorDescriptor,processableSubjects);
+            */
+
+            pipeline.process(context);
+
         } catch (RepositoryException | MetaserviceException e) {
-            LOGGER.error("Couldn't create {}",resource,e);
-        } catch (UpdateExecutionException e) {
-            LOGGER.error("Couldn't drop graph {}", e);
+            LOGGER.error("Couldn't create {}",context.task,e);
+            throw new PostProcessorException(e);
+        } catch (Exception e) {
+            throw new PostProcessorException(e);
         }
     }
-
-    private boolean contentsUnchanged(URI metadataUri, List<Statement> generatedStatements) throws RepositoryException {
-        Set<Statement> currentValues = new HashSet<>();
-        Set<Statement> newValues = new HashSet<>();
-        RepositoryResult<Statement> fullQuery = repositoryConnection.getStatements(null, null, null, false, metadataUri);
-        while (fullQuery.hasNext()){
-            Statement statement = fullQuery.next();
-            if(!statement.getSubject().equals(metadataUri)){
-                currentValues.add(statement);
-            }
-        }
-        newValues.addAll(generatedStatements);
-        return newValues.equals(currentValues);
-    }
-
-    private Set<URI> getProcessableSubjects(Set<URI> subjects) {
-        Set<URI> resultSet = new HashSet<>();
-        for(URI subject: subjects){
-            try {
-                if(!postProcessor.abortEarly(subject)){
-                    resultSet.add(subject);
-                }
-            } catch (PostProcessorException ignored) {
-            }
-        }
-        return resultSet;
-    }
-
-    private Set<URI> getGraphsToDelete(Set<URI> subjects, RepositoryConnection repositoryConnection, Date time) {
-        Set<URI> resultSet = new HashSet<>();
-        if(processableSubjects.size() == 0)
-            return resultSet;
-
-        try {
-            StringBuilder builder = new StringBuilder();
-            builder
-                    .append("SELECT DISTINCT ?metadata {");
-            ArrayList<String> uris = new ArrayList<>();
-
-            for(URI uri : processableSubjects){
-                uris.add("{ ?metadata a <" + METASERVICE.METADATA + ">;"+
-                         "  <"+METASERVICE.SOURCE_SUBJECT +"><" + uri.toString() + ">;"+
-                         "  <"+METASERVICE.GENERATOR + "> ?postprocessor;"+
-                         "  <" + METASERVICE.TIME+"> ?time.}");
-            }
-            builder.append(StringUtils.join(uris," UNION" )).append("}");
-
-            String query = builder.toString();
-            LOGGER.trace(query);
-            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,query);
-            tupleQuery.setBinding("postprocessor", valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
-            tupleQuery.setBinding("time",valueFactory.createLiteral(time));
-            TupleQueryResult result  = tupleQuery.evaluate();
-
-
-            while(result.hasNext()){
-                BindingSet bindings = result.next();
-                resultSet.add((URI) bindings.getBinding("metadata").getValue());
-            }
-            LOGGER.debug("Graphs To delete {}", resultSet);
-        } catch (RepositoryException | QueryEvaluationException | MalformedQueryException e) {
-            LOGGER.error("ERROR evaluation ", e);
-        }
-        return resultSet;
-    }
-
-    @NotNull
-    private URI generateMetadata(@NotNull PostProcessingTask task, URI action, Set<URI> processableSubjects) throws RepositoryException {
-        Date now = new Date();
-        //todo uniqueness in uri necessary
-        URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
-        repositoryConnection.begin();
-        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
-        repositoryConnection.add(metadata, METASERVICE.ACTION, action, metadata);
-        repositoryConnection.add(metadata, METASERVICE.TIME, valueFactory.createLiteral(task.getTime()),metadata); //todo fix it to be based on the used data
-        repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
-        repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
-        repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)), metadata);
-        for(URI processableSubject : processableSubjects) {
-            repositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, processableSubject,metadata);
-        }
-        repositoryConnection.commit();
-        return metadata;
-    }
-
 
     @Override
+    @Deprecated
     public boolean isOkCheapCheck(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException {
-        if(debug.isEnabled() &&!debug.process(task)){
-            LOGGER.debug("not processing -> debug");
-            return false;
-        }
-        URI resource = task.getChangedURI();
-        LOGGER.debug("dispatching {}", resource);
-        for(PostProcessingHistoryItem item  :task.getHistory()){
-            if(item.getPostprocessorId().equals(postProcessorDescriptor.getId())){
-                for(URI uri: item.getResources()){
-                    if(uri.equals(task.getChangedURI())){
-                        LOGGER.debug("Already processed the same uri");
-                        //this would be a more strict variant, but is not required such that everything can run faster :-)
-                    }
-                }
-                LOGGER.debug("Not processing, because did already process");
-                return false;
-            }
-        }
-        if(postProcessor.abortEarly(resource)){
-            LOGGER.debug("Not continuing processing because abortEarly({}) was true", resource);
-            return false;
-        }
-        return true;
+        return true; //intermediate solution
     }
 
-    public boolean isRequestTooOld(PostProcessingTask task, long jmsTimestamp){
-        try {
-
-            URI resource = task.getChangedURI();
-            graphSelect.setBinding("postprocessor",valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
-            graphSelect.setBinding("resource",resource);
-            graphSelect.setBinding("time",valueFactory.createLiteral(task.getTime()));
-            TupleQueryResult queryResult = graphSelect.evaluate();
-            XMLGregorianCalendar newestTime = null;
-            while(queryResult.hasNext()){
-                BindingSet ser = queryResult.next();
-                LOGGER.debug("EXISTING METADATA FOR THE RESOURCE : " + ser.getBinding("metadata"));
-                Binding binding =ser.getBinding("lastchecked");
-                LOGGER.trace("" + ((Literal) binding.getValue()).getDatatype());
-                XMLGregorianCalendar creationTime =   ((Literal)binding.getValue()).calendarValue();
-                if(newestTime == null || creationTime.compare(newestTime) == DatatypeConstants.GREATER)
-                    newestTime = creationTime;
-            }
-
-            if(newestTime != null){
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-                LOGGER.trace("Comparing " + simpleDateFormat.format(newestTime.toGregorianCalendar().getTime()) + " with " + simpleDateFormat.format(new Date(jmsTimestamp)));
-                if(newestTime.toGregorianCalendar().getTimeInMillis() > jmsTimestamp){
-                    LOGGER.debug("Ignoring - because request is too old");
-                    return true;
-                }
-            }
-        } catch (QueryEvaluationException e) {
-            LOGGER.error("Could not check if too old {}",task.getChangedURI(),e);
-            return true;
-        }
-        return false;
-    }
 }

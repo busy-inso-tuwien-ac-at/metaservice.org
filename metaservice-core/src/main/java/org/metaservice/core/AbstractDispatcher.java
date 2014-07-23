@@ -11,7 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.*;
+import org.metaservice.core.dispatcher.NotifyPipe;
+import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.*;
+import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.Repository;
@@ -39,26 +42,18 @@ import java.util.*;
 /**
  * Created by ilo on 17.01.14.
  */
-public abstract  class AbstractDispatcher<T> {
-    private final Logger LOGGER = LoggerFactory.getLogger(AbstractDispatcher.class);
-    private final RepositoryConnection repositoryConnection;
+public abstract  class AbstractDispatcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDispatcher.class);
+    public static final Resource[] NO_CONTEXT = new Resource[0];
+
     private final Config config;
-    protected final Resource[] NO_CONTEXT = new Resource[0];
     private final MessageHandler messageHandler;
-    private final ValueFactory valueFactory;
-    private final T target;
 
     protected AbstractDispatcher(
-            RepositoryConnection repositoryConnection,
             Config config,
-            MessageHandler messageHandler,
-            ValueFactory valueFactory,
-            T target
+            MessageHandler messageHandler
     )  {
-        this.repositoryConnection = repositoryConnection;
         this.config = config;
-        this.valueFactory = valueFactory;
-        this.target = target;
         this.messageHandler = messageHandler;
         try {
             this.messageHandler.init();
@@ -97,48 +92,7 @@ public abstract  class AbstractDispatcher<T> {
         }
     }
 
-    protected void sendData(RepositoryConnection resultConnection,URI metadata,List<Statement> generatedStatements) throws RepositoryException {
-
-        LOGGER.info("starting to send data");
-        RDFXMLPrettyWriter writer = null;
-        String writerFile = null;
-        if(config.getDumpRDFBeforeLoad()){
-            try {
-                writerFile =config.getDumpRDFDirectory()+ "/"+ target.getClass().getSimpleName()+"_" + System.currentTimeMillis() +".rdf";
-                writer = new RDFXMLPrettyWriter(new FileWriter(writerFile));
-            } catch (IOException e) {
-                LOGGER.error("Couldn't dump rdf data to {}", writerFile, e);
-            }
-        }
-        RepositoryResult<Namespace> ns = resultConnection.getNamespaces();
-        while(ns.hasNext()){
-            Namespace n = ns.next();
-            repositoryConnection.setNamespace(n.getPrefix(), n.getName());
-            if(writer != null){
-                writer.handleNamespace(n.getPrefix(),n.getName());
-            }
-            LOGGER.debug("Using namespace "+ n.getPrefix() + " , " +n.getName() );
-        }
-        if(writer != null){
-            try {
-                resultConnection.exportStatements(null, null, null, true, writer,NO_CONTEXT);
-            } catch (RDFHandlerException e) {
-                LOGGER.error("Couldn't dump rdf data to {}",writerFile,e);
-            }
-        }
-        resultConnection.close();
-        ArrayList<ArrayList<Statement>> result = split(generatedStatements);
-        int j = 0;
-        for(ArrayList<Statement> r  : result ){
-            LOGGER.info("Sending BATCH " + j++);
-            repositoryConnection.begin();
-            repositoryConnection.add(r, metadata);
-            repositoryConnection.commit();
-        }
-        LOGGER.info("finished to send data");
-    }
-
-    protected Set<URI> getSubjects(@NotNull Iterable<Statement> statements){
+    public static Set<URI> getSubjects(@NotNull Iterable<Statement> statements){
         Set<URI> subjects = new HashSet<>();
         for(Statement statement : statements){
             Resource  subject = statement.getSubject();
@@ -149,7 +103,7 @@ public abstract  class AbstractDispatcher<T> {
         return subjects;
     }
 
-    protected  Set<URI> getURIObject(@NotNull Iterable<Statement> statements){
+    public static Set<URI> getURIObject(@NotNull Iterable<Statement> statements){
         Set<URI> objects = new HashSet<>();
         for(Statement statement : statements){
             Value object = statement.getObject();
@@ -166,49 +120,13 @@ public abstract  class AbstractDispatcher<T> {
     }
 
 
+    @Deprecated
     protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @NotNull List<PostProcessingHistoryItem> oldHistory,@NotNull Date time, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,@Nullable Set<URI> affectedProcessableSubjects){
-        LOGGER.debug("START NOTIFICATION OF POSTPROCESSORS");
-        //todo only let postprocessing happen for date = or >
-        // i think it would be enough to query for ech subject the next existing date and let them recalculate
-        ArrayList<PostProcessingHistoryItem> history = new ArrayList<>();
-        history.addAll(oldHistory);
-
-        if(affectedProcessableSubjects != null){
-            if(postProcessorDescriptor != null){
-                PostProcessingHistoryItem now = new PostProcessingHistoryItem(postProcessorDescriptor.getId(),affectedProcessableSubjects.toArray(new URI[affectedProcessableSubjects.size()]));
-                history.add(now);
-            }
-        }
-        try {
-            if(resourcesThatChanged.size() ==0){
-                LOGGER.info("nothing to notify");
-            }
-            if(resourcesThatChanged.size() < 10) {
-                for (URI uri : resourcesThatChanged) {
-                    LOGGER.info("changed {}", uri);
-                    PostProcessingTask postProcessingTask = new PostProcessingTask(uri, time);
-                    postProcessingTask.getHistory().addAll(history);
-                    messageHandler.send(postProcessingTask);
-                }
-            }else{
-                LOGGER.debug("bulk change of {} objects ", resourcesThatChanged.size());
-                ArrayList<PostProcessingTask> postProcessingTasks = new ArrayList<>();
-                for (URI uri : resourcesThatChanged) {
-                    LOGGER.trace("changed {}" , uri);
-                    PostProcessingTask postProcessingTask = new PostProcessingTask(uri, time);
-                    postProcessingTask.getHistory().addAll(history);
-                    postProcessingTasks.add(postProcessingTask);
-                }
-                messageHandler.bulkSend(postProcessingTasks);
-
-            }
-        } catch (MessagingException e) {
-            LOGGER.error("Couldn't notify PostProcessors",e);
-        }
-        LOGGER.debug("STOP NOTIFICATION OF POSTPROCESSORS");
+        NotifyPipe notifyPipe = new NotifyPipe(postProcessorDescriptor,LOGGER,messageHandler);
+        notifyPipe.notifyPostProcessors(resourcesThatChanged,oldHistory,time,postProcessorDescriptor,affectedProcessableSubjects);
     }
 
-    protected List<Statement> getGeneratedStatements(RepositoryConnection resultConnection,Set<Statement> loadedStatements) throws RepositoryException {
+    public static List<Statement> getGeneratedStatements(RepositoryConnection resultConnection, Set<Statement> loadedStatements) throws RepositoryException {
         RepositoryResult<Statement> all = resultConnection.getStatements(null, null, null, true, NO_CONTEXT);
         ArrayList<Statement> allList = new ArrayList<>();
         HashSet<Resource> undefined = new HashSet<>();
@@ -218,6 +136,7 @@ public abstract  class AbstractDispatcher<T> {
                 if(s.getPredicate().equals(RDFS.SUBPROPERTYOF) ||
                         s.getPredicate().equals(RDFS.SUBCLASSOF) ||
                         s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDFS.RESOURCE)||
+                        s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(OWL.THING)||
                         s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDF.PROPERTY)){
                     if(!s.getSubject().stringValue().startsWith("http://metaservice.org/d/"))
                         undefined.add(s.getSubject());
@@ -236,27 +155,6 @@ public abstract  class AbstractDispatcher<T> {
             LOGGER.warn("Did not define: {}", StringUtils.join(undefined,", "));
         }
         return  allList;
-    }
-
-    private ArrayList<ArrayList<Statement>> split(List<Statement> statements){
-        ArrayList<ArrayList<Statement>> result = new ArrayList<>();
-        ArrayList<Statement> currentResult = new ArrayList<>();
-
-        int i = config.getBatchSize()+1;
-
-        LOGGER.info("SPLITTING : ");
-
-        for(Statement statement : statements){
-            if(i >config.getBatchSize()){
-                i = 0;
-                currentResult = new ArrayList<>();
-                result.add(currentResult);
-            }
-            i++;
-            currentResult.add(valueFactory.createStatement(statement.getSubject(), statement.getPredicate(), statement.getObject()));
-        }
-        LOGGER.info(""+result.size());
-        return result;
     }
 
 

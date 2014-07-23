@@ -24,9 +24,9 @@ public class MetaserviceModule implements Module {
         binder.bind(ManagerConfig.class).toProvider(ManagerConfigProvider.class).in(Scopes.SINGLETON);
         binder.bind(Config.class).toProvider(ConfigProvider.class).in(Scopes.SINGLETON);
         binder.bind(MetaserviceDescriptor.class).toProvider(new JAXBMetaserviceDescriptorProvider(MetaserviceModule.this.getClass().getResourceAsStream("/metaservice.xml"))).in(Scopes.SINGLETON);
-        binder.bind(ValueFactory.class).toProvider(ValueFactoryProvider.class).in(Scopes.SINGLETON);
         binder.bind(Repository.class).toProvider(SPARQLRepositoryProvider.class).in(Scopes.SINGLETON);
-        binder.bind(RepositoryConnection.class).toProvider(RepositoryConnectionProvider.class).in(Scopes.SINGLETON);
+        binder.bind(RepositoryConnection.class).toProvider(RepositoryConnectionProvider.class);
+        binder.bind(ValueFactory.class).toProvider(ValueFactoryProvider.class);
         binder.bind(DescriptorHelper.class).to(DescriptorHelperImpl.class);
         new MongoKryoMessagingModule().configure(binder);
         //new JmsModule().configure(binder);
