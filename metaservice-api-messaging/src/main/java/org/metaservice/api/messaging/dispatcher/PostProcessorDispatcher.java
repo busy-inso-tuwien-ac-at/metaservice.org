@@ -7,7 +7,7 @@ import org.metaservice.api.postprocessor.PostProcessorException;
  * Created by ilo on 09.06.2014.
  */
 public interface PostProcessorDispatcher {
-    void process(PostProcessingTask task, long jmsTimestamp);
+    void process(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException;
 
     boolean isOkCheapCheck(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException;
 }
