@@ -29,7 +29,6 @@ public class DebianVersionReasoner implements PostProcessor {
 
     private final ValueFactory valueFactory;
 
-    //todo replace with BindVariable
     private final BoundVariable resource = new BoundVariable("resource");
     private final Variable revision = new Variable("revision");
     private final Variable release = new Variable("release");
@@ -103,15 +102,16 @@ public class DebianVersionReasoner implements PostProcessor {
 
                 for(Map.Entry<String,Collection<URI>> entry : archMap.asMap().entrySet()) {
                     LOGGER.info("processing arch {}",entry.getKey());
-                    ArrayList<String> list = new ArrayList<>();
-
+                    HashSet<String> set = new HashSet<>();
                     HashMap<String, URI> versionUriMap = new HashMap<>();
                     for(URI x : entry.getValue()){
                         String revision = revisionMap.get(x);
                         versionUriMap.put(revision, x );
-                        list.add(revision);
+                        set.add(revision);
                         LOGGER.debug(revision);
                     }
+                    ArrayList<String> list = new ArrayList<>();
+                    list.addAll(set);
                     Collections.sort(list, DebianVersionComparator.getInstance());
                     LOGGER.info("SORTED:");
                     for (String s : list) {
