@@ -1,15 +1,29 @@
-SELECT DISTINCT
+SELECT *
+WITH
+{
+  SELECT DISTINCT
  ?subject ?title ?type ?relevance
  WHERE {
   ?title bds:search $q ;
          bds:relevance  ?relevance .
-  ?subject a <http://usefulinc.com/ns/doap#Project>;
-           a ?type;
+  ?subject a ?type;
            rdfs:label ?title
-     FILTER (
-         ?type != <http://www.w3.org/2000/01/rdf-schema#Resource>
+               FILTER (
+         ?type = <http://purl.org/adms/sw/SoftwareProject>
+         ||
+         ?type = <http://purl.org/adms/sw/SoftwareRelease>
+         ||
+         ?type = <http://purl.org/adms/sw/SoftwarePackage>
+         ||
+         ?type = <http://metaservice.org/ns/cve#CVE>
+         ||
+         ?type = <http://metaservice.org/ns/cpe#CPE>
      )
+} ORDER BY DESC(?relevance) ?title
+} AS %result
+
+WHERE{
+  INCLUDE %result.
 }
- ORDER BY ?relevance ?title
  LIMIT $limit
  OFFSET $offset
