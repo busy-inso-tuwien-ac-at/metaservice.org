@@ -29,7 +29,9 @@
     <template
             name="generic-project.hbs"
             appliesTo="http://purl.org/adms/sw/SoftwareProject"/>
-
+    <template
+            name="generic-resource.hbs"
+            appliesTo="http://www.w3.org/2000/01/rdf-schema#Resource"/>
     <ontology
       name="adms_sw.rdf" apply="true" distribute="false"/>
     <ontology

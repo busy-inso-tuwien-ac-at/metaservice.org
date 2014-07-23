@@ -1,0 +1,32 @@
+<div class="row">
+    <div class="col-md-12">
+        {{> button_controls}}
+        <h1 {{provenance . "rdfs:label"}}>{{literal rdfs:label}}</h1>
+    </div>
+</div>
+
+{{#script}}
+
+    $(document).ready(function() {
+        $.when(
+            $.getScript("http://warfares.github.io/pretty-json/libs/underscore-min.js"),
+            $.getScript("http://warfares.github.io/pretty-json/libs/backbone-min.js")
+        )
+        .then(function(){
+            $.getScript("http://warfares.github.io/pretty-json/pretty-json-min.js",function(){
+                var el = {
+                    result: $('#result')
+                };
+                var node = new PrettyJSON.view.Node({
+                    el:el.result,
+                    data: MS.compacted
+                });
+            });
+        });
+    });
+{{/script}}
+<div class="row">
+    <div class="col-md-12">
+        <span id="result"></span>
+    </div>
+</div>

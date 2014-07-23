@@ -74,6 +74,16 @@ function convertToJson(data,root){
     return result[root];
 }
 
+Handlebars.registerHelper('loadScript',function(context,predicate){
+    $.getScript(context);
+});
+
+Handlebars.registerHelper('script',function(context,predicate){
+    console.log(context);
+    console.log(context.fn(this));
+    return new Handlebars.SafeString("<script>"+context.fn(this)+"</script>");
+});
+
 Handlebars.registerHelper('literal',function(context,predicate){
     if($.isArray(context)){
         //todo make language selection

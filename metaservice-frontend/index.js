@@ -109,10 +109,11 @@ function handleSearch(){
                     result.pagination.pages.push({url:"/d/search?q=" + q + "&limit=" + limit + "&offset="+(offset + (i-page)*limit),title:i, selected: i == page});
                 }
             }
+            MS.compacted= result;
             console.log(result);
 
             var template  = Handlebars.compile($("#searchResults").html());
-            $('#content').append(template(result));
+            $('#content').append(template(MS.compacted));
             $('#loader').modal('hide');
 
         },
@@ -590,12 +591,11 @@ function handleResource(){
       //      console.log(result);
 
             jsonld.compact(result,MS.context,function(err,compacted){
-                result = compacted;
-                result = jsonLdFollowIris(result,MS.resourceUrl);
-                console.log(result);
+                MS.compacted = jsonLdFollowIris(compacted,MS.resourceUrl);
+                console.log(MS.compacted);
 
                 MS.templates = [];
-                var type = result['@type'];
+                var type = MS.compacted['@type'];
                 //console.log(type);
                 if($.isArray(type)){
                     $.each(type,function(index,d){
@@ -613,7 +613,7 @@ function handleResource(){
                     loadError('Template missing','There is no view specified for this type of data  :-(');
                     return;
                 }
-                renderTemplate(MS.templates[0],result);
+                renderTemplate(MS.templates[0],MS.compacted);
             });
         },
         error: function(){
