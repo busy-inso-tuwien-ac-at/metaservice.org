@@ -8,27 +8,29 @@ import org.metaservice.kryo.beans.*;
 import org.metaservice.kryo.mongo.MongoConnectionWrapper;
 import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created by ilo on 09.06.2014.
  */
 public class QueueContainer implements StatisticsProvider{
     private final MongoConnectionWrapper mongoConnectionWrapper;
-
-    HashMap<String,Queue<PostProcessorMessage>> postProcessorMessageQueues= new HashMap<>();
-    HashMap<String,Queue<ProviderCreateMessage>> providerCreateMessageQueues= new HashMap<>();
-    HashMap<String,Queue<ProviderRefreshMessage>> providerRefreshMessageQueues= new HashMap<>();
+    private final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(QueueContainer.class);
+    final HashMap<String,Queue<PostProcessorMessage>> postProcessorMessageQueues= new HashMap<>();
+    final HashMap<String,Queue<ProviderCreateMessage>> providerCreateMessageQueues= new HashMap<>();
+    final HashMap<String,Queue<ProviderRefreshMessage>> providerRefreshMessageQueues= new HashMap<>();
 
     public QueueContainer(MongoConnectionWrapper mongoConnectionWrapper) {
         this.mongoConnectionWrapper = mongoConnectionWrapper;
         org.mongojack.DBCursor<QueueConfig> queueConfigDBCursor = this.mongoConnectionWrapper.getQueueCollection().find();
         while(queueConfigDBCursor.hasNext()){
             QueueConfig config =queueConfigDBCursor.next();
+            LOGGER.info("restoring " + config);
             switch (config.getType()){
                 case POSTPROCESS:
-                    System.err.println("restoring " + config);
                     Queue queue = addPostProcessorQueue(config.getName());
                     queue.setLast(config.getLast());
                     break;
@@ -52,7 +54,8 @@ public class QueueContainer implements StatisticsProvider{
                     mongoConnectionWrapper,
                     mongoConnectionWrapper.getPostProcessorMessageCollection(),
                     mongoConnectionWrapper.getPostProcessorMessageCollectionFailed(),
-                    null);
+                    null,
+                    name);
             postProcessorMessageQueues.put(name, queue);
         }
         return postProcessorMessageQueues.get(name);
@@ -65,7 +68,8 @@ public class QueueContainer implements StatisticsProvider{
                     mongoConnectionWrapper,
                     mongoConnectionWrapper.getProviderCreateMessageCollection(),
                     mongoConnectionWrapper.getProviderCreateMessageCollectionFailed(),
-                    null);
+                    null,
+                    name);
             providerCreateMessageQueues.put(name, queue);
         }
         return providerCreateMessageQueues.get(name);
@@ -78,7 +82,8 @@ public class QueueContainer implements StatisticsProvider{
                     mongoConnectionWrapper,
                     mongoConnectionWrapper.getProviderRefreshMessageCollection(),
                     mongoConnectionWrapper.getProviderRefreshMessageCollectionFailed(),
-                    null);
+                    null,
+                    name);
             providerRefreshMessageQueues.put(name, queue);
         }
         return providerRefreshMessageQueues.get(name);
@@ -117,8 +122,11 @@ public class QueueContainer implements StatisticsProvider{
 
 
     public void cleanQueues(){
-        clean(postProcessorMessageQueues.values(),mongoConnectionWrapper.getPostProcessorMessageCollection());
+        LOGGER.info("running Clean Queues PostProcessor");
+        clean(postProcessorMessageQueues.values(), mongoConnectionWrapper.getPostProcessorMessageCollection());
+        LOGGER.info("running Clean Queues ProviderRefresh");
         clean(providerRefreshMessageQueues.values(),mongoConnectionWrapper.getProviderRefreshMessageCollection());
+        LOGGER.info("running Clean Queues ProviderCreate");
         clean(providerCreateMessageQueues.values(),mongoConnectionWrapper.getProviderCreateMessageCollection());
     }
 
@@ -143,29 +151,46 @@ public class QueueContainer implements StatisticsProvider{
     }
 
     public void saveQueues(){
+        LOGGER.info("SaveQueues");
+        LOGGER.info(" - drop");
         mongoConnectionWrapper.getQueueCollection().drop();
         for(Map.Entry<String,Queue<PostProcessorMessage>> entry : postProcessorMessageQueues.entrySet()){
-            entry.getValue().shutDown();
-            QueueConfig config = new QueueConfig();
-            config.setLast(entry.getValue().getLast());
-            config.setName(entry.getKey());
-            config.setType(RegisterClientMessage.Type.POSTPROCESS);
-
-            mongoConnectionWrapper.getQueueCollection().insert(config);
+            try {
+                entry.getValue().shutDown();
+                QueueConfig config = new QueueConfig();
+                config.setLast(entry.getValue().getLast());
+                config.setName(entry.getKey());
+                config.setType(RegisterClientMessage.Type.POSTPROCESS);
+                LOGGER.info(" - insert postprocess " + entry.getKey());
+                mongoConnectionWrapper.getQueueCollection().insert(config);
+            }catch (Exception e){
+                LOGGER.error("failed to save {}" + entry.getValue().getName());
+            }
         }
         for(Map.Entry<String,Queue<ProviderCreateMessage>> entry : providerCreateMessageQueues.entrySet()){
-            QueueConfig config = new QueueConfig();
-            config.setLast(entry.getValue().getLast());
-            config.setName(entry.getKey());
-            config.setType(RegisterClientMessage.Type.PROVIDER_CREATE);
-            mongoConnectionWrapper.getQueueCollection().insert(config);
+            try {
+                QueueConfig config = new QueueConfig();
+                config.setLast(entry.getValue().getLast());
+                config.setName(entry.getKey());
+                config.setType(RegisterClientMessage.Type.PROVIDER_CREATE);
+                LOGGER.info(" - insert provider_create" + entry.getKey() );
+                mongoConnectionWrapper.getQueueCollection().insert(config);
+            }catch (Exception e){
+                LOGGER.error("failed to save {}" + entry.getValue().getName());
+            }
+
         }
         for(Map.Entry<String,Queue<ProviderRefreshMessage>> entry : providerRefreshMessageQueues.entrySet()){
-            QueueConfig config = new QueueConfig();
-            config.setLast(entry.getValue().getLast());
-            config.setName(entry.getKey());
-            config.setType(RegisterClientMessage.Type.PROVIDER_REFRESH);
-            mongoConnectionWrapper.getQueueCollection().insert(config);
+            try {
+                QueueConfig config = new QueueConfig();
+                config.setLast(entry.getValue().getLast());
+                config.setName(entry.getKey());
+                config.setType(RegisterClientMessage.Type.PROVIDER_REFRESH);
+                LOGGER.info(" - insert provider_refresh " + entry.getKey());
+                mongoConnectionWrapper.getQueueCollection().insert(config);
+            }catch (Exception e){
+                LOGGER.error("failed to save {}" + entry.getValue().getName());
+            }
         }
     }
 }

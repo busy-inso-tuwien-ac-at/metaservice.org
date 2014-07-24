@@ -31,6 +31,7 @@ public class ProviderMongoKryoLoop implements ProviderMessagingLoop{
         try {
             LOGGER.error("STARTING CLIENT");
             Client client =new KryoClientUtil().startClient(providerListener);
+            client.getUpdateThread().setPriority(Thread.MAX_PRIORITY);
             LOGGER.error("Update thread is alive " + client.getUpdateThread().isAlive());
             client.getUpdateThread().join();
             LOGGER.error("Client Update Thread joined");

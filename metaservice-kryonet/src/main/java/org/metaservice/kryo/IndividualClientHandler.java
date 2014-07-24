@@ -2,11 +2,12 @@ package org.metaservice.kryo;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.metaservice.kryo.beans.AbstractMessage;
-import org.metaservice.kryo.beans.PostProcessorMessage;
 import org.metaservice.kryo.beans.ResponseMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Response;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,13 +17,20 @@ import java.util.concurrent.TimeUnit;
  * Created by ilo on 08.06.2014.
  */
 public class IndividualClientHandler<T extends AbstractMessage> extends Listener {
+    private final Logger LOGGER  = LoggerFactory.getLogger(IndividualClientHandler.class);
     private final Queue<T> queue;
     private final Set<T> inFlight = Collections.synchronizedSet(new HashSet<T>());
     private final int flightCount;
-    private final ExecutorService submitExecutorService = Executors.newSingleThreadExecutor();
-    private final ExecutorService responseExecutorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService submitExecutorService;
+    private final ExecutorService responseExecutorService;
 
     public IndividualClientHandler(Queue<T> queue,int flightCount) {
+        ThreadFactoryBuilder builder = new ThreadFactoryBuilder()
+                .setDaemon(true)
+                .setNameFormat(queue.getName()+"-sumit-%d");
+        submitExecutorService = Executors.newSingleThreadExecutor(builder.build());
+        builder.setNameFormat(queue.getName()+"-response-%d");
+        responseExecutorService = Executors.newSingleThreadExecutor(builder.build());
         this.queue = queue;
         this.flightCount = flightCount;
     }
@@ -43,16 +51,19 @@ public class IndividualClientHandler<T extends AbstractMessage> extends Listener
         T msg = queue.get();
         if(msg != null) {
             synchronized (inFlight) {
-
                 inFlight.add(msg);
             }
             connection.sendTCP(msg);
+            LOGGER.debug("inflight " + inFlight.size());
+            LOGGER.debug("sent " + msg.get_id());
+        }else{
+            LOGGER.warn("Queue return null - inFlight will decrease");
         }
     }
 
     @Override
     public void disconnected(Connection connection) {
-        System.err.println("disconnect " + connection.getID());
+        LOGGER.warn("disconnect " + connection.getID());
 
         submitExecutorService.shutdownNow();
         List<Runnable> runnables = responseExecutorService.shutdownNow();
@@ -63,12 +74,12 @@ public class IndividualClientHandler<T extends AbstractMessage> extends Listener
             responseExecutorService.awaitTermination(10, TimeUnit.SECONDS);
             submitExecutorService.awaitTermination(10,TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-
+            LOGGER.error("interrupted termination of executrservices", e);
         }
         synchronized (inFlight) {
             for (T t : inFlight) {
+                LOGGER.info(t.get_id() + " no result received -> pushback");
                 queue.pushBack(t);
-                System.err.println(t.get_id() + " no result received -> pushback");
             }
         }
     }
@@ -92,21 +103,27 @@ public class IndividualClientHandler<T extends AbstractMessage> extends Listener
     }
 
     private void handleResponse(ResponseMessage o) {
-        synchronized (inFlight) {
-            System.err.println(o.getAboutMessage().get_id() +" returned");
+        T result = null;
 
+        synchronized (inFlight) {
+            LOGGER.debug(o.getAboutMessage().get_id() + " returned");
             Iterator<T> iter = inFlight.iterator();
             while (iter.hasNext()) {
                 T t = iter.next();
                 if (t.get_id().equals((o.getAboutMessage().get_id()))) {
-                    if(o.getStatus() == ResponseMessage.Status.OK) {
-                        System.err.println(o.getAboutMessage().get_id() + " successfull");
-                    }else{
-                        queue.markAsFailed(o);
-                    }
+                    result = t;
                     iter.remove();
                     break;
                 }
+            }
+
+        }
+        if(result != null){
+            if(o.getStatus() == ResponseMessage.Status.OK) {
+                LOGGER.debug(o.getAboutMessage().get_id() + " successfull");
+            }else{
+                LOGGER.debug(o.getAboutMessage().get_id() + " failed");
+                queue.markAsFailed(o);
             }
         }
     }

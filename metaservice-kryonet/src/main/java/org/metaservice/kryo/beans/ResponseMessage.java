@@ -33,4 +33,13 @@ public class ResponseMessage extends AbstractMessage{
     public void setStatus(Status status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "ResponseMessage{" +
+                " status=" + status +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", aboutMessage=" + aboutMessage +
+                '}';
+    }
 }

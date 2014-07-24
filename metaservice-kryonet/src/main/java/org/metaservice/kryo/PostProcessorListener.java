@@ -87,5 +87,25 @@ public class PostProcessorListener extends Listener {
             connection.sendTCP(responseMessage);
         }
     }
+
+    @Override
+    public void disconnected(final Connection connection) {
+        LOGGER.error("DISCONNECTED!!!!!");
+        Thread reconnectThread= new Thread("reconnect"){
+            @Override
+            public void run() {
+                connection.getEndPoint().stop();
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ignored) {
+                }
+                LOGGER.info("trying to reconnect");
+                PostProcessorMongoKryoLoop postProcessorMongoKryoLoop = new PostProcessorMongoKryoLoop(PostProcessorListener.this);
+                postProcessorMongoKryoLoop.run();
+            }
+        };
+        reconnectThread.setDaemon(false);
+        reconnectThread.start();
+    }
 }
 

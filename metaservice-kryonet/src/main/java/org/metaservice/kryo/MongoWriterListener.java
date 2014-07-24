@@ -22,14 +22,15 @@ private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MongoWrit
     }
 
     public void received (Connection connection, Object object) {
-        System.err.println(object);
         if(object instanceof AbstractMessage){
-            LOGGER.info("storing " + object);
             if (object instanceof PostProcessorMessage) {
+                LOGGER.info("storing " + object);
                 mongo.getPostProcessorMessageCollection().insert((PostProcessorMessage) object);
             }else if(object instanceof ProviderCreateMessage){
+                LOGGER.info("storing " + object);
                 mongo.getProviderCreateMessageCollection().insert((ProviderCreateMessage) object);
             } else if(object instanceof ProviderRefreshMessage){
+                LOGGER.info("storing " + object);
                 mongo.getProviderRefreshMessageCollection().insert((ProviderRefreshMessage) object);
             }
         }

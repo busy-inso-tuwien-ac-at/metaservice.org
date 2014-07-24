@@ -7,6 +7,8 @@ import org.metaservice.kryo.beans.ResponseMessage;
 import org.metaservice.kryo.mongo.MongoConnectionWrapper;
 import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,12 +18,15 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class Queue<T extends AbstractMessage> {
     private final static int MILLIES_BETWEEN_UNSUCCESSFULL_MONGO_FETCHES = 1000;
-    public Queue(MongoConnectionWrapper mongo, JacksonDBCollection<T, Long> db, JacksonDBCollection<ResponseMessage, Long> failed, ObjectId last) {
+    private final Logger LOGGER = LoggerFactory.getLogger(Queue.class);
+    public Queue(MongoConnectionWrapper mongo, JacksonDBCollection<T, Long> db, JacksonDBCollection<ResponseMessage, Long> failed, ObjectId last, String name) {
         this.mongo = mongo;
         this.db = db;
         this.failed = failed;
         this.last = last;
+        this.name = name;
     }
+    private final String name;
     private final MongoConnectionWrapper mongo;
     private final JacksonDBCollection<T,Long> db;
     private final JacksonDBCollection<ResponseMessage,Long> failed;
@@ -47,7 +52,7 @@ public class Queue<T extends AbstractMessage> {
             return null;
         }
         T t = cursor.next();
-        System.err.println("new id " + t.get_id());
+        LOGGER.trace("new id " + t.get_id());
         last = t.get_id();
 
         return t;
@@ -102,6 +107,7 @@ public class Queue<T extends AbstractMessage> {
     }
 
     public void shutDown() {
+        LOGGER.info("Shutdown queue {}",name);
         for(T t:pushBackQueue){
             ResponseMessage responseMessage = new ResponseMessage();
             responseMessage.setStatus(ResponseMessage.Status.FAILED);
@@ -109,5 +115,9 @@ public class Queue<T extends AbstractMessage> {
             responseMessage.setTimestamp(System.currentTimeMillis());
             markAsFailed(responseMessage);
         }
+    }
+
+    public String getName() {
+        return name;
     }
 }

@@ -161,7 +161,7 @@ public class MongoKryoMessageHandler implements MessageHandler {
             int retries = 0;
             while (!client.isConnected()){
                 try {
-                    client.connect(timeout, "127.0.0.1", 54555, 54777);
+                    client.connect(timeout, "127.0.0.1", 54555/*, 54777*/);
                     retries++;
                 }catch (IOException e){
                     if(retries> 10){

@@ -5,9 +5,11 @@ import com.esotericsoftware.kryonet.Listener;
 import com.google.inject.Inject;
 import org.metaservice.api.archive.ArchiveAddress;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.api.messaging.MessagingException;
 import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.messaging.dispatcher.ProviderDispatcher;
 import org.metaservice.kryo.beans.*;
+import org.metaservice.kryo.run.ProviderMongoKryoLoop;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
@@ -90,5 +92,29 @@ public class ProviderListener extends Listener{
             connection.sendTCP(responseMessage);
         }
 
+    }
+
+    @Override
+    public void disconnected(final Connection connection) {
+        LOGGER.error("DISCONNECTED!!!!!");
+        Thread reconnectThread= new Thread("reconnect"){
+            @Override
+            public void run() {
+                connection.getEndPoint().stop();
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ignored) {
+                }
+                LOGGER.info("trying to reconnect");
+                ProviderMongoKryoLoop providerMongoKryoLoop = new ProviderMongoKryoLoop(ProviderListener.this);
+                try {
+                    providerMongoKryoLoop.run();
+                } catch (MessagingException e) {
+                    LOGGER.error("failed to reconnect ",e);
+                }
+            }
+        };
+        reconnectThread.setDaemon(false);
+        reconnectThread.start();
     }
 }

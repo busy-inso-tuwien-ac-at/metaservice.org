@@ -4,16 +4,16 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.kryonet.rmi.ObjectSpace;
-import com.esotericsoftware.minlog.Log;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.metaservice.kryo.ClientHandler;
 import org.metaservice.kryo.KryoInitializer;
 import org.metaservice.kryo.QueueContainer;
 import org.metaservice.kryo.mongo.MongoConnectionWrapper;
 import org.metaservice.kryo.MongoWriterListener;
-import org.mongojack.DBQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,12 +21,21 @@ import java.util.concurrent.Executors;
  * Created by ilo on 07.06.2014.
  */
 public class KryoServer {
+    private final Logger LOGGER = LoggerFactory.getLogger(KryoServer.class);
     public static final int QUEUE_CONTAINER_ID = 1;
 
-    ExecutorService executor = Executors.newFixedThreadPool(3);
+    final ExecutorService objectSpaceExecutor;
+    final ExecutorService mongoWriterExecutor;
+    public KryoServer() {
+        ThreadFactoryBuilder threadFactoryBuilder = new ThreadFactoryBuilder();
+        threadFactoryBuilder.setNameFormat("objectSpace-%d");
+        objectSpaceExecutor =  Executors.newFixedThreadPool(3,threadFactoryBuilder.build());
+        threadFactoryBuilder.setNameFormat("mongoWriter-%d");
+        mongoWriterExecutor=Executors.newFixedThreadPool(10,threadFactoryBuilder.build());
+    }
+
     public static void main(String[] args) throws IOException {
         final KryoServer kryoServer = new KryoServer();
-        kryoServer.run();
         Thread shutDownHook = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -34,13 +43,19 @@ public class KryoServer {
             }
         });
         Runtime.getRuntime().addShutdownHook(shutDownHook);
+        kryoServer.run();
     }
 
     public void close() {
+        LOGGER.info("Closing Server");
+        LOGGER.info(" - saving Queues");
         queueContainer.saveQueues();
+        LOGGER.info(" - cleaning Queues");
         queueContainer.cleanQueues();
+        LOGGER.info(" - shuting down kryo");
         server.close();
-        executor.shutdown();
+        LOGGER.info(" - shuting down objectSpaceExecutor");
+        objectSpaceExecutor.shutdown();
     }
 
     private Server server;
@@ -53,13 +68,13 @@ public class KryoServer {
         server = new Server(16384*20, 90000);
         new KryoInitializer().initialize(server.getKryo());
         server.addListener(new Listener.ThreadedListener(new ClientHandler(queueContainer)));
-        server.addListener(new Listener.ThreadedListener(new MongoWriterListener(mongo), Executors.newFixedThreadPool(10)));
+        server.addListener(new Listener.ThreadedListener(new MongoWriterListener(mongo), mongoWriterExecutor));
 
         server.start();
-        server.bind(54555, 54777);
+        server.bind(54555/*, 54777*/);
         final ObjectSpace objectSpace = new ObjectSpace();
         objectSpace.register(QUEUE_CONTAINER_ID, queueContainer);
-        objectSpace.setExecutor(executor);
+        objectSpace.setExecutor(objectSpaceExecutor);
         server.addListener(new Listener() {
             @Override
             public void connected(Connection connection) {

@@ -34,4 +34,12 @@ public class PostProcessingTask implements Serializable {
     private  URI changedURI;
     private  Date time;
     private  ArrayList<PostProcessingHistoryItem> history = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "PostProcessingTask{" +
+                "changedURI=" + changedURI +
+                ", time=" + time +
+                '}';
+    }
 }

@@ -26,6 +26,7 @@ public class PostProcessorMongoKryoLoop implements PostProcessorMessagingLoop {
     public void run() {
         try {
             Client client =new KryoClientUtil().startClient(postProcessorListener);
+            client.getUpdateThread().setPriority(Thread.MAX_PRIORITY);
             client.getUpdateThread().join();
         } catch (IOException | InterruptedException e) {
             LOGGER.error("Error during running ", e);
