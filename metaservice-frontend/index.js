@@ -608,7 +608,8 @@ function handleResource(){
                         MS.templates.push("/" + type['ms:view']);
                     }
                 }
-
+                //todo hack
+                MS.templates.push('/generic-resource.hbs');
                 if(MS.templates.length ==0){
                     loadError('Template missing','There is no view specified for this type of data  :-(');
                     return;
