@@ -3,7 +3,6 @@ package org.metaservice.core.dispatcher;
 import com.google.common.base.Optional;
 import org.metaservice.api.messaging.Config;
 import org.metaservice.core.AbstractDispatcher;
-import org.metaservice.core.dispatcher.MetaserviceSimplePipe;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
@@ -14,6 +13,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,29 +22,29 @@ import java.util.List;
 /**
 * Created by ilo on 23.07.2014.
 */
-public class SendDataPipe<T> extends MetaserviceSimplePipe<PostProcessorDispatcher.Context,PostProcessorDispatcher.Context> {
+public class SendDataPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.Context,PostProcessorDispatcher.Context> {
 
     private final RepositoryConnection repositoryConnection;
     private final ValueFactory valueFactory;
     private final Config config;
-    private final T target;
 
-    public SendDataPipe(Logger logger, RepositoryConnection repositoryConnection, ValueFactory valueFactory, Config config, T target) {
+    @Inject
+    public SendDataPipe(Logger logger, RepositoryConnection repositoryConnection, ValueFactory valueFactory, Config config) {
         super(logger);
         this.repositoryConnection = repositoryConnection;
         this.valueFactory = valueFactory;
         this.config = config;
-        this.target = target;
     }
 
     @Override
     public Optional<PostProcessorDispatcher.Context> process(PostProcessorDispatcher.Context input) throws Exception {
+        AbstractDispatcher.recoverSparqlConnection(repositoryConnection);
         LOGGER.info("starting to send data");
         RDFXMLPrettyWriter writer = null;
         String writerFile = null;
         if(config.getDumpRDFBeforeLoad()){
             try {
-                writerFile =config.getDumpRDFDirectory()+ "/"+ target.getClass().getSimpleName()+"_" + System.currentTimeMillis() +".rdf";
+                writerFile =config.getDumpRDFDirectory()+ "/"+ /*target.getClass().getSimpleName()+*/"_" + System.currentTimeMillis() +".rdf";
                 writer = new RDFXMLPrettyWriter(new FileWriter(writerFile));
             } catch (IOException e) {
                 LOGGER.error("Couldn't dump rdf data to {}", writerFile, e);
@@ -61,7 +61,7 @@ public class SendDataPipe<T> extends MetaserviceSimplePipe<PostProcessorDispatch
         }
         if(writer != null){
             try {
-                input.resultConnection.exportStatements(null, null, null, true, writer, AbstractDispatcher.NO_CONTEXT);
+                input.resultConnection.exportStatements(null, null, null, true, writer);
             } catch (RDFHandlerException e) {
                 LOGGER.error("Couldn't dump rdf data to {}",writerFile,e);
             }

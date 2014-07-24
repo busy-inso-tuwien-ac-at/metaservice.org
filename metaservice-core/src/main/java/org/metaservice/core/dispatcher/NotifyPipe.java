@@ -14,6 +14,7 @@ import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,10 +27,12 @@ public class NotifyPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.Co
     private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
     private final MessageHandler messageHandler;
 
-    public NotifyPipe(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor, Logger logger, MessageHandler messageHandler) {
+    @Inject
+    public NotifyPipe(MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor, Logger logger, MessageHandler messageHandler) throws MessagingException {
         super(logger);
         this.postProcessorDescriptor = postProcessorDescriptor;
         this.messageHandler = messageHandler;
+        this.messageHandler.init();
     }
 
     @Override
@@ -38,7 +41,7 @@ public class NotifyPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.Co
         List<PostProcessingHistoryItem> oldHistory = context.task.getHistory();
         Date time = context.task.getTime();
         Set<URI> affectedProcessableSubjects = context.processableSubjects;
-        notifyPostProcessors(resourcesThatChanged,oldHistory,time,postProcessorDescriptor,affectedProcessableSubjects);
+        notifyPostProcessors(resourcesThatChanged, oldHistory, time, postProcessorDescriptor, affectedProcessableSubjects);
         return Optional.of(context);
     }
 

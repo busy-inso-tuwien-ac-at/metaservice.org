@@ -2,6 +2,7 @@ package org.metaservice.core.dispatcher.postprocessor;
 
 import com.google.common.base.Optional;
 import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.dispatcher.MetaserviceSimplePipe;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.URI;
@@ -28,6 +29,7 @@ public class DropExistingGraphsPipe extends MetaserviceSimplePipe<PostProcessorD
 
     @Override
     public Optional<PostProcessorDispatcher.Context> process(PostProcessorDispatcher.Context c) throws Exception {
+        AbstractDispatcher.recoverSparqlConnection(repositoryConnection);
         for(URI context : c.existingGraphs){
             try {
                 LOGGER.warn("Dropping Graph {}", context);

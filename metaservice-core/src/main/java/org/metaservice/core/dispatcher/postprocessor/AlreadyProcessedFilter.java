@@ -7,12 +7,15 @@ import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
+
 /**
 * Created by ilo on 23.07.2014.
 */
 public class AlreadyProcessedFilter extends MetaserviceFilterPipe<PostProcessorDispatcher.Context> {
     private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
 
+    @Inject
     public AlreadyProcessedFilter(Logger logger, MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) {
         super(logger);
         this.postProcessorDescriptor = postProcessorDescriptor;

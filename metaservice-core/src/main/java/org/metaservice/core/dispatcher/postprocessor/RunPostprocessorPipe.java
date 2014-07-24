@@ -17,10 +17,13 @@ import java.util.Set;
 */
 public class RunPostprocessorPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.Context,PostProcessorDispatcher.Context> {
     private final PostProcessor postProcessor;
-    private final Set<Statement> loadedStatements;
+    private final LoadedStatements loadedStatements;
 
     @Inject
-    public RunPostprocessorPipe(PostProcessor postProcessor, Set<Statement> loadedStatements, Logger logger) {
+    public RunPostprocessorPipe(
+            PostProcessor postProcessor,
+            LoadedStatements loadedStatements,
+            Logger logger) {
         super(logger);
         this.postProcessor = postProcessor;
         this.loadedStatements = loadedStatements;
@@ -35,7 +38,7 @@ public class RunPostprocessorPipe extends MetaserviceSimplePipe<PostProcessorDis
         } catch (PostProcessorException e) {
             e.printStackTrace();
         }
-        context.resultConnection.add(loadedStatements);
+        context.resultConnection.add(loadedStatements.getStatements());
         context.resultConnection.commit();
         return Optional.of(context);
     }

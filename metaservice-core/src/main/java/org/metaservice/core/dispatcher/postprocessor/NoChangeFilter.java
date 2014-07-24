@@ -1,6 +1,7 @@
 package org.metaservice.core.dispatcher.postprocessor;
 
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
+import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.dispatcher.MetaserviceFilterPipe;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.Statement;
@@ -11,6 +12,7 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +25,7 @@ public class NoChangeFilter extends MetaserviceFilterPipe<PostProcessorDispatche
     private final RepositoryConnection repositoryConnection;
     private final ValueFactory valueFactory;
 
+    @Inject
     public NoChangeFilter(RepositoryConnection repositoryConnection, ValueFactory valueFactory, Logger logger) {
         super(logger);
         this.repositoryConnection = repositoryConnection;
@@ -31,6 +34,7 @@ public class NoChangeFilter extends MetaserviceFilterPipe<PostProcessorDispatche
 
     @Override
     public boolean accept(PostProcessorDispatcher.Context context) throws Exception {
+        AbstractDispatcher.recoverSparqlConnection(repositoryConnection);
         if(context.existingGraphs.size() == 1){
             URI graph = context.existingGraphs.iterator().next();
             if(contentsUnchanged(graph, context.generatedStatements)){

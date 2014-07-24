@@ -25,7 +25,7 @@ public class InjectionProducer<T> implements Producer<T> {
             if (stopped){
                 return Optional.absent();
             }
-            LOGGER.debug("producing to slow - blocking push");
+            LOGGER.debug("input too slow - blocking");
             out = outQueue.take();
             return out;
         }

@@ -8,6 +8,5 @@ import org.metaservice.api.postprocessor.PostProcessorException;
  */
 public interface PostProcessorDispatcher {
     void process(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException;
-
-    boolean isOkCheapCheck(PostProcessingTask task, long jmsTimestamp) throws PostProcessorException;
+    void processAsync(PostProcessingTask task, long timestamp, Callback callback);
 }

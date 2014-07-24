@@ -61,6 +61,7 @@ public class ProviderModule extends AbstractModule {
             Type dispatcherType = Types.newParameterizedType(ProviderDispatcher.class,modelClazz);
 
             bind(MetaserviceDescriptor.ProviderDescriptor.class).toInstance(providerDescriptor);
+            bind(MetaserviceDescriptor.OntologyLoaderDescriptor.class).toInstance(providerDescriptor);
             bind(TypeLiteral.get(providerType)).to(providerClazz);
             bind(new TypeLiteral<org.metaservice.api.messaging.dispatcher.ProviderDispatcher>(){}).to((TypeLiteral<? extends ProviderDispatcher>) TypeLiteral.get(dispatcherType));
 

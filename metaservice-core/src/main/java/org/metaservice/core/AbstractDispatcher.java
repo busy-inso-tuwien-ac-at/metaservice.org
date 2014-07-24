@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.*;
+import org.metaservice.api.postprocessor.PostProcessorException;
+import org.metaservice.api.provider.ProviderException;
 import org.metaservice.core.dispatcher.NotifyPipe;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.*;
@@ -44,7 +46,6 @@ import java.util.*;
  */
 public abstract  class AbstractDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDispatcher.class);
-    public static final Resource[] NO_CONTEXT = new Resource[0];
 
     private final Config config;
     private final MessageHandler messageHandler;
@@ -55,11 +56,6 @@ public abstract  class AbstractDispatcher {
     )  {
         this.config = config;
         this.messageHandler = messageHandler;
-        try {
-            this.messageHandler.init();
-        } catch (MessagingException e) {
-            LOGGER.error("",e);
-        }
     }
 
 
@@ -121,13 +117,18 @@ public abstract  class AbstractDispatcher {
 
 
     @Deprecated
-    protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @NotNull List<PostProcessingHistoryItem> oldHistory,@NotNull Date time, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,@Nullable Set<URI> affectedProcessableSubjects){
-        NotifyPipe notifyPipe = new NotifyPipe(postProcessorDescriptor,LOGGER,messageHandler);
+    protected void notifyPostProcessors(@NotNull Set<URI> resourcesThatChanged, @NotNull List<PostProcessingHistoryItem> oldHistory,@NotNull Date time, @Nullable MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor,@Nullable Set<URI> affectedProcessableSubjects) throws ProviderException {
+        NotifyPipe notifyPipe = null;
+        try {
+            notifyPipe = new NotifyPipe(postProcessorDescriptor,LOGGER,messageHandler);
+        } catch (MessagingException e) {
+            throw new ProviderException(e);
+        }
         notifyPipe.notifyPostProcessors(resourcesThatChanged,oldHistory,time,postProcessorDescriptor,affectedProcessableSubjects);
     }
 
     public static List<Statement> getGeneratedStatements(RepositoryConnection resultConnection, Set<Statement> loadedStatements) throws RepositoryException {
-        RepositoryResult<Statement> all = resultConnection.getStatements(null, null, null, true, NO_CONTEXT);
+        RepositoryResult<Statement> all = resultConnection.getStatements(null, null, null, true);
         ArrayList<Statement> allList = new ArrayList<>();
         HashSet<Resource> undefined = new HashSet<>();
         while(all.hasNext()){
@@ -157,33 +158,12 @@ public abstract  class AbstractDispatcher {
         return  allList;
     }
 
-
-    protected void loadNamespaces(RepositoryConnection resultConnection, List<MetaserviceDescriptor.NamespaceDescriptor> namespaceList) throws RepositoryException {
-        for(MetaserviceDescriptor.NamespaceDescriptor namespaceDescriptor: namespaceList){
-            resultConnection.setNamespace(namespaceDescriptor.getPrefix(),namespaceDescriptor.getUri().toString());
-        }
-    }
-
-    protected void loadOntologies(RepositoryConnection con, List<MetaserviceDescriptor.LoadDescriptor> loadList){
-        LOGGER.info("Loading " + loadList.size() + " Ontologies");
-        for(MetaserviceDescriptor.LoadDescriptor loadDescriptor : loadList){
-            try {
-                LOGGER.info("Loading Ontology {}",loadDescriptor.getUrl());
-                con.add(loadDescriptor.getUrl(),null,null,NO_CONTEXT);
-            } catch (RDFParseException | IOException | RepositoryException e) {
-                LOGGER.info("Couldn't load {}",loadDescriptor,e);
-            }
-        }
-
-    }
-
-
     public static Repository createTempRepository(boolean inference) throws MetaserviceException {
         try {
             NotifyingSail sail = new MemoryStore();
             if(inference) {
                 sail = new ForwardChainingRDFSInferencer(sail);
-              //  sail = new PropertyReificationInferencer(sail); todo buggy -> endless loop
+                //  sail = new PropertyReificationInferencer(sail); todo buggy -> endless loop
             }
             Repository repo = new SailRepository(sail);
             repo.initialize();
@@ -191,6 +171,18 @@ public abstract  class AbstractDispatcher {
         } catch (RepositoryException /*| SailException | MalformedQueryException*/ e) {
             throw new MetaserviceException(e);
         }
+    }
+
+    public static void recoverSparqlConnection(RepositoryConnection repositoryConnection) throws MetaserviceException {
+        //try to get into defined state in case anything broke previously
+        try {
+            if(repositoryConnection.isActive()){
+                repositoryConnection.rollback();
+            }
+        }catch (Exception e){
+            throw new MetaserviceException("failed to recover",e);
+        }
+
     }
 
 }

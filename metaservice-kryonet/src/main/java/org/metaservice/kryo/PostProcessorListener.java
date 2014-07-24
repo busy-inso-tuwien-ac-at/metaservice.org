@@ -4,7 +4,9 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.google.inject.Inject;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
+import org.metaservice.api.messaging.MessagingException;
 import org.metaservice.api.messaging.descriptors.DescriptorHelper;
+import org.metaservice.api.messaging.dispatcher.Callback;
 import org.metaservice.api.messaging.dispatcher.PostProcessorDispatcher;
 import org.metaservice.api.postprocessor.PostProcessorException;
 import org.metaservice.api.messaging.PostProcessingTask;
@@ -12,6 +14,8 @@ import org.metaservice.api.messaging.PostProcessingTask;
 import org.metaservice.kryo.beans.PostProcessorMessage;
 import org.metaservice.kryo.beans.RegisterClientMessage;
 import org.metaservice.kryo.beans.ResponseMessage;
+import org.metaservice.kryo.run.PostProcessorMongoKryoLoop;
+import org.metaservice.kryo.run.ProviderMongoKryoLoop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +44,11 @@ public class PostProcessorListener extends Listener {
     }
 
     private PostProcessorDispatcher postProcessorDispatcher;
-
+    private final boolean async = true;
     private final DescriptorHelper descriptorHelper;
     @Inject
     public PostProcessorListener(
-        DescriptorHelper descriptorHelper
+            DescriptorHelper descriptorHelper
     ){
         this.descriptorHelper = descriptorHelper;
     }
@@ -54,7 +58,7 @@ public class PostProcessorListener extends Listener {
         RegisterClientMessage registerClientMessage = new RegisterClientMessage();
         registerClientMessage.setType(RegisterClientMessage.Type.POSTPROCESS);
         registerClientMessage.setName(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(),postProcessorDescriptor));
-        registerClientMessage.setMessageCount(5);
+        registerClientMessage.setMessageCount(25);
         connection.sendTCP(registerClientMessage);
     }
 
@@ -67,24 +71,54 @@ public class PostProcessorListener extends Listener {
             responseMessage.setTimestamp(System.currentTimeMillis());
             responseMessage.setAboutMessage(message);
             LOGGER.info("processing {}", message.get_id());
-            try {
-                if (postProcessorDispatcher.isOkCheapCheck(task, message.getTimestamp())) {
+            Callback callback = new Callback(responseMessage,connection);
+            if(async) {
+                postProcessorDispatcher.processAsync(task, message.getTimestamp(), callback);
+            }else{
+                try {
                     postProcessorDispatcher.process(task,message.getTimestamp());
+                    callback.handleOk();
+                } catch (PostProcessorException e) {
+                    callback.handleException(e);
                 }
-                responseMessage.setStatus(ResponseMessage.Status.OK);
-            } catch (PostProcessorException e) {
+            }
+        }
+    }
+
+    public static class Callback implements org.metaservice.api.messaging.dispatcher.Callback{
+        private final ResponseMessage responseMessage;
+        private Connection connection;
+        public Callback(ResponseMessage responseMessage, Connection connection) {
+            this.responseMessage = responseMessage;
+            this.connection = connection;
+        }
+
+        @Override
+        public void handleException(Exception e){
+            if(e instanceof PostProcessorException) {
+                LOGGER.error("PostProcessorException received",e);
                 responseMessage.setErrorMessage(e.toString());
                 responseMessage.setStatus(ResponseMessage.Status.FAILED);
                 e.printStackTrace();
-            } catch (Exception e){
+            } else {
                 LOGGER.error("fatal ", e);
                 responseMessage.setErrorMessage(e.toString());
                 responseMessage.setStatus(ResponseMessage.Status.FAILED);
-                connection.sendTCP(responseMessage);
-                connection.close();
+            }
+            sendMessage();
+        }
+        @Override
+        public void handleOk(){
+            responseMessage.setStatus(ResponseMessage.Status.OK);
+            sendMessage();
+        }
+        private void sendMessage(){
+            if(connection==null){
+                LOGGER.error("Already sent response - doing nothing");
                 return;
             }
             connection.sendTCP(responseMessage);
+            connection = null;
         }
     }
 

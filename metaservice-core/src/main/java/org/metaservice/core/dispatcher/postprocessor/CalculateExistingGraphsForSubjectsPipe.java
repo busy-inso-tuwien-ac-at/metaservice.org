@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
+import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.dispatcher.MetaserviceSimplePipe;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.URI;
@@ -40,6 +41,7 @@ public class CalculateExistingGraphsForSubjectsPipe extends MetaserviceSimplePip
 
     @Override
     public Optional<PostProcessorDispatcher.Context> process(PostProcessorDispatcher.Context context) throws Exception {
+        AbstractDispatcher.recoverSparqlConnection(repositoryConnection);
         context.existingGraphs = new HashSet<>();
         if (context.processableSubjects.size() == 0)
             return Optional.of(context);

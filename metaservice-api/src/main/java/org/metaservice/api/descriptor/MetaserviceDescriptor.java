@@ -31,15 +31,16 @@ public interface MetaserviceDescriptor {
         String getArtifactId();
         String getVersion();
     }
-
-    public static interface ProviderDescriptor {
-        String getId();
-        String getModel();
-        String getClassName();
+    public static interface OntologyLoaderDescriptor {
         @NotNull
         List<NamespaceDescriptor> getNamespaceList();
         @NotNull
         List<LoadDescriptor>  getLoadList();
+    }
+    public static interface ProviderDescriptor extends OntologyLoaderDescriptor {
+        String getId();
+        String getModel();
+        String getClassName();
     }
 
     public static interface ParserDescriptor{
@@ -66,13 +67,9 @@ public interface MetaserviceDescriptor {
         String getArchiveClassName();
     }
 
-    public static interface PostProcessorDescriptor{
+    public static interface PostProcessorDescriptor extends OntologyLoaderDescriptor {
         String getId();
         String getClassName();
-        @NotNull
-        List<NamespaceDescriptor> getNamespaceList();
-        @NotNull
-        List<LoadDescriptor>  getLoadList();
     }
 
     public static interface TemplateDescriptor{

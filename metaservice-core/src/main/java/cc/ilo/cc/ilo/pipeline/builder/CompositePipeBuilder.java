@@ -1,6 +1,7 @@
 package cc.ilo.cc.ilo.pipeline.builder;
 
 import cc.ilo.cc.ilo.pipeline.pipes.AbstractPipe;
+import cc.ilo.cc.ilo.pipeline.pipes.PipeProvider;
 import cc.ilo.cc.ilo.pipeline.prosumer.CompositeSimplePipe;
 
 
@@ -18,8 +19,16 @@ public class CompositePipeBuilder<I,O>  {
         return new CompositePipeBuilder<>(pipe);
     }
 
+    public static <I,O> CompositePipeBuilder<I,O> create(PipeProvider<I,O> pipeProvider){
+        return new CompositePipeBuilder<>(pipeProvider.createPipeInstance());
+    }
+
     public <X> CompositePipeBuilder<I,X> pipe(AbstractPipe<O,X> newPipe){
         return new CompositePipeBuilder<I,X>(new CompositeSimplePipe<I,O,X>(newPipe,this.pipe));
+    }
+
+    public <X> CompositePipeBuilder<I,X> pipe(PipeProvider<O,X> pipeProvider){
+        return new CompositePipeBuilder<I,X>(new CompositeSimplePipe<I,O,X>(pipeProvider.createPipeInstance(),this.pipe));
     }
 
     public AbstractPipe<I,O> build() {

@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
  */
 public class Main {
     public static void main(String[] args) {
-        PipeProvider<SimplePipe<String, String>> provider = new PipeProvider<SimplePipe<String, String>>() {
+        PipeProvider<String, String> provider = new PipeProvider<String, String>() {
             @Override
             public SimplePipe<String, String> createPipeInstance() {
                 return new SimplePipe<String, String>() {
@@ -40,7 +40,7 @@ public class Main {
                 .build()
                 .run();*/
 
-        PipeProvider<SimplePipe<String,String>> duplicate = new PipeProvider<SimplePipe<String,String>>(){
+        PipeProvider<String,String> duplicate = new PipeProvider<String,String>(){
 
             @Override
             public SimplePipe<String, String> createPipeInstance() {

@@ -1,8 +1,10 @@
 package org.metaservice.core.dispatcher.postprocessor;
 
+import org.metaservice.api.MetaserviceException;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
+import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.dispatcher.MetaserviceFilterPipe;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.Literal;
@@ -13,6 +15,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
@@ -29,6 +32,7 @@ public class RequestToOldFilter extends MetaserviceFilterPipe<PostProcessorDispa
     private final MetaserviceDescriptor metaserviceDescriptor;
     private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
 
+    @Inject
     public RequestToOldFilter(Logger logger, RepositoryConnection repositoryConnection, ValueFactory valueFactory, DescriptorHelper descriptorHelper, MetaserviceDescriptor metaserviceDescriptor, MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor) throws MalformedQueryException, RepositoryException {
         super(logger);
         this.repositoryConnection = repositoryConnection;
@@ -43,6 +47,7 @@ public class RequestToOldFilter extends MetaserviceFilterPipe<PostProcessorDispa
     @Override
     public boolean accept(PostProcessorDispatcher.Context context) {
         try {
+            AbstractDispatcher.recoverSparqlConnection(repositoryConnection);
 
             URI resource = context.task.getChangedURI();
             graphSelect.setBinding("postprocessor",valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)));
@@ -73,7 +78,11 @@ public class RequestToOldFilter extends MetaserviceFilterPipe<PostProcessorDispa
                 }
             }
         } catch (QueryEvaluationException e) {
-            LOGGER.error("Could not check if too old {}",context.task.getChangedURI(),e);
+            LOGGER.error("Could not check if too old {}", context.task.getChangedURI(), e);
+            return true;
+        } catch (MetaserviceException e) {
+            //todo check this
+            LOGGER.warn("check me",e);
             return true;
         }
         return true;

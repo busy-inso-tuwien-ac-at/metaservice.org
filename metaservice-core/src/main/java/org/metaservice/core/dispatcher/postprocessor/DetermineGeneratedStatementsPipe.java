@@ -12,6 +12,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,9 +22,14 @@ import java.util.Set;
 public class DetermineGeneratedStatementsPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.Context,PostProcessorDispatcher.Context> {
     private final PostProcessor postProcessor;
     private final ValueFactory valueFactory;
-    private final Set<Statement> loadedStatements;
+    private final LoadedStatements loadedStatements;
 
-    public DetermineGeneratedStatementsPipe(PostProcessor postProcessor, ValueFactory valueFactory, Logger logger, Set<Statement> loadedStatements) {
+    @Inject
+    public DetermineGeneratedStatementsPipe(
+            PostProcessor postProcessor,
+            ValueFactory valueFactory,
+            Logger logger,
+            LoadedStatements loadedStatements) {
         super(logger);
         this.postProcessor = postProcessor;
         this.valueFactory = valueFactory;
@@ -32,7 +38,7 @@ public class DetermineGeneratedStatementsPipe extends MetaserviceSimplePipe<Post
 
     @Override
     public Optional<PostProcessorDispatcher.Context> process(PostProcessorDispatcher.Context context) throws Exception {
-        context.generatedStatements  = AbstractDispatcher.getGeneratedStatements(context.resultConnection, loadedStatements);
+        context.generatedStatements  = AbstractDispatcher.getGeneratedStatements(context.resultConnection, loadedStatements.getStatements());
         context.subjects = AbstractDispatcher.getSubjects(context.generatedStatements);
         context.processableSubjects = getProcessableSubjects(context.subjects);
         context.objects = AbstractDispatcher.getURIObject(context.generatedStatements);

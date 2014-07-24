@@ -5,6 +5,7 @@ import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.descriptors.DescriptorHelper;
 import org.metaservice.api.postprocessor.PostProcessor;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
+import org.metaservice.core.AbstractDispatcher;
 import org.metaservice.core.dispatcher.MetaserviceSimplePipe;
 import org.metaservice.core.postprocessor.PostProcessorDispatcher;
 import org.openrdf.model.URI;
@@ -13,6 +14,7 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 /**
@@ -26,6 +28,7 @@ public class MetadataPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.
     private final MetaserviceDescriptor metaserviceDescriptor;
     private final MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor;
 
+    @Inject
     public MetadataPipe(RepositoryConnection repositoryConnection, PostProcessor postProcessor, ValueFactory valueFactory, DescriptorHelper descriptorHelper, MetaserviceDescriptor metaserviceDescriptor, MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor, Logger logger) {
         super(logger);
         this.repositoryConnection = repositoryConnection;
@@ -38,6 +41,7 @@ public class MetadataPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.
 
     @Override
     public Optional<PostProcessorDispatcher.Context> process(PostProcessorDispatcher.Context context) throws Exception {
+        AbstractDispatcher.recoverSparqlConnection(repositoryConnection);
         Date now = new Date();
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
