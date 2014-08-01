@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * Created by ilo on 24.06.2014.
  */
+@Singleton
 public class NotificationBackend {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationBackend.class);
 
@@ -23,6 +25,7 @@ public class NotificationBackend {
     private final HashMap<String,List<String>> notified= new HashMap<>();
     @Inject
     public NotificationBackend(){
+        LOGGER.info("starting notification backend");
         ArrayList<String> apiKeys = new ArrayList<>();
         apiKeys.add("3be819abf65d965cc64d87a931d845ca87cd2a3757beb7b9");
         mapping.put("http://metaservice.org/d/projects/wordpress",apiKeys);

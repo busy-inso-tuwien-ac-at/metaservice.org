@@ -11,13 +11,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>metaservice-securityalert</artifactId>
-
+    <version>0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -32,14 +32,8 @@
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-core</artifactId>
-            <version>0.1</version>
+            <version>0.2-SNAPSHOT</version>
             <scope>runtime</scope>
-        </dependency>
-        <!-- temp for testing-->
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-repository-sparql</artifactId>
-            <version>${openrdf.version}</version>
         </dependency>
     </dependencies>
 

@@ -14,12 +14,10 @@ import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sparql.query.QueryStringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.management.Notification;
 import java.util.Date;
 
 /**
@@ -73,7 +71,7 @@ public class SecurityAlertPostProcessor implements PostProcessor {
 
         try {
             tupleQuery.setBinding(cve.stringValue(),uri);
-            System.err.println(QueryStringUtil.getQueryString(tupleQuery.toString(), tupleQuery.getBindings()));
+          //  System.err.println(QueryStringUtil.getQueryString(tupleQuery.toString(), tupleQuery.getBindings()));
             TupleQueryResult result = tupleQuery.evaluate();
             LOGGER.info("processing");
             while(result.hasNext()){
