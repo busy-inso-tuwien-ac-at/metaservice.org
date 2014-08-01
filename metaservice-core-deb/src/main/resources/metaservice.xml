@@ -17,6 +17,7 @@
         <load url="http://metaservice.org/ns/dcelements.rdf"/>
         <load url="http://metaservice.org/ns/adms_sw.rdf"/>
         <load url="http://metaservice.org/ns/doap.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-swdep.rdf"/>
         <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
     </provider>
 
