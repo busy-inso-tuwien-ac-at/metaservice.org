@@ -22,6 +22,7 @@
     <parser
             id="wordpressParser"
             type="wordpress"
+            model="org.metaservice.demo.wordpress.VersionEntry"
             class="org.metaservice.demo.wordpress.WordpressParser"/>
 
 
