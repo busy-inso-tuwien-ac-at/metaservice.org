@@ -13,20 +13,42 @@
         </ol>
     </div>
 </div>
+{{#if lic:licensingViolation}}
+    <div class="row">
+        <div class="col-md-12">
+            <div  {{provenance . "lic:licensingViolation"}}  class="panel panel-danger">
+                <div class="panel-heading">Warning</div>
+                <div class="panel-body">
+                    <p>{{literal lic:licensingViolation/lic:description}}</p>
+                    <p><a href="{{uri lic:licensingViolation/lic:conflicting/owl:sameAs}}">{{uri lic:licensingViolation/lic:conflicting/owl:sameAs}}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/if}}
 <div class="row">
     <div class="col-md-8">
-        <pre>{{literal dc:description}}</pre>
+        <pre>{{#if dc:description}}{{literal dc:description}}{{else}}No description found{{/if}}</pre>
+{{#if admssw:package}}
+        <h4>Packages:</h4>
         <ul>
-            {{#eachArray admssw:package}}<li> <a href="{{ms:id}}">{{literal rdfs:label}}</a></li>{{/eachArray}}
+            {{#eachArray admssw:package}}<li> <a href="{{uri .}}">{{literal rdfs:label}}</a></li>{{/eachArray}}
         </ul>
+{{/if}}
+{{#if ms-swdep:requires}}
+        <h4>Dependencies:</h4>
+        <ul>
+            {{dependencyTag .}}
+        </ul>
+{{/if}}
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr><th>Previous</th><td><a href="{{xhv:prev/ms:id}}">{{xhv:prev/doap:revision}}</a></td></tr>
-                <tr><th>Next</th><td><a href="{{xhv:next/ms:id}}">{{xhv:next/doap:revision}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{admssw:project/ms:id}}">{{admssw:project/rdfs:label}}</a></td></tr>
+                <tr><th>Previous</th><td><a href="{{uri xhv:prev}}">{{literal xhv:prev/doap:revision}}</a></td></tr>
+                <tr><th>Next</th><td><a href="{{uri xhv:next}}">{{literal xhv:next/doap:revision}}</a></td></tr>
+                <tr><th>Project</th><td><a href="{{uri admssw:project}}">{{literal admssw:project/rdfs:label}}</a></td></tr>
                 <tr><th>Repository</th><td></td></tr>
             </table>
         </div>

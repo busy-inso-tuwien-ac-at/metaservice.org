@@ -12,6 +12,19 @@
         </ol>
     </div>
 </div>
+{{#if lic:licensingViolation}}
+    <div class="row">
+        <div class="col-md-12">
+            <div  {{provenance . "lic:licensingViolation"}}  class="panel panel-danger">
+                <div class="panel-heading">Warning</div>
+                <div class="panel-body">
+                    <p>{{literal lic:licensingViolation/lic:description}}</p>
+                    <p><a href="{{uri lic:licensingViolation/lic:conflicting/owl:sameAs}}">{{uri lic:licensingViolation/lic:conflicting/owl:sameAs}}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/if}}
 <div class="row">
     <div class="col-md-8">
         <h2>Description</h2>
@@ -25,8 +38,8 @@
         <div class="panel panel-default">
             <div class="panel-heading"><h4 class="panel-title">Navigation</h4></div>
             <table class="table">
-                <tr><th>Homepage</th><td><a href="{{doap:homepage/ms:id}}">{{hostname doap:homepage}}</a></td></tr>
-                <tr><th>Bugtracker</th><td><a href="{{doap:bug-database/ms:id}}">{{hostname doap:bug-database}}</a></td></tr>
+                <tr><th>Homepage</th><td><a href="{{uri doap:homepage}}">{{hostname doap:homepage}}</a></td></tr>
+                <tr><th>Bugtracker</th><td><a href="{{uri doap:bug-database}}">{{hostname doap:bug-database}}</a></td></tr>
                 <tr><th>Repository</th><td></td></tr>
                 <tr><th>License</th><td>{{literal doap:license/spdx:licenseId}}</td></tr>
             </table>

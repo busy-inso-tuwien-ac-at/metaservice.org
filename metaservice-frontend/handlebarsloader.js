@@ -126,42 +126,75 @@ Handlebars.registerHelper('dependencyTag',function(context,predicate){
         "ms-swdep:dependsMiddleware": "Middleware",
         "ms-swdep:dependsService": "Service"
     };
-    if(context["ms-swdep:dependsSoftware"])
-    $.each(context["ms-swdep:dependsSoftware"],function(a,x){
-       result += "<li>";
+    var fun = function(a,x){
+        result += "<li>";
+        var obj;
         if(x["rdf:li"]){
-            for(var i = 0 ; i < x["rdf:li"].size ;i++){
-                if( i != 0){
-                    result += "<b>or</b>";
-                    if( x["ms-swdep:projectConstraint"]){
-                        result += "<a href=\""+handlebarsURI(x["ms-swdep:projectConstraint"])+"\">" + x["dc:description"] + "</a>";
-                    }else{
-                        result += "<a href=\""+handlebarsURI(x)+"\">" + x["dc:description"] + "</a>";
-                    }
+            for(var i = 0 ; i < x["rdf:li"].length ;i++){
+                obj = x["rdf:li"][i];
+                //hack for sameas
+                if(obj["owl:sameAs"]&& obj["ms:id"] && obj["ms:id"].indexOf("http://metaservice.org/d/") != 0){
+                    obj = obj["owl:sameAs"];
+                }
+                if( i != 0) {
+                    result += " <b>or</b> ";
+                }
+                var description;
+                if(obj["doap:name"]){
+                    description = obj["doap:name"];
+                }
+                else if(obj["dc:description"]){
+                    description = obj["dc:description"];
+                }else{
+                    description = obj["ms:id"];
+                }
+                if( obj["ms-swdep:projectConstraint"]){
+                    result += "<a href=\""+handlebarsURI(obj["ms-swdep:projectConstraint"])+"\">" + description + "</a>";
+                }else{
+                    result += "<a href=\""+handlebarsURI(obj)+"\">" + description + "</a>";
                 }
             }
         }else {
-            if( x["ms-swdep:projectConstraint"]){
-                result += "<a href=\""+handlebarsURI(x["ms-swdep:projectConstraint"])+"\">" + x["dc:description"] + "</a>";
+            obj = x;
+            //hack for sameas
+            if(obj["owl:sameAs"]&& obj["ms:id"] && obj["ms:id"].indexOf("http://metaservice.org/d/") != 0){
+                obj = obj["owl:sameAs"];
+            }
+            var description;
+            if(obj["doap:name"]){
+                description = obj["doap:name"];
+            }
+            else if(obj["dc:description"]){
+                description = obj["dc:description"];
             }else{
-                result += "<a href=\""+handlebarsURI(x)+"\">" + x["dc:description"] + "</a>";
+                description = obj["ms:id"];
+            }
+            if( obj["ms-swdep:projectConstraint"]){
+                result += "<a href=\""+handlebarsURI(obj["ms-swdep:projectConstraint"])+"\">" + description + "</a>";
+            }else{
+                result += "<a href=\""+handlebarsURI(obj)+"\">" + description + "</a>";
             }
         }
         $.each(depRelations,function(v,w){
             if(context[v]){
                 if($.isArray(context[v])){
                     if(context[v].indexOf(x) != -1){
-                        result += "<span class=\"badge\">" +w + "</span>";
+                        result += " <span class=\"badge\">" +w + "</span>";
                     }
                 }else{
                     if(context[v] == x){
-                        result += "<span class=\"badge\">" +w + "</span>";
+                        result += " <span class=\"badge\">" +w + "</span>";
                     }
                 }
             }
         });
-       result += "</li>";
-    });
+        result += "</li>";
+    };
+    if(context["ms-swdep:depends"]){
+        $.each(context["ms-swdep:depends"],fun);
+    }else if(context["ms-swdep:dependsSoftware"]){ //workaround temporary for presentation -> debProvider did not include ms-swdep ontology, didn't want to restart the process
+        $.each(context["ms-swdep:dependsSoftware"],fun);
+    }
     return new Handlebars.SafeString(result);
 });
 

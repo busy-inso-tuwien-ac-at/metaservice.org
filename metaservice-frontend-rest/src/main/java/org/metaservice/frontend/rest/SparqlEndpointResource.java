@@ -31,11 +31,15 @@ public class SparqlEndpointResource {
     private final String namespaces;
     private final String searchQuery;
     private final String resourceQuery;
+    private final String exportQuery;
+    private final String timeQuery;
 
     public SparqlEndpointResource() throws IOException {
         namespaces = generateNamespaceString();
         searchQuery = loadSparql("/sparql/search.sparql");
         resourceQuery = loadSparql("/sparql/resourceWithLatest.sparql");
+        exportQuery = loadSparql("/sparql/export.sparql");
+        timeQuery = loadSparql("/sparql/resourceTimes.sparql");
     }
 
     private String loadSparql(String s) throws IOException {
@@ -120,7 +124,7 @@ public class SparqlEndpointResource {
             @Nullable @QueryParam("path")String path,
             @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/ld+json", path,date,false);
+        return generateResponseResource("application/ld+json", path, date, false);
     }
 
     @GET
@@ -130,31 +134,87 @@ public class SparqlEndpointResource {
             @Nullable @QueryParam("path")String path,
             @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/rdf+xml", path,date,false);
+        return generateResponseExport("application/rdf+xml", path, date, false);
     }
 
     @GET
     @Path("/resource/jsonld")
     @Produces("application/ld+json")
-    public Response resourceJsonLDDownload(
-            @Nullable @QueryParam("path")String path,
+    public Response exportJsonLDDownload(
+            @Nullable @QueryParam("path") String path,
             @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/ld+json", path,date,true);
+        return generateResponseExport("application/ld+json", path, date, true);
+    }
+
+    @GET
+    @Path("/resource/jsonldquad")
+    @Produces("application/ld+json")
+    public Response exportJsonLDDownloadQuad(
+            @Nullable @QueryParam("path") String path,
+            @Nullable @QueryParam("datetime") String date
+    ){
+        return generateResponseResource("application/ld+json", path, date, true);
     }
 
     @GET
     @Path("/resource/rdf")
     @Produces("application/rdf+xml")
-    public Response resourceRdfXmlDownload(
-            @Nullable @QueryParam("path")String path,
+    public Response exportRdfXmlDownload(
+            @Nullable @QueryParam("path") String path,
             @Nullable @QueryParam("datetime") String date
     ){
-        return generateResponseResearch("application/rdf+xml", path,date,true);
+        return generateResponseExport("application/rdf+xml", path, date, true);
     }
 
 
-    public @NotNull Response generateResponseResearch(
+    @GET
+    @Path("/resource/ttl")
+    @Produces("application/x-turtle")
+    public Response exportTurtleDownload(
+            @Nullable @QueryParam("path") String path,
+            @Nullable @QueryParam("datetime") String date
+    ){
+        return generateResponseExport("application/x-turtle", path, date, true);
+    }
+
+    @GET
+    @Path("/resource/times")
+    @Produces("application/sparql-results+json")
+    public Response resourceTimes(
+            @Nullable @QueryParam("path") String path
+    ) throws IOException, URISyntaxException {
+        if(path ==null)
+            return Response.serverError().build();
+        path = path.replaceFirst("\\.times","");
+        if(path.contains("http://www.metaservice.org")){
+            path =  path.replaceAll("http://www.metaservice.org", "http://metaservice.org");
+        }
+        System.err.println(path);
+        String query = namespaces +timeQuery;
+        query = query.replace("$path",stringToIri(path));
+        return Response.ok(querySparql("application/sparql-results+json",query)).build();
+    }
+
+    public @NotNull Response generateResponseExport(
+            @NotNull String mimeType,
+            @Nullable String path,
+            @Nullable String date,
+            boolean download
+    ) {
+        return generateResponseResourceOrExport(exportQuery,mimeType,path,date,download);
+    }
+    public @NotNull Response generateResponseResource(
+            @NotNull String mimeType,
+            @Nullable String path,
+            @Nullable String date,
+            boolean download
+    ){
+       return generateResponseResourceOrExport(resourceQuery,mimeType,path,date,download);
+    }
+
+    public @NotNull Response generateResponseResourceOrExport(
+            @NotNull String inputQuery,
             @NotNull String mimeType,
             @Nullable String path,
             @Nullable String date,
@@ -174,12 +234,12 @@ public class SparqlEndpointResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             if(download){
-                path = path.replaceFirst("\\.(jsonld|rdf)$","");
+                path = path.replaceFirst("(\\.quad)?\\.(jsonld|rdf|ttl)$","");
             }
             if(path.contains("http://www.metaservice.org")){
                 path =  path.replaceAll("http://www.metaservice.org", "http://metaservice.org");
             }
-            String query = namespaces +resourceQuery;
+            String query = namespaces +inputQuery;
             query = query.replace("$path",stringToIri(path));
             query = query.replace("$selectedTime",dateToLiteral(calendar));
             Response.ResponseBuilder builder = Response
@@ -193,8 +253,6 @@ public class SparqlEndpointResource {
             return Response.serverError().build();
         }
     }
-
-
 
     private @NotNull InputStream querySparql(
             @NotNull String mimeType,

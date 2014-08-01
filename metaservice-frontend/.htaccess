@@ -1,7 +1,10 @@
-RewriteEngine on 
+RewriteEngine on
 # Route downloads
+RewriteRule ^(packages|projects|releases|reports|report).*\.quad\.jsonld$ /rest/resource/jsonldquad?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
 RewriteRule ^(packages|projects|releases|reports|report).*\.jsonld$ /rest/resource/jsonld?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+RewriteRule ^(packages|projects|releases|reports|report).*\.ttl$ /rest/resource/ttl?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
 RewriteRule ^(packages|projects|releases|reports|report).*\.rdf$ /rest/resource/rdf?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
+RewriteRule ^(packages|projects|releases|reports|report).*\.times$ /rest/resource/times?path=http://%{HTTP_HOST}%{REQUEST_URI}  [L]
 
 # Route resources sparql
 RewriteCond %{HTTP_ACCEPT} application/rdf\+xml [NC,OR]
@@ -19,4 +22,3 @@ RewriteRule ^search$ index.html [L]
 # route search query
 RewriteCond %{HTTP_ACCEPT} application/sparql-results\+json [NC]
 RewriteRule ^search /rest/search [L]
-

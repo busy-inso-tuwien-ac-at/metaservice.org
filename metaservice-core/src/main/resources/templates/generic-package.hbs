@@ -14,6 +14,19 @@
         </ol>
     </div>
 </div>
+{{#if lic:licensingViolation}}
+    <div class="row">
+        <div class="col-md-12">
+            <div  {{provenance . "lic:licensingViolation"}}  class="panel panel-danger">
+                <div class="panel-heading">Warning</div>
+                <div class="panel-body">
+                    <p>{{literal lic:licensingViolation/lic:description}}</p>
+                    <p><a href="{{uri lic:licensingViolation/lic:conflicting/owl:sameAs}}">{{uri lic:licensingViolation/lic:conflicting/owl:sameAs}}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/if}}
 <div class="row">
     <div class="col-md-8">
         <pre {{provenance . "dc:description"}}>{{literal dc:description}}</pre>
@@ -28,8 +41,8 @@
             <table class="table">
                 <tr {{provenance . "xhv:prev"}}><th>Previous</th><td><a href="{{uri xhv:prev}}">{{literal xhv:prev/rdfs:label}}</a></td></tr>
                 <tr {{provenance . "xhv:next"}}><th>Next</th><td><a href="{{uri xhv:next}}">{{literal xhv:next/rdfs:label}}</a></td></tr>
-                <tr><th>Version</th><td><a href="{{uri admssw:release}}">{{literal admssw:release/rdfs:label}}</a></td></tr>
-                <tr><th>Project</th><td><a href="{{uri admssw:release/admssw:project}}">{{literal admssw:release/admssw:project/rdfs:label}}</a></td></tr>
+                <tr {{provenance . "admssw:release"}}><th>Version</th><td><a href="{{uri admssw:release}}">{{literal admssw:release/rdfs:label}}</a></td></tr>
+                <tr {{provenance admssw:release "admssw:project"}}><th>Project</th><td><a href="{{uri admssw:release/admssw:project}}">{{literal admssw:release/admssw:project/rdfs:label}}</a></td></tr>
             </table>
         </div>
     </div>
