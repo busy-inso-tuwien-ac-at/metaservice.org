@@ -54,8 +54,8 @@ public class IndividualClientHandler<T extends AbstractMessage> extends Listener
                 inFlight.add(msg);
             }
             connection.sendTCP(msg);
-            LOGGER.debug("inflight " + inFlight.size());
-            LOGGER.debug("sent " + msg.get_id());
+            LOGGER.trace("inflight {}",inFlight.size());
+            LOGGER.trace("sent {}", msg.get_id());
         }else{
             LOGGER.warn("Queue return null - inFlight will decrease");
         }
@@ -106,7 +106,7 @@ public class IndividualClientHandler<T extends AbstractMessage> extends Listener
         T result = null;
 
         synchronized (inFlight) {
-            LOGGER.debug(o.getAboutMessage().get_id() + " returned");
+            LOGGER.trace(o.getAboutMessage().get_id() + " returned");
             Iterator<T> iter = inFlight.iterator();
             while (iter.hasNext()) {
                 T t = iter.next();
@@ -120,9 +120,9 @@ public class IndividualClientHandler<T extends AbstractMessage> extends Listener
         }
         if(result != null){
             if(o.getStatus() == ResponseMessage.Status.OK) {
-                LOGGER.debug(o.getAboutMessage().get_id() + " successfull");
+                LOGGER.trace("{} successfull",o.getAboutMessage().get_id());
             }else{
-                LOGGER.debug(o.getAboutMessage().get_id() + " failed");
+                LOGGER.warn("{} failed",o.getAboutMessage().get_id() );
                 queue.markAsFailed(o);
             }
         }

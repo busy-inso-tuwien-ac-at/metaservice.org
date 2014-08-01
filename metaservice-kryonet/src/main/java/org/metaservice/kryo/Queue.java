@@ -52,7 +52,7 @@ public class Queue<T extends AbstractMessage> {
             return null;
         }
         T t = cursor.next();
-        LOGGER.trace("new id " + t.get_id());
+        LOGGER.trace("new id {}", t.get_id());
         last = t.get_id();
 
         return t;

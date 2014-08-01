@@ -46,7 +46,7 @@ public class PipeExecutor<I,O,E extends Throwable> implements Producer<O>,PullCo
                                     Optional<O> output = pipe.process(input.get());
                                     if(output.isPresent()){
                                         if (!outQueue.offer(output)) {
-                                            LOGGER.info("producing too fast - blocking");
+                                            LOGGER.trace("producing too fast - blocking");
                                             outQueue.put(output);
                                         }
                                     }else{
@@ -100,7 +100,7 @@ public class PipeExecutor<I,O,E extends Throwable> implements Producer<O>,PullCo
             if (stopped){
                 return Optional.absent();
             }
-            LOGGER.debug("input too slow - blocking");
+            LOGGER.trace("input too slow - blocking");
             out = outQueue.take();
             return out;
         }
