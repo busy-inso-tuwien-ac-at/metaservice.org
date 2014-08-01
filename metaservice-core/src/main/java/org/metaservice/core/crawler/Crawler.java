@@ -46,7 +46,12 @@ public class Crawler {
             return;
         }
 
-        String s = metaserviceHttpClient.get(url, MetaserviceHttpClient.CachingInstruction.NO_CACHE);
+        String s = null;
+        try{
+            s = metaserviceHttpClient.get(url, MetaserviceHttpClient.CachingInstruction.NO_CACHE);
+        }catch (Exception e){
+            LOGGER.error("error getting {}", url,e);
+        }
         if(s==null){
             LOGGER.error("Couldn't load {} skipping.",url);
             return;
