@@ -29,6 +29,7 @@ public class DropExistingGraphsPipe extends MetaserviceSimplePipe<PostProcessorD
 
     @Override
     public Optional<PostProcessorDispatcher.Context> process(PostProcessorDispatcher.Context c) throws Exception {
+        //todo deleted subjects should also be notified, an additional query is needed
         AbstractDispatcher.recoverSparqlConnection(repositoryConnection);
         for(URI context : c.existingGraphs){
             try {

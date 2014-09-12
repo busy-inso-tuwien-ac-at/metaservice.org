@@ -13,7 +13,7 @@ import org.openrdf.model.Value;
  * Created by ilo on 05.03.14.
  */
 public abstract class DefaultSparqlQuery implements SparqlQuery {
-
+    public final DistinctEnum DISTINCT = DistinctEnum.DISTINCT;
     private final QueryBuilderFactory queryBuilderFactory;
 
     protected DefaultSparqlQuery() {
@@ -35,9 +35,17 @@ public abstract class DefaultSparqlQuery implements SparqlQuery {
 
     @NotNull
     @Override
-    public final SelectQueryBuilder select(boolean distinct,SelectTerm... selectTerms) {
+    public final SelectQueryBuilder select(DistinctEnum distinct,SelectTerm... selectTerms) {
         return queryBuilderFactory.create().select(distinct,selectTerms);
     }
+
+
+    @NotNull
+    @Override
+    public final SelectQueryBuilder select(SelectTerm... selectTerms) {
+        return queryBuilderFactory.create().select(DistinctEnum.ALL,selectTerms);
+    }
+
 
     @NotNull
     @Override

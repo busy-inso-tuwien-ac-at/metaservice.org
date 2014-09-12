@@ -1,0 +1,121 @@
+<metaservice>
+    <moduleInfo>
+        <groupId>${pom.groupId}</groupId>
+        <artifactId>${pom.artifactId}</artifactId>
+        <version>${pom.version}</version>
+    </moduleInfo>
+    <provider
+            id="cpeProvider"
+            model="org.metaservice.nist.cpe.jaxb.ItemType"
+            class="org.metaservice.core.nvd.cpe.CPEProvider"
+            >
+        <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
+        <load url="http://metaservice.org/ns/cpe.rdf"/>
+        <load url="http://metaservice.org/ns/dcelements.rdf"/>
+        <load url="http://metaservice.org/ns/dcterms.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </provider>
+
+    <parser
+            id="cpeParser"
+            type="cpe"
+            model="org.metaservice.nist.cpe.jaxb.ItemType"
+            class="org.metaservice.core.nvd.cpe.CPEParser"/>
+
+
+    <repository
+            id="cpeRepository"
+            type="cpe"
+            baseUri="http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/"
+            startUri="http://nvd.nist.gov/cpe.cfm"
+            crawler="cpeCrawler"
+            >
+    </repository>
+
+    <crawler id="cpeCrawler">
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml"/>
+    </crawler>
+
+    <provider
+            id="cveProvider"
+            type="cve"
+            model="org.metaservice.nist.cve.jaxb.VulnerabilityType"
+            class="org.metaservice.core.nvd.cve.CVEProvider"
+            >
+        <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
+        <load url="http://metaservice.org/ns/cve.rdf"/>
+        <load url="http://metaservice.org/ns/dcelements.rdf"/>
+        <load url="http://metaservice.org/ns/dcterms.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </provider>
+
+
+    <parser
+            id="cveParser"
+            type="cve"
+            model="org.metaservice.nist.cve.jaxb.VulnerabilityType"
+            class="org.metaservice.core.nvd.cve.CVEParser"/>
+
+
+    <postprocessor
+            id="cpeLinkPostProcessor"
+            class="org.metaservice.core.nvd.cpe.CPEReleaseLinkPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </postprocessor>
+
+
+    <postprocessor
+            id="cpeLinkPostProcessorBack"
+            class="org.metaservice.core.nvd.cpe.ReleaseCPELinkPostProcessor">
+        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
+        <load url="http://metaservice.org/ns/rdfs.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-deb.rdf"/>
+        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
+        <load url="http://metaservice.org/ns/owl.rdf"/>
+        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+    </postprocessor>
+
+
+    <repository
+            id="cveRepository"
+            type="cve"
+            baseUri="http://static.nvd.nist.gov/feeds/xml/cve/"
+            startUri="http://nvd.nist.gov/download.cfm"
+            crawler="cveCrawler"
+            >
+    </repository>
+
+    <crawler id="cveCrawler">
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2002.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2003.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2004.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2005.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2006.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2007.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2008.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2009.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2010.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2011.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2012.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2013.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2014.xml"/>
+    </crawler>
+
+
+    <template
+            name="cpe.hbs"
+            appliesTo="http://metaservice.org/ns/cpe#CPE"/>
+    <template
+            name="cve.hbs"
+            appliesTo="http://metaservice.org/ns/cve#CVE"/>
+
+    <ontology
+            name="cpe.rdf" apply="true" distribute="true"/>
+    <ontology
+            name="cve.rdf" apply="true" distribute="true"/>
+</metaservice>

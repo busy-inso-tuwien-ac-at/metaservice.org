@@ -57,7 +57,7 @@ public class ReleasePostProcessor implements PostProcessor {
                     @Override
                     public String build() {
                         return select(
-                                true,
+                                DISTINCT,
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
                                         quadPattern(resource, DEB.VERSION, version, graph2),
@@ -78,7 +78,7 @@ public class ReleasePostProcessor implements PostProcessor {
                     @Override
                     public String build() {
                         return select(
-                                true,
+                                DISTINCT,
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
                                         triplePattern(resource, ADMSSW.PACKAGE, _package),

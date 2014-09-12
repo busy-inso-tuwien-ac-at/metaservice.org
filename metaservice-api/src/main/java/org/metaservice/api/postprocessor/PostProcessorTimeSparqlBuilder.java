@@ -2,6 +2,7 @@ package org.metaservice.api.postprocessor;
 
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
+import org.metaservice.api.sparql.builders.QueryBuilder;
 import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.buildingcontexts.BigdataSparqlQuery;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
@@ -30,6 +31,12 @@ public class PostProcessorTimeSparqlBuilder extends AbstractDeferredQueryBuilder
         return new Variable("selectedDate");
     }
 
+    @NotNull
+    @Override
+    public QueryBuilder select(SelectTerm... selectTerms) {
+        return select(SparqlQuery.DistinctEnum.ALL,selectTerms);
+    }
+
     @Override
     @NotNull
     public String build(final boolean pretty) {
@@ -52,7 +59,7 @@ public class PostProcessorTimeSparqlBuilder extends AbstractDeferredQueryBuilder
                 }
                 if(limit != null)
                     selectQueryBuilder.limit(limit);
-                SelectQueryBuilder heuristic = select(false,all());
+                SelectQueryBuilder heuristic = select(all());
                 selectQueryBuilder.with(namedSubQuery("heuristic",heuristic));
 
                 HashMap<Value,String> nameMap = new HashMap<>();
@@ -96,7 +103,7 @@ public class PostProcessorTimeSparqlBuilder extends AbstractDeferredQueryBuilder
 
                     String name = nameMap.get(c);
                     Variable time = timeMap.get(c);
-                    SelectQueryBuilder maxQuery = select(false,
+                    SelectQueryBuilder maxQuery = select(
                             aggregate("MAX", time, time)
                     )
                             .where(

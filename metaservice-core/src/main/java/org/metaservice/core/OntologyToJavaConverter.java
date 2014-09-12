@@ -109,7 +109,7 @@ public class OntologyToJavaConverter {
         //skos
         ontologyToJavaConverter = new OntologyToJavaConverter(CaseFormat.UPPER_CAMEL);
         ontologyToJavaConverter.load(OntologyToJavaConverter.class.getResourceAsStream("/ontologies/skos.rdf"));
-        content = ontologyToJavaConverter.generate("skos",null);
+        content = ontologyToJavaConverter.generate("skos","http://www.w3.org/2004/02/skos/core#");
         try(FileWriter writer = new FileWriter(root.resolve("SKOS.java").toFile())) {
             IOUtils.write(content, writer);
         }

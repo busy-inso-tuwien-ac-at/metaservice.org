@@ -3,6 +3,7 @@ package org.metaservice.api.postprocessor;
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.rdf.vocabulary.BIGDATA;
 import org.metaservice.api.rdf.vocabulary.METASERVICE;
+import org.metaservice.api.sparql.builders.QueryBuilder;
 import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.buildingcontexts.BigdataSparqlQuery;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
@@ -13,6 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static org.metaservice.api.sparql.buildingcontexts.SparqlQuery.DistinctEnum.ALL;
+import static org.metaservice.api.sparql.buildingcontexts.SparqlQuery.DistinctEnum.DISTINCT;
+
 /**
  * Created by ilo on 05.03.14.
  */
@@ -22,6 +26,12 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
 
     public static BoundVariable getDateVariable(){
         return new BoundVariable("selectedDate");
+    }
+
+    @NotNull
+    @Override
+    public QueryBuilder select(SelectTerm... selectTerms) {
+        return select(ALL,selectTerms);
     }
 
     //todo support greater sparql subset (subselects, ...)
@@ -99,9 +109,6 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     Variable path = new Variable(name+"path");
                     HashSet<Variable> groupByList = new HashSet<>();
                     for(QuadPattern quadPattern : contextMap.get(c)) {
-                        if(quadPattern.getC() instanceof Variable && !(quadPattern.getC() instanceof BoundVariable)) {
-                            groupByList.add((Variable) quadPattern.getC());
-                        }
                         if(quadPattern.getS() instanceof Variable && !(quadPattern.getS() instanceof BoundVariable)) {
                             groupByList.add((Variable) quadPattern.getS());
                         }
@@ -112,28 +119,30 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                             groupByList.add((Variable) quadPattern.getO());
                         }
                     }
-                    HashSet<SelectTerm> selectList = new HashSet<>();
-                    for(Variable variable : groupByList){
-                        selectList.add(var(variable));
-                    }
                     AggregateSelectTerm maxTime = aggregate("MAX", time, time);
-                    SelectQueryBuilder filteredQuery = select(false,all()
+                    SelectQueryBuilder filteredQuery = select(all()
                             ).where(
                             triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                             include("heuristic")//,
                     );
-
+                    HashSet<SelectTerm> selectList = new HashSet<>();
+                    for(Variable variable : groupByList){
+                        selectList.add(var(variable));
+                    }
                     selectList.add(maxTime);
-                    SelectQueryBuilder maxQuery = select(true,
+                    SelectQueryBuilder maxQuery = select(DISTINCT,
                             selectList.toArray(new SelectTerm[selectList.size()])
                     )
                             .where(
                                     include(nameCommon)
                             );
                     selectList.remove(maxTime);
+                    if(c instanceof Variable && !(c instanceof BoundVariable)) {
+                        selectList.add(var((Variable) c));
+                    }
                     selectList.add(var(time));
                     selectList.add(var(generator));
-                    SelectQueryBuilder maxQueryContinuous = select(true,
+                    SelectQueryBuilder maxQueryContinuous = select(DISTINCT,
                             selectList.toArray(new SelectTerm[selectList.size()])
                     )
                             .where(
@@ -143,11 +152,11 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                                     triplePattern(c,METASERVICE.GENERATOR,generator),
                                     triplePattern(c,METASERVICE.TIME,time)
                             );
-                    SelectQueryBuilder maxQueryContinuous0 = select(true,var(processableSubject),var(generator))
+                    SelectQueryBuilder maxQueryContinuous0 = select(DISTINCT,var(processableSubject),var(generator))
                             .where(
                                  include(nameCommon)
                             );
-                    SelectQueryBuilder maxQueryContinuous1 = select(true,var(processableSubject),var(generator),aggregate("MAX", time, time))
+                    SelectQueryBuilder maxQueryContinuous1 = select(DISTINCT,var(processableSubject),var(generator),aggregate("MAX", time, time))
                             .where(
                                  include(nameContinuous+"0"),
                                     triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
@@ -168,7 +177,6 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                             filteredQuery.where(filter(bound(val(var))));
                         }
                         maxQuery.groupBy(var);
-                       // maxQueryContinuous.groupBy(var);
                     }
                     maxQuery.where(
                                     triplePattern(BIGDATA.SUB_QUERY, BIGDATA.OPTIMIZE, BIGDATA.NONE),
@@ -180,21 +188,26 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                             );
                     maxQuery.groupBy(path);
                     maxQueryContinuous0.where(
-                            triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
-                            triplePattern(c,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
-                            triplePattern(c,METASERVICE.GENERATOR,generator),
-                            triplePattern(c,METASERVICE.SOURCE_SUBJECT,processableSubject)
+                            triplePattern(BIGDATA.SUB_QUERY, BIGDATA.OPTIMIZE, BIGDATA.NONE),
+                            triplePattern(c, METASERVICE.ACTION, METASERVICE.ACTION_CONTINUOUS),
+                            triplePattern(c, METASERVICE.GENERATOR, generator),
+                            triplePattern(c, METASERVICE.SOURCE_SUBJECT, processableSubject)
                     );
                     globalQuery.with(
-                            namedSubQuery(nameCommon,filteredQuery),
+                            namedSubQuery(nameCommon, filteredQuery),
                             namedSubQuery(name, maxQuery),
-                            namedSubQuery(nameContinuous+"0",maxQueryContinuous0),
-                            namedSubQuery(nameContinuous+"1",maxQueryContinuous1),
+                            namedSubQuery(nameContinuous + "0", maxQueryContinuous0),
+                            namedSubQuery(nameContinuous + "1", maxQueryContinuous1),
                             namedSubQuery(nameContinuous, maxQueryContinuous)
                     );
+                    ArrayList<GraphPatternValue> unionList = new ArrayList<>();
+                    unionList.add(include(name));
+                    for(QuadPattern quadPattern : contextMap.get(c)){
+                        unionList.add(quadPattern);
+                    }
                     results.add(
                             union(
-                                    graphPattern(include(name)),
+                                    graphPattern(unionList.toArray(new GraphPatternValue[unionList.size()])),
                                     graphPattern(include(nameContinuous))
                             ));
                     results.add(triplePattern(c, METASERVICE.TIME, time));
@@ -223,7 +236,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                 }
                 if(limit != null)
                     selectQueryBuilder.limit(limit);
-                SelectQueryBuilder heuristic = select(false,all());
+                SelectQueryBuilder heuristic = select(all());
                 selectQueryBuilder.with(namedSubQuery("heuristic",heuristic));
                 ArrayList<GraphPatternValue> heuristics = new ArrayList<>();
                 ArrayList<GraphPatternValue> results = new ArrayList<>();

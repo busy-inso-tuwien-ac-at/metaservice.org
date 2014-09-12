@@ -6,13 +6,17 @@ import com.google.inject.Injector;
 import org.junit.Before;
 import org.junit.Test;
 import org.metaservice.api.postprocessor.PostProcessorSparqlQuery;
+import org.metaservice.api.postprocessor.PostProcessorTimeSparqlQuery;
 import org.metaservice.api.rdf.vocabulary.ADMSSW;
+import org.metaservice.api.rdf.vocabulary.DC;
 import org.metaservice.api.rdf.vocabulary.DEB;
+import org.metaservice.api.rdf.vocabulary.SKOS;
 import org.metaservice.api.sparql.buildingcontexts.DefaultSparqlQuery;
 import org.metaservice.api.sparql.nodes.BoundVariable;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.core.injection.MetaserviceTestModule;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.slf4j.LoggerFactory;
@@ -38,6 +42,37 @@ public class QueryTest {
     }
 
     @Test
+    public void daExample() throws Exception{
+        final Variable a     = new Variable("a"),
+                title = new Variable("title"),
+                alt   = new Variable("alt");
+        DefaultSparqlQuery query = new PostProcessorTimeSparqlQuery(){public String build() {
+            return
+
+                    select(DISTINCT,var(a),var(title))
+                            .where(
+                                    triplePattern(a, RDF.TYPE, ADMSSW.SOFTWARE_PROJECT),
+                                    triplePattern(a, SKOS.ALT_LABEL, alt),
+                                    union(
+                                            graphPattern(
+                                                    triplePattern(a, DC.TITLE, title)
+                                            ),
+                                            graphPattern(
+                                                    triplePattern(a, RDFS.LABEL, title)
+                                            ),
+                                            graphPattern(
+                                                    triplePattern(a, SKOS.PREF_LABEL,title)
+                                            )
+                                    ),
+                                    filter(unequal(val(alt),val(title)))
+                            )
+
+                            .build(true);
+        }};
+        System.err.println(query.build());
+    }
+
+    @Test
     public void testFoo() throws Exception {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         lc.stop();
@@ -46,7 +81,7 @@ public class QueryTest {
                     @Override
                     public String build() {
                         return select(
-                                true,
+                                DISTINCT,
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
                                         quadPattern(resource, DEB.VERSION, version, graph2),
@@ -67,7 +102,7 @@ public class QueryTest {
                     @Override
                     public String build() {
                         return select(
-                                true,
+                                DISTINCT,
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
                                         triplePattern(resource, ADMSSW.PACKAGE, _package),
@@ -104,12 +139,12 @@ public class QueryTest {
                     @Override
                     public String build() {
                         return select(
-                                true,
+                                DISTINCT,
                                 var(_package),var(version),var(packageName),var(metaDistribution))
                                 .where(
                                         union(
                                                 graphPattern(
-                                                        select(true,var(_package),var(packageName), var(metaDistribution), var(version)
+                                                        select(DISTINCT,var(_package),var(packageName), var(metaDistribution), var(version)
                                                         ).where(
                                                                 triplePattern(resource, ADMSSW.PACKAGE, _package),
                                                                 triplePattern(resource, RDF.TYPE, ADMSSW.SOFTWARE_RELEASE),
@@ -124,7 +159,7 @@ public class QueryTest {
                                                         )
                                                 ),
                                                 graphPattern(
-                                                        select(true,var(_package), var(packageName), var(metaDistribution), var(version)
+                                                        select(DISTINCT,var(_package), var(packageName), var(metaDistribution), var(version)
                                                         ).where(
                                                                 quadPattern(resource, DEB.VERSION, version, graph2),
                                                                 quadPattern(resource, DEB.PACKAGE_NAME, packageName, graph2),

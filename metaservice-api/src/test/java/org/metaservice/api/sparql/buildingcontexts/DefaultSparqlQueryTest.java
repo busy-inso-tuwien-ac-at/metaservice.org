@@ -9,6 +9,7 @@ import org.metaservice.api.rdf.vocabulary.METASERVICE;
 import org.metaservice.api.sparql.builders.QueryBuilder;
 import org.metaservice.api.sparql.builders.SelectQueryBuilder;
 import org.metaservice.api.sparql.impl.SparqlQueryBuilderImpl;
+import org.metaservice.api.sparql.nodes.SelectTerm;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -40,7 +41,7 @@ public class DefaultSparqlQueryTest {
             @Override
             public String build() {
                 return
-                        select(false,
+                        select(
                                 var(project)
                         )
                                 .where(
@@ -69,7 +70,7 @@ public class DefaultSparqlQueryTest {
             @Override
             public String build() {
                 return
-                        select(false,
+                        select(
                                 var(time)
                         )
                                 .where(
@@ -96,7 +97,7 @@ public class DefaultSparqlQueryTest {
         SparqlQuery sparqlQuery = new DefaultSparqlQuery() {
             @Override
             public String build() {
-             return select(false,
+             return select(
                      var(version),
                      var(title),
                      var(arch),
@@ -126,7 +127,7 @@ public class DefaultSparqlQueryTest {
             @Override
             public String build() {
                 return select(
-                        true,
+                        DISTINCT,
                         var(_package),var(version),var(packageName),var(metaDistribution))
                         .where(
                                 quadPattern(resource, DEB.VERSION, version, graph2),
@@ -146,7 +147,7 @@ public class DefaultSparqlQueryTest {
             @Override
             public String build() {
                 return select(
-                        true,
+                        DISTINCT,
                         var(_package),var(version),var(packageName),var(metaDistribution))
                         .where(
                                 quadPattern(resource, DEB.VERSION, version, graph2),
@@ -184,7 +185,7 @@ public class DefaultSparqlQueryTest {
             @Override
             public String build() {
                 QueryBuilder base = SparqlQueryBuilderImpl.getInstance()
-                        .select(false,all())
+                        .select(all())
                         .where(
                                 quadPattern(project, DOAP.RELEASE, release,g1),
                                 quadPattern(release, ADMSSW.PACKAGE, resource,g2),
@@ -204,25 +205,25 @@ public class DefaultSparqlQueryTest {
                         );
 
                 SelectQueryBuilder sub1 = SparqlQueryBuilderImpl.getInstance()
-                        .select(false,aggregate("MAX", t1, t1))
+                        .select(aggregate("MAX", t1, t1))
                         .where(include("base"));
 
                 SelectQueryBuilder sub2 = SparqlQueryBuilderImpl.getInstance()
-                        .select(false,aggregate("MAX", t2, t2))
+                        .select(aggregate("MAX", t2, t2))
                         .where(include("base"));
 
                 SelectQueryBuilder sub3 = SparqlQueryBuilderImpl.getInstance()
-                        .select(false,aggregate("MAX", t3, t3))
+                        .select(aggregate("MAX", t3, t3))
                         .where(include("base"));
 
                 SelectQueryBuilder sub4 = SparqlQueryBuilderImpl.getInstance()
-                        .select(false,aggregate("MAX", t4, t4))
+                        .select(aggregate("MAX", t4, t4))
                         .where(include("base"));
 
-                SelectQueryBuilder sub5 = select(false,aggregate("MAX", t5, t5))
+                SelectQueryBuilder sub5 = select(aggregate("MAX", t5, t5))
                         .where(include("base"));
 
-                return  select(false,
+                return  select(
                                 var(version),
                                 var(title),
                                 var(arch),

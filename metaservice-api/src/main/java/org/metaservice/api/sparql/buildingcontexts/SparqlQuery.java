@@ -12,10 +12,13 @@ import org.openrdf.model.Value;
  * Created by ilo on 05.03.14.
  */
 public interface SparqlQuery {
+    public static enum DistinctEnum{DISTINCT,ALL}
 
     //query types
     @NotNull
-    public SelectQueryBuilder select(boolean distinct,SelectTerm... selectTerms);
+    public SelectQueryBuilder select(DistinctEnum distinct,SelectTerm... selectTerms);
+    public SelectQueryBuilder select(SelectTerm... selectTerms);
+
     @NotNull
     public AskQueryBuilder ask();
     @NotNull

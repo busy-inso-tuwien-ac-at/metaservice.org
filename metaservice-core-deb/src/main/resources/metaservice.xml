@@ -1,5 +1,6 @@
 <metaservice>
     <moduleInfo>
+        <!-- Module name and version are replaced through Maven  filtering -->
         <groupId>${pom.groupId}</groupId>
         <artifactId>${pom.artifactId}</artifactId>
         <version>${pom.version}</version>
@@ -9,16 +10,8 @@
             model="org.metaservice.core.deb.parser.ast.Package"
             class="org.metaservice.core.deb.DebianPackageProvider"
             >
-        <!--    <load url="http://metaservice.org/ns/metaservice.rdf"/>-->
         <load url="http://metaservice.org/ns/deb.rdf"/>
-        <load url="http://metaservice.org/ns/owl.rdf"/>
-        <load url="http://metaservice.org/ns/rdfs.rdf"/>
-        <load url="http://metaservice.org/ns/dcterms.rdf"/>
-        <load url="http://metaservice.org/ns/dcelements.rdf"/>
-        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
-        <load url="http://metaservice.org/ns/doap.rdf"/>
-        <load url="http://metaservice.org/ns/metaservice-swdep.rdf"/>
-        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+
     </provider>
 
     <parser
@@ -30,20 +23,12 @@
     <postprocessor
             id="debVersionOrder"
             class="org.metaservice.core.deb.postprocessor.DebianVersionReasoner">
-        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
-        <load url="http://metaservice.org/ns/rdfs.rdf"/>
-        <load url="http://metaservice.org/ns/deb.rdf"/>
-        <load url="http://metaservice.org/ns/owl.rdf"/>
-        <namespace prefix="ms-d" uri="http://metaservice.org/d/"/>
+          <load url="http://metaservice.org/ns/deb.rdf"/>
     </postprocessor>
 
     <postprocessor
             id="debRelease"
             class="org.metaservice.core.deb.postprocessor.ReleasePostProcessor">
-        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
-        <load url="http://metaservice.org/ns/doap.rdf"/>
-        <load url="http://metaservice.org/ns/rdfs.rdf"/>
-        <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/deb.rdf"/>
     </postprocessor>
 
@@ -51,20 +36,12 @@
     <postprocessor
             id="debianProject"
             class="org.metaservice.core.deb.postprocessor.DebianProjectPostProcessor">
-        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
-        <load url="http://metaservice.org/ns/doap.rdf"/>
-        <load url="http://metaservice.org/ns/rdfs.rdf"/>
-        <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/deb.rdf"/>
     </postprocessor>
 
     <postprocessor
             id="ubuntuProject"
             class="org.metaservice.core.deb.postprocessor.UbuntuProjectPostProcessor">
-        <load url="http://metaservice.org/ns/adms_sw.rdf"/>
-        <load url="http://metaservice.org/ns/doap.rdf"/>
-        <load url="http://metaservice.org/ns/rdfs.rdf"/>
-        <load url="http://metaservice.org/ns/owl.rdf"/>
         <load url="http://metaservice.org/ns/deb.rdf"/>
     </postprocessor>
 
@@ -77,41 +54,6 @@
             archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
             active="false"
             />
-
-    <repository
-            id="backports_debian_org"
-            type="deb"
-            baseUri="http://ftp.debian.org/debian-backports/dists/"
-            startUri="http://ftp.debian.org/debian-backports/dists/"
-            crawler="debianarchive"
-            archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
-            active="false"
-            />
-
-    <repository
-            id="security_debian_org"
-            type="deb"
-            baseUri="http://security.debian.org/dists/"
-            startUri="http://security.debian.org/dists/"
-            crawler="debianarchive"
-            archiveClass="org.metaservice.core.deb.util.DebianGitArchive"
-            active="false"
-            />
-
-    <repository
-            id="volatile_debian_org"
-            type="deb"
-            baseUri="http://archive.debian.org/debian-volatile/dists/"
-            startUri="http://archive.debian.org/debian-volatile/dists/"
-            crawler="debianarchive"
-            active="false"
-            archiveClass="org.metaservice.core.deb.util.DebianGitArchive">
-        <properties>
-            <property name="meta-distribution">debian</property>
-            <property name="distribution-regex">^([^/]+/[^/]+)/.*$</property>
-        </properties>
-    </repository>
-
 
     <repository
             id="archive_ubuntu_org"
@@ -152,7 +94,6 @@
     <template
             name="debian-project.hbs"
             appliesTo="http://metaservice.org/ns/deb#Project"/>
-
 
     <ontology
             name="deb.rdf" apply="true" distribute="true"/>

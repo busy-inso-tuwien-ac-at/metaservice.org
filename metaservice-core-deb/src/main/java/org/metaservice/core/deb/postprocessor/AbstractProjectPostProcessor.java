@@ -50,7 +50,7 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             @Override
             public String build() {
                 return select(
-                        true,
+                        DISTINCT,
                         var(release),var(packageName),var(metaDistribution))
                         .where(
                                 quadPattern(resource, DEB.PACKAGE_NAME, packageName,context1),
@@ -67,7 +67,7 @@ public abstract class AbstractProjectPostProcessor implements PostProcessor {
             @Override
             public String build() {
                 return select(
-                        true,
+                        DISTINCT,
                         var(release),var(packageName),var(metaDistribution))
                         .where(
                                 triplePattern(resource, DOAP.RELEASE, release),

@@ -11,10 +11,10 @@ import org.openrdf.model.vocabulary.RDFS;
  * Created by ilo on 06.03.14.
  */
 public class PostProcessorSparqlBuilderTest {
-    private final Variable resource = new Variable("resource");
+    private final Variable resource = new Variable("package");
     private final Variable version = new Variable("version");
     private final Variable project = new Variable("project");
-    private final Variable title = new Variable("title");
+    private final Variable title = new Variable("label");
     private final Variable release = new Variable("release");
     private final Variable arch = new Variable("arch");
     private final Variable _package = new Variable("package");
@@ -25,17 +25,14 @@ public class PostProcessorSparqlBuilderTest {
 
             @Override
             public String build() {
-                return select(false,
+                return select(
                         var(version),
                         var(title),
-                        var(arch),
                         var(resource)
                 )
                         .where(triplePattern(project, DOAP.RELEASE, release),
                                 triplePattern(release, ADMSSW.PACKAGE, resource),
-                                triplePattern(resource, RDFS.LABEL, title),
-                                triplePattern(resource, DEB.VERSION, version),
-                                triplePattern(resource, DEB.ARCHITECTURE, arch)
+                                triplePattern(resource, RDFS.LABEL, title)
                         ).build();
             }
         });
@@ -49,7 +46,7 @@ public class PostProcessorSparqlBuilderTest {
             @Override
             public String build() {
                 return
-                        select(true,var(project)
+                        select(DISTINCT,var(project)
 
                         )
                                 .
@@ -81,7 +78,7 @@ public class PostProcessorSparqlBuilderTest {
         System.err.println(new PostProcessorSparqlQuery(){
             @Override
             public String build() {
-                return select(true,
+                return select(DISTINCT,
                         aggregate("SAMPLE", _package2, _package),
                         var(arch)
                 )

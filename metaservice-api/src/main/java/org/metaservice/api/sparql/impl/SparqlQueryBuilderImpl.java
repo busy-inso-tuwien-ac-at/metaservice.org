@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.metaservice.api.sparql.builders.SelectQueryBuilder;
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.Variable;
 import org.metaservice.api.sparql.builders.QueryBuilder;
 import org.metaservice.api.sparql.nodes.*;
@@ -54,13 +55,18 @@ public class SparqlQueryBuilderImpl implements QueryBuilder {
         return this;
     }
     @NotNull
-    public QueryBuilder select(boolean distinct,SelectTerm... selectTerms) {
+    public QueryBuilder select(@NotNull SparqlQuery.DistinctEnum distinct,SelectTerm... selectTerms) {
         if (queryHeader != null && !(queryHeader instanceof SelectHeader)) {
             throw new UnsupportedOperationException("no multiple headers");
         }
         if (queryHeader == null)
             queryHeader = new SelectHeader(distinct,selectTerms);
         return this;
+    }
+
+    @NotNull
+    public QueryBuilder select(SelectTerm... selectTerms) {
+        return select(SparqlQuery.DistinctEnum.ALL,selectTerms);
     }
 
     @NotNull

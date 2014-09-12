@@ -15,7 +15,7 @@
         <load url="http://metaservice.org/ns/doap.rdf"/>
         <load url="http://metaservice.org/ns/rdfs.rdf"/>
         <load url="http://metaservice.org/ns/owl.rdf"/>
-        <load url="http://metaservice.org/ns/propertyreification.rdf"/>
+        <load url="http://metaservice.org/ns/metaservice-swdep.rdf"/>
     </provider>
 
     <parser
@@ -27,8 +27,8 @@
     <repository
             id="maven_central"
             type="maven"
-            baseuri="http://mirrors.ibiblio.org/maven2/"
-            starturi="http://mirrors.ibiblio.org/maven2/"
+            baseUri="http://mirrors.ibiblio.org/maven2/"
+            startUri="http://mirrors.ibiblio.org/maven2/"
             crawler="maven"
             archiveClass="org.metaservice.core.archive.GitArchive"
             >

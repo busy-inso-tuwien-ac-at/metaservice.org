@@ -2,6 +2,7 @@ package org.metaservice.api.postprocessor;
 
 import org.jetbrains.annotations.NotNull;
 import org.metaservice.api.sparql.builders.QueryBuilder;
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.*;
 
 import java.util.ArrayList;
@@ -19,11 +20,11 @@ public abstract class AbstractDeferredQueryBuilder  implements QueryBuilder {
     protected final ArrayList<Variable> groupByList = new ArrayList<>();
     protected ArrayList<GraphPatternValue> wherePatterns = new ArrayList<>();
     protected ArrayList<NamedSubQuery> originalNamedSubQueries =new ArrayList<>();
-    protected boolean distinct=false;
+    protected SparqlQuery.DistinctEnum distinct= SparqlQuery.DistinctEnum.ALL;
 
     @Override
     @NotNull
-    public QueryBuilder select(boolean distinct,SelectTerm... selectTerms) {
+    public QueryBuilder select(@NotNull SparqlQuery.DistinctEnum distinct,SelectTerm... selectTerms) {
         this.distinct = distinct;
         this.selectTerms = selectTerms;
         return this;

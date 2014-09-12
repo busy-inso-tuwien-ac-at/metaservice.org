@@ -1,0 +1,441 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY schema "http://schema.org/" >
+    <!ENTITY dc "http://purl.org/dc/" >
+    <!ENTITY admssw "http://purl.org/adms/sw/" >
+    <!ENTITY terms "http://purl.org/dc/terms/" >
+    <!ENTITY vann "http://purl.org/vocab/vann/" >
+    <!ENTITY foaf "http://xmlns.com/foaf/spec/" >
+    <!ENTITY doap "http://usefulinc.com/ns/doap#" >
+    <!ENTITY terms2 "http://www.spdx.org/rdf/terms#" >
+    <!ENTITY mvn "http://metaservice.org/ns/mvn#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY swdep "http://metaservice.org/ns/metaservice-swdep#" >
+]>
+
+
+<rdf:RDF xmlns="http://metaservice.org/ns/mvn"
+     xml:base="http://metaservice.org/ns/mvn"
+     xmlns:dc="http://purl.org/dc/"
+     xmlns:foaf="http://xmlns.com/foaf/spec/"
+     xmlns:terms="&dc;terms/"
+     xmlns:vann="http://purl.org/vocab/vann/"
+     xmlns:mvn="http://metaservice.org/ns/mvn#"
+     xmlns:schema="http://schema.org/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:terms2="http://www.spdx.org/rdf/terms#"
+     xmlns:doap="http://usefulinc.com/ns/doap#"
+     xmlns:admssw="http://purl.org/adms/sw/"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+     xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#">
+    <owl:Ontology rdf:about="http://metaservice.org/ns/mvn#">
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <vann:preferredNamespacePrefix>mvn</vann:preferredNamespacePrefix>
+        <dc:description>TODO</dc:description>
+        <dc:title>Metaservice Maven Ontology</dc:title>
+        <dc:format>application/rdf+xml</dc:format>
+        <vann:preferredNamespaceUri>http://metaservice.org/ns/mvn#</vann:preferredNamespaceUri>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:description xml:lang="de">TODO</dc:description>
+        <owl:imports rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <owl:versionIRI rdf:resource="http://metaservice.org/ns/mvn/0.1"/>
+        <owl:imports rdf:resource="http://purl.org/adms/sw/"/>
+        <owl:imports rdf:resource="http://www.w3.org/ns/adms"/>
+        <owl:imports rdf:resource="http://www.w3.org/ns/radion#"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#contributor -->
+
+    <owl:ObjectProperty rdf:about="&mvn;contributor">
+        <rdfs:range rdf:resource="&mvn;Contributor"/>
+        <rdfs:domain rdf:resource="&mvn;MavenArtifact"/>
+        <rdfs:subPropertyOf rdf:resource="&schema;contributor"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyCompile -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyCompile">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyCompileOptional -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyCompileOptional">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyProvided -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyProvided">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyProvidedOptional -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyProvidedOptional">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyRuntime -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyRuntime">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyRuntimeOptional -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyRuntimeOptional">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencySystem -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencySystem">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencySystemOptional -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencySystemOptional">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyTest -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyTest">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsTest"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#dependencyTestOptional -->
+
+    <owl:ObjectProperty rdf:about="&mvn;dependencyTestOptional">
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;dependsTest"/>
+        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#developer -->
+
+    <owl:ObjectProperty rdf:about="&mvn;developer">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+        <rdfs:domain rdf:resource="&mvn;MavenArtifact"/>
+        <rdfs:subPropertyOf rdf:resource="&schema;contributor"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#license -->
+
+    <owl:ObjectProperty rdf:about="&mvn;license">
+        <rdfs:subPropertyOf rdf:resource="&doap;license"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#md5sum -->
+
+    <owl:ObjectProperty rdf:about="&mvn;md5sum">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+        <rdfs:domain rdf:resource="&mvn;MavenArtifact"/>
+        <rdfs:subPropertyOf rdf:resource="http://spdx.org/rdf/terms#checksum"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#organization -->
+
+    <owl:ObjectProperty rdf:about="&mvn;organization">
+        <rdfs:subPropertyOf rdf:resource="&doap;vendor"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#parent -->
+
+    <owl:ObjectProperty rdf:about="&mvn;parent">
+        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#sha1sum -->
+
+    <owl:ObjectProperty rdf:about="&mvn;sha1sum">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+        <rdfs:domain rdf:resource="&mvn;MavenArtifact"/>
+        <rdfs:subPropertyOf rdf:resource="http://spdx.org/rdf/terms#checksum"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#sha256sum -->
+
+    <owl:ObjectProperty rdf:about="&mvn;sha256sum">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+        <rdfs:domain rdf:resource="&mvn;MavenArtifact"/>
+        <rdfs:subPropertyOf rdf:resource="http://spdx.org/rdf/terms#checksum"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#url -->
+
+    <owl:ObjectProperty rdf:about="&mvn;url">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://schema.org/contributor -->
+
+    <owl:ObjectProperty rdf:about="&schema;contributor">
+        <rdfs:isDefinedBy>http://schema.org/</rdfs:isDefinedBy>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://spdx.org/rdf/terms#checksum -->
+
+    <owl:ObjectProperty rdf:about="http://spdx.org/rdf/terms#checksum"/>
+    
+
+
+    <!-- http://usefulinc.com/ns/doap#license -->
+
+    <owl:ObjectProperty rdf:about="&doap;license"/>
+    
+
+
+    <!-- http://usefulinc.com/ns/doap#vendor -->
+
+    <owl:ObjectProperty rdf:about="&doap;vendor"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- dc:description -->
+
+    <owl:DatatypeProperty rdf:about="dc:description"/>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#artifactId -->
+
+    <owl:DatatypeProperty rdf:about="&mvn;artifactId">
+        <rdfs:subPropertyOf rdf:resource="&owl;topDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#description -->
+
+    <owl:DatatypeProperty rdf:about="&mvn;description">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="dc:description"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#groupId -->
+
+    <owl:DatatypeProperty rdf:about="&mvn;groupId"/>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#packaging -->
+
+    <owl:DatatypeProperty rdf:about="&mvn;packaging"/>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#version -->
+
+    <owl:DatatypeProperty rdf:about="&mvn;version"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#Contributor -->
+
+    <owl:Class rdf:about="&mvn;Contributor">
+        <rdfs:subClassOf rdf:resource="&foaf;Agent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#Developer -->
+
+    <owl:Class rdf:about="&mvn;Developer">
+        <rdfs:subClassOf rdf:resource="&foaf;Agent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#MavenArtifact -->
+
+    <owl:Class rdf:about="&mvn;MavenArtifact">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwarePackage"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#MavenRepository -->
+
+    <owl:Class rdf:about="&mvn;MavenRepository">
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareRepository"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#Project -->
+
+    <owl:Class rdf:about="&mvn;Project">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareProject"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/mvn#Release -->
+
+    <owl:Class rdf:about="&mvn;Release">
+        <rdfs:label></rdfs:label>
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareRelease"/>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/mvn#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwarePackage -->
+
+    <owl:Class rdf:about="&admssw;SoftwarePackage"/>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwareProject -->
+
+    <owl:Class rdf:about="&admssw;SoftwareProject"/>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwareRelease -->
+
+    <owl:Class rdf:about="&admssw;SoftwareRelease"/>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwareRepository -->
+
+    <owl:Class rdf:about="&admssw;SoftwareRepository"/>
+    
+
+
+    <!-- http://xmlns.com/foaf/spec/Agent -->
+
+    <owl:Class rdf:about="&foaf;Agent"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
+

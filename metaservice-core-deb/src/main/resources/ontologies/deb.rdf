@@ -9,7 +9,7 @@
     <!ENTITY vann "http://purl.org/vocab/vann/" >
     <!ENTITY foaf "http://xmlns.com/foaf/spec/" >
     <!ENTITY doap "http://usefulinc.com/ns/doap#" >
-    <!ENTITY terms2 "http://www.spdx.org/rdf/terms#" >
+    <!ENTITY terms2 "http://spdx.org/rdf/terms#" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
@@ -38,7 +38,7 @@
      xmlns:skos="http://www.w3.org/2004/02/skos/core#"
      xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#">
     <owl:Ontology rdf:about="http://metaservice.org/ns/deb#">
-        <dc:title>Debian subclasses for metaservice.org vocabulary for swdep metadata</dc:title>
+        <dc:title>Metaservice Debian Ontology</dc:title>
         <dc:creator>Nikola Ilo</dc:creator>
         <dc:description>TODO</dc:description>
         <vann:preferredNamespaceUri>http://metaservice.org/ns/deb#</vann:preferredNamespaceUri>

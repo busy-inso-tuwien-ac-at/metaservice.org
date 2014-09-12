@@ -8,11 +8,11 @@ import org.openrdf.model.impl.*;
 /**
  * This is an automatically generated class
  * Generator: org.metaservice.core.OntologyToJavaConverter
- * @see <a href="http://www.w3.org/2004/02/skos/core">skos</a>
+ * @see <a href="http://www.w3.org/2004/02/skos/core#">skos</a>
  */
 public class SKOS{
 
-    public static final String NAMESPACE = "http://www.w3.org/2004/02/skos/core";
+    public static final String NAMESPACE = "http://www.w3.org/2004/02/skos/core#";
 
     public static final String PREFIX = "skos";
 

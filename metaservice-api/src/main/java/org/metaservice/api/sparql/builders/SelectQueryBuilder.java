@@ -1,6 +1,7 @@
 package org.metaservice.api.sparql.builders;
 
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.GraphPatternValue;
 import org.metaservice.api.sparql.nodes.NamedSubQuery;
 import org.metaservice.api.sparql.nodes.SelectTerm;
@@ -12,7 +13,7 @@ import org.metaservice.api.sparql.nodes.Variable;
 public interface SelectQueryBuilder extends NamedSubQueriesBuilder,GraphPatternValue{
 
     @NotNull
-    public SelectQueryBuilder select(boolean distinct,SelectTerm... selectTerms);
+    public SelectQueryBuilder select(SparqlQuery.DistinctEnum distinct,SelectTerm... selectTerms);
     @NotNull
     public SelectQueryBuilder orderByAsc(@NotNull Variable variable);
     @NotNull

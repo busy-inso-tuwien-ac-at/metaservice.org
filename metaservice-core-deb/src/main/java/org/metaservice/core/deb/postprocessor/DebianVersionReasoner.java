@@ -47,7 +47,7 @@ public class DebianVersionReasoner implements PostProcessor {
         queryString = new PostProcessorSparqlQuery(){
             @Override
             public String build() {
-                return select(true,var(release),var(_package),var(revision),var(arch))
+                return select(DISTINCT,var(release),var(_package),var(revision),var(arch))
                         .where(
                                 triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                                 union(

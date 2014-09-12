@@ -1,6 +1,7 @@
 package org.metaservice.api.sparql.builders;
 
 import org.jetbrains.annotations.NotNull;
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.*;
 
 
@@ -10,7 +11,9 @@ import org.metaservice.api.sparql.nodes.*;
 public interface QueryBuilder extends SelectQueryBuilder,AskQueryBuilder,ConstructQueryBuilder,NamedSubQueriesBuilder{
 
     @NotNull
-    public QueryBuilder select(boolean distinct,SelectTerm... selectTerms);
+    public QueryBuilder select(@NotNull SparqlQuery.DistinctEnum distinct,SelectTerm... selectTerms);
+    @NotNull
+    public QueryBuilder select(SelectTerm... selectTerms);
     @NotNull
     public QueryBuilder ask();
     @NotNull

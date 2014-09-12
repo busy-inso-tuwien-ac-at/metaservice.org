@@ -1,0 +1,7 @@
+package org.metaservice.core.nvd.cve;
+
+/**
+ * Created by ilo on 14.06.2014.
+ */
+public class SubStringReader {
+}

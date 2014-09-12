@@ -1,23 +1,25 @@
 package org.metaservice.api.sparql.nodes;
 
+import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
+
 /**
 * Created by ilo on 06.03.14.
 */
 public class SelectHeader implements QueryHeader {
 
-    private final boolean distinct;
+    private SparqlQuery.DistinctEnum distinct;
     private final SelectTerm[] terms;
     public SelectHeader(SelectTerm[] selectTerms) {
-        this(false,selectTerms);
+        this(SparqlQuery.DistinctEnum.ALL,selectTerms);
     }
 
-    public SelectHeader(boolean distinct, SelectTerm[] selectTerms) {
+    public SelectHeader(SparqlQuery.DistinctEnum distinct, SelectTerm[] selectTerms) {
         this.distinct = distinct;
         this.terms = selectTerms;
     }
 
     public boolean isDistinct() {
-        return distinct;
+        return distinct == SparqlQuery.DistinctEnum.DISTINCT;
     }
 
     public SelectTerm[] getTerms() {
