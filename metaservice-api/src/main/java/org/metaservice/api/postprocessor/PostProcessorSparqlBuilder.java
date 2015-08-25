@@ -9,6 +9,7 @@ import org.metaservice.api.sparql.buildingcontexts.BigdataSparqlQuery;
 import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.*;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     String name = nameMap.get(c);
                     String nameCommon = name +"Common"; //used to check boundness of variables in  heuristic
                     String nameContinuous = name +"Continuous";
-                    Variable action = new Variable(name+"Action");
+                    Variable type = new Variable(name+"Action");
                     Variable time = timeMap.get(c);
                     Variable generator = new Variable(name+"generator");
                     Variable path = new Variable(name+"path");
@@ -148,9 +149,9 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                             .where(
                                     triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                                     include(nameContinuous+"1"),
-                                    triplePattern(c,METASERVICE.SOURCE_SUBJECT,processableSubject),
+                                    triplePattern(c,METASERVICE.AUTHORITIVE_SUBJECT,processableSubject),
                                     triplePattern(c,METASERVICE.GENERATOR,generator),
-                                    triplePattern(c,METASERVICE.TIME,time)
+                                    triplePattern(c,METASERVICE.DATA_TIME,time)
                             );
                     SelectQueryBuilder maxQueryContinuous0 = select(DISTINCT,var(processableSubject),var(generator))
                             .where(
@@ -161,10 +162,10 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                                  include(nameContinuous+"0"),
                                     triplePattern(BIGDATA.SUB_QUERY,BIGDATA.OPTIMIZE,BIGDATA.NONE),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
-                                    triplePattern(context2,METASERVICE.SOURCE_SUBJECT,processableSubject),
+                                    triplePattern(context2,METASERVICE.AUTHORITIVE_SUBJECT,processableSubject),
                                     triplePattern(context2,METASERVICE.GENERATOR,generator),
                //                   triplePattern(context2,METASERVICE.ACTION,METASERVICE.ACTION_CONTINUOUS),
-                                    triplePattern(context2,METASERVICE.TIME, time)
+                                    triplePattern(context2,METASERVICE.DATA_TIME, time)
                             ).groupBy(processableSubject).groupBy(generator);
 
                     for(QuadPattern quadPattern : contextMap.get(c)){
@@ -180,18 +181,18 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                     }
                     maxQuery.where(
                                     triplePattern(BIGDATA.SUB_QUERY, BIGDATA.OPTIMIZE, BIGDATA.NONE),
-                                    filter(unequal(val(action),val(METASERVICE.ACTION_CONTINUOUS))),
+                                    filter(unequal(val(type),val(METASERVICE.CONTINUOUS_OBSERVATION))),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
-                                    triplePattern(c,METASERVICE.TIME, time),
-                                    triplePattern(c,METASERVICE.ACTION,action),
+                                    triplePattern(c,METASERVICE.DATA_TIME, time),
+                                    triplePattern(c, RDF.TYPE,type),
                                     triplePattern(c,METASERVICE.PATH,path)
                             );
                     maxQuery.groupBy(path);
                     maxQueryContinuous0.where(
                             triplePattern(BIGDATA.SUB_QUERY, BIGDATA.OPTIMIZE, BIGDATA.NONE),
-                            triplePattern(c, METASERVICE.ACTION, METASERVICE.ACTION_CONTINUOUS),
+                            triplePattern(c, RDF.TYPE, METASERVICE.CONTINUOUS_OBSERVATION),
                             triplePattern(c, METASERVICE.GENERATOR, generator),
-                            triplePattern(c, METASERVICE.SOURCE_SUBJECT, processableSubject)
+                            triplePattern(c, METASERVICE.AUTHORITIVE_SUBJECT, processableSubject)
                     );
                     globalQuery.with(
                             namedSubQuery(nameCommon, filteredQuery),
@@ -210,9 +211,9 @@ public class PostProcessorSparqlBuilder extends AbstractDeferredQueryBuilder {
                                     graphPattern(unionList.toArray(new GraphPatternValue[unionList.size()])),
                                     graphPattern(include(nameContinuous))
                             ));
-                    results.add(triplePattern(c, METASERVICE.TIME, time));
-                    results.add(filter(unequal(val(action),val(METASERVICE.ACTION_REMOVE))));
-                    results.add(triplePattern(c, METASERVICE.ACTION,action));
+                    results.add(triplePattern(c, METASERVICE.DATA_TIME, time));
+                    results.add(filter(unequal(val(type),val(METASERVICE.REMOVE_OBSERVATION))));
+                    results.add(triplePattern(c, RDF.TYPE,type));
 
                 }
             }

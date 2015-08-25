@@ -24,11 +24,77 @@ public class METASERVICE{
 
 
     /**
-     * http://metaservice.org/ns/metaservice#Metadata<br>
-     * "Metadata"<br>
-     * Named graph in the metaservice.org database.<br>
+     * http://metaservice.org/ns/metaservice#Source<br>
      */
-    public static final URI METADATA;
+    public static final URI SOURCE;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#Generator<br>
+     */
+    public static final URI GENERATOR;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#View<br>
+     */
+    public static final URI VIEW;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#Provider<br>
+     */
+    public static final URI PROVIDER;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#Module<br>
+     */
+    public static final URI MODULE;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#AddObservation<br>
+     */
+    public static final URI ADD_OBSERVATION;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#Observation<br>
+     * "Observation"<br>
+     * Observations are named graphs, which contain information produced by a generator.<br>
+     */
+    public static final URI OBSERVATION;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#ContinuousObservation<br>
+     */
+    public static final URI CONTINUOUS_OBSERVATION;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#SourceRepository<br>
+     */
+    public static final URI SOURCE_REPOSITORY;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#RepositoryPath<br>
+     */
+    public static final URI REPOSITORY_PATH;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#RemoveObservation<br>
+     */
+    public static final URI REMOVE_OBSERVATION;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#Postprocessor<br>
+     */
+    public static final URI POSTPROCESSOR;
 
 
 ////////////////////////
@@ -37,12 +103,31 @@ public class METASERVICE{
 
 
     /**
-     * http://metaservice.org/ns/metaservice#sourceSubject<br>
-     * "produced from"<br>
-     * Resources which are processed together and are important for the time validity scope of the<br>
-     *             named graph<br>
+     * http://metaservice.org/ns/metaservice#source<br>
+     * "retrieved from"<br>
+     * Links an Observation to ithe source, where its statements were retrieved from.<br>
      */
-    public static final URI SOURCE_SUBJECT;
+    public static final URI SOURCE_PROPERTY;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#repository<br>
+     */
+    public static final URI REPOSITORY;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#generator<br>
+     * "generator of data"<br>
+     * Identifier of the software which was used to create the statements.<br>
+     */
+    public static final URI GENERATOR_PROPERTY;
+
+
+    /**
+     * http://metaservice.org/ns/metaservice#module<br>
+     */
+    public static final URI MODULE_PROPERTY;
 
 
     /**
@@ -53,33 +138,33 @@ public class METASERVICE{
     public static final URI DUMMY;
 
 
+    /**
+     * http://metaservice.org/ns/metaservice#authoritiveSubject<br>
+     * "produced from"<br>
+     * Resources which are processed together and are important for the time validity scope of the  observation.<br>
+     */
+    public static final URI AUTHORITIVE_SUBJECT;
+
+
 ////////////////////////
 // DATA PROPERTIES
 ////////////////////////
 
 
     /**
-     * http://metaservice.org/ns/metaservice#source<br>
-     * "retrieved from"<br>
-     * uri of the archive, where the statements were retrieved from<br>
-     */
-    public static final URI SOURCE;
-
-
-    /**
      * http://metaservice.org/ns/metaservice#creationTime<br>
      * "created on"<br>
-     * The time this set of changes where created.<br>
+     * The time an Observation was created.<br>
      */
     public static final URI CREATION_TIME;
 
 
     /**
-     * http://metaservice.org/ns/metaservice#generator<br>
-     * "generator of data"<br>
-     * Identifier of the software which was used to create the statements.<br>
+     * http://metaservice.org/ns/metaservice#id<br>
+     * "id"<br>
+     * metaservice id<br>
      */
-    public static final URI GENERATOR;
+    public static final URI ID;
 
 
     /**
@@ -99,33 +184,11 @@ public class METASERVICE{
 
 
     /**
-     * http://metaservice.org/ns/metaservice#repositoryId<br>
-     * "repository"<br>
-     * id of the repository this was retrieved from<br>
+     * http://metaservice.org/ns/metaservice#dataTime<br>
+     * "data source time"<br>
+     * Time the described data was originally retrieved<br>
      */
-    public static final URI REPOSITORY_ID;
-
-
-    /**
-     * http://metaservice.org/ns/metaservice#action<br>
-     * "action is"<br>
-     * The Action denotes the operation.<br>
-     *             These operations determine the time scope on which the statements in the named graph are valid.<br>
-     *             Valid operations are "add", "remove" and continuous.<br>
-     *             A statement which was introduced in a graph which action was "add" is valid until there it occurs in a<br>
-     *             named graph with the action "remove".<br>
-     *             The semantics of "continuous" named graphs is as follows: All statements are valid as long as there is no<br>
-     *             named graph with a newer time and a subset or all same subject properties.<br>
-     */
-    public static final URI ACTION;
-
-
-    /**
-     * http://metaservice.org/ns/metaservice#view<br>
-     * "displayable by template"<br>
-     * Links a class to a metaservice.org template<br>
-     */
-    public static final URI VIEW;
+    public static final URI DATA_TIME;
 
 
     /**
@@ -136,12 +199,17 @@ public class METASERVICE{
     public static final URI LATEST;
 
 
+////////////////////////
+// ANNOTATION PROPERTIES
+////////////////////////
+
+
     /**
-     * http://metaservice.org/ns/metaservice#time<br>
-     * "data source time"<br>
-     * Time the described data was originally retrieved<br>
+     * http://metaservice.org/ns/metaservice#view<br>
+     * "displayable by template"<br>
+     * Links a class to a metaservice.org template<br>
      */
-    public static final URI TIME;
+    public static final URI VIEW_PROPERTY;
 
 
 ////////////////////////
@@ -150,47 +218,39 @@ public class METASERVICE{
 
 
     /**
-     * http://metaservice.org/ns/metaservice#ActionRemove<br>
-     * "Add"<br>
-     * Remove Statements<br>
+     * http://metaservice.org/ns/metaservice#Dummy<br>
      */
-    public static final URI ACTION_REMOVE;
-
-
-    /**
-     * http://metaservice.org/ns/metaservice#ActionAdd<br>
-     * "Add"<br>
-     * Introduce Statements<br>
-     */
-    public static final URI ACTION_ADD;
-
-
-    /**
-     * http://metaservice.org/ns/metaservice#ActionContinuous<br>
-     * "Continuous"<br>
-     * Introduce continuous Statements, which are valid until it is stated otherwise.<br>
-     */
-    public static final URI ACTION_CONTINUOUS;
+    public static final URI DUMMY_THING;
 
 
     static{
         ValueFactory valueFactory = ValueFactoryImpl.getInstance();
 
-        METADATA = valueFactory.createURI(NAMESPACE,"Metadata");
-        SOURCE_SUBJECT = valueFactory.createURI(NAMESPACE,"sourceSubject");
+        SOURCE = valueFactory.createURI(NAMESPACE,"Source");
+        GENERATOR = valueFactory.createURI(NAMESPACE,"Generator");
+        VIEW = valueFactory.createURI(NAMESPACE,"View");
+        PROVIDER = valueFactory.createURI(NAMESPACE,"Provider");
+        MODULE = valueFactory.createURI(NAMESPACE,"Module");
+        ADD_OBSERVATION = valueFactory.createURI(NAMESPACE,"AddObservation");
+        OBSERVATION = valueFactory.createURI(NAMESPACE,"Observation");
+        CONTINUOUS_OBSERVATION = valueFactory.createURI(NAMESPACE,"ContinuousObservation");
+        SOURCE_REPOSITORY = valueFactory.createURI(NAMESPACE,"SourceRepository");
+        REPOSITORY_PATH = valueFactory.createURI(NAMESPACE,"RepositoryPath");
+        REMOVE_OBSERVATION = valueFactory.createURI(NAMESPACE,"RemoveObservation");
+        POSTPROCESSOR = valueFactory.createURI(NAMESPACE,"Postprocessor");
+        SOURCE_PROPERTY = valueFactory.createURI(NAMESPACE,"source");
+        REPOSITORY = valueFactory.createURI(NAMESPACE,"repository");
+        GENERATOR_PROPERTY = valueFactory.createURI(NAMESPACE,"generator");
+        MODULE_PROPERTY = valueFactory.createURI(NAMESPACE,"module");
         DUMMY = valueFactory.createURI(NAMESPACE,"dummy");
-        SOURCE = valueFactory.createURI(NAMESPACE,"source");
+        AUTHORITIVE_SUBJECT = valueFactory.createURI(NAMESPACE,"authoritiveSubject");
         CREATION_TIME = valueFactory.createURI(NAMESPACE,"creationTime");
-        GENERATOR = valueFactory.createURI(NAMESPACE,"generator");
+        ID = valueFactory.createURI(NAMESPACE,"id");
         LAST_CHECKED_TIME = valueFactory.createURI(NAMESPACE,"lastCheckedTime");
         PATH = valueFactory.createURI(NAMESPACE,"path");
-        REPOSITORY_ID = valueFactory.createURI(NAMESPACE,"repositoryId");
-        ACTION = valueFactory.createURI(NAMESPACE,"action");
-        VIEW = valueFactory.createURI(NAMESPACE,"view");
+        DATA_TIME = valueFactory.createURI(NAMESPACE,"dataTime");
         LATEST = valueFactory.createURI(NAMESPACE,"latest");
-        TIME = valueFactory.createURI(NAMESPACE,"time");
-        ACTION_REMOVE = valueFactory.createURI(NAMESPACE,"ActionRemove");
-        ACTION_ADD = valueFactory.createURI(NAMESPACE,"ActionAdd");
-        ACTION_CONTINUOUS = valueFactory.createURI(NAMESPACE,"ActionContinuous");
+        VIEW_PROPERTY = valueFactory.createURI(NAMESPACE,"view");
+        DUMMY_THING = valueFactory.createURI(NAMESPACE,"Dummy");
     }
 }

@@ -1,159 +1,487 @@
+<?xml version="1.0"?>
+
 
 <!DOCTYPE rdf:RDF [
-        <!ENTITY dc "http://purl.org/dc/" >
-        <!ENTITY foaf "http://xmlns.com/foaf/0.1/" >
-        <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
-        <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
-        <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-        <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-        <!ENTITY ms "http://metaservice.org/ns/metaservice#" >
-        ]>
+    <!ENTITY dc "http://purl.org/dc/" >
+    <!ENTITY admssw "http://purl.org/adms/sw/" >
+    <!ENTITY vann "http://purl.org/vocab/vann/" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY metaservice "http://metaservice.org/ns/metaservice#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY vs "http://www.w3.org/2003/06/sw-vocab-status/ns#" >
+]>
 
-<rdf:RDF
-        xml:base="http://metaservice.org/ns/metaservice#"
-        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-        xmlns:owl="http://www.w3.org/2002/07/owl#"
-        xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#"
-        xmlns:dc="http://purl.org/dc/"
-        xmlns:vann="http://purl.org/vocab/vann/"
-        xmlns:foaf="http://xmlns.com/foaf/spec/">
-    <owl:Ontology rdf:about="&ms;">
-        <dc:title>metaservice.org Metadata Ontology</dc:title>
-        <dc:description>This ontology describes the Metadata structure in the metaservice.org database.</dc:description>
-        <dc:creator>Nikola Ilo</dc:creator>
-        <dc:format>application/rdf+xml</dc:format>
-        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+
+<rdf:RDF xmlns="http://metaservice.org/ns/metaservice#"
+     xml:base="http://metaservice.org/ns/metaservice"
+     xmlns:dc="http://purl.org/dc/"
+     xmlns:metaservice="http://metaservice.org/ns/metaservice#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:vann="http://purl.org/vocab/vann/"
+     xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#"
+     xmlns:admssw="http://purl.org/adms/sw/">
+    <owl:Ontology rdf:about="http://metaservice.org/ns/metaservice#">
         <vann:preferredNamespacePrefix>ms</vann:preferredNamespacePrefix>
         <vann:preferredNamespaceUri>http://metaservice.org/ns/metaservice#</vann:preferredNamespaceUri>
-        <foaf:maker>
-            <foaf:Person>
-                <foaf:name>Nikola Ilo</foaf:name>
-                <foaf:mbox rdf:resource="mailto:nikola.ilo@gmail.com"/>
-            </foaf:Person>
-        </foaf:maker>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <dc:description>This ontology describes the Metadata structure in the metaservice.org database.</dc:description>
+        <dc:title>metaservice.org Metadata Ontology</dc:title>
+        <dc:format>application/rdf+xml</dc:format>
     </owl:Ontology>
+    
 
-    <owl:Class rdf:about="&ms;Metadata" vs:term_status="unstable">
-        <rdfs:label>Metadata</rdfs:label>
-        <rdfs:comment>Named graph in the metaservice.org database.</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-    </owl:Class>
 
-    <owl:DatatypeProperty rdf:about="&ms;action" vs:term_status="unstable" >
-        <rdfs:label>action is</rdfs:label>
-        <rdfs:comment>
-            The Action denotes the operation.
-            These operations determine the time scope on which the statements in the named graph are valid.
-            Valid operations are "add", "remove" and continuous.
-            A statement which was introduced in a graph which action was "add" is valid until there it occurs in a
-            named graph with the action "remove".
-            The semantics of "continuous" named graphs is as follows: All statements are valid as long as there is no
-            named graph with a newer time and a subset or all same subject properties.
-        </rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#view -->
+
+    <owl:AnnotationProperty rdf:about="&metaservice;view">
+        <rdfs:label>displayable by template</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>Links a class to a metaservice.org template</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:range rdf:resource="&metaservice;View"/>
+        <rdfs:domain rdf:resource="&rdfs;Class"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- http://www.w3.org/2003/06/sw-vocab-status/ns#term_status -->
+
+    <owl:AnnotationProperty rdf:about="&vs;term_status"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#authoritiveSubject -->
+
+    <owl:ObjectProperty rdf:about="&metaservice;authoritiveSubject">
+        <rdfs:label>produced from</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>Resources which are processed together and are important for the time validity scope of the  observation.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#dummy -->
+
+    <owl:ObjectProperty rdf:about="&metaservice;dummy">
+        <rdfs:label>Dummy Statement</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>A dummy statement - used internally to denote empty results</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#generator -->
+
+    <owl:ObjectProperty rdf:about="&metaservice;generator">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label>generator of data</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>Identifier of the software which was used to create the statements.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:range rdf:resource="&metaservice;Generator"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#module -->
+
+    <owl:ObjectProperty rdf:about="&metaservice;module">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:range rdf:resource="&metaservice;Module"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#repository -->
+
+    <owl:ObjectProperty rdf:about="&metaservice;repository">
+        <rdfs:range rdf:resource="&metaservice;SourceRepository"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#source -->
+
+    <owl:ObjectProperty rdf:about="&metaservice;source">
+        <rdfs:label>retrieved from</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>Links an Observation to ithe source, where its statements were retrieved from.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+        <rdfs:range rdf:resource="&metaservice;Source"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#creationTime -->
+
+    <owl:DatatypeProperty rdf:about="&metaservice;creationTime">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label>created on</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>The time an Observation was created.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
+    
 
-    <owl:DatatypeProperty rdf:about="&ms;path" vs:term_status="unstable">
+
+    <!-- http://metaservice.org/ns/metaservice#dataTime -->
+
+    <owl:DatatypeProperty rdf:about="&metaservice;dataTime">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label>data source time</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>Time the described data was originally retrieved</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#id -->
+
+    <owl:DatatypeProperty rdf:about="&metaservice;id">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label>id</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>metaservice id</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#lastCheckedTime -->
+
+    <owl:DatatypeProperty rdf:about="&metaservice;lastCheckedTime">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label>last checked on</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>The last time the set of statements where checked for changes and found unchanged.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#latest -->
+
+    <owl:DatatypeProperty rdf:about="&metaservice;latest">
+        <rdfs:label>valid on date</rdfs:label>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:comment>valid for postprocessors. Calculated validity of the statements for the given date.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;Observation"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#path -->
+
+    <owl:DatatypeProperty rdf:about="&metaservice;path">
         <rdfs:label>originates from Path</rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+        <rdfs:domain rdf:resource="&metaservice;RepositoryPath"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-
-    <owl:DatatypeProperty rdf:about="&ms;time" vs:term_status="unstable">
-        <rdfs:label>data source time</rdfs:label>
-        <rdfs:comment>Time the described data was originally retrieved</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
-    </owl:DatatypeProperty>
-
-    <owl:DatatypeProperty rdf:about="&ms;generator" vs:term_status="unstable">
-        <rdfs:label>generator of data</rdfs:label>
-        <rdfs:comment>Identifier of the software which was used to create the statements.</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
-    </owl:DatatypeProperty>
-
-    <owl:DatatypeProperty rdf:about="&ms;creationTime" vs:term_status="unstable">
-        <rdfs:label>created on</rdfs:label>
-        <rdfs:comment>The time this set of changes where created.</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
-    </owl:DatatypeProperty>
-
-    <owl:DatatypeProperty rdf:about="&ms;lastCheckedTime" vs:term_status="unstable">
-        <rdfs:label>last checked on</rdfs:label>
-        <rdfs:comment>The last time the set of statements where checked for changes and found unchanged.</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
-    </owl:DatatypeProperty>
-
-    <owl:DatatypeProperty rdf:about="&ms;source" vs:term_status="unstable">
-        <rdfs:label>retrieved from</rdfs:label>
-        <rdfs:comment>uri of the archive, where the statements were retrieved from</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
-    </owl:DatatypeProperty>
-
-    <owl:DatatypeProperty rdf:about="&ms;repositoryId" vs:term_status="unstable">
-        <rdfs:label>repository</rdfs:label>
-        <rdfs:comment>id of the repository this was retrieved from</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
-    </owl:DatatypeProperty>
+    
 
 
-    <owl:DatatypeProperty rdf:about="&ms;latest" vs:term_status="unstable">
-        <rdfs:label>valid on date</rdfs:label>
-        <rdfs:comment>valid for postprocessors. Calculated validity of the statements for the given date.</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&ms;Metadata"/>
-    </owl:DatatypeProperty>
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
 
-    <owl:DatatypeProperty rdf:about="&ms;view" vs:term_status="unstable">
-        <rdfs:label>displayable by template</rdfs:label>
-        <rdfs:comment>Links a class to a metaservice.org template</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-        <rdfs:domain rdf:resource="&rdfs;Class"/>
-    </owl:DatatypeProperty>
-
-    <owl:ObjectProperty rdf:about="&ms;sourceSubject" vs:term_status="unstable">
-        <rdfs:label>produced from</rdfs:label>
-        <rdfs:comment>Resources which are processed together and are important for the time validity scope of the
-            named graph</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-    </owl:ObjectProperty>
+    
 
 
-    <owl:ObjectProperty rdf:about="&ms;dummy" vs:term_status="unstable">
-        <rdfs:label>Dummy Statement</rdfs:label>
-        <rdfs:comment>A dummy statement - used internally to denote empty results</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-    </owl:ObjectProperty>
+    <!-- http://metaservice.org/ns/metaservice#AddObservation -->
+
+    <owl:Class rdf:about="&metaservice;AddObservation">
+        <rdfs:subClassOf rdf:resource="&metaservice;Observation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;generator"/>
+                <owl:onClass rdf:resource="&metaservice;Provider"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
 
 
-    <owl:NamedIndividual rdf:about="&ms;ActionAdd">
-        <rdf:type rdf:resource="&owl;Thing"/>
+    <!-- http://metaservice.org/ns/metaservice#ContinuousObservation -->
+
+    <owl:Class rdf:about="&metaservice;ContinuousObservation">
+        <rdfs:subClassOf rdf:resource="&metaservice;Observation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;generator"/>
+                <owl:onClass rdf:resource="&metaservice;Postprocessor"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#Generator -->
+
+    <owl:Class rdf:about="&metaservice;Generator">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;module"/>
+                <owl:onClass rdf:resource="&metaservice;Module"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;id"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#Module -->
+
+    <owl:Class rdf:about="&metaservice;Module">
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwarePackage"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;id"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#Observation -->
+
+    <owl:Class rdf:about="&metaservice;Observation">
+        <rdfs:label>Observation</rdfs:label>
+        <rdfs:comment>Observations are named graphs, which contain information produced by a generator.</rdfs:comment>
+        <vs:term_status>unstable</vs:term_status>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#Postprocessor -->
+
+    <owl:Class rdf:about="&metaservice;Postprocessor">
+        <rdfs:subClassOf rdf:resource="&metaservice;Generator"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#Provider -->
+
+    <owl:Class rdf:about="&metaservice;Provider">
+        <rdfs:subClassOf rdf:resource="&metaservice;Generator"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#RemoveObservation -->
+
+    <owl:Class rdf:about="&metaservice;RemoveObservation">
+        <rdfs:subClassOf rdf:resource="&metaservice;Observation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;generator"/>
+                <owl:onClass rdf:resource="&metaservice;Provider"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#RepositoryPath -->
+
+    <owl:Class rdf:about="&metaservice;RepositoryPath">
+        <rdfs:subClassOf rdf:resource="&metaservice;Source"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;repository"/>
+                <owl:onClass rdf:resource="&metaservice;SourceRepository"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#Source -->
+
+    <owl:Class rdf:about="&metaservice;Source">
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#SourceRepository -->
+
+    <owl:Class rdf:about="&metaservice;SourceRepository">
+        <rdfs:subClassOf rdf:resource="&admssw;SoftwareRepository"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;module"/>
+                <owl:onClass rdf:resource="&metaservice;Module"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#View -->
+
+    <owl:Class rdf:about="&metaservice;View">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&metaservice;module"/>
+                <owl:onClass rdf:resource="&metaservice;Module"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwarePackage -->
+
+    <owl:Class rdf:about="&admssw;SoftwarePackage">
+        <rdfs:isDefinedBy>http://purl.org/adms/sw/</rdfs:isDefinedBy>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/adms/sw/SoftwareRepository -->
+
+    <owl:Class rdf:about="&admssw;SoftwareRepository"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#ActionAdd -->
+
+    <owl:NamedIndividual rdf:about="&metaservice;ActionAdd">
         <rdfs:label>Add</rdfs:label>
         <rdfs:comment>Introduce Statements</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
     </owl:NamedIndividual>
+    
 
-    <owl:NamedIndividual rdf:about="&ms;ActionRemove">
-        <rdf:type rdf:resource="&owl;Thing"/>
-        <rdfs:label>Add</rdfs:label>
-        <rdfs:comment>Remove Statements</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
-    </owl:NamedIndividual>
 
-    <owl:NamedIndividual rdf:about="&ms;ActionContinuous">
-        <rdf:type rdf:resource="&owl;Thing"/>
+    <!-- http://metaservice.org/ns/metaservice#ActionContinuous -->
+
+    <owl:NamedIndividual rdf:about="&metaservice;ActionContinuous">
         <rdfs:label>Continuous</rdfs:label>
         <rdfs:comment>Introduce continuous Statements, which are valid until it is stated otherwise.</rdfs:comment>
-        <rdfs:isDefinedBy rdf:resource="&ms;"/>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
     </owl:NamedIndividual>
+    
 
 
+    <!-- http://metaservice.org/ns/metaservice#ActionRemove -->
+
+    <owl:NamedIndividual rdf:about="&metaservice;ActionRemove">
+        <rdfs:label>Add</rdfs:label>
+        <rdfs:comment>Remove Statements</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice#"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice#Dummy -->
+
+    <owl:Thing rdf:about="&metaservice;Dummy">
+        <rdf:type rdf:resource="&owl;NamedIndividual"/>
+    </owl:Thing>
 </rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
+

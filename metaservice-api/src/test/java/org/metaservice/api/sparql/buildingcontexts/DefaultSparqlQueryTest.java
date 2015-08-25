@@ -74,7 +74,7 @@ public class DefaultSparqlQueryTest {
                                 var(time)
                         )
                                 .where(
-                                        triplePattern(resource, METASERVICE.TIME, valueFactory.createLiteral(new Date())),
+                                        triplePattern(resource, METASERVICE.DATA_TIME, valueFactory.createLiteral(new Date())),
                                         filter(
                                                 and(
                                                         sameTerm(val(time), val(time)),
@@ -192,11 +192,11 @@ public class DefaultSparqlQueryTest {
                                 quadPattern(resource, RDFS.LABEL, title,g3),
                                 quadPattern(resource, DEB.VERSION, version,g4),
                                 quadPattern(resource, DEB.ARCHITECTURE, arch,g5),
-                                triplePattern(g1,METASERVICE.TIME,t1),
-                                triplePattern(g2,METASERVICE.TIME,t2),
-                                triplePattern(g3,METASERVICE.TIME,t3),
-                                triplePattern(g4,METASERVICE.TIME,t4),
-                                triplePattern(g5,METASERVICE.TIME,t5),
+                                triplePattern(g1,METASERVICE.DATA_TIME,t1),
+                                triplePattern(g2,METASERVICE.DATA_TIME,t2),
+                                triplePattern(g3,METASERVICE.DATA_TIME,t3),
+                                triplePattern(g4,METASERVICE.DATA_TIME,t4),
+                                triplePattern(g5,METASERVICE.DATA_TIME,t5),
                                 filter(lessOrEqual(val(t1),val(tselected))),
                                 filter(lessOrEqual(val(t2),val(tselected))),
                                 filter(lessOrEqual(val(t3),val(tselected))),
@@ -243,11 +243,11 @@ public class DefaultSparqlQueryTest {
                                 include("sub3"),
                                 include("sub4"),
                                 include("sub5"),
-                                triplePattern(g1, METASERVICE.ACTION, METASERVICE.ACTION_ADD),
-                                triplePattern(g2, METASERVICE.ACTION, METASERVICE.ACTION_ADD),
-                                triplePattern(g3, METASERVICE.ACTION, METASERVICE.ACTION_ADD),
-                                triplePattern(g4,METASERVICE.ACTION, METASERVICE.ACTION_ADD),
-                                triplePattern(g5,METASERVICE.ACTION, METASERVICE.ACTION_ADD)
+                                triplePattern(g1, RDF.TYPE, METASERVICE.ADD_OBSERVATION),
+                                triplePattern(g2, RDF.TYPE, METASERVICE.ADD_OBSERVATION),
+                                triplePattern(g3, RDF.TYPE, METASERVICE.ADD_OBSERVATION),
+                                triplePattern(g4, RDF.TYPE, METASERVICE.ADD_OBSERVATION),
+                                triplePattern(g5, RDF.TYPE, METASERVICE.ADD_OBSERVATION)
                         )
                         .build(true);
             }

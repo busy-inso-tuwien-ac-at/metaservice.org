@@ -54,7 +54,7 @@
     <ontology
             name="metaservice.rdf" apply="true" distribute="true"/>
     <ontology
-            name="metaservice-swdep.rdf" apply="true" distribute="true"/>
+            name="metaservice-swrel.rdf" apply="true" distribute="true"/>
 
 
 </metaservice>

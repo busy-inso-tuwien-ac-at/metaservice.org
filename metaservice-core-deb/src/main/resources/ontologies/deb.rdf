@@ -16,7 +16,7 @@
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY deb "http://metaservice.org/ns/deb#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-    <!ENTITY swdep "http://metaservice.org/ns/metaservice-swdep#" >
+    <!ENTITY swrel "http://metaservice.org/ns/metaservice-swrel#" >
 ]>
 
 
@@ -36,7 +36,7 @@
      xmlns:doap="http://usefulinc.com/ns/doap#"
      xmlns:admssw="http://purl.org/adms/sw/"
      xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-     xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#">
+     xmlns:swrel="http://metaservice.org/ns/metaservice-swrel#">
     <owl:Ontology rdf:about="http://metaservice.org/ns/deb#">
         <dc:title>Metaservice Debian Ontology</dc:title>
         <dc:creator>Nikola Ilo</dc:creator>
@@ -46,7 +46,7 @@
         <vann:preferredNamespacePrefix>deb</vann:preferredNamespacePrefix>
         <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
         <dc:description xml:lang="de">TODO</dc:description>
-        <owl:imports rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <owl:imports rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
         <owl:versionIRI rdf:resource="http://metaservice.org/ns/deb/0.1"/>
         <owl:imports rdf:resource="http://purl.org/adms/sw/"/>
         <owl:imports rdf:resource="http://www.w3.org/ns/adms"/>
@@ -71,10 +71,10 @@
     <owl:ObjectProperty rdf:about="&deb;breaks">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -85,10 +85,10 @@
     <owl:ObjectProperty rdf:about="&deb;buildConflicts">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -99,10 +99,10 @@
     <owl:ObjectProperty rdf:about="&deb;buildConflictsIndep">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -113,9 +113,9 @@
     <owl:ObjectProperty rdf:about="&deb;buildDepends">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -126,9 +126,9 @@
     <owl:ObjectProperty rdf:about="&deb;buildDependsIndep">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsBuild"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -140,7 +140,7 @@
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
     </owl:ObjectProperty>
     
 
@@ -150,10 +150,10 @@
     <owl:ObjectProperty rdf:about="&deb;conflicts">
         <rdfs:label>is in Conflict with</rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;antiDepends"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;antiDepends"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -164,9 +164,9 @@
     <owl:ObjectProperty rdf:about="&deb;depends">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -222,9 +222,9 @@
     <owl:ObjectProperty rdf:about="&deb;preDepends">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;requires"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;requires"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -236,7 +236,7 @@
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;implements"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;implements"/>
     </owl:ObjectProperty>
     
 
@@ -246,9 +246,9 @@
     <owl:ObjectProperty rdf:about="&deb;recommends">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;optional"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     
@@ -260,7 +260,7 @@
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;relatedSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
     </owl:ObjectProperty>
     
 
@@ -296,7 +296,7 @@
         <rdfs:comment></rdfs:comment>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
         <rdfs:domain rdf:resource="&deb;DebArchive"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;source"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;source"/>
     </owl:ObjectProperty>
     
 
@@ -306,9 +306,9 @@
     <owl:ObjectProperty rdf:about="&deb;suggests">
         <rdfs:label></rdfs:label>
         <rdfs:comment></rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsRuntime"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;dependsSoftware"/>
-        <rdfs:subPropertyOf rdf:resource="&swdep;optional"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsRuntime"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;optional"/>
         <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/deb#"/>
     </owl:ObjectProperty>
     

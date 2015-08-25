@@ -3,7 +3,7 @@
           xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
           xmlns:foaf="http://xmlns.com/foaf/0.1/"
           xmlns:admssw="http://purl.org/adms/sw/"
-          xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#"
+          xmlns:swrel="http://metaservice.org/ns/metaservice-swrel#"
           xmlns="http://usefulinc.com/ns/doap#"
           rdf:about="http://metaservice.org/demo/project-d">
     <name>project-d</name>
@@ -27,8 +27,8 @@
             <created>2013-12-11</created>
             <revision>10.9.8</revision>
             <license rdf:resource="http://spdx.org/licenses/GPL-2.0" />
-            <swdep:links rdf:resource="http://metaservice.org/demo/demo-gplv2-lib#10.9.8"/>
-            <swdep:requires rdf:resource="http://metaservice.org/demo/demo-gplv2-lib#10.9.8"/>
+            <swrel:links rdf:resource="http://metaservice.org/demo/demo-gplv2-lib#10.9.8"/>
+            <swrel:requires rdf:resource="http://metaservice.org/demo/demo-gplv2-lib#10.9.8"/>
         </Version>
     </release>
 

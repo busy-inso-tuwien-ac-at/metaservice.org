@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.metaservice</groupId>
         <artifactId>metaservice-parent</artifactId>
-        <version>0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
         <relativePath>../metaservice-parent</relativePath>
     </parent>
 
     <artifactId>metaservice-frontend-rest</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-core</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>

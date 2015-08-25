@@ -5,13 +5,13 @@
     <parent>
         <artifactId>metaservice-parent</artifactId>
         <groupId>org.metaservice</groupId>
-        <version>0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
         <relativePath>../metaservice-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>metaservice-kryonet</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>kryonet</groupId>
@@ -26,12 +26,12 @@
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.metaservice</groupId>
             <artifactId>metaservice-api-messaging</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mongojack</groupId>

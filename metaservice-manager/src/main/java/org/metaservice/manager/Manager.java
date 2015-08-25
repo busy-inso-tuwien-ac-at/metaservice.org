@@ -110,7 +110,7 @@ public class Manager {
     public void postProcessAllByClass(URI clazz) throws ManagerException {
 
         try {
-            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT *  WITH {SELECT DISTINCT ?x ?time { {{ GRAPH ?c { ?a ?b ?x.?x a <"+clazz+">.} } UNION { GRAPH ?c { ?x ?b ?a.?x a <"+clazz+">. }}} ?c <"+METASERVICE.TIME+"> ?time} } AS %data WHERE {INCLUDE %data} ORDER BY  ?time");
+            TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT *  WITH {SELECT DISTINCT ?x ?time { {{ GRAPH ?c { ?a ?b ?x.?x a <"+clazz+">.} } UNION { GRAPH ?c { ?x ?b ?a.?x a <"+clazz+">. }}} ?c <"+METASERVICE.DATA_TIME+"> ?time} } AS %data WHERE {INCLUDE %data} ORDER BY  ?time");
             TupleQueryResult result =tupleQuery.evaluate();
             ArrayList<PostProcessingTask> postProcessingTasks = new ArrayList<>();
             while (result.hasNext()){
@@ -132,13 +132,13 @@ public class Manager {
     public void buildIterativeCache() throws ManagerException{
         try {
             TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,
-                    "SELECT DISTINCT ?time ?action ?path WHERE { ?c <"+RDF.TYPE+"> <" + METASERVICE.METADATA+ "> ;<"+METASERVICE.TIME+"> ?time; <"+ METASERVICE.ACTION+"> ?action; <"+ METASERVICE.PATH+"> ?path } ORDER BY ?time");
+                    "SELECT DISTINCT ?time ?type ?path WHERE { ?c a <" + METASERVICE.OBSERVATION+ "> ;<"+METASERVICE.DATA_TIME+"> ?time; a ?type; <"+ METASERVICE.PATH+"> ?path } ORDER BY ?time");
             TupleQueryResult timeResult =tupleQuery.evaluate();
 
 
             class ResultTuple{
                 Value time;
-                Value action;
+                Value type;
                 Value path;
                 URI selectedURI;
             }
@@ -150,7 +150,7 @@ public class Manager {
                 BindingSet bs = timeResult.next();
                 ResultTuple resultTuple = new ResultTuple();
                 resultTuple.time = bs.getValue("time");
-                resultTuple.action = bs.getValue("action");
+                resultTuple.type = bs.getValue("type");
                 resultTuple.path = bs.getValue("path");
                 resultTuple.selectedURI = valueFactory.createURI("http://metaservice.org/t/"+resultTuple.path.stringValue());
                 intermediateResults.add(resultTuple.selectedURI);
@@ -162,23 +162,23 @@ public class Manager {
                 repositoryConnection.clear(uri);
             }
             for(ResultTuple tuple : list){
-                if(!tuple.action.equals(METASERVICE.ACTION_CONTINUOUS)) {
-                    LOGGER.info("doing {} {} {} {}",tuple.selectedURI, tuple.time.stringValue(), tuple.path.stringValue(), tuple.action.stringValue());
-                    if(tuple.action.equals(METASERVICE.ACTION_ADD)){
+                if(!tuple.type.equals(METASERVICE.CONTINUOUS_OBSERVATION)) {
+                    LOGGER.info("doing {} {} {} {}",tuple.selectedURI, tuple.time.stringValue(), tuple.path.stringValue(), tuple.type.stringValue());
+                    if(tuple.type.equals(METASERVICE.ADD_OBSERVATION)){
                          Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,
-                                 "INSERT {GRAPH ?c {?s ?p ?o}. ?c <rdf:type> <http://quargl>} WHERE {GRAPH ?x {?s ?p ?o}. ?x <"+METASERVICE.TIME+"> ?time; <"+METASERVICE.ACTION+"> ?action; <"+METASERVICE.PATH+"> ?path}");
+                                 "INSERT {GRAPH ?c {?s ?p ?o}. ?c <rdf:type> <http://quargl>} WHERE {GRAPH ?x {?s ?p ?o}. ?x <"+METASERVICE.DATA_TIME+"> ?time; a ?type; <"+METASERVICE.PATH+"> ?path}");
                         update.setBinding("c",tuple.selectedURI);
                         update.setBinding("time",tuple.time);
                         update.setBinding("path",tuple.path);
-                        update.setBinding("action",tuple.action);
+                        update.setBinding("type",tuple.type);
                         update.execute();
-                    }else{
+                    }else if (tuple.type.equals(METASERVICE.REMOVE_OBSERVATION)){
                         Update update = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,
-                                "DELETE {GRAPH ?c {?s ?p ?o}} WHERE {GRAPH ?x {?s ?p ?o}. ?x <"+METASERVICE.TIME+"> ?time; <"+METASERVICE.ACTION+"> ?action; <"+METASERVICE.PATH+"> ?path}");
+                                "DELETE {GRAPH ?c {?s ?p ?o}} WHERE {GRAPH ?x {?s ?p ?o}. ?x <"+METASERVICE.DATA_TIME+"> ?time; a ?type; <"+METASERVICE.PATH+"> ?path}");
                         update.setBinding("c",tuple.selectedURI);
                         update.setBinding("time",tuple.time);
                         update.setBinding("path",tuple.path);
-                        update.setBinding("action",tuple.action);
+                        update.setBinding("type",tuple.type);
                         update.execute();
                     }
                 }
@@ -208,14 +208,14 @@ public class Manager {
             Update  update  =repositoryConnection.prepareUpdate(QueryLanguage.SPARQL,
                 " INSERT { GRAPH ?latestGraph { ?context <"+METASERVICE.LATEST+"> ?latesttime }}" +
                         "WHERE {{\n" +
-                    "?context <"+METASERVICE.TIME+"> ?maxtime; <"+METASERVICE.GENERATOR+"> ?generator;\n" +
-                    "<"+METASERVICE.SOURCE_SUBJECT +"> ?subject.\n" +
+                    "?context <"+METASERVICE.DATA_TIME+"> ?maxtime; <"+METASERVICE.GENERATOR+"> ?generator;\n" +
+                    "<"+METASERVICE.AUTHORITIVE_SUBJECT +"> ?subject.\n" +
                     "{\n" +
                     "   SELECT (count(?c) as ?count) (max(?time) as ?maxtime) ?generator ?subject {" +
-                    "       ?c <"+METASERVICE.ACTION+"> <"+METASERVICE.ACTION_CONTINUOUS+">;" +
-                    "       <" +METASERVICE.SOURCE_SUBJECT + "> ?subject;" +
+                    "       ?c a <"+METASERVICE.CONTINUOUS_OBSERVATION+">;" +
+                    "       <" +METASERVICE.AUTHORITIVE_SUBJECT + "> ?subject;" +
                     "       <"+METASERVICE.GENERATOR+"> ?generator;" +
-                    "       <" + METASERVICE.TIME+ "> ?time." +
+                    "       <" + METASERVICE.DATA_TIME+ "> ?time." +
                     "       FILTER( ?time <= ?latesttime)"+
                     "  } group by ?subject ?generator\n" +
                     "}\n" +
@@ -296,13 +296,13 @@ public class Manager {
                 .predicate(METASERVICE.DUMMY)
                 .object(METASERVICE.DUMMY)
                 .execute();
-        result.add(new StatementStatisticsEntry("Empty/Dummy Graphs", mutationResult.getRangeCount()));
+        result.add(new StatementStatisticsEntry("Empty/Dummy Observations", mutationResult.getRangeCount()));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
-                .object(METASERVICE.METADATA)
+                .object(METASERVICE.OBSERVATION)
                 .execute();
-        result.add(new StatementStatisticsEntry("Graphs", mutationResult.getRangeCount()));
+        result.add(new StatementStatisticsEntry("Observations", mutationResult.getRangeCount()));
         mutationResult = new FastRangeCountRequestBuilder()
                 .path(config.getSparqlEndpoint())
                 .predicate(RDF.TYPE)
@@ -437,12 +437,12 @@ public class Manager {
 
         Value timeLiteral = valueFactory.createLiteral(new Date(0));
         repositoryConnection.begin();
-        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
-        repositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral,metadata);
-        repositoryConnection.add(metadata, METASERVICE.ACTION,METASERVICE.ACTION_ADD,metadata);
+        repositoryConnection.add(metadata,RDF.TYPE, METASERVICE.OBSERVATION,metadata);
+        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.ADD_OBSERVATION, metadata);
+        repositoryConnection.add(metadata, METASERVICE.DATA_TIME, timeLiteral,metadata);
         repositoryConnection.add(metadata, METASERVICE.PATH,valueFactory.createLiteral(descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata); //required to be seen as normal add operation -> add is only valid per path see sparql
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()),metadata);
-        repositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, metadata,metadata);
+        repositoryConnection.add(metadata, METASERVICE.SOURCE_PROPERTY, metadata,metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getModuleIdentifierStringFromModule(moduleInfo)),metadata);
         repositoryConnection.commit();
         return metadata;
@@ -463,6 +463,7 @@ public class Manager {
         if(removeData){
             removeData(descriptor);
         }
+        saveConfig();
     }
 
     private void removeData(MetaserviceDescriptor descriptor) throws ManagerException {
@@ -486,7 +487,7 @@ public class Manager {
 
     private void removeDataFromGenerator(String generator) throws ManagerException {
         try {
-            TupleQuery repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata { ?metadata a <" + METASERVICE.METADATA + ">;  <" + METASERVICE.GENERATOR + "> ?generator }");
+            TupleQuery repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata { ?metadata a <" + METASERVICE.OBSERVATION + ">;  <" + METASERVICE.GENERATOR + "> ?generator }");
             repoSelect.setBinding("generator",valueFactory.createLiteral(generator));
             TupleQueryResult queryResult =repoSelect.evaluate();
             ArrayList<URI> uris = new ArrayList<>();
@@ -756,7 +757,7 @@ public class Manager {
     public @NotNull Statement getTemplateStatement(@NotNull MetaserviceDescriptor.TemplateDescriptor templateDescriptor){
         URI subject= valueFactory.createURI(templateDescriptor.getAppliesTo());
         Literal filename = valueFactory.createLiteral(templateDescriptor.getName());
-        return valueFactory.createStatement(subject, METASERVICE.VIEW,filename);
+        return valueFactory.createStatement(subject, METASERVICE.VIEW_PROPERTY,filename);
     }
 
 

@@ -76,8 +76,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher implements org.me
         this.providerDescriptor = providerDescriptor;
         this.metaserviceDescriptor = metaserviceDescriptor;
         this.descriptorHelper = descriptorHelper;
-        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repositoryId ?source ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.METADATA+">;  <" + METASERVICE.SOURCE + "> ?source; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.REPOSITORY_ID+"> ?repositoryId.}");
-        oldGraphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?metadata { ?metadata a <"+METASERVICE.METADATA+">; <"+ METASERVICE.SOURCE + "> ?source; <" + METASERVICE.TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.REPOSITORY_ID+"> ?repositoryId.}");
+        repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?repositoryId ?source ?time ?path ?metadata { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+METASERVICE.OBSERVATION+">;  <" + METASERVICE.SOURCE + "> ?source; <" + METASERVICE.DATA_TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.SOURCE_PROPERTY+"> ?repositoryId.}");
+        oldGraphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL,"SELECT DISTINCT ?metadata { ?metadata a <"+METASERVICE.OBSERVATION+">; <"+ METASERVICE.SOURCE + "> ?source; <" + METASERVICE.DATA_TIME + "> ?time; <" + METASERVICE.PATH + "> ?path; <"+METASERVICE.SOURCE_PROPERTY+"> ?repositoryId.}");
         this.loadedStatements = loadedStatements.getStatements();
     }
 
@@ -172,8 +172,8 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher implements org.me
             //let gc collect rest of contents
             contents = null;
             LOGGER.debug("finished parsing");
-            URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,METASERVICE.ACTION_ADD);
-            URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,METASERVICE.ACTION_REMOVE);
+            URI metadataAdd =  generateMetadata(archiveAddress, repositoryConnection,METASERVICE.ADD_OBSERVATION);
+            URI metadataRemove =  generateMetadata(archiveAddress,repositoryConnection,METASERVICE.REMOVE_OBSERVATION);
 
             HashSet<Statement> nowSet = new HashSet<>();
             nowSet.addAll(nowGeneratedStatements);
@@ -256,7 +256,7 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher implements org.me
         refreshEntry(archiveAddress, oldGraphs);
     }
 
-    private URI generateMetadata(ArchiveAddress address, RepositoryConnection resultRepositoryConnection,URI action) throws RepositoryException {
+    private URI generateMetadata(ArchiveAddress address, RepositoryConnection resultRepositoryConnection,URI subType) throws RepositoryException {
         // todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + provider.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         Value idLiteral = valueFactory.createLiteral(address.getRepository());
@@ -264,13 +264,14 @@ public class ProviderDispatcher<T>  extends AbstractDispatcher implements org.me
         Value timeLiteral = valueFactory.createLiteral(address.getTime());
         Value repoLiteral = valueFactory.createLiteral(address.getArchiveUri());
         resultRepositoryConnection.begin();
-        resultRepositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
-        resultRepositoryConnection.add(metadata, METASERVICE.ACTION, action, metadata);
+        resultRepositoryConnection.add(metadata, RDF.TYPE, METASERVICE.OBSERVATION,metadata);
+        resultRepositoryConnection.add(metadata, RDF.TYPE, subType, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.PATH, pathLiteral, metadata);
-        resultRepositoryConnection.add(metadata, METASERVICE.TIME, timeLiteral, metadata);
+        resultRepositoryConnection.add(metadata, METASERVICE.DATA_TIME, timeLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.SOURCE, repoLiteral, metadata);
-        resultRepositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, valueFactory.createLiteral(address.getArchiveUri()+ address.getPath()), metadata);
-        resultRepositoryConnection.add(metadata, METASERVICE.REPOSITORY_ID, idLiteral, metadata);
+        //TODO probably introduced a bug by uncommenting
+        //resultRepositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, valueFactory.createLiteral(address.getArchiveUri()+ address.getPath()), metadata);
+        resultRepositoryConnection.add(metadata, METASERVICE.SOURCE_PROPERTY, idLiteral, metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(new Date()), metadata);
         resultRepositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromProvider(metaserviceDescriptor.getModuleInfo(), providerDescriptor)), metadata);
         resultRepositoryConnection.commit();

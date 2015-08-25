@@ -6,7 +6,7 @@
 
     <groupId>org.metaservice</groupId>
     <artifactId>metaservice-parent</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <modules>
         <module>../metaservice-core-file</module>
         <module>../metaservice-demo-securityalert</module>

@@ -110,21 +110,21 @@ Handlebars.registerHelper('provenance',function(context,predicate){
 Handlebars.registerHelper('dependencyTag',function(context,predicate){
     var result ="";
     var depRelations = {
-        "ms-swdep:antiDepends": "AntiDependency",
-        "ms-swdep:dependsBuild": "Build",
-        "ms-swdep:dependsTest": "Test",
-        "ms-swdep:dependsInstallation": "Installation",
-        "ms-swdep:dependsRuntime": "Runtime",
-        "ms-swdep:dependsSoftware": "Software",
-        "ms-swdep:optional": "Optional",
-        "ms-swdep:pluginOf": "Plugin",
-        "ms-swdep:requires": "Required",
-        "ms-swdep:dependsCompiler": "Compiler",
-        "ms-swdep:dependsInterpreter": "Interpreter",
-        "ms-swdep:links": "Link",
-        "ms-swdep:dependsStandalone": "Standalone",
-        "ms-swdep:dependsMiddleware": "Middleware",
-        "ms-swdep:dependsService": "Service"
+        "ms-swrel:antiDepends": "AntiDependency",
+        "ms-swrel:dependsBuild": "Build",
+        "ms-swrel:dependsTest": "Test",
+        "ms-swrel:dependsInstallation": "Installation",
+        "ms-swrel:dependsRuntime": "Runtime",
+        "ms-swrel:dependsSoftware": "Software",
+        "ms-swrel:optional": "Optional",
+        "ms-swrel:pluginOf": "Plugin",
+        "ms-swrel:requires": "Required",
+        "ms-swrel:dependsCompiler": "Compiler",
+        "ms-swrel:dependsInterpreter": "Interpreter",
+        "ms-swrel:links": "Link",
+        "ms-swrel:dependsStandalone": "Standalone",
+        "ms-swrel:dependsMiddleware": "Middleware",
+        "ms-swrel:dependsService": "Service"
     };
     var fun = function(a,x){
         result += "<li>";
@@ -148,8 +148,8 @@ Handlebars.registerHelper('dependencyTag',function(context,predicate){
                 }else{
                     description = obj["ms:id"];
                 }
-                if( obj["ms-swdep:projectConstraint"]){
-                    result += "<a href=\""+handlebarsURI(obj["ms-swdep:projectConstraint"])+"\">" + description + "</a>";
+                if( obj["ms-swrel:projectConstraint"]){
+                    result += "<a href=\""+handlebarsURI(obj["ms-swrel:projectConstraint"])+"\">" + description + "</a>";
                 }else{
                     result += "<a href=\""+handlebarsURI(obj)+"\">" + description + "</a>";
                 }
@@ -169,8 +169,8 @@ Handlebars.registerHelper('dependencyTag',function(context,predicate){
             }else{
                 description = obj["ms:id"];
             }
-            if( obj["ms-swdep:projectConstraint"]){
-                result += "<a href=\""+handlebarsURI(obj["ms-swdep:projectConstraint"])+"\">" + description + "</a>";
+            if( obj["ms-swrel:projectConstraint"]){
+                result += "<a href=\""+handlebarsURI(obj["ms-swrel:projectConstraint"])+"\">" + description + "</a>";
             }else{
                 result += "<a href=\""+handlebarsURI(obj)+"\">" + description + "</a>";
             }
@@ -190,10 +190,10 @@ Handlebars.registerHelper('dependencyTag',function(context,predicate){
         });
         result += "</li>";
     };
-    if(context["ms-swdep:depends"]){
-        $.each(context["ms-swdep:depends"],fun);
-    }else if(context["ms-swdep:dependsSoftware"]){ //workaround temporary for presentation -> debProvider did not include ms-swdep ontology, didn't want to restart the process
-        $.each(context["ms-swdep:dependsSoftware"],fun);
+    if(context["ms-swrel:depends"]){
+        $.each(context["ms-swrel:depends"],fun);
+    }else if(context["ms-swrel:dependsSoftware"]){ //workaround temporary for presentation -> debProvider did not include ms-swrel ontology, didn't want to restart the process
+        $.each(context["ms-swrel:dependsSoftware"],fun);
     }
     return new Handlebars.SafeString(result);
 });

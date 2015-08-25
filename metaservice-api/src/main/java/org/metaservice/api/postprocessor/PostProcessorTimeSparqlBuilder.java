@@ -9,6 +9,7 @@ import org.metaservice.api.sparql.buildingcontexts.SparqlQuery;
 import org.metaservice.api.sparql.nodes.*;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +110,7 @@ public class PostProcessorTimeSparqlBuilder extends AbstractDeferredQueryBuilder
                             .where(
                                     include("heuristic"),
                                     filter(lessOrEqual(val(time), val(getDateVariable()))),
-                                    triplePattern(c, METASERVICE.TIME, time)
+                                    triplePattern(c, METASERVICE.DATA_TIME, time)
 
                             );
                     for(QuadPattern quadPattern : contextMap.get(c)){
@@ -121,8 +122,8 @@ public class PostProcessorTimeSparqlBuilder extends AbstractDeferredQueryBuilder
                     );
                     selectQueryBuilder.where(
                             include(name),
-                            triplePattern(c, METASERVICE.TIME, time),
-                            triplePattern(c, METASERVICE.ACTION,METASERVICE.ACTION_ADD)
+                            triplePattern(c, METASERVICE.DATA_TIME, time),
+                            triplePattern(c, RDF.TYPE,METASERVICE.ADD_OBSERVATION)
                     );
                 }
                 selectQueryBuilder

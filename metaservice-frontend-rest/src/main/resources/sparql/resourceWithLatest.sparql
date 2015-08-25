@@ -3,14 +3,8 @@ CONSTRUCT {_QUADMODE_
 }
 WITH {
     SELECT DISTINCT ?c ?s ?p ?o {
-#        {
-                BIND ($path AS ?s).
-                GRAPH ?c{ ?s ?p ?o}.
-#        }UNION{
-#                BIND ($path AS ?s).
-#                ?s (owl:sameAs|^owl:sameAs)* ?same.
-#                GRAPH ?c{ ?same ?p ?o}.
-#        }
+        BIND ($path AS ?s).
+        GRAPH ?c{ ?s ?p ?o}.
         FILTER (?p != <http://metaservice.org/ns/metaservice#dummy>).
     }
 } AS %level1
@@ -18,15 +12,9 @@ WITH {
 WITH {
     SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
         SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
-#           {
-                INCLUDE %level1filtered.
-                GRAPH ?c2{ ?o ?p2 ?o2}.
-#           }UNION{
-#                INCLUDE %level1filtered.
-#                ?o (owl:sameAs|^owl:sameAs)* ?same.
-#                GRAPH ?c2{ ?same ?p2 ?o2}.
-#            }
-            FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
+            INCLUDE %level1filtered.
+            GRAPH ?c2{ ?o ?p2 ?o2}.
+            FILTER (?p2 != ms:dummy).
         }
     }
 } AS %level2
@@ -34,15 +22,9 @@ WITH {
 WITH {
     SELECT (?c2 as ?c) (?x as ?s) (?p2 as ?p)(?o2 as ?o)  {
         SELECT DISTINCT ?c2 ?p2 (?o as ?x) ?o2{
-#            {
-                INCLUDE %level2filtered.
-                GRAPH ?c2{ ?o ?p2 ?o2}.
-#            }UNION{
-#                INCLUDE %level2filtered.
-#                ?o (owl:sameAs|^owl:sameAs)* ?same.
-#                GRAPH ?c2{ ?same ?p2 ?o2}.
-#            }
-            FILTER (?p2 != <http://metaservice.org/ns/metaservice#dummy>).
+            INCLUDE %level2filtered.
+            GRAPH ?c2{ ?o ?p2 ?o2}.
+            FILTER (?p2 != ms:dummy).
         }
     }
 } AS %level3
@@ -51,11 +33,11 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level1.
-        ?c <http://metaservice.org/ns/metaservice#action> ?action.
-        ?c <http://metaservice.org/ns/metaservice#time> ?time.
-        ?c <http://metaservice.org/ns/metaservice#path> ?path.
+        ?c a ?type.
+        ?c ms:dataTime ?time.
+        ?c ms:path ?path.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
+        FILTER( ?type = ms:AddObservation || ?type = ms:RemoveObservation )
     } GROUP BY ?s ?p ?o ?path
 } AS %level1max
 
@@ -63,11 +45,11 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level2.
-        ?c <http://metaservice.org/ns/metaservice#action> ?action.
-        ?c <http://metaservice.org/ns/metaservice#time> ?time.
-        ?c <http://metaservice.org/ns/metaservice#path> ?path.
+        ?c a ?type.
+        ?c ms:dataTime ?time.
+        ?c ms:path ?path.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
+        FILTER( ?type = ms:AddObservation || ?type = ms:RemoveObservation )
     } GROUP BY ?s ?p ?o ?path
 } AS %level2max
 
@@ -75,11 +57,11 @@ WITH {
     SELECT (max(?time) as ?maxTime) ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level3.
-        ?c <http://metaservice.org/ns/metaservice#action> ?action.
-        ?c <http://metaservice.org/ns/metaservice#time> ?time.
-        ?c <http://metaservice.org/ns/metaservice#path> ?path.
+        ?c a ?type.
+        ?c ms:dataTime ?time.
+        ?c ms:path ?path.
         FILTER( ?time < $selectedTime)
-        FILTER( ?action != <http://metaservice.org/ns/metaservice#ActionContinuous> )
+        FILTER( ?type = ms:AddObservation || ?type = ms:RemoveObservation )
     }GROUP BY ?s ?p ?o ?path
 } AS %level3max
 
@@ -87,8 +69,8 @@ WITH {
     SELECT ?c ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level1.
-        ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionContinuous>.
-        ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
+        ?c a ms:ContinuousObservation.
+        ?c ms:latest $selectedTime.
     }
 } AS %level1maxContinuous
 
@@ -96,8 +78,8 @@ WITH {
     SELECT ?c ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level2.
-        ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionContinuous>.
-        ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
+        ?c a ms:ContinuousObservation.
+        ?c ms:latest $selectedTime.
     }
 } AS %level2maxContinuous
 
@@ -105,8 +87,8 @@ WITH {
     SELECT ?c ?s ?p ?o{
         hint:Query hint:optimizer "None" .
         INCLUDE %level3.
-        ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionContinuous>.
-        ?c <http://metaservice.org/ns/metaservice#latest> $selectedTime.
+        ?c a ms:ContinuousObservation.
+        ?c ms:latest $selectedTime.
     }
 } AS %level3maxContinuous
 
@@ -114,8 +96,8 @@ WITH {
     SELECT DISTINCT ?c ?s ?p ?o {{
             hint:Query hint:optimizer "None" .
             INCLUDE %level1.
-            ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionAdd>.
-            ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+            ?c a ms:AddObservation.
+            ?c ms:dataTime ?maxTime.
             INCLUDE %level1max.
         }UNION{
             INCLUDE %level1maxContinuous.
@@ -127,8 +109,8 @@ WITH {
     SELECT DISTINCT ?c ?s ?p ?o {{
             hint:Query hint:optimizer "None" .
             INCLUDE %level2.
-            ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionAdd>.
-            ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+            ?c a ms:AddObservation.
+            ?c ms:dataTime ?maxTime.
             INCLUDE %level2max.
         }UNION{
             INCLUDE %level2maxContinuous.
@@ -140,8 +122,8 @@ WITH {
     SELECT DISTINCT ?c ?s ?p ?o {{
             hint:Query hint:optimizer "None" .
             INCLUDE %level3.
-            ?c <http://metaservice.org/ns/metaservice#action>  <http://metaservice.org/ns/metaservice#ActionAdd>.
-            ?c <http://metaservice.org/ns/metaservice#time> ?maxTime.
+            ?c a ms:AddObservation.
+            ?c ms:dataTime ?maxTime.
             INCLUDE %level3max.
         }UNION{
             INCLUDE %level3maxContinuous.

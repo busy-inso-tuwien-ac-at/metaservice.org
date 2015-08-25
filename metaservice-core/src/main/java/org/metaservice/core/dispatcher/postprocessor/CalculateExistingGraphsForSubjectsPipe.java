@@ -52,10 +52,10 @@ public class CalculateExistingGraphsForSubjectsPipe extends MetaserviceSimplePip
             ArrayList<String> uris = new ArrayList<>();
 
             for(URI uri : context.processableSubjects){
-                uris.add("{ ?metadata a <" + METASERVICE.METADATA + ">;"+
-                        "  <"+METASERVICE.SOURCE_SUBJECT +"><" + uri.toString() + ">;"+
+                uris.add("{ ?metadata a <" + METASERVICE.CONTINUOUS_OBSERVATION + ">;"+
+                        "  <"+METASERVICE.AUTHORITIVE_SUBJECT +"><" + uri.toString() + ">;"+
                         "  <"+METASERVICE.GENERATOR + "> ?postprocessor;"+
-                        "  <" + METASERVICE.TIME+"> ?time.}");
+                        "  <" + METASERVICE.DATA_TIME+"> ?time.}");
             }
             builder.append(StringUtils.join(uris, " UNION")).append("}");
 

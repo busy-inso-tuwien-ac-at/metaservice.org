@@ -26,16 +26,16 @@
         {{#eachArray this}}
         <li>
             {{#if dc:description}}
-                {{#if ms-swdep:projectConstraint}}
-                    <a href="{{uri ms-swdep:projectConstraint}}">{{dc:description}}</a>
+                {{#if ms-swrel:projectConstraint}}
+                    <a href="{{uri ms-swrel:projectConstraint}}">{{dc:description}}</a>
                 {{else}}
                     <a href="{{uri this}}">{{dc:description}}</a>
                 {{/if}}
             {{/if}}
             {{#eachArray rdf:li}}
                 {{#if @index}}<b>or</b>{{/if}}
-                {{#if ms-swdep:projectConstraint}}
-                    <a href="{{uri ms-swdep:projectConstraint}}">{{dc:description}}</a>
+                {{#if ms-swrel:projectConstraint}}
+                    <a href="{{uri ms-swrel:projectConstraint}}">{{dc:description}}</a>
                 {{else}}
                     <a href="{{uri this}}">{{dc:description}}</a>
                 {{/if}}

@@ -73,9 +73,9 @@ public class OntologyToJavaConverter {
             IOUtils.write(content.replaceFirst("class MS","class METASERVICE"), writer);
         }
 
-        //metaservice-swdep
+        //metaservice-swrel
         ontologyToJavaConverter = new OntologyToJavaConverter(CaseFormat.UPPER_CAMEL);
-        ontologyToJavaConverter.load(OntologyToJavaConverter.class.getResourceAsStream("/ontologies/metaservice-swdep.rdf"));
+        ontologyToJavaConverter.load(OntologyToJavaConverter.class.getResourceAsStream("/ontologies/metaservice-swrel.rdf"));
         content = ontologyToJavaConverter.generate();
         try(FileWriter writer = new FileWriter(root.resolve("METASERVICE_SWDEP.java").toFile())) {
             IOUtils.write(content.replaceFirst("class SWDEP","class METASERVICE_SWDEP"), writer);

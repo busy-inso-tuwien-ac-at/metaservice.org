@@ -25,7 +25,7 @@ function initMs() {
         "doap": "http://usefulinc.com/ns/doap#",
         "foaf":"http://xmlns.com/foaf/0.1/",
         "ms": "http://metaservice.org/ns/metaservice#",
-        "ms-swdep": "http://metaservice.org/ns/metaservice-swdep#",
+        "ms-swrel": "http://metaservice.org/ns/metaservice-swrel#",
         "deb": "http://metaservice.org/ns/deb#",
         "owl": "http://www.w3.org/2002/07/owl#",
         "rad": "http://www.w3.org/ns/radion#",

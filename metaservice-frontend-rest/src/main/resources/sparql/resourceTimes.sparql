@@ -32,7 +32,7 @@ WHERE {
     } UNION {
         INCLUDE %level3
     }
-    ?c <http://metaservice.org/ns/metaservice#time> ?time.
+    ?c ms:dataTime ?time.
     FILTER(?time != 0)
 }
 ORDER BY DESC(?time)

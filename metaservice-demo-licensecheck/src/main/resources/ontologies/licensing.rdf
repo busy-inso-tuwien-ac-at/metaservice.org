@@ -16,7 +16,7 @@
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY lic "http://metaservice.org/ns/licensing#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-    <!ENTITY swdep "http://metaservice.org/ns/metaservice-swdep#" >
+    <!ENTITY swrel "http://metaservice.org/ns/metaservice-swrel#" >
 ]>
 
 
@@ -34,7 +34,7 @@
      xmlns:doap="http://usefulinc.com/ns/doap#"
      xmlns:admssw="http://purl.org/adms/sw/"
      xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-     xmlns:swdep="http://metaservice.org/ns/metaservice-swdep#">
+     xmlns:swrel="http://metaservice.org/ns/metaservice-swrel#">
     <owl:Ontology rdf:about="http://metaservice.org/ns/licensing#">
         <dc:title></dc:title>
         <dc:creator>Nikola Ilo</dc:creator>
@@ -44,7 +44,7 @@
         <vann:preferredNamespacePrefix>lic</vann:preferredNamespacePrefix>
         <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
         <dc:description xml:lang="de">TODO</dc:description>
-        <owl:imports rdf:resource="http://metaservice.org/ns/metaservice-swdep#"/>
+        <owl:imports rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
         <owl:versionIRI rdf:resource="http://metaservice.org/ns/licensing/0.1"/>
         <owl:imports rdf:resource="http://purl.org/adms/sw/"/>
         <owl:imports rdf:resource="http://www.w3.org/ns/adms"/>

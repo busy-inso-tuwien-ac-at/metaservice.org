@@ -1,0 +1,801 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY dc "http://purl.org/dc/" >
+    <!ENTITY swo "http://www.ebi.ac.uk/swo/" >
+    <!ENTITY vann "http://purl.org/vocab/vann/" >
+    <!ENTITY doap "http://usefulinc.com/ns/doap#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY swrel "http://metaservice.org/ns/metaservice-swrel#" >
+    <!ENTITY vs "http://www.w3.org/2003/06/sw-vocab-status/ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://metaservice.org/ns/metaservice-swrel#"
+     xml:base="http://metaservice.org/ns/metaservice-swrel"
+     xmlns:dc="http://purl.org/dc/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:swo="http://www.ebi.ac.uk/swo/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:vann="http://purl.org/vocab/vann/"
+     xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#"
+     xmlns:doap="http://usefulinc.com/ns/doap#"
+     xmlns:swrel="http://metaservice.org/ns/metaservice-swrel#">
+    <owl:Ontology rdf:about="http://metaservice.org/ns/metaservice-swrel#">
+        <dc:title>Software Dependencies (swrel) vocabulary</dc:title>
+        <vann:preferredNamespacePrefix>swrel</vann:preferredNamespacePrefix>
+        <dc:rights>Copyright © 2013 Nikola Ilo</dc:rights>
+        <dc:creator>Nikola Ilo</dc:creator>
+        <dc:format>application/rdf+xml</dc:format>
+        <vann:preferredNamespaceUri>http://metaservice.org/ns/metaservice-swrel#</vann:preferredNamespaceUri>
+        <dc:description>
+            The Description of a Software Dependencies (swrel) vocabulary, described using W3C RDF Schema and the Web Ontology Language.
+            SWDEP is a very specific ontology, which is designed to provide a common ground for ontologies that describe software interrelationships.
+        </dc:description>
+        <dc:description xml:lang="de">
+            Das Vokabular &quot;Dependency of Software&quot;, beschrieben durch W3C RDF Schema und der Web Ontology Language.
+        </dc:description>
+        <owl:versionIRI rdf:resource="http://metaservice.org/ns/metaservice-swrel/0.1"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#abstractImportanceDependencyProperty -->
+
+    <owl:ObjectProperty rdf:about="&swrel;abstractImportanceDependencyProperty">
+        <rdfs:comment>
+            An abstract property, which is only used to structure the ontology.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;depends"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#abstractStageDependencyProperty -->
+
+    <owl:ObjectProperty rdf:about="&swrel;abstractStageDependencyProperty">
+        <rdfs:comment>
+            An abstract intermediate property, which is only used to structure the ontology.
+            Sub-properties of this state in which stage of a software lifetime the dependency is needed.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;depends"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#abstractTypeDependencyProperty -->
+
+    <owl:ObjectProperty rdf:about="&swrel;abstractTypeDependencyProperty">
+        <rdfs:comment>
+            An abstract intermediate property, which is only used to structure the ontology.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;depends"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#abstractUsageDependencyProperty -->
+
+    <owl:ObjectProperty rdf:about="&swrel;abstractUsageDependencyProperty">
+        <rdfs:comment>
+            An abstract property, which is only used to structure the ontology.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;depends"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#antiDepends -->
+
+    <owl:ObjectProperty rdf:about="&swrel;antiDepends">
+        <rdfs:label>depends on absence of</rdfs:label>
+        <rdfs:comment>
+            This is the inverted dependency. To state this it is intentionally not a subproperty of &quot;depends&quot;.
+            Nonetheless this may be used as a superproperty in combination with the other dependency types to denote the negation. In conclusion it is intended that a property is included both as a dependency and antidependency.
+            The expressiveness of this ontology currently does not allow to detect contradictions which occur when both are intentionally added.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;related"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#binary -->
+
+    <owl:ObjectProperty rdf:about="&swrel;binary">
+        <rdfs:label>has binary</rdfs:label>
+        <rdfs:comment>
+            Software usually exists either in source or binary format. In case there exists a binary for a source, it may be linked through this.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#depends -->
+
+    <owl:ObjectProperty rdf:about="&swrel;depends">
+        <rdfs:label>depends on</rdfs:label>
+        <rdfs:comment>
+            An abstract dependency on something. This does not specify the dependencies optionality, time-scope, or any other type.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;related"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsBuild -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsBuild">
+        <rdfs:label>depend during built-time on</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractStageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsCompile -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsCompile"/>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsCompiler -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsCompiler">
+        <rdfs:label>depend on compiler</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsBuild"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsExternal -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsExternal">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractTypeDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsInstallation -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsInstallation">
+        <rdfs:label>depend during installation-time on</rdfs:label>
+        <rdfs:comment>
+            Dependency is required to by satisfied during the installation of the software.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractStageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsInterpreter -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsInterpreter">
+        <rdfs:label>depend on interpreter</rdfs:label>
+        <rdfs:comment>
+            Software requires an interpreter to run.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsRuntime"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsMiddleware -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsMiddleware">
+        <rdfs:label>runs using middleware</rdfs:label>
+        <rdfs:comment>
+            Software uses the middleware.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsRuntime -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsRuntime">
+        <rdfs:label>depends during runtime on</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractStageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsService -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsService">
+        <rdfs:label>uses the service</rdfs:label>
+        <rdfs:comment>
+            Software connects and uses a service.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsSoftware -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsSoftware">
+        <rdfs:label>depends on software</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:range rdf:resource="&swrel;Software"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;depends"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsStandalone -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsStandalone">
+        <rdfs:label>depends on independent execution of</rdfs:label>
+        <rdfs:comment>
+            Software runs on its own. If communication happens between the two applications, than only through weakly typed communication channels, which may be sockets or pipes.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#dependsTest -->
+
+    <owl:ObjectProperty rdf:about="&swrel;dependsTest">
+        <rdfs:label>depends during test-time on</rdfs:label>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractStageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#distributionConstraint -->
+
+    <owl:ObjectProperty rdf:about="&swrel;distributionConstraint">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment>
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:domain rdf:resource="&swrel;SoftwareRange"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#downstream -->
+
+    <owl:ObjectProperty rdf:about="&swrel;downstream">
+        <rdfs:label>has downstream</rdfs:label>
+        <rdfs:comment>Software changes flow from the subject to the object. An example is Apache HTTPd, which is hosted upstream on apache.org. Downstream are the Apache Packaging Projects of the Linux Distributions.</rdfs:comment>
+        <rdfs:isDefinedBy>http://metaservice.org/ns/metaservice-swrel#</rdfs:isDefinedBy>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+        <owl:inverseOf rdf:resource="&swrel;upstream"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#forkOf -->
+
+    <owl:ObjectProperty rdf:about="&swrel;forkOf">
+        <rdfs:label>fork of</rdfs:label>
+        <rdfs:comment>
+            Connects assets with a common development ancestor.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#hasPort -->
+
+    <owl:ObjectProperty rdf:about="&swrel;hasPort">
+        <rdfs:label>has portation</rdfs:label>
+        <rdfs:comment>
+            Links to a portation of this software.
+            A portation or port is an adaption of a software onto a different platform.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#implements -->
+
+    <owl:ObjectProperty rdf:about="&swrel;implements">
+        <rdfs:label>implementation of</rdfs:label>
+        <rdfs:comment>
+            Abstract connection between the subject, which is the implementation of, and something which is implementable.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;related"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#implementsAPI -->
+
+    <owl:ObjectProperty rdf:about="&swrel;implementsAPI">
+        <rdfs:label>implements the API</rdfs:label>
+        <rdfs:comment>
+             The subject implements an API. An API is a formalized contract of a programming interface.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;implements"/>
+        <rdfs:subPropertyOf rdf:resource="&doap;implements"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#implementsAlgorithm -->
+
+    <owl:ObjectProperty rdf:about="&swrel;implementsAlgorithm">
+        <rdfs:label>implements the algorithm</rdfs:label>
+        <rdfs:comment>
+            The subject is or contains an implementation of an algorithm.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;implements"/>
+        <owl:equivalentProperty rdf:resource="&swo;SWO_0000085"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#implementsSpecification -->
+
+    <owl:ObjectProperty rdf:about="&swrel;implementsSpecification">
+        <rdfs:label>implements the specification</rdfs:label>
+        <rdfs:comment>
+            The subject implements a specification. Specifications can be standards, norms, or a requirements specification.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;implements"/>
+        <rdfs:subPropertyOf rdf:resource="&doap;implements"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#includesDependency -->
+
+    <owl:ObjectProperty rdf:about="&swrel;includesDependency">
+        <rdfs:label>includes</rdfs:label>
+        <rdfs:comment>
+            Used to denote the inclusion of a dependency as a part of the subject.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractTypeDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#links -->
+
+    <owl:ObjectProperty rdf:about="&swrel;links">
+        <rdfs:label>links to</rdfs:label>
+        <rdfs:comment>
+            A software uses another software by means of linking.
+            Linking is the process of combination of two pieces of software to a single executable.
+            Linking can either happen statically, at compile time, or dynamically at runtime.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#linksDynamically -->
+
+    <owl:ObjectProperty rdf:about="&swrel;linksDynamically">
+        <rdfs:label>links dynamically to</rdfs:label>
+        <rdfs:comment>
+            A software uses another software by means of dynamic linking.
+            Dynamic linking is the combination of two pieces of software to a single executable at runtime.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsCompile"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;links"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#linksStatically -->
+
+    <owl:ObjectProperty rdf:about="&swrel;linksStatically">
+        <rdfs:label>links statically to</rdfs:label>
+        <rdfs:comment>
+            A software uses another software by means of linking.
+            Static linking is the combination of two pieces of software to a single executable at build time.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsBuild"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;links"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#optional -->
+
+    <owl:ObjectProperty rdf:about="&swrel;optional">
+        <rdfs:label>is optionally dependent on</rdfs:label>
+        <rdfs:comment>
+            Used to denote optional dependencies.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractImportanceDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#pluginOf -->
+
+    <owl:ObjectProperty rdf:about="&swrel;pluginOf">
+        <rdfs:label>is a plugin of</rdfs:label>
+        <rdfs:comment>
+            Software is used as a plugin of another software.
+            Plugins are tightly coupled.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#portOf -->
+
+    <owl:ObjectProperty rdf:about="&swrel;portOf">
+        <rdfs:label>is portation of</rdfs:label>
+        <rdfs:comment>
+            Links a portation to its original implementation.
+            A portation or port is an adaption of a software onto a different platform.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <owl:inverseOf rdf:resource="&swrel;hasPort"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#projectConstraint -->
+
+    <owl:ObjectProperty rdf:about="&swrel;projectConstraint">
+        <rdfs:label>is of software project</rdfs:label>
+        <rdfs:comment>
+            Used to limit the range of software to a specifc software project.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:domain rdf:resource="&swrel;SoftwareRange"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#related -->
+
+    <owl:ObjectProperty rdf:about="&swrel;related">
+        <rdfs:label>it related to</rdfs:label>
+        <rdfs:comment>
+            Abstract concept of relation.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#relatedSoftware -->
+
+    <owl:ObjectProperty rdf:about="&swrel;relatedSoftware">
+        <rdfs:label>is related to software</rdfs:label>
+        <rdfs:comment>
+            Abstract concept of relation to software,
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:range rdf:resource="&swrel;Software"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;related"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#releaseConstraint -->
+
+    <owl:ObjectProperty rdf:about="&swrel;releaseConstraint">
+        <rdfs:label>limited to release</rdfs:label>
+        <rdfs:comment>
+            Used to limit the range of software to a specific software release.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:domain rdf:resource="&swrel;SoftwareRange"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#requires -->
+
+    <owl:ObjectProperty rdf:about="&swrel;requires">
+        <rdfs:label>is necessarily dependent on</rdfs:label>
+        <rdfs:comment>
+            Used to denote must have dependencies.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractImportanceDependencyProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#source -->
+
+    <owl:ObjectProperty rdf:about="&swrel;source">
+        <rdfs:label>has source</rdfs:label>
+        <rdfs:comment>
+            Software usually exists either in source or binary format.
+            In case there exists a source for a binary, it may be linked through this.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#upstream -->
+
+    <owl:ObjectProperty rdf:about="&swrel;upstream">
+        <rdfs:label>has upstream</rdfs:label>
+        <rdfs:comment>Software changes flow from the subject to the object. An example is Apache HTTPd, which is hosted upstream on apache.org. Downstream are the Apache Packaging Projects of the Linux Distributions.</rdfs:comment>
+        <rdfs:isDefinedBy>http://metaservice.org/ns/metaservice-swrel#</rdfs:isDefinedBy>
+        <rdfs:subPropertyOf rdf:resource="&swrel;relatedSoftware"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://schema.org/requirements -->
+
+    <owl:ObjectProperty rdf:about="http://schema.org/requirements">
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsExternal"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:isDefinedBy rdf:resource="http://schema.org/"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://usefulinc.com/ns/doap#implements -->
+
+    <owl:ObjectProperty rdf:about="&doap;implements"/>
+    
+
+
+    <!-- http://www.ebi.ac.uk/swo/SWO_0000082 -->
+
+    <owl:ObjectProperty rdf:about="&swo;SWO_0000082">
+        <rdfs:subPropertyOf rdf:resource="&swrel;abstractUsageDependencyProperty"/>
+        <rdfs:subPropertyOf rdf:resource="&swrel;dependsSoftware"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.ebi.ac.uk/swo/"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ebi.ac.uk/swo/SWO_0000085 -->
+
+    <owl:ObjectProperty rdf:about="&swo;SWO_0000085">
+        <rdfs:isDefinedBy rdf:resource="http://www.ebi.ac.uk/swo/"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- rdf:li -->
+
+    <owl:ObjectProperty rdf:about="rdf:li"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#revisionConstraint -->
+
+    <owl:DatatypeProperty rdf:about="&swrel;revisionConstraint">
+        <rdfs:label></rdfs:label>
+        <rdfs:comment>
+           This is used to describe a range of Software, with specific properties.
+       </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+        <rdfs:domain rdf:resource="&swrel;SoftwareRange"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#AllOfHardware -->
+
+    <owl:Class rdf:about="&swrel;AllOfHardware">
+        <rdfs:label>Set of hardware</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&swrel;Hardware"/>
+        <rdfs:subClassOf rdf:resource="rdf:Bag"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="rdf:li"/>
+                <owl:someValuesFrom rdf:resource="&swrel;Hardware"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#AllOfSoftware -->
+
+    <owl:Class rdf:about="&swrel;AllOfSoftware">
+        <rdfs:label>Set of software</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&swrel;Software"/>
+        <rdfs:subClassOf rdf:resource="rdf:Bag"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="rdf:li"/>
+                <owl:someValuesFrom rdf:resource="&swrel;Software"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment>
+            This is probably only useful in combination with Software, because the default semantics is already conjunctive.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#AnyOneOfHardware -->
+
+    <owl:Class rdf:about="&swrel;AnyOneOfHardware">
+        <rdfs:label>Collection of hardware alternatives</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&swrel;Hardware"/>
+        <rdfs:subClassOf rdf:resource="rdf:Alt"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="rdf:li"/>
+                <owl:someValuesFrom rdf:resource="&swrel;Hardware"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#AnyOneOfSoftware -->
+
+    <owl:Class rdf:about="&swrel;AnyOneOfSoftware">
+        <rdfs:label>Collection of software alternatives</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&swrel;Software"/>
+        <rdfs:subClassOf rdf:resource="rdf:Alt"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="rdf:li"/>
+                <owl:someValuesFrom rdf:resource="&swrel;Software"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment>
+
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#Hardware -->
+
+    <owl:Class rdf:about="&swrel;Hardware">
+        <rdfs:label>Abstract hardware</rdfs:label>
+        <rdfs:comment>
+            A very abstract term about hardware.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#Software -->
+
+    <owl:Class rdf:about="&swrel;Software">
+        <rdfs:label>Abstract software</rdfs:label>
+        <rdfs:comment>
+            A very abstract term about software.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://metaservice.org/ns/metaservice-swrel#SoftwareRange -->
+
+    <owl:Class rdf:about="&swrel;SoftwareRange">
+        <rdfs:label>Range of software</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&swrel;Software"/>
+        <rdfs:comment>
+            This is used to describe a range of software, with specific properties.
+        </rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://metaservice.org/ns/metaservice-swrel#"/>
+    </owl:Class>
+    
+
+
+    <!-- rdf:Alt -->
+
+    <owl:Class rdf:about="rdf:Alt"/>
+    
+
+
+    <!-- rdf:Bag -->
+
+    <owl:Class rdf:about="rdf:Bag"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
+

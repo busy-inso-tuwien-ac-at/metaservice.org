@@ -46,14 +46,14 @@ public class MetadataPipe extends MetaserviceSimplePipe<PostProcessorDispatcher.
         //todo uniqueness in uri necessary
         URI metadata = valueFactory.createURI("http://metaservice.org/m/" + postProcessor.getClass().getSimpleName() + "/" + System.currentTimeMillis());
         repositoryConnection.begin();
-        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.METADATA, metadata);
-        repositoryConnection.add(metadata, METASERVICE.ACTION, METASERVICE.ACTION_CONTINUOUS, metadata);
-        repositoryConnection.add(metadata, METASERVICE.TIME, valueFactory.createLiteral(context.task.getTime()),metadata); //todo fix it to be based on the used data
+        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.OBSERVATION, metadata);
+        repositoryConnection.add(metadata, RDF.TYPE, METASERVICE.CONTINUOUS_OBSERVATION, metadata);
+        repositoryConnection.add(metadata, METASERVICE.DATA_TIME, valueFactory.createLiteral(context.task.getTime()),metadata); //todo fix it to be based on the used data
         repositoryConnection.add(metadata, METASERVICE.CREATION_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.LAST_CHECKED_TIME, valueFactory.createLiteral(now),metadata);
         repositoryConnection.add(metadata, METASERVICE.GENERATOR, valueFactory.createLiteral(descriptorHelper.getStringFromPostProcessor(metaserviceDescriptor.getModuleInfo(), postProcessorDescriptor)), metadata);
         for(URI processableSubject : context.processableSubjects) {
-            repositoryConnection.add(metadata, METASERVICE.SOURCE_SUBJECT, processableSubject,metadata);
+            repositoryConnection.add(metadata, METASERVICE.AUTHORITIVE_SUBJECT, processableSubject,metadata);
         }
         repositoryConnection.commit();
         context.metadata =  metadata;

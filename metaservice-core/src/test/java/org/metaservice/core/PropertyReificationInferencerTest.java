@@ -37,7 +37,7 @@ public class PropertyReificationInferencerTest {
         URI package2 = valueFactory.createURI(NS,"package2");
         con.add(package1, METASERVICE_SWDEP.LINKS,package2);
         con.add(PropertyReificationInferencerTest.class.getResourceAsStream("/ontologies/propertyreification.rdf"), "", RDFFormat.RDFXML);
-        con.add(PropertyReificationInferencerTest.class.getResourceAsStream("/ontologies/metaservice-swdep.rdf"), "",RDFFormat.RDFXML);
+        con.add(PropertyReificationInferencerTest.class.getResourceAsStream("/ontologies/metaservice-swrel.rdf"), "",RDFFormat.RDFXML);
         System.out.println(con.getStatements(package1, null, null, true).asList());
         System.out.println(con.getStatements(null, null, METASERVICE_SWDEP.LINKS, true).asList());
 

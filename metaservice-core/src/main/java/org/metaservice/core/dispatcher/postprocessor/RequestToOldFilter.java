@@ -40,7 +40,7 @@ public class RequestToOldFilter extends MetaserviceFilterPipe<PostProcessorDispa
         this.descriptorHelper = descriptorHelper;
         this.metaserviceDescriptor = metaserviceDescriptor;
         this.postProcessorDescriptor = postProcessorDescriptor;
-        this.graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.METADATA+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <"+METASERVICE.TIME+"> ?time; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
+        this.graphSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata ?lastchecked { graph ?metadata {?resource ?p ?o}.  ?metadata a <"+ METASERVICE.OBSERVATION+">;  <" + METASERVICE.GENERATOR + "> ?postprocessor; <"+METASERVICE.DATA_TIME+"> ?time; <" + METASERVICE.LAST_CHECKED_TIME+"> ?lastchecked. }");
         LOGGER.trace(graphSelect.toString());
     }
 
