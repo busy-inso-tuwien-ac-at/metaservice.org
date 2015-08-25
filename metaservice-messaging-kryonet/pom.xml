@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>metaservice-kryonet</artifactId>
+    <artifactId>metaservice-messaging-kryonet</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <dependencies>
         <dependency>
@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>org.metaservice</groupId>
-            <artifactId>metaservice-api-messaging</artifactId>
+            <artifactId>metaservice-messaging-api</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>

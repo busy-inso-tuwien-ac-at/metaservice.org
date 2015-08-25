@@ -22,8 +22,8 @@ import org.metaservice.core.injection.providers.JAXBMetaserviceDescriptorProvide
 import org.metaservice.api.messaging.MessageHandler;
 import org.metaservice.api.messaging.MessagingException;
 import org.metaservice.api.messaging.statistics.QueueStatistics;
-import org.metaservice.manager.bigdata.FastRangeCountRequestBuilder;
-import org.metaservice.manager.bigdata.MutationResult;
+import org.metaservice.manager.blazegraph.FastRangeCountRequestBuilder;
+import org.metaservice.manager.blazegraph.MutationResult;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.*;
 import org.openrdf.model.vocabulary.RDF;

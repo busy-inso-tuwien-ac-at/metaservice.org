@@ -49,7 +49,7 @@ public class SparqlEndpointResource {
     private String generateNamespaceString() {
         HashMap<String,String> namespaceMap = new HashMap<>();
         namespaceMap.put("admssw", "http://purl.org/adms/sw/");
-        namespaceMap.put("bds","http://www.bigdata.com/rdf/search#");
+        namespaceMap.put("bds","http://www.blazegraph.com/rdf/search#");
         namespaceMap.put("cc","http://creativecommons.org/ns#");
         namespaceMap.put("dc","http://purl.org/dc/elements/1.1/");
         namespaceMap.put("dcterms","http://purl.org/dc/terms/");
@@ -263,7 +263,7 @@ public class SparqlEndpointResource {
         uriBuilder.setScheme("http")
                 .setHost("www.metaservice.org")
                 .setPort(8080)
-                .setPath("/bigdata/sparql");
+                .setPath("/blazegraph/sparql");
 
         return Request.Post(uriBuilder.build())
                 .bodyForm(Form.form().add("query", query).build())

@@ -1,4 +1,4 @@
-package org.metaservice.manager.bigdata;
+package org.metaservice.manager.blazegraph;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;

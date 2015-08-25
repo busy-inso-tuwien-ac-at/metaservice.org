@@ -7,20 +7,6 @@
     <groupId>org.metaservice</groupId>
     <artifactId>metaservice-parent</artifactId>
     <version>0.0.2-SNAPSHOT</version>
-    <modules>
-        <module>../metaservice-core-file</module>
-        <module>../metaservice-demo-securityalert</module>
-        <module>../metaservice-licensechecker</module>
-        <module>../metaservice-release-impact-tester</module>
-        <module>../metaservice-core-bower</module>
-        <module>../metaservice-core-vcs</module>
-        <module>../metaservice-kryonet</module>
-        <module>../metaservice-messaging-jms</module>
-        <module>../metaservice-api-messaging</module>
-        <module>../metaservice-demo-wordpress</module>
-        <module>../metaservice-demo-licensecheck</module>
-        <module>../metaservice-core-ld</module>
-    </modules>
     <packaging>pom</packaging>
 
     <url>http://project.metaservice.org/</url>
@@ -30,7 +16,7 @@
 
         <!-- dependency versions -->
         <openrdf.version>2.7.7</openrdf.version>
-        <bigdata.version>1.2.3</bigdata.version>
+        <blazegraph.version>1.2.3</blazegraph.version>
         <activemq.version>5.9.0</activemq.version>
         <mongodb.version>2.11.3</mongodb.version>
         <sl4j.version>1.7.6</sl4j.version>
@@ -49,8 +35,18 @@
 
     <repositories>
         <repository>
-            <id>bigdata.releases</id>
+            <id>blazegraph.releases</id>
             <url>http://www.systap.com/maven/releases</url>
+        </repository>
+
+        <repository>
+            <id>metaservice-central</id>
+            <url>http://maven.metaservice.org/artifactory/libs-release-local</url>
+        </repository>
+
+        <repository>
+            <id>metaservice-snapshots</id>
+            <url>http://maven.metaservice.org/artifactory/libs-snapshot-local</url>
         </repository>
     </repositories>
 

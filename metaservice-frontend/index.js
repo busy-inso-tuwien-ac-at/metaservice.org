@@ -18,7 +18,7 @@ function initMs() {
     MS = {};
     MS.context = {
         "admssw": "http://purl.org/adms/sw/",
-        "bds": "http://www.bigdata.com/rdf/search#",
+        "bds": "http://www.blazegraph.com/rdf/search#",
         "cc": "http://creativecommons.org/ns#",
         "dc": "http://purl.org/dc/elements/1.1/",
         "dcterms": "http://purl.org/dc/terms/",

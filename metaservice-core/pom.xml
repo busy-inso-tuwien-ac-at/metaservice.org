@@ -71,12 +71,12 @@
 
         <dependency>
             <groupId>org.metaservice</groupId>
-            <artifactId>metaservice-api-messaging</artifactId>
+            <artifactId>metaservice-messaging-api</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.metaservice</groupId>
-            <artifactId>metaservice-kryonet</artifactId>
+            <artifactId>metaservice-messaging-kryonet</artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
       <!--  <dependency>

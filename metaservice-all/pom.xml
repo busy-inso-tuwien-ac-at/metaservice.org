@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.metaservice</groupId>
+    <artifactId>metaservice-all</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <modules>
+        <module>../metaservice-parent</module>
+        <module>../metaservice-api</module>
+
+        <module>../metaservice-messaging-api</module>
+        <module>../metaservice-messaging-kryonet</module>
+        <module>../metaservice-messaging-jms</module>
+
+        <module>../metaservice-frontend</module>
+        <module>../metaservice-frontend-rest</module>
+
+        <module>../metaservice-core</module>
+
+        <module>../metaservice-core-maven</module>
+        <module>../metaservice-core-deb</module>
+        <module>../metaservice-core-nvd</module>
+
+        <module>../metaservice-core-cpan</module>
+        <module>../metaservice-core-bower</module>
+        <module>../metaservice-core-vcs</module>
+        <module>../metaservice-core-file</module>
+        <module>../metaservice-core-ld</module>
+
+        <module>../metaservice-manager</module>
+
+        <module>../metaservice-demo-securityalert</module>
+        <module>../metaservice-demo-wordpress</module>
+        <module>../metaservice-demo-licensecheck</module>
+    </modules>
+
+    <packaging>pom</packaging>
+
+    <url>http://project.metaservice.org/</url>
+
+      <repositories>
+        <repository>
+            <id>blazegraph.releases</id>
+            <url>http://www.systap.com/maven/releases</url>
+        </repository>
+
+        <repository>
+            <id>metaservice-central</id>
+            <url>http://maven.metaservice.org/artifactory/libs-release-local</url>
+        </repository>
+
+        <repository>
+            <id>metaservice-snapshots</id>
+            <url>http://maven.metaservice.org/artifactory/libs-snapshot-local</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>metaservice-central</id>
+            <name>libs-release</name>
+            <url>http://maven.metaservice.org/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>metaservice-snapshots</id>
+            <name>libs-snapshot</name>
+            <url>http://maven.metaservice.org/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

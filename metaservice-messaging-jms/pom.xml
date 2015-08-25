@@ -20,8 +20,8 @@
         </dependency>
         <dependency>
             <groupId>org.metaservice</groupId>
-            <artifactId>metaservice-api-messaging</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>metaservice-messaging-api</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>

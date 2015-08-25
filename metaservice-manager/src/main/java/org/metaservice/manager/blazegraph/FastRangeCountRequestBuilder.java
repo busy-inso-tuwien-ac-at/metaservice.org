@@ -1,4 +1,4 @@
-package org.metaservice.manager.bigdata;
+package org.metaservice.manager.blazegraph;
 
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;

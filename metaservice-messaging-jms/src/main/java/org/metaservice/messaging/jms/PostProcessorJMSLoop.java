@@ -65,7 +65,7 @@ public class PostProcessorJMSLoop implements PostProcessorMessagingLoop{
                     try {
                         final ObjectMessage m = (ObjectMessage) message;
                         PostProcessingTask task = (PostProcessingTask) m.getObject();
-                        if(postProcessorDispatcher.isOkCheapCheck(task, message.getJMSTimestamp())){
+                       // if(postProcessorDispatcher.isOkCheapCheck(task, message.getJMSTimestamp())){
                             jmsUtil.executeProducerTask(
                                     JMSUtil.Type.QUEUE,
                                     getProcessingQueueName(metaserviceDescriptor, postProcessorDescriptor),
@@ -75,12 +75,12 @@ public class PostProcessorJMSLoop implements PostProcessorMessagingLoop{
                                             producer.send(m);
                                         }
                                     });
-                        }
+                        //}
                     } catch (JMSException e) {
                         LOGGER.error("JMS Exception", e);
-                    } catch (PostProcessorException e) {
+                    }/* catch (PostProcessorException e) {
                         LOGGER.error("PostProcessorException",e);
-                    }
+                    }*/
                 }
             });
             jmsUtil.runListener(new JMSUtil.ListenerBean() {
@@ -102,6 +102,8 @@ public class PostProcessorJMSLoop implements PostProcessorMessagingLoop{
                         postProcessorDispatcher.process(task, message.getJMSTimestamp());
                     } catch (JMSException e) {
                         LOGGER.error("JMS Exception", e);
+                    } catch (PostProcessorException e) {
+                        LOGGER.error("PostProcessorException", e);
                     }
                 }
             });

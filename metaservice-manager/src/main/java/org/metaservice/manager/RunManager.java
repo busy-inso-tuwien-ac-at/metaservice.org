@@ -109,7 +109,7 @@ public class RunManager {
     }
 
     public void runKryoServer() throws ManagerException {
-        MetaserviceDescriptor.ModuleInfo moduleInfo = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl("org.metaservice","metaservice-kryonet","0.0.2-SNAPSHOT");
+        MetaserviceDescriptor.ModuleInfo moduleInfo = new JAXBMetaserviceDescriptorImpl.ModuleInfoImpl("org.metaservice","metaservice-messaging-kryonet","0.0.2-SNAPSHOT");
         run(
                 moduleInfo,
                 "MongoKryoMessaging",
