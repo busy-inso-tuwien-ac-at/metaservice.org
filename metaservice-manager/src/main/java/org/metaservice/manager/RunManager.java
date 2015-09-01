@@ -46,15 +46,18 @@ public class RunManager {
         this.descriptorHelper = descriptorHelper;
         this.config = config;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        logdir = Paths.get("/opt/metaservice/log/",format.format(new Date()));
         try {
+            Path rootLogdir = Paths.get("/opt/metaservice/log/");
+            if(!rootLogdir.toFile().isDirectory()){
+                Files.createDirectory(rootLogdir);
+            }
+            logdir = rootLogdir.resolve(format.format(new Date()));
             Path latest =Paths.get("/opt/metaservice/log/latest");
             Files.createDirectory(logdir);
             Files.deleteIfExists(latest);
             Files.createSymbolicLink(latest,logdir);
         } catch (IOException e) {
-            if(!logdir.toFile().isDirectory())
-                throw new ManagerException("could not create log directory for run");
+            throw new ManagerException("could not create log directory for run");
         }
     }
 
