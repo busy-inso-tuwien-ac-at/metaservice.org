@@ -139,8 +139,10 @@ public abstract  class AbstractDispatcher {
                         s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDFS.RESOURCE)||
                         s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(OWL.THING)||
                         s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(RDF.PROPERTY)){
-                    if(!s.getSubject().stringValue().startsWith("http://metaservice.org/d/"))
+                    if(!s.getSubject().stringValue().startsWith("http://metaservice.org/d/")) {
+                        LOGGER.debug("UNDEFINED {} {} {}",s.getSubject(),s.getPredicate(),s.getObject());
                         undefined.add(s.getSubject());
+                    }
                 }else{
                     if(s.getSubject() instanceof BNode ||s.getObject() instanceof BNode){
                         LOGGER.error("ATTENTION - BNodes are not supported by Metaservice, skipping statement");
