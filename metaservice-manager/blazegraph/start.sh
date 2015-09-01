@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+java -server -XX:+UseG1GC -verbose:gc -Xmx10g -XX:MaxDirectMemorySize=3000m -Dlog4j.configuration=file:log4j.properties -Dorg.eclipse.jetty.server.Request.maxFormContentSize=1000000000 -classpath  ".:classes:lib/*" com.bigdata.rdf.sail.webapp.NanoSparqlServer 8080 kb metaservice.properties
