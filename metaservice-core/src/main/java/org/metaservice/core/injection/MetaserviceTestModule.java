@@ -24,7 +24,7 @@ public class MetaserviceTestModule extends AbstractModule {
         bind(Config.class).toInstance(new Config() {
             @Override
             public String getSparqlEndpoint() {
-                return "http://www.metaservice.org:8080/blazegraph/sparql";
+                return "http://graph.metaservice.org:8080/bigdata/sparql";
             }
 
             @Override

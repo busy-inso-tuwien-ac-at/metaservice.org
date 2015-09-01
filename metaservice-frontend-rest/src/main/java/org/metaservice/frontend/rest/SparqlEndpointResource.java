@@ -261,9 +261,9 @@ public class SparqlEndpointResource {
         System.err.println(query);
         URIBuilder uriBuilder = new URIBuilder();
         uriBuilder.setScheme("http")
-                .setHost("www.metaservice.org")
+                .setHost("graph.metaservice.org")
                 .setPort(8080)
-                .setPath("/blazegraph/sparql");
+                .setPath("/bigdata/sparql");
 
         return Request.Post(uriBuilder.build())
                 .bodyForm(Form.form().add("query", query).build())
