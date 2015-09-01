@@ -33,6 +33,9 @@ public class ClearCommand extends AbstractManagerCommand {
     @Option(name ="postprocessor",shortName = 'p',completer = PostProcessorCompleter.class)
     String postprocessor;
 
+    @Option(name ="raw",shortName = 'r')
+    String raw;
+
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
@@ -63,6 +66,13 @@ public class ClearCommand extends AbstractManagerCommand {
             } catch (ManagerException e) {
                 LOGGER.error("failed",e);
                 }
+        }
+        if(raw != null){
+            try{
+                manager.removeDataFromGenerator(raw);
+            }  catch (ManagerException e) {
+                LOGGER.error("failed", e);
+            }
         }
         return CommandResult.SUCCESS;
     }

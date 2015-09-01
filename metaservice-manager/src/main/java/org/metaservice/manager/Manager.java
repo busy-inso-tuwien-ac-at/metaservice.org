@@ -485,7 +485,7 @@ public class Manager {
     }
 
 
-    private void removeDataFromGenerator(String generator) throws ManagerException {
+    public void removeDataFromGenerator(String generator) throws ManagerException {
         try {
             TupleQuery repoSelect = this.repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT DISTINCT ?metadata { ?metadata a <" + METASERVICE.OBSERVATION + ">;  <" + METASERVICE.GENERATOR + "> ?generator }");
             repoSelect.setBinding("generator",valueFactory.createLiteral(generator));
