@@ -15,8 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- dependency versions -->
-        <openrdf.version>2.7.7</openrdf.version>
-        <blazegraph.version>1.2.3</blazegraph.version>
+        <openrdf.version>2.7.13</openrdf.version>
+        <blazegraph.version>1.5.2</blazegraph.version>
         <activemq.version>5.9.0</activemq.version>
         <mongodb.version>2.11.3</mongodb.version>
         <sl4j.version>1.7.6</sl4j.version>
