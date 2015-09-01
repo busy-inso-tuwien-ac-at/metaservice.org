@@ -23,12 +23,12 @@ import javax.inject.Inject;
 /**
  * Created by ilo on 01.06.2014.
  */
-public class VcsRunner extends AbstractDispatcher<String>{
+public class VcsRunner extends AbstractDispatcher{
     private final static Logger LOGGER = LoggerFactory.getLogger(VcsRunner.class);
 
     @Inject
     protected VcsRunner(RepositoryConnection repositoryConnection, Config config, MessageHandler messageHandler, ValueFactory valueFactory){
-        super(repositoryConnection, config, messageHandler, valueFactory, "vcsrunner");
+        super(config, messageHandler);
         this.repositoryConnection = repositoryConnection;
     }
 
