@@ -7,6 +7,8 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.metaservice.frontend.rest.api.ResourceService;
+import org.metaservice.frontend.rest.cache.FileSystemCacheResourceService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,17 +30,15 @@ import java.util.Map;
 @Path("/")
 public class SparqlEndpointResource {
 
+    private final ResourceService resourceService;
     private final String namespaces;
     private final String searchQuery;
-    private final String resourceQuery;
-    private final String exportQuery;
     private final String timeQuery;
 
-    public SparqlEndpointResource() throws IOException {
+    public SparqlEndpointResource() throws IOException, URISyntaxException {
+        resourceService = new FileSystemCacheResourceService(new SparqlResourceService());
         namespaces = generateNamespaceString();
         searchQuery = loadSparql("/sparql/search.sparql");
-        resourceQuery = loadSparql("/sparql/resourceWithLatest.sparql");
-        exportQuery = loadSparql("/sparql/export.sparql");
         timeQuery = loadSparql("/sparql/resourceTimes.sparql");
     }
 
@@ -202,7 +202,7 @@ public class SparqlEndpointResource {
             @Nullable String date,
             boolean download
     ) {
-        return generateResponseResourceOrExport(exportQuery,mimeType,path,date,download);
+        return generateResponseResourceOrExport( mimeType, path, date, download);
     }
     public @NotNull Response generateResponseResource(
             @NotNull String mimeType,
@@ -210,51 +210,44 @@ public class SparqlEndpointResource {
             @Nullable String date,
             boolean download
     ){
-       return generateResponseResourceOrExport(resourceQuery,mimeType,path,date,download);
+       return generateResponseResourceOrExport(mimeType,path,date,download);
     }
 
     public @NotNull Response generateResponseResourceOrExport(
-            @NotNull String inputQuery,
             @NotNull String mimeType,
             @Nullable String path,
             @Nullable String date,
             boolean download
     ){
-        try{
-            if(path == null){
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            if(date == null){
-                date = "2025-01-01T00:00:00Z";//todo year 2025 bug ;-)
-            }
-            Calendar calendar;
-            try{
-                calendar = DatatypeConverter.parseDateTime(date);
-            }catch (IllegalArgumentException e){
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            if(download){
-                path = path.replaceFirst("(\\.quad)?\\.(jsonld|rdf|ttl)$","");
-            }
-            if(path.contains("http://www.metaservice.org")){
-                path =  path.replaceAll("http://www.metaservice.org", "http://metaservice.org");
-            }
-            String query = namespaces +inputQuery;
-            query = query.replace("$path",stringToIri(path));
-            query = query.replace("$selectedTime",dateToLiteral(calendar));
-            Response.ResponseBuilder builder = Response
-                    .ok(querySparql(mimeType,query));
-            if(download){
-                builder.header("Content-Disposition", "attachment");
-            }
-            return builder.build();
-        }  catch (URISyntaxException | IOException e) {
-            e.printStackTrace();
-            return Response.serverError().build();
+        if(path == null){
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
+
+        Calendar calendar = null;
+        try{
+            if(date!=null) {
+                calendar = DatatypeConverter.parseDateTime(date);
+            }
+        }catch (IllegalArgumentException e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        if(download){
+            path = path.replaceFirst("(\\.quad)?\\.(jsonld|rdf|ttl)$","");
+        }
+        if(path.contains("http://www.metaservice.org")){
+            path =  path.replaceAll("http://www.metaservice.org", "http://metaservice.org");
+        }
+        Response.ResponseBuilder builder = Response
+                .ok(resourceService.getResource(path, calendar, mimeType));
+        if(download){
+            builder.header("Content-Disposition", "attachment");
+        }
+        return builder.build();
     }
 
-    private @NotNull InputStream querySparql(
+    @Deprecated
+    private @NotNull
+    InputStream querySparql(
             @NotNull String mimeType,
             @NotNull String query
     ) throws URISyntaxException, IOException {
