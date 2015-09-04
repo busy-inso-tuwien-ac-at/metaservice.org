@@ -6,6 +6,7 @@ import org.jboss.aesh.console.command.CommandResult;
 import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.metaservice.api.descriptor.MetaserviceDescriptor;
 import org.metaservice.api.messaging.config.ManagerConfig;
+import org.metaservice.kryo.mongo.MongoConnectionWrapper;
 import org.metaservice.manager.Manager;
 import org.metaservice.manager.ManagerException;
 import org.metaservice.manager.shell.completer.InstalledModuleCompleter;
@@ -36,6 +37,9 @@ public class ClearCommand extends AbstractManagerCommand {
     @Option(name ="raw",shortName = 'r')
     String raw;
 
+    @Option(name ="messaging",shortName = 'm',hasValue = false)
+    boolean messaging;
+
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> installedModules = manager.getManagerConfig().getInstalledModules();
@@ -58,7 +62,7 @@ public class ClearCommand extends AbstractManagerCommand {
             MetaserviceDescriptor.PostProcessorDescriptor postProcessorDescriptor = descriptorHelper.getPostProcessorFromString(installedModules, postprocessor);
             try {
                 if(module != null && postProcessorDescriptor != null){
-                    manager.removePostProcessorData(module.getMetaserviceDescriptor(),postProcessorDescriptor);
+                    manager.removePostProcessorData(module.getMetaserviceDescriptor(), postProcessorDescriptor);
 
                 }else {
                     LOGGER.error("module not found");
@@ -73,6 +77,16 @@ public class ClearCommand extends AbstractManagerCommand {
             }  catch (ManagerException e) {
                 LOGGER.error("failed", e);
             }
+        }
+        if(messaging){
+            MongoConnectionWrapper mongoConnectionWrapper = new MongoConnectionWrapper();
+            mongoConnectionWrapper.getPostProcessorMessageCollection().drop();
+            mongoConnectionWrapper.getPostProcessorMessageCollectionFailed().drop();
+            mongoConnectionWrapper.getProviderRefreshMessageCollection().drop();
+            mongoConnectionWrapper.getProviderRefreshMessageCollectionFailed().drop();
+            mongoConnectionWrapper.getProviderCreateMessageCollection().drop();
+            mongoConnectionWrapper.getProviderCreateMessageCollectionFailed().drop();
+            mongoConnectionWrapper.getQueueCollection().drop();
         }
         return CommandResult.SUCCESS;
     }
