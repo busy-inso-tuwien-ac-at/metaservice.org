@@ -104,6 +104,7 @@
         <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2012.xml"/>
         <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2013.xml"/>
         <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2014.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2015.xml"/>
     </crawler>
 
 
