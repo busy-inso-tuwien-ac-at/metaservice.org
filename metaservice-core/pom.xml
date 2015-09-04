@@ -24,6 +24,12 @@
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-runtime</artifactId>
             <version>${openrdf.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
