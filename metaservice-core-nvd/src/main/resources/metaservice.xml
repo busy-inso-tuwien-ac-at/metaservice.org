@@ -27,13 +27,13 @@
             id="cpeRepository"
             type="cpe"
             baseUri="http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/"
-            startUri="http://nvd.nist.gov/cpe.cfm"
+            startUri="https://nvd.nist.gov/cpe.cfm"
             crawler="cpeCrawler"
             >
     </repository>
 
     <crawler id="cpeCrawler">
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml"/>
+        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.gz" unpack="gz"/>
     </crawler>
 
     <provider
@@ -84,27 +84,29 @@
     <repository
             id="cveRepository"
             type="cve"
-            baseUri="http://static.nvd.nist.gov/feeds/xml/cve/"
-            startUri="http://nvd.nist.gov/download.cfm"
+            baseUri="https://nvd.nist.gov/feeds/xml/cve/"
+            startUri="https://nvd.nist.gov/download.cfm"
             crawler="cveCrawler"
             >
     </repository>
 
     <crawler id="cveCrawler">
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2002.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2003.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2004.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2005.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2006.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2007.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2008.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2009.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2010.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2011.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2012.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2013.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2014.xml"/>
-        <fetch exactly="http://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2015.xml"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2002.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2003.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2004.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2005.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2006.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2007.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2008.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2009.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2010.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2011.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2012.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2013.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2014.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2015.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2016.xml.gz" unpack="gz"/>
+        <fetch exactly="https://nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2017.xml.gz" unpack="gz"/>
     </crawler>
 
 
