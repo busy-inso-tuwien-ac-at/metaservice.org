@@ -20,7 +20,7 @@ import java.util.concurrent.*;
  * Created by ilo on 25.02.14.
  */
 public class CVEParser implements Parser<VulnerabilityType> {
-    private ExecutorService executorService = Executors.newFixedThreadPool(4);
+    private ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     @Inject
     public CVEParser(){
@@ -48,7 +48,7 @@ public class CVEParser implements Parser<VulnerabilityType> {
                 }
                 index = start;
                 int e = start;
-                for(int j = 0 ; j  < 1000;j++) {
+                for(int j = 0 ; j  < 500;j++) {
                     e = s.indexOf("</entry>",index);
                     if (e == -1) {
                         e = s.lastIndexOf("</entry>")+8;
@@ -79,17 +79,13 @@ public class CVEParser implements Parser<VulnerabilityType> {
                     System.err.println(i);*/
             }
 
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (JAXBException | IOException e) {
             e.printStackTrace();
         }
         for(Future<List<VulnerabilityType>> future : futures){
             try {
                 result.addAll(future.get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
