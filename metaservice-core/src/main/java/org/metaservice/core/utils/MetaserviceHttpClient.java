@@ -91,8 +91,8 @@ public class MetaserviceHttpClient {
         try {
             String result  =  Request
                     .Get(path)
-                    .connectTimeout(1000)
-                    .socketTimeout(10000)
+                    .connectTimeout(10000)
+                    .socketTimeout(600000)
                     .setHeader("User-Agent", USER_AGENT)
                     .setHeader("Accept", "text/html")
                     .execute()
@@ -110,8 +110,8 @@ public class MetaserviceHttpClient {
         try {
             byte[] result  =  Request
                     .Get(path)
-                    .connectTimeout(1000)
-                    .socketTimeout(10000)
+                    .connectTimeout(10000)
+                    .socketTimeout(600000)
                     .setHeader("User-Agent", USER_AGENT)
                     .setHeader("Accept", "*/*")
                     .execute()
