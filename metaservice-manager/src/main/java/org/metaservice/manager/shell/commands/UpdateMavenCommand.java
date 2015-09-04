@@ -28,13 +28,16 @@ public class UpdateMavenCommand extends AbstractManagerCommand{
     private List<String> moduleIdentifier;
 
     @Option(name="replace",hasValue =false)
-    private boolean replace;
+    private boolean replace = false;
+
+    @Option(name="latest",hasValue =false)
+    private boolean latest = false;
 
     @Override
     public CommandResult execute2(CommandInvocation commandInvocation) throws IOException {
         Collection<ManagerConfig.Module> availableModules = manager.getManagerConfig().getAvailableModules();
         try {
-            manager.getMavenManager().updateModule(descriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)),replace,true);
+            manager.getMavenManager().updateModule(descriptorHelper.getModuleFromString(availableModules, moduleIdentifier.get(0)),replace,latest);
         } catch (ManagerException e) {
             e.printStackTrace();
         }

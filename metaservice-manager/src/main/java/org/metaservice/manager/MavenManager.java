@@ -69,35 +69,29 @@ public class MavenManager {
         VersionRangeResult rangeResult = system.resolveVersionRange( session, rangeRequest );
         List<Version> versions = rangeResult.getVersions();
         LOGGER.debug("Available versions {}", versions);
-        retrieveArtifact(moduleInfo,versions.get(versions.size()-1).toString());
         return versions;
     }
 
     private Version getLatestVersion(MetaserviceDescriptor.ModuleInfo moduleInfo) throws VersionRangeResolutionException, ManagerException {
         List<Version> versions = getVersions(moduleInfo);
-        return versions.get(versions.size()-1);
+        return versions.get(versions.size() - 1);
     }
 
     public void updateModule(@NotNull ManagerConfig.Module module,boolean replace,boolean latest) throws ManagerException {
         try {
-            String currentVersion = module.getMetaserviceDescriptor().getModuleInfo().getVersion();
-            Version latestVersion = getLatestVersion(module.getMetaserviceDescriptor().getModuleInfo());
-            //if inplace update replace
-            if(latest && latestVersion.toString().equals(currentVersion)){
-                if(!replace){
-                    throw new ManagerException("Version already exists, use --replace to replace current version");
+            String version = module.getMetaserviceDescriptor().getModuleInfo().getVersion();
+            if(latest){
+                version = getLatestVersion(module.getMetaserviceDescriptor().getModuleInfo()).toString();
+            }
+            if(!replace){
+                for(ManagerConfig.Module m :manager.getManagerConfig().getAvailableModules()){
+                    if(m.getMetaserviceDescriptor().getModuleInfo().getVersion().equals(version)){
+                        throw new ManagerException("Version already exists, use --replace to replace current version");
+                    }
                 }
             }
-            String version;
-            if(latest){
-                version = latestVersion.toString();
-            }else{
-                version = currentVersion;
-            }
             File file = retrieveArtifact(module.getMetaserviceDescriptor().getModuleInfo(),version);
-            manager.add(file,true);
-
-            //todo check installed/notinstalled?
+            manager.add(file,replace);
         } catch (VersionRangeResolutionException e) {
             throw  new ManagerException("Could not update Artifact" , e);
         }
