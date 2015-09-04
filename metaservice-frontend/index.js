@@ -361,6 +361,7 @@ function jsonLdFollowIris(source,iri,stack){
 
 
 function mergeData(object, dataIndex, toProcess) {
+    var found;
     if($.isArray(object[dataIndex]) && $.isArray(toProcess)){
         for(i = 0; i < toProcess.length;i++){
             found = false;
@@ -573,6 +574,17 @@ function renderTemplate(t, result) {
         loadError('Template missing','Could not retrieve ' +templatePath[0] +'  :-(');
     });
 }
+
+function getUnion(data){
+    var i =0;
+    while(data[i++]){
+        if(data[i]["@id"]=='http://metaservice.org/ns/metaservice#combinedGraph'){
+            return [data[i]]
+        }
+    }
+    return data;
+}
+
 function handleResource(){
     $.ajax({
         url: MS.documentUrl,
@@ -586,12 +598,15 @@ function handleResource(){
             }
             MS.raw = data;
             console.log(data);
-            var result =jsonLdUnion(data);
+            var result = getUnion(data);
+            result =jsonLdUnion(result);
+
             console.log(result);
       //      result = mergeIdenticalBlankNodes(result);
       //      console.log(result);
 
             jsonld.compact(result,MS.context,function(err,compacted){
+                console.log(compacted);
                 MS.compacted = jsonLdFollowIris(compacted,MS.resourceUrl);
                 console.log(MS.compacted);
 

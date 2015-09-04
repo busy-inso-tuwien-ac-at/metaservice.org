@@ -1,4 +1,5 @@
 CONSTRUCT {_QUADMODE_
+    GRAPH <http://metaservice.org/ns/metaservice#combinedGraph> {?sr ?pr ?or}.
     GRAPH ?c {?s ?p ?o}.
 }
 WITH {
@@ -143,6 +144,11 @@ WITH {
     }
 } AS %statements
 
+WITH {
+    SELECT DISTINCT (?s as ?sr) (?p as ?pr) (?o as ?or){
+        INCLUDE %statements
+    }
+} AS %unionstatements
 
 WITH{
     SELECT DISTINCT ?c{
@@ -161,6 +167,8 @@ WITH {
 
 WHERE{
     {
+        INCLUDE %unionstatements
+    } UNION {
         INCLUDE %statements
     } UNION {
         INCLUDE %contextstatements
