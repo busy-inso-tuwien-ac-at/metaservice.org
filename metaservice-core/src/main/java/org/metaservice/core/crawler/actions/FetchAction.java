@@ -34,15 +34,20 @@ public class FetchAction implements CrawlerAction {
 
     @Override
     public void execute(HashSet<String> alreadyProcessed, Document document) {
-        LOGGER.info("FETCH ");
+        LOGGER.info("FETCH {} gz:{}",selector,gz);
+        boolean found = false;
         for(org.jsoup.nodes.Element e: document.select(selector)){
+            found = true;
             String href= e.attr("abs:href");
             LOGGER.debug(href);
 
-            byte[] data = metaserviceHttpClient.getBinary(href);
+            byte[] data = metaserviceHttpClient.getBinary(href, MetaserviceHttpClient.CachingInstruction.NO_CACHE);
             if(data == null){
                 LOGGER.error("could not retrieve "+ href + " -> SKIPPING");
                 return;
+            }
+            if(!href.startsWith(c.baseUri)){
+                LOGGER.warn("fetched uri not starting with baseUri");
             }
             String localPath = href.replaceFirst(c.baseUri,"");
             if(gz){
@@ -61,6 +66,9 @@ public class FetchAction implements CrawlerAction {
             } catch (IOException | ArchiveException e1) {
                 e1.printStackTrace();
             }
+        }
+        if(!found){
+            LOGGER.warn("Selector {} did not match",selector);
         }
     }
 }

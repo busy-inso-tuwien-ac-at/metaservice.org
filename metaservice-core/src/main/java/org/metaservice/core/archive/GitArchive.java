@@ -120,6 +120,7 @@ public class GitArchive implements Archive {
         ensureOnHead();
 
         File outFile = new File(workdir.getAbsolutePath()  +"/"+ path);
+        LOGGER.info("writing " + outFile);
         if(!outFile.getParentFile().exists())
             outFile.getParentFile().mkdirs();
         try (
