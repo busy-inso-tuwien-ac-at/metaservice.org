@@ -15,6 +15,27 @@
     <version>0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Research Group for Industrial Software, Vienna University of Technology, Austria</name>
+        <url>https://www.inso.tuwien.ac.at/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>ilo</id>
+            <name>Nikola Ilo</name>
+            <email>nikola.ilo@gmail.com</email>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
