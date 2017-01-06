@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright 2015 Nikola Ilo
-  ~ Research Group for Industrial Software, Vienna University of Technology, Austria
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -26,7 +25,7 @@
     <version>0.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <url>http://project.metaservice.org/</url>
+    <url>http://metaservice.org/</url>
 
     <licenses>
         <license>
@@ -36,11 +35,6 @@
         </license>
     </licenses>
 
-    <organization>
-        <name>Research Group for Industrial Software, Vienna University of Technology, Austria</name>
-        <url>https://www.inso.tuwien.ac.at/</url>
-    </organization>
-
     <developers>
         <developer>
             <id>ilo</id>
@@ -48,6 +42,10 @@
             <email>nikola.ilo@gmail.com</email>
         </developer>
     </developers>
+
+    <scm>
+        <connection>https://bitbucket.org/n_ilo/metaservice.org/</connection>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

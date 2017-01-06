@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright 2015 Nikola Ilo
-  ~ Research Group for Industrial Software, Vienna University of Technology, Austria
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -38,10 +37,6 @@
         </license>
     </licenses>
 
-    <organization>
-        <name>Research Group for Industrial Software, Vienna University of Technology, Austria</name>
-        <url>https://www.inso.tuwien.ac.at/</url>
-    </organization>
 
     <developers>
         <developer>
